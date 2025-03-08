@@ -1,26 +1,28 @@
-# metal-stack CLI
+# metal-stack CLI V2
 
-[![Markdown Docs](https://img.shields.io/badge/markdown-docs-blue?link=https%3A%2F%2Fgithub.com%2Fmetal-stack%2Fcli%2Fdocs)](./docs/metal.md)
+[![Markdown Docs](https://img.shields.io/badge/markdown-docs-blue?link=https%3A%2F%2Fgithub.com%2Fmetal-stack%2Fcli%2Fdocs)](./docs/metalctlv2.md)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/metal-stack/cli)
 [![Go Report Card](https://goreportcard.com/badge/github.com/metal-stack/cli)](https://goreportcard.com/report/github.com/metal-stack/cli)
 
-This is the official CLI for accessing the API of [metal-stack.io](https://metal-stack.io).
+This is the official V2 CLI for accessing the API of [metal-stack.io](https://metal-stack.io).
+
+!WORK IN PROGRESS, not compatible with current metal-api
 
 ## Installation
 
 Download locations:
 
-- [metal-linux-amd64](https://github.com/metal-stack/cli/releases/latest/download/metal-linux-amd64)
-- [metal-darwin-amd64](https://github.com/metal-stack/cli/releases/latest/download/metal-darwin-amd64)
-- [metal-darwin-arm64](https://github.com/metal-stack/cli/releases/latest/download/metal-darwin-arm64)
-- [metal-windows-amd64](https://github.com/metal-stack/cli/releases/latest/download/metal-windows-amd64)
+- [metalctlv2-linux-amd64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-linux-amd64)
+- [metalctlv2-darwin-amd64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-darwin-amd64)
+- [metalctlv2-darwin-arm64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-darwin-arm64)
+- [metalctlv2-windows-amd64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-windows-amd64)
 
 ### Installation on Linux
 
 ```bash
-curl -LO https://github.com/metal-stack/cli/releases/latest/download/metal-linux-amd64
-chmod +x metal-linux-amd64
-sudo mv metal-linux-amd64 /usr/local/bin/metal
+curl -LO https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-linux-amd64
+chmod +x metalctlv2-linux-amd64
+sudo mv metalctlv2-linux-amd64 /usr/local/bin/metalctlv2
 ```
 
 ### Installation on MacOS
@@ -28,24 +30,24 @@ sudo mv metal-linux-amd64 /usr/local/bin/metal
 For x86 based Macs:
 
 ```bash
-curl -LO https://github.com/metal-stack/cli/releases/latest/download/metal-darwin-amd64
-chmod +x metal-darwin-amd64
-sudo mv metal-darwin-amd64 /usr/local/bin/metal
+curl -LO https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-darwin-amd64
+chmod +x metalctlv2-darwin-amd64
+sudo mv metalctlv2-darwin-amd64 /usr/local/bin/metalctlv2
 ```
 
 For Apple Silicon (M1) based Macs:
 
 ```bash
-curl -LO https://github.com/metal-stack/cli/releases/latest/download/metal-darwin-arm64
-chmod +x metal-darwin-arm64
-sudo mv metal-darwin-arm64 /usr/local/bin/metal
+curl -LO https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-darwin-arm64
+chmod +x metalctlv2-darwin-arm64
+sudo mv metalctlv2-darwin-arm64 /usr/local/bin/metalctlv2
 ```
 
 ### Installation on Windows
 
 ```bash
-curl -LO https://github.com/metal-stack/cli/releases/latest/download/metal-windows-amd64
-copy metal-windows-amd64 metal.exe
+curl -LO https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-windows-amd64
+copy metalctlv2-windows-amd64 metalctlv2.exe
 ```
 
 ## Usage
@@ -53,15 +55,14 @@ copy metal-windows-amd64 metal.exe
 All commands follow a general form:
 
 ```bash
-metal <entity> [<category>] <command> <argument> [<flags>]
+metalctlv2 <entity> [<category>] <command> <argument> [<flags>]
 ```
 
 For example:
 
 ```bash
-metal tenant member list --api-token <your-token> --api-url <api-url>
-metal cluster list -p <project-id>
-metal ctx add <context-name>
+metalctlv2 tenant member list --api-token <your-token> --api-url <api-url>
+metalctlv2 ctx add <context-name>
 ```
 
 The `api-token`, `api-url` and `project-id` are defaulted by the context, if one exists, and can be omitted.
@@ -75,16 +76,12 @@ A list of all available services (excluding admin topics). For their associated 
 | Entity        | Description                                                | Documentation                                    |
 | ------------- | ---------------------------------------------------------- | ------------------------------------------------ |
 | `api-methods` | show available api-methods of the metal-stack.io api     | [metal api-methods](./docs/metal_api-methods.md) |
-| `asset`       | show asset                                                 | [metal asset](./docs/metal_asset.md)             |
-| `cluster`     | manage cluster entities                                    | [metal cluster](./docs/metal_cluster.md)         |
 | `completion`  | generate the autocompletion script for the specified shell | [metal completion](./docs/metal_completion.md)   |
 | `context`     | manage cli contexts                                        | [metal context](./docs/metal_context.md)         |
 | `health`      | print the client and server health information             | [metal health](./docs/metal_health.md)           |
 | `ip`          | manage ip entities                                         | [metal ip](./docs/metal_ip.md)                   |
 | `markdown`    | create markdown documentation                              | [metal completion](./docs/metal_completion.md)   |
-| `payment`     | manage payment of the metal-stack.io                     | [metal payment](./docs/metal_payment.md)         |
 | `project`     | manage project entities                                    | [metal project](./docs/metal_project.md)         |
-| `storage`     | storage commands                                           | [metal storage](./docs/metal_storage.md)         |
 | `tenant`      | manage tenant entities                                     | [metal tenant](./docs/metal_tenant.md)           |
 | `token`       | manage token entities                                      | [metal token](./docs/metal_token.md)             |
 | `user`        | manage user entities                                       | [metal user](./docs/metal_user.md)               |
@@ -101,7 +98,7 @@ To work with this CLI, it's necessary to create an api-token. This can be issued
 The project's ID can be copied from the UI, the button is located right next to the project title in the project dashboard. The default API-URL of metal-stack is https://api.metal-stack.io.
 
 ```bash
-$ metal ctx add <context-name> --activate --default-project <project-uuid> --api-token <your-token>
+$ metalctlv2 ctx add <context-name> --activate --default-project <project-uuid> --api-token <your-token>
 ✔ added context "<context-name>"
 ```
 
