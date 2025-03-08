@@ -73,9 +73,9 @@ You can access help for every service and command by using `--help` or `-h`. If 
 
 A list of all available services (excluding admin topics). For their associated commands, arguments and flags visit the correct [documentation](./docs/metal.md).
 
-| Entity        | Description                                                | Documentation                                    |
-| ------------- | ---------------------------------------------------------- | ------------------------------------------------ |
-| `api-methods` | show available api-methods of the metal-stack.io api     | [metal api-methods](./docs/metalctlv2_api-methods.md) |
+| Entity        | Description                                                | Documentation                                         |
+|---------------|------------------------------------------------------------|-------------------------------------------------------|
+| `api-methods` | show available api-methods of the metal-stack.io api       | [metal api-methods](./docs/metalctlv2_api-methods.md) |
 | `completion`  | generate the autocompletion script for the specified shell | [metal completion](./docs/metalctlv2_completion.md)   |
 | `context`     | manage cli contexts                                        | [metal context](./docs/metalctlv2_context.md)         |
 | `health`      | print the client and server health information             | [metal health](./docs/metalctlv2_health.md)           |
@@ -86,14 +86,21 @@ A list of all available services (excluding admin topics). For their associated 
 | `token`       | manage token entities                                      | [metal token](./docs/metalctlv2_token.md)             |
 | `user`        | manage user entities                                       | [metal user](./docs/metalctlv2_user.md)               |
 | `version`     | print the client and server version information            | [metal version](./docs/metalctlv2_version.md)         |
+| `login`       | login with oidc and write api-token to the configuration   | [metal login](./docs/metalctlv2_login.md)             |
 
 ### Autocompletion
 
-To successfully set up autocompletion follow this [guide](./docs/metal_completion.md).
+To successfully set up autocompletion follow this [guide](./docs/metalctlv2_completion.md).
 
 ## Authentication and Configuration
 
-To work with this CLI, it's necessary to create an api-token. This can be issued through the [cloud console](https://console.metal-stack.io/token), make sure to configure the right permissions you want to use within your context.
+To work with this CLI, it's necessary to create an api-token, this can be done with the login command.
+
+```bash
+$ metalctlv2 login
+Starting server at http://127.0.0.1:35287...
+✔ login successful! Updated and activated context "local"
+```
 
 The project's ID can be copied from the UI, the button is located right next to the project title in the project dashboard. The default API-URL of metal-stack is https://api.metal-stack.io.
 
