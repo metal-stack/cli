@@ -75,17 +75,17 @@ A list of all available services (excluding admin topics). For their associated 
 
 | Entity        | Description                                                | Documentation                                    |
 | ------------- | ---------------------------------------------------------- | ------------------------------------------------ |
-| `api-methods` | show available api-methods of the metal-stack.io api     | [metal api-methods](./docs/metal_api-methods.md) |
-| `completion`  | generate the autocompletion script for the specified shell | [metal completion](./docs/metal_completion.md)   |
-| `context`     | manage cli contexts                                        | [metal context](./docs/metal_context.md)         |
-| `health`      | print the client and server health information             | [metal health](./docs/metal_health.md)           |
-| `ip`          | manage ip entities                                         | [metal ip](./docs/metal_ip.md)                   |
-| `markdown`    | create markdown documentation                              | [metal completion](./docs/metal_completion.md)   |
-| `project`     | manage project entities                                    | [metal project](./docs/metal_project.md)         |
-| `tenant`      | manage tenant entities                                     | [metal tenant](./docs/metal_tenant.md)           |
-| `token`       | manage token entities                                      | [metal token](./docs/metal_token.md)             |
-| `user`        | manage user entities                                       | [metal user](./docs/metal_user.md)               |
-| `version`     | print the client and server version information            | [metal version](./docs/metal_version.md)         |
+| `api-methods` | show available api-methods of the metal-stack.io api     | [metal api-methods](./docs/metalctlv2_api-methods.md) |
+| `completion`  | generate the autocompletion script for the specified shell | [metal completion](./docs/metalctlv2_completion.md)   |
+| `context`     | manage cli contexts                                        | [metal context](./docs/metalctlv2_context.md)         |
+| `health`      | print the client and server health information             | [metal health](./docs/metalctlv2_health.md)           |
+| `ip`          | manage ip entities                                         | [metal ip](./docs/metalctlv2_ip.md)                   |
+| `markdown`    | create markdown documentation                              | [metal completion](./docs/metalctlv2_completion.md)   |
+| `project`     | manage project entities                                    | [metal project](./docs/metalctlv2_project.md)         |
+| `tenant`      | manage tenant entities                                     | [metal tenant](./docs/metalctlv2_tenant.md)           |
+| `token`       | manage token entities                                      | [metal token](./docs/metalctlv2_token.md)             |
+| `user`        | manage user entities                                       | [metal user](./docs/metalctlv2_user.md)               |
+| `version`     | print the client and server version information            | [metal version](./docs/metalctlv2_version.md)         |
 
 ### Autocompletion
 
