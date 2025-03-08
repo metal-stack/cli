@@ -82,7 +82,7 @@ func newRootCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	rootCmd.AddCommand(newContextCmd(c), markdownCmd, newLoginCmd(c))
+	rootCmd.AddCommand(newContextCmd(c), markdownCmd, newLoginCmd(c), newLogoutCmd(c))
 	adminv2.AddCmds(rootCmd, c)
 	apiv2.AddCmds(rootCmd, c)
 
