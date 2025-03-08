@@ -6,7 +6,7 @@
 
 This is the official V2 CLI for accessing the API of [metal-stack.io](https://metal-stack.io).
 
-!WORK IN PROGRESS, not compatible with current metal-api
+***WORK IN PROGRESS, not compatible with current metal-api**
 
 ## Installation
 
