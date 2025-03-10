@@ -118,7 +118,9 @@ func (l *login) login() error {
 	ctx.Token = token
 
 	if ctx.DefaultProject == "" {
-		projects, err := l.c.Client.Apiv2().Project().List(context.Background(), connect.NewRequest(&apiv2.ProjectServiceListRequest{}))
+		mc := newApiClient(l.c.GetApiURL(), token)
+
+		projects, err := mc.Apiv2().Project().List(context.Background(), connect.NewRequest(&apiv2.ProjectServiceListRequest{}))
 		if err != nil {
 			return fmt.Errorf("unable to retrieve project list: %w", err)
 		}
