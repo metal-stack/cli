@@ -27,7 +27,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 
 	cmdsConfig := &genericcli.CmdsConfig[*apiv2.TenantServiceCreateRequest, *apiv2.TenantServiceUpdateRequest, *apiv2.Tenant]{
 		BinaryName:      config.BinaryName,
-		GenericCLI:      genericcli.NewGenericCLI[*apiv2.TenantServiceCreateRequest, *apiv2.TenantServiceUpdateRequest, *apiv2.Tenant](w).WithFS(c.Fs),
+		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "tenant",
 		Plural:          "tenants",
 		Description:     "manage api tenants",

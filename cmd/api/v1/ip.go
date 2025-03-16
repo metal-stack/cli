@@ -26,7 +26,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 
 	cmdsConfig := &genericcli.CmdsConfig[*apiv2.IPServiceCreateRequest, *apiv2.IPServiceUpdateRequest, *apiv2.IP]{
 		BinaryName:      config.BinaryName,
-		GenericCLI:      genericcli.NewGenericCLI[*apiv2.IPServiceCreateRequest, *apiv2.IPServiceUpdateRequest, *apiv2.IP](w).WithFS(c.Fs),
+		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "ip",
 		Plural:          "ips",
 		Description:     "an ip address of metal-stack.io",
@@ -40,10 +40,12 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
+			cmd.Flags().StringP("network", "n", "", "network from which the ip should get created")
 			cmd.Flags().StringP("name", "", "", "name of the ip")
 			cmd.Flags().StringP("description", "", "", "description of the ip")
 			cmd.Flags().StringSliceP("tags", "", nil, "tags to add to the ip")
 			cmd.Flags().BoolP("static", "", false, "make this ip static")
+			cmd.Flags().StringP("addressfamily", "", "", "addressfamily, can be either IPv4|IPv6, defaults to IPv4 (optional)")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		},
@@ -71,8 +73,10 @@ func newIPCmd(c *config.Config) *cobra.Command {
 				Project:     c.GetProject(),
 				Name:        pointer.Pointer(viper.GetString("name")),
 				Description: pointer.Pointer(viper.GetString("description")),
+				Network:     viper.GetString("network"),
 				// Labels:        viper.GetStringSlice("tags"), // FIXME implement
-				Type: pointer.Pointer(ipStaticToType(viper.GetBool("static"))),
+				Type:          pointer.Pointer(ipStaticToType(viper.GetBool("static"))),
+				AddressFamily: addressFamilyToType(viper.GetString("addressfamily")),
 			}, nil
 		},
 		UpdateRequestFromCLI: w.updateFromCLI,
@@ -225,4 +229,17 @@ func ipStaticToType(b bool) apiv2.IPType {
 		return apiv2.IPType_IP_TYPE_STATIC
 	}
 	return apiv2.IPType_IP_TYPE_EPHEMERAL
+}
+
+func addressFamilyToType(af string) *apiv2.IPAddressFamily {
+	switch af {
+	case "":
+		return nil
+	case "ipv4", "IPv4":
+		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4.Enum()
+	case "ipv6", "IPv6":
+		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V6.Enum()
+	default:
+		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_UNSPECIFIED.Enum()
+	}
 }
