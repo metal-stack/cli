@@ -66,7 +66,7 @@ func (l *login) login() error {
 		defaultCtx.Name = "default"
 
 		ctxs.PreviousContext = ctxs.CurrentContext
-		ctxs.CurrentContext = ctx.Name
+		ctxs.CurrentContext = ctxName
 
 		ctxs.Contexts = append(ctxs.Contexts, &defaultCtx)
 
