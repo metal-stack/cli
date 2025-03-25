@@ -2,6 +2,7 @@ package tableprinters
 
 import (
 	"strings"
+	"time"
 
 	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -28,7 +29,17 @@ func (t *TablePrinter) ImageTable(data []*apiv2.Image, wide bool) ([]string, [][
 			features = append(features, feature)
 		}
 
-		rows = append(rows, []string{image.Id, pointer.SafeDeref(image.Name), pointer.SafeDeref(image.Description), strings.Join(features, ","), image.ExpiresAt.String(), image.Classification.String()})
+		classification, err := enum.GetStringValue(image.Classification)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		var expiresIn string
+		if image.ExpiresAt != nil {
+			expiresIn = humanizeDuration(time.Until(image.ExpiresAt.AsTime()))
+		}
+
+		rows = append(rows, []string{image.Id, pointer.SafeDeref(image.Name), pointer.SafeDeref(image.Description), strings.Join(features, ","), expiresIn, classification})
 	}
 
 	t.t.MutateTable(func(table *tablewriter.Table) {
