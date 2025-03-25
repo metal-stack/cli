@@ -9,6 +9,7 @@ metalctlv2 ip create [flags]
 ### Options
 
 ```
+      --addressfamily string    addressfamily, can be either IPv4|IPv6, defaults to IPv4 (optional)
       --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
       --description string      description of the ip
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
@@ -25,6 +26,7 @@ metalctlv2 ip create [flags]
                                 	
   -h, --help                    help for create
       --name string             name of the ip
+  -n, --network string          network from which the ip should get created
   -p, --project string          project of the ip
       --skip-security-prompts   skips security prompt for bulk operations
       --static                  make this ip static

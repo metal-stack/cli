@@ -22,6 +22,7 @@ cli for managing entities in metal-stack
 * [metalctlv2 completion](metalctlv2_completion.md)	 - Generate the autocompletion script for the specified shell
 * [metalctlv2 context](metalctlv2_context.md)	 - manage cli contexts
 * [metalctlv2 health](metalctlv2_health.md)	 - print the client and server health information
+* [metalctlv2 image](metalctlv2_image.md)	 - manage image entities
 * [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
 * [metalctlv2 login](metalctlv2_login.md)	 - login
 * [metalctlv2 logout](metalctlv2_logout.md)	 - logout
