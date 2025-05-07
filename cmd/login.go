@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 	"os/exec"
-	"slices"
 	"time"
 
 	"connectrpc.com/connect"
@@ -125,12 +124,8 @@ func (l *login) login() error {
 			return fmt.Errorf("unable to retrieve project list: %w", err)
 		}
 
-		idx := slices.IndexFunc(projects.Msg.Projects, func(p *apiv2.Project) bool {
-			return p.IsDefaultProject
-		})
-
-		if idx >= 0 {
-			ctx.DefaultProject = projects.Msg.Projects[idx].Uuid
+		if len(projects.Msg.Projects) > 0 {
+			ctx.DefaultProject = projects.Msg.Projects[0].Uuid
 		}
 	}
 

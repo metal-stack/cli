@@ -4,7 +4,9 @@ import (
 	"sort"
 
 	"github.com/fatih/color"
+	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
 func (t *TablePrinter) HealthTable(data []*apiv2.Health, wide bool) ([]string, [][]string, error) {
@@ -33,30 +35,16 @@ func (t *TablePrinter) HealthTable(data []*apiv2.Health, wide bool) ([]string, [
 		for _, s := range h.Services {
 			s := s
 
-			name := ""
-			switch s.Name {
-			case apiv2.Service_SERVICE_MACHINES:
-				name = "Machines"
-			case apiv2.Service_SERVICE_IPAM:
-				name = "Ipam"
-			case apiv2.Service_SERVICE_RETHINK:
-				name = "RethinkDB"
-			case apiv2.Service_SERVICE_VPN:
-				name = "VPN"
-			case apiv2.Service_SERVICE_AUDIT:
-				name = "Audit"
-			case apiv2.Service_SERVICE_UNSPECIFIED:
-				name = "Unspecified"
-			default:
-				name = s.Name.String()
+			name, err := enum.GetStringValue(s.Name)
+			if err != nil {
+				name = pointer.Pointer("service status unknown")
 			}
-
 			message := "All systems operational"
 			if s.Message != "" {
 				message = s.Message
 			}
 
-			rows = append(rows, []string{statusIcon(s.Status), name, message})
+			rows = append(rows, []string{statusIcon(s.Status), *name, message})
 
 			type partitionStatus struct {
 				ID string

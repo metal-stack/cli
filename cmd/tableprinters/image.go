@@ -26,7 +26,7 @@ func (t *TablePrinter) ImageTable(data []*apiv2.Image, wide bool) ([]string, [][
 			if err != nil {
 				return nil, nil, err
 			}
-			features = append(features, feature)
+			features = append(features, *feature)
 		}
 
 		classification, err := enum.GetStringValue(image.Classification)
@@ -39,7 +39,7 @@ func (t *TablePrinter) ImageTable(data []*apiv2.Image, wide bool) ([]string, [][
 			expiresIn = humanizeDuration(time.Until(image.ExpiresAt.AsTime()))
 		}
 
-		rows = append(rows, []string{image.Id, pointer.SafeDeref(image.Name), pointer.SafeDeref(image.Description), strings.Join(features, ","), expiresIn, classification})
+		rows = append(rows, []string{image.Id, pointer.SafeDeref(image.Name), pointer.SafeDeref(image.Description), strings.Join(features, ","), expiresIn, *classification})
 	}
 
 	t.t.MutateTable(func(table *tablewriter.Table) {
