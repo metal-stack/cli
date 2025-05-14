@@ -12,6 +12,15 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
+const (
+	dot             = "●"
+	halfpie         = "◒"
+	threequarterpie = "◕"
+	nbr             = " "
+	poweron         = "⏻"
+	powersleep      = "⏾"
+)
+
 type TablePrinter struct {
 	t *printers.TablePrinter
 }
@@ -39,6 +48,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.ImageTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Image:
 		return t.ImageTable(d, wide)
+
+	case *apiv2.Network:
+		return t.NetworkTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Network:
+		return t.NetworkTable(d, wide)
 
 	case *apiv2.Project:
 		return t.ProjectTable(pointer.WrapInSlice(d), wide)
@@ -115,4 +129,15 @@ func humanizeDuration(duration time.Duration) string {
 		parts = parts[:2]
 	}
 	return strings.Join(parts, " ")
+}
+
+func getMaxLineCount(ss ...string) int {
+	max := 0
+	for _, s := range ss {
+		c := strings.Count(s, "\n")
+		if c > max {
+			max = c
+		}
+	}
+	return max
 }
