@@ -21,7 +21,7 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 		rows [][]string
 	)
 
-	header := []string{"ID", "Name", "Project", "Partition", "Nat", "", "Prefixes", "IP Usage"}
+	header := []string{"ID", "Name", "Project", "Partition", "Nat", "Prefixes", "IP Usage"}
 	if wide {
 		header = []string{"ID", "Description", "Name", "Project", "Partition", "Nat", "Prefixes", "Annotations"}
 	}
@@ -87,9 +87,9 @@ func addNetwork(prefix string, n *apiv2.Network, wide bool) []string {
 		if ipv4Use >= 0.9 || ipv6Use >= 0.9 {
 			shortIPUsage = color.RedString(threequarterpie)
 		} else if ipv4Use >= 0.7 || ipv6Use >= 0.7 {
-			shortIPUsage += color.YellowString(halfpie)
+			shortIPUsage = color.YellowString(halfpie)
 		} else {
-			shortIPUsage += color.GreenString(dot)
+			shortIPUsage = color.GreenString(dot)
 		}
 
 		if ipv4PrefixUse >= 0.9 || ipv6PrefixUse >= 0.9 {
@@ -106,10 +106,11 @@ func addNetwork(prefix string, n *apiv2.Network, wide bool) []string {
 		name        = pointer.SafeDeref(n.Name)
 		project     = pointer.SafeDeref(n.Project)
 		partition   = pointer.SafeDeref(n.Partition)
+		natType     = pointer.SafeDeref(n.NatType).String()
 	)
 
-	max := getMaxLineCount(description, name, project, partition, n.NatType.String(), prefixes, shortIPUsage)
-	for i := 0; i < max-1; i++ {
+	max := getMaxLineCount(description, name, project, partition, natType, prefixes, shortIPUsage)
+	for range max - 1 {
 		id += "\n│"
 	}
 
@@ -123,9 +124,9 @@ func addNetwork(prefix string, n *apiv2.Network, wide bool) []string {
 	annotations := strings.Join(as, "\n")
 
 	if wide {
-		return []string{id, description, name, project, partition, n.NatType.String(), prefixes, annotations}
+		return []string{id, description, name, project, partition, natType, prefixes, annotations}
 	} else {
-		return []string{id, name, project, partition, n.NatType.String(), shortPrefixUsage, prefixes, shortIPUsage}
+		return []string{id, name, project, partition, natType, shortPrefixUsage, shortIPUsage}
 	}
 }
 
