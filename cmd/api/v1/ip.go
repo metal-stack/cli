@@ -214,13 +214,17 @@ func IpResponseToCreate(r *apiv2.IP) *apiv2.IPServiceCreateRequest {
 }
 
 func IpResponseToUpdate(r *apiv2.IP) *apiv2.IPServiceUpdateRequest {
+	meta := pointer.SafeDeref(r.Meta)
+
 	return &apiv2.IPServiceUpdateRequest{
 		Project:     r.Project,
 		Ip:          r.Ip,
 		Name:        &r.Name,
 		Description: &r.Description,
 		Type:        &r.Type,
-		Labels:      r.Meta.Labels,
+		Labels: &apiv2.UpdateLabels{
+			Update: meta.Labels, // TODO: this only ensures that the labels are present but it does not cleanup old one's, which would require fetching the current state and calculating the diff
+		},
 	}
 }
 

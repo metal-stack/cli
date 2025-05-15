@@ -27,6 +27,7 @@ cli for managing entities in metal-stack
 * [metalctlv2 login](metalctlv2_login.md)	 - login
 * [metalctlv2 logout](metalctlv2_logout.md)	 - logout
 * [metalctlv2 markdown](metalctlv2_markdown.md)	 - create markdown documentation
+* [metalctlv2 network](metalctlv2_network.md)	 - manage network entities
 * [metalctlv2 project](metalctlv2_project.md)	 - manage project entities
 * [metalctlv2 tenant](metalctlv2_tenant.md)	 - manage tenant entities
 * [metalctlv2 token](metalctlv2_token.md)	 - manage token entities
