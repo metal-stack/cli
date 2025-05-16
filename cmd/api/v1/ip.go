@@ -7,6 +7,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/common"
 	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
@@ -75,8 +76,8 @@ func newIPCmd(c *config.Config) *cobra.Command {
 				Description: pointer.Pointer(viper.GetString("description")),
 				Network:     viper.GetString("network"),
 				// Labels:        viper.GetStringSlice("tags"), // FIXME implement
-				Type:          pointer.Pointer(ipStaticToType(viper.GetBool("static"))),
-				AddressFamily: addressFamilyToType(viper.GetString("addressfamily")),
+				Type:          pointer.Pointer(common.IpStaticToType(viper.GetBool("static"))),
+				AddressFamily: common.AddressFamilyToType(viper.GetString("addressfamily")),
 			}, nil
 		},
 		UpdateRequestFromCLI: w.updateFromCLI,
@@ -104,7 +105,7 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		ipToUpdate.Description = viper.GetString("description")
 	}
 	if viper.IsSet("static") {
-		ipToUpdate.Type = ipStaticToType(viper.GetBool("static"))
+		ipToUpdate.Type = common.IpStaticToType(viper.GetBool("static"))
 	}
 	// if viper.IsSet("tags") {
 	// if ipToUpdate.Meta == nil {
@@ -225,25 +226,5 @@ func IpResponseToUpdate(r *apiv2.IP) *apiv2.IPServiceUpdateRequest {
 		Labels: &apiv2.UpdateLabels{
 			Update: meta.Labels, // TODO: this only ensures that the labels are present but it does not cleanup old one's, which would require fetching the current state and calculating the diff
 		},
-	}
-}
-
-func ipStaticToType(b bool) apiv2.IPType {
-	if b {
-		return apiv2.IPType_IP_TYPE_STATIC
-	}
-	return apiv2.IPType_IP_TYPE_EPHEMERAL
-}
-
-func addressFamilyToType(af string) *apiv2.IPAddressFamily {
-	switch af {
-	case "":
-		return nil
-	case "ipv4", "IPv4":
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4.Enum()
-	case "ipv6", "IPv6":
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V6.Enum()
-	default:
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_UNSPECIFIED.Enum()
 	}
 }

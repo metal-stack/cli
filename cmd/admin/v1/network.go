@@ -2,6 +2,7 @@ package v1
 
 import (
 	"connectrpc.com/connect"
+	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -25,6 +26,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		c: c,
 	}
 
+	// TODO: move to common?
 	listFlags := func(cmd *cobra.Command) {
 		cmd.Flags().String("id", "", "ID to filter [optional]")
 		cmd.Flags().String("name", "", "name to filter [optional]")
@@ -42,7 +44,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
 	}
 
-	cmdsConfig := &genericcli.CmdsConfig[*apiv2.NetworkServiceCreateRequest, *apiv2.NetworkServiceUpdateRequest, *apiv2.Network]{
+	cmdsConfig := &genericcli.CmdsConfig[*adminv2.NetworkServiceCreateRequest, *adminv2.NetworkServiceUpdateRequest, *apiv2.Network]{
 		BinaryName:           config.BinaryName,
 		GenericCLI:           genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:             "network",
@@ -81,39 +83,18 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	listBaseNetworksCmd := &cobra.Command{
-		Use:   "list-base-networks",
-		Short: "lists base networks that can be used for network creation",
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			return w.listBaseNetworks()
-		},
-		ValidArgsFunction: c.Completion.TenantMemberListCompletion,
-	}
-
-	return genericcli.NewCmds(cmdsConfig, listBaseNetworksCmd)
+	return genericcli.NewCmds(cmdsConfig)
 }
 
 func (c *networkCmd) Get(id string) (*apiv2.Network, error) {
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	resp, err := c.c.Client.Apiv2().Network().Get(ctx, connect.NewRequest(&apiv2.NetworkServiceGetRequest{
-		Id:      id,
-		Project: c.c.GetProject(),
-	}))
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Msg.Network, nil
+	panic("unimplemented")
 }
 
 func (c *networkCmd) List() ([]*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().List(ctx, connect.NewRequest(&apiv2.NetworkServiceListRequest{
-		Project: c.c.GetProject(),
+	resp, err := c.c.Client.Adminv2().Network().List(ctx, connect.NewRequest(&adminv2.NetworkServiceListRequest{
 		Query: &apiv2.NetworkQuery{
 			Id:                  pointer.PointerOrNil(viper.GetString("id")),
 			Name:                pointer.PointerOrNil(viper.GetString("name")),
@@ -128,6 +109,8 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 			Labels: &apiv2.Labels{
 				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
 			},
+			// Type:    &0, TODO
+			// NatType: &0,
 		},
 	}))
 
@@ -142,9 +125,8 @@ func (c *networkCmd) Delete(id string) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().Delete(ctx, connect.NewRequest(&apiv2.NetworkServiceDeleteRequest{
-		Id:      id,
-		Project: c.c.GetProject(),
+	resp, err := c.c.Client.Adminv2().Network().Delete(ctx, connect.NewRequest(&adminv2.NetworkServiceDeleteRequest{
+		Id: id,
 	}))
 	if err != nil {
 		return nil, err
@@ -153,11 +135,11 @@ func (c *networkCmd) Delete(id string) (*apiv2.Network, error) {
 	return resp.Msg.Network, nil
 }
 
-func (c *networkCmd) Create(rq *apiv2.NetworkServiceCreateRequest) (*apiv2.Network, error) {
+func (c *networkCmd) Create(rq *adminv2.NetworkServiceCreateRequest) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().Create(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Adminv2().Network().Create(ctx, connect.NewRequest(rq))
 	if err != nil {
 		if s, ok := status.FromError(err); ok && s.Code() == codes.AlreadyExists {
 			return nil, genericcli.AlreadyExistsError()
@@ -168,11 +150,11 @@ func (c *networkCmd) Create(rq *apiv2.NetworkServiceCreateRequest) (*apiv2.Netwo
 	return resp.Msg.Network, nil
 }
 
-func (c *networkCmd) Update(rq *apiv2.NetworkServiceUpdateRequest) (*apiv2.Network, error) {
+func (c *networkCmd) Update(rq *adminv2.NetworkServiceUpdateRequest) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().Update(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Adminv2().Network().Update(ctx, connect.NewRequest(rq))
 	if err != nil {
 		return nil, err
 	}
@@ -180,15 +162,15 @@ func (c *networkCmd) Update(rq *apiv2.NetworkServiceUpdateRequest) (*apiv2.Netwo
 	return resp.Msg.Network, nil
 }
 
-func (c *networkCmd) Convert(r *apiv2.Network) (string, *apiv2.NetworkServiceCreateRequest, *apiv2.NetworkServiceUpdateRequest, error) {
+func (c *networkCmd) Convert(r *apiv2.Network) (string, *adminv2.NetworkServiceCreateRequest, *adminv2.NetworkServiceUpdateRequest, error) {
 	return r.Id, networkResponseToCreate(r), networkResponseToUpdate(r), nil
 }
 
-func networkResponseToCreate(r *apiv2.Network) *apiv2.NetworkServiceCreateRequest {
+func networkResponseToCreate(r *apiv2.Network) *adminv2.NetworkServiceCreateRequest {
 	meta := pointer.SafeDeref(r.Meta)
 
-	return &apiv2.NetworkServiceCreateRequest{
-		Project:     pointer.SafeDeref(r.Project),
+	return &adminv2.NetworkServiceCreateRequest{
+		Project:     r.Project,
 		Name:        r.Name,
 		Description: r.Description,
 		Partition:   r.Partition,
@@ -200,50 +182,65 @@ func networkResponseToCreate(r *apiv2.Network) *apiv2.NetworkServiceCreateReques
 	}
 }
 
-func networkResponseToUpdate(r *apiv2.Network) *apiv2.NetworkServiceUpdateRequest {
+func networkResponseToUpdate(r *apiv2.Network) *adminv2.NetworkServiceUpdateRequest {
 	meta := pointer.SafeDeref(r.Meta)
 
-	return &apiv2.NetworkServiceUpdateRequest{
+	return &adminv2.NetworkServiceUpdateRequest{
 		Id:          r.Id,
-		Project:     pointer.SafeDeref(r.Project),
 		Name:        r.Name,
 		Description: r.Description,
 		Labels: &apiv2.UpdateLabels{
 			Update: meta.Labels, // TODO: this only ensures that the labels are present but it does not cleanup old one's, which would require fetching the current state and calculating the diff
-		}}
+		},
+		Prefixes:                 []string{},
+		DestinationPrefixes:      []string{},
+		DefaultChildPrefixLength: &apiv2.ChildPrefixLength{},
+		MinChildPrefixLength:     &apiv2.ChildPrefixLength{},
+		// NatType:                    &0,
+		AdditionalAnnouncableCidrs: []string{},
+		Force:                      false,
+	}
 }
 
-func (c *networkCmd) createRequestFromCLI() (*apiv2.NetworkServiceCreateRequest, error) {
+func (c *networkCmd) createRequestFromCLI() (*adminv2.NetworkServiceCreateRequest, error) {
 	labels, err := genericcli.LabelsToMap(viper.GetStringSlice("labels"))
 	if err != nil {
 		return nil, err
 	}
 
-	var (
-		cpl = &apiv2.ChildPrefixLength{}
-	)
-	if viper.IsSet("ipv4-prefix-length") {
-		cpl.Ipv4 = pointer.Pointer(viper.GetUint32("ipv4-prefix-length"))
-	}
-	if viper.IsSet("ipv6-prefix-length") {
-		cpl.Ipv6 = pointer.Pointer(viper.GetUint32("ipv6-prefix-length"))
-	}
+	// var (
+	// 	cpl = &adminv2.ChildPrefixLength{}
+	// )
+	// if viper.IsSet("ipv4-prefix-length") {
+	// 	cpl.Ipv4 = pointer.Pointer(viper.GetUint32("ipv4-prefix-length"))
+	// }
+	// if viper.IsSet("ipv6-prefix-length") {
+	// 	cpl.Ipv6 = pointer.Pointer(viper.GetUint32("ipv6-prefix-length"))
+	// }
 
-	return &apiv2.NetworkServiceCreateRequest{
+	return &adminv2.NetworkServiceCreateRequest{
 		Description: pointer.PointerOrNil(viper.GetString("description")),
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
-		Project:     c.c.GetProject(),
-		Partition:   pointer.PointerOrNil(viper.GetString("partition")),
+		// Project:     c.c.GetProject(),
+		Partition: pointer.PointerOrNil(viper.GetString("partition")),
 		Labels: &apiv2.Labels{
 			Labels: labels,
 		},
-		ParentNetworkId: pointer.PointerOrNil(viper.GetString("parent-network-id")),
-		Length:          cpl,
-		AddressFamily:   common.AddressFamilyToType(viper.GetString("addressfamily")),
+		ParentNetworkId:          pointer.PointerOrNil(viper.GetString("parent-network-id")),
+		AddressFamily:            common.AddressFamilyToType(viper.GetString("addressfamily")),
+		Id:                       new(string),
+		Type:                     0,
+		Prefixes:                 []string{},
+		DestinationPrefixes:      []string{},
+		DefaultChildPrefixLength: &apiv2.ChildPrefixLength{},
+		MinChildPrefixLength:     &apiv2.ChildPrefixLength{},
+		// NatType:                    &0,
+		Vrf:                        new(uint32),
+		AdditionalAnnouncableCidrs: []string{},
 	}, nil
 }
 
-func (c *networkCmd) updateRequestFromCLI(args []string) (*apiv2.NetworkServiceUpdateRequest, error) {
+func (c *networkCmd) updateRequestFromCLI(args []string) (*adminv2.NetworkServiceUpdateRequest, error) {
 	id, err := genericcli.GetExactlyOneArg(args)
 	if err != nil {
 		return nil, err
@@ -264,9 +261,9 @@ func (c *networkCmd) updateRequestFromCLI(args []string) (*apiv2.NetworkServiceU
 	}
 
 	var (
-		ur = &apiv2.NetworkServiceUpdateRequest{
-			Id:          id,
-			Project:     c.c.GetProject(),
+		ur = &adminv2.NetworkServiceUpdateRequest{
+			Id: id,
+			// Project:     c.c.GetProject(),
 			Description: pointer.PointerOrNil(viper.GetString("description")),
 			Name:        pointer.PointerOrNil(viper.GetString("name")),
 			Labels:      labels,
@@ -274,33 +271,4 @@ func (c *networkCmd) updateRequestFromCLI(args []string) (*apiv2.NetworkServiceU
 	)
 
 	return ur, nil
-}
-
-func (c *networkCmd) listBaseNetworks() error {
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	resp, err := c.c.Client.Apiv2().Network().ListBaseNetworks(ctx, connect.NewRequest(&apiv2.NetworkServiceListBaseNetworksRequest{
-		Query: &apiv2.NetworkQuery{
-			Id:                  pointer.PointerOrNil(viper.GetString("id")),
-			Name:                pointer.PointerOrNil(viper.GetString("name")),
-			Description:         pointer.PointerOrNil(viper.GetString("description")),
-			Partition:           pointer.PointerOrNil(viper.GetString("partition")),
-			Project:             pointer.PointerOrNil(viper.GetString("project")),
-			Prefixes:            viper.GetStringSlice("prefixes"),
-			DestinationPrefixes: viper.GetStringSlice("destination-prefixes"),
-			Vrf:                 pointer.PointerOrNil(viper.GetUint32("vrf")),
-			AddressFamily:       common.AddressFamilyToType(viper.GetString("addressfamily")),
-			Labels: &apiv2.Labels{
-				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
-			},
-			// Type:            &0, TODO
-		},
-	}))
-
-	if err != nil {
-		return err
-	}
-
-	return c.c.ListPrinter.Print(resp.Msg.Networks)
 }
