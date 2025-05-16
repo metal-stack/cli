@@ -134,7 +134,7 @@ func (l *login) login() error {
 		return err
 	}
 
-	fmt.Fprintf(l.c.Out, "%s login successful! Updated and activated context \"%s\"\n", color.GreenString("✔"), color.GreenString(ctx.Name))
+	_, _ = fmt.Fprintf(l.c.Out, "%s login successful! Updated and activated context \"%s\"\n", color.GreenString("✔"), color.GreenString(ctx.Name))
 
 	return nil
 }

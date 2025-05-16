@@ -98,7 +98,7 @@ func (l *logout) logout() error {
 	}
 	_ = listener.Close()
 
-	fmt.Fprintf(l.c.Out, "%s logout successful! \n", color.GreenString("✔"))
+	_, _ = fmt.Fprintf(l.c.Out, "%s logout successful! \n", color.GreenString("✔"))
 
 	return nil
 }
