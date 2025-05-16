@@ -306,7 +306,7 @@ func (c *tenant) join(args []string) error {
 		return fmt.Errorf("failed to join tenant: %w", err)
 	}
 
-	fmt.Fprintf(c.c.Out, "%s successfully joined tenant \"%s\"\n", color.GreenString("✔"), color.GreenString(acceptResp.Msg.TenantName))
+	_, _ = fmt.Fprintf(c.c.Out, "%s successfully joined tenant \"%s\"\n", color.GreenString("✔"), color.GreenString(acceptResp.Msg.TenantName))
 
 	return nil
 }
@@ -328,8 +328,8 @@ func (c *tenant) generateInvite() error {
 		return fmt.Errorf("failed to generate an invite: %w", err)
 	}
 
-	fmt.Fprintf(c.c.Out, "You can share this secret with the member to join, it expires in %s:\n\n", humanize.Time(resp.Msg.Invite.ExpiresAt.AsTime()))
-	fmt.Fprintf(c.c.Out, "%s (https://console.metal-stack.io/organization-invite/%s)\n", resp.Msg.Invite.Secret, resp.Msg.Invite.Secret)
+	_, _ = fmt.Fprintf(c.c.Out, "You can share this secret with the member to join, it expires in %s:\n\n", humanize.Time(resp.Msg.Invite.ExpiresAt.AsTime()))
+	_, _ = fmt.Fprintf(c.c.Out, "%s (https://console.metal-stack.io/organization-invite/%s)\n", resp.Msg.Invite.Secret, resp.Msg.Invite.Secret)
 
 	return nil
 }
@@ -405,7 +405,7 @@ func (c *tenant) removeMember(args []string) error {
 		return fmt.Errorf("failed to remove member from tenant: %w", err)
 	}
 
-	fmt.Fprintf(c.c.Out, "%s successfully removed member %q\n", color.GreenString("✔"), member)
+	_, _ = fmt.Fprintf(c.c.Out, "%s successfully removed member %q\n", color.GreenString("✔"), member)
 
 	return nil
 }
