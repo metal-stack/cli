@@ -34,5 +34,6 @@ networks can be attached to a machine or firewall such that they can communicate
 * [metalctlv2 network describe](metalctlv2_network_describe.md)	 - describes the network
 * [metalctlv2 network edit](metalctlv2_network_edit.md)	 - edit the network through an editor and update
 * [metalctlv2 network list](metalctlv2_network_list.md)	 - list all networks
+* [metalctlv2 network list-base-networks](metalctlv2_network_list-base-networks.md)	 - lists base networks that can be used for network creation
 * [metalctlv2 network update](metalctlv2_network_update.md)	 - updates the network
 

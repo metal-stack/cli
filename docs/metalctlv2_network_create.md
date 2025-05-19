@@ -11,7 +11,7 @@ metalctlv2 network create [flags]
 ```
       --addressfamily string        addressfamily of the network to acquire, if not specified the network inherits the address families from the parent [optional]
       --bulk-output                 when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
-  -d, --description string          description of the network to create. [optional]
+      --description string          description of the network to create. [optional]
   -f, --file string                 filename of the create or update request in yaml format, or - for stdin.
                                     
                                     Example:
@@ -28,7 +28,7 @@ metalctlv2 network create [flags]
       --ipv4-prefix-length uint32   ipv4 prefix bit length of the network to create, defaults to default child prefix length of the parent network. [optional]
       --ipv6-prefix-length uint32   ipv6 prefix bit length of the network to create, defaults to default child prefix length of the parent network. [optional]
       --labels strings              labels for this network. [optional]
-  -n, --name string                 name of the network to create. [required]
+      --name string                 name of the network to create. [required]
       --parent-network-id string    the parent of the network (alternative to partition). [optional]
       --partition string            partition where this network should exist. [required]
       --project string              partition where this network should exist (alternative to parent-network-id). [optional]

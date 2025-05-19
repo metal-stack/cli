@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
@@ -21,7 +22,7 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 		rows [][]string
 	)
 
-	header := []string{"ID", "Name", "Project", "Partition", "Nat", "Prefixes", "IP Usage"}
+	header := []string{"ID", "Name", "Project", "Partition", "Nat", "Prefixes", "Prefix Usage", "IP Usage"}
 	if wide {
 		header = []string{"ID", "Description", "Name", "Project", "Partition", "Nat", "Prefixes", "Annotations"}
 	}
@@ -109,6 +110,12 @@ func addNetwork(prefix string, n *apiv2.Network, wide bool) []string {
 		natType     = pointer.SafeDeref(n.NatType).String()
 	)
 
+	if t, err := enum.GetStringValue(pointer.SafeDeref(n.NatType)); err == nil {
+		natType = *t
+	} else {
+		fmt.Println(err)
+	}
+
 	max := getMaxLineCount(description, name, project, partition, natType, prefixes, shortIPUsage)
 	for range max - 1 {
 		id += "\n│"
@@ -126,7 +133,7 @@ func addNetwork(prefix string, n *apiv2.Network, wide bool) []string {
 	if wide {
 		return []string{id, description, name, project, partition, natType, prefixes, annotations}
 	} else {
-		return []string{id, name, project, partition, natType, shortPrefixUsage, shortIPUsage}
+		return []string{id, name, project, partition, natType, prefixes, shortPrefixUsage, shortIPUsage}
 	}
 }
 

@@ -2,6 +2,7 @@ package v1
 
 import (
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -36,10 +37,12 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		cmd.Flags().String("addressfamily", "", "addressfamily to filter, either ipv4 or ipv6 [optional]")
 		cmd.Flags().Uint32("vrf", 0, "vrf to filter [optional]")
 		cmd.Flags().StringSlice("labels", nil, "labels to filter [optional]")
+		cmd.Flags().StringP("type", "t", "", "type of the network. [optional]")
 
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
+		genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkTypeCompletion))
 	}
 
 	cmdsConfig := &genericcli.CmdsConfig[*apiv2.NetworkServiceCreateRequest, *apiv2.NetworkServiceUpdateRequest, *apiv2.Network]{
@@ -89,6 +92,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		},
 		ValidArgsFunction: c.Completion.TenantMemberListCompletion,
 	}
+	listFlags(listBaseNetworksCmd)
 
 	return genericcli.NewCmds(cmdsConfig, listBaseNetworksCmd)
 }
@@ -119,7 +123,7 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 			Name:                pointer.PointerOrNil(viper.GetString("name")),
 			Description:         pointer.PointerOrNil(viper.GetString("description")),
 			Partition:           pointer.PointerOrNil(viper.GetString("partition")),
-			Project:             pointer.PointerOrNil(viper.GetString("project")),
+			Project:             pointer.Pointer(c.c.GetProject()),
 			Prefixes:            viper.GetStringSlice("prefixes"),
 			DestinationPrefixes: viper.GetStringSlice("destination-prefixes"),
 			Vrf:                 pointer.PointerOrNil(viper.GetUint32("vrf")),
@@ -280,7 +284,17 @@ func (c *networkCmd) listBaseNetworks() error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	var nwType *apiv2.NetworkType
+	if viper.IsSet("type") {
+		nt, err := enum.GetEnum[apiv2.NetworkType](viper.GetString("type"))
+		if err != nil {
+			return err
+		}
+		nwType = &nt
+	}
+
 	resp, err := c.c.Client.Apiv2().Network().ListBaseNetworks(ctx, connect.NewRequest(&apiv2.NetworkServiceListBaseNetworksRequest{
+		Project: c.c.GetProject(),
 		Query: &apiv2.NetworkQuery{
 			Id:                  pointer.PointerOrNil(viper.GetString("id")),
 			Name:                pointer.PointerOrNil(viper.GetString("name")),
@@ -294,7 +308,7 @@ func (c *networkCmd) listBaseNetworks() error {
 			Labels: &apiv2.Labels{
 				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
 			},
-			// Type:            &0, TODO
+			Type: nwType,
 		},
 	}))
 

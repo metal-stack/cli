@@ -2,6 +2,7 @@ package v1
 
 import (
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/enum"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -38,10 +39,12 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		cmd.Flags().String("addressfamily", "", "addressfamily to filter, either ipv4 or ipv6 [optional]")
 		cmd.Flags().Uint32("vrf", 0, "vrf to filter [optional]")
 		cmd.Flags().StringSlice("labels", nil, "labels to filter [optional]")
+		cmd.Flags().StringP("type", "t", "", "type of the network. [optional]")
 
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
+		genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkTypeCompletion))
 	}
 
 	cmdsConfig := &genericcli.CmdsConfig[*adminv2.NetworkServiceCreateRequest, *adminv2.NetworkServiceUpdateRequest, *apiv2.Network]{
@@ -57,7 +60,10 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		DescribePrinter:      func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:          func() printers.Printer { return c.ListPrinter },
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("id", "", "id of the network to create, defaults to a random uuid if not provided. [optional]")
 			cmd.Flags().String("name", "", "name of the network to create. [required]")
+			cmd.Flags().StringP("type", "t", "", "type of the network. [required]")
+			cmd.Flags().String("nat-type", "", "nat-type of the network. [required]")
 			cmd.Flags().String("partition", "", "partition where this network should exist. [required]")
 			cmd.Flags().String("project", "", "partition where this network should exist (alternative to parent-network-id). [optional]")
 			cmd.Flags().String("parent-network-id", "", "the parent of the network (alternative to partition). [optional]")
@@ -66,10 +72,20 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("addressfamily", "", "addressfamily of the network to acquire, if not specified the network inherits the address families from the parent [optional]")
 			cmd.Flags().Uint32("ipv4-prefix-length", 0, "ipv4 prefix bit length of the network to create, defaults to default child prefix length of the parent network. [optional]")
 			cmd.Flags().Uint32("ipv6-prefix-length", 0, "ipv6 prefix bit length of the network to create, defaults to default child prefix length of the parent network. [optional]")
+			cmd.Flags().Uint32("default-ipv4-prefix-length", 0, "default ipv4 prefix bit length of the network to create. [optional]")
+			cmd.Flags().Uint32("default-ipv6-prefix-length", 0, "default ipv6 prefix bit length of the network to create. [optional]")
+			cmd.Flags().Uint32("min-ipv4-prefix-length", 0, "min ipv4 prefix bit length of the network to create. [optional]")
+			cmd.Flags().Uint32("min-ipv6-prefix-length", 0, "min ipv6 prefix bit length of the network to create. [optional]")
+			cmd.Flags().StringSlice("prefixes", nil, "prefixes for this network. [optional]")
+			cmd.Flags().StringSlice("destination-prefixes", nil, "destination-prefixes for this network. [optional]")
+			cmd.Flags().StringSlice("additional-announcable-cidrs", nil, "additional-announcable-cidrs for this network. [optional]")
+			cmd.Flags().Uint32("vrf", 0, "the vrf of the network to create. [optional]")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkTypeCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("nat-type", c.Completion.NetworkNatTypeCompletion))
 		},
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			listFlags(cmd)
@@ -87,12 +103,32 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 }
 
 func (c *networkCmd) Get(id string) (*apiv2.Network, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Adminv2().Network().Get(ctx, connect.NewRequest(&adminv2.NetworkServiceGetRequest{
+		Id: id,
+	}))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Msg.Network, nil
 }
 
 func (c *networkCmd) List() ([]*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
+
+	var nwType *apiv2.NetworkType
+	if viper.IsSet("type") {
+		nt, err := enum.GetEnum[apiv2.NetworkType](viper.GetString("type"))
+		if err != nil {
+			return nil, err
+		}
+		nwType = &nt
+	}
 
 	resp, err := c.c.Client.Adminv2().Network().List(ctx, connect.NewRequest(&adminv2.NetworkServiceListRequest{
 		Query: &apiv2.NetworkQuery{
@@ -109,8 +145,8 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 			Labels: &apiv2.Labels{
 				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
 			},
-			// Type:    &0, TODO
-			// NatType: &0,
+			Type: nwType,
+			// NatType: (*apiv2.NATType)(nwType),
 		},
 	}))
 
@@ -208,35 +244,68 @@ func (c *networkCmd) createRequestFromCLI() (*adminv2.NetworkServiceCreateReques
 		return nil, err
 	}
 
-	// var (
-	// 	cpl = &adminv2.ChildPrefixLength{}
-	// )
-	// if viper.IsSet("ipv4-prefix-length") {
-	// 	cpl.Ipv4 = pointer.Pointer(viper.GetUint32("ipv4-prefix-length"))
-	// }
-	// if viper.IsSet("ipv6-prefix-length") {
-	// 	cpl.Ipv6 = pointer.Pointer(viper.GetUint32("ipv6-prefix-length"))
-	// }
+	var (
+		natType    = apiv2.NATType_NAT_TYPE_NONE
+		defaultCPL = &apiv2.ChildPrefixLength{}
+		minCPL     = &apiv2.ChildPrefixLength{}
+		length     = &apiv2.ChildPrefixLength{}
+	)
+	if viper.IsSet("default-ipv4-prefix-length") {
+		defaultCPL.Ipv4 = pointer.Pointer(viper.GetUint32("default-ipv4-prefix-length"))
+	}
+	if viper.IsSet("default-ipv6-prefix-length") {
+		defaultCPL.Ipv6 = pointer.Pointer(viper.GetUint32("default-ipv6-prefix-length"))
+	}
+	if viper.IsSet("min-ipv4-prefix-length") {
+		minCPL.Ipv4 = pointer.Pointer(viper.GetUint32("min-ipv4-prefix-length"))
+	}
+	if viper.IsSet("min-ipv6-prefix-length") {
+		minCPL.Ipv6 = pointer.Pointer(viper.GetUint32("min-ipv6-prefix-length"))
+	}
+	if viper.IsSet("ipv4-prefix-length") {
+		length.Ipv4 = pointer.Pointer(viper.GetUint32("ipv4-prefix-length"))
+	}
+	if viper.IsSet("ipv6-prefix-length") {
+		length.Ipv6 = pointer.Pointer(viper.GetUint32("ipv6-prefix-length"))
+	}
+
+	nwType, err := enum.GetEnum[apiv2.NetworkType](viper.GetString("type"))
+	if err != nil {
+		return nil, err
+	}
+
+	if viper.IsSet("nat-type") {
+		natType, err = enum.GetEnum[apiv2.NATType](viper.GetString("nat-type"))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var vrf *uint32
+	if viper.IsSet("vrf") {
+		vrf = pointer.Pointer(viper.GetUint32("vrf"))
+	}
 
 	return &adminv2.NetworkServiceCreateRequest{
 		Description: pointer.PointerOrNil(viper.GetString("description")),
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
-		// Project:     c.c.GetProject(),
-		Partition: pointer.PointerOrNil(viper.GetString("partition")),
+		Project:     pointer.PointerOrNil(viper.GetString("project")),
+		Partition:   pointer.PointerOrNil(viper.GetString("partition")),
 		Labels: &apiv2.Labels{
 			Labels: labels,
 		},
-		ParentNetworkId:          pointer.PointerOrNil(viper.GetString("parent-network-id")),
-		AddressFamily:            common.AddressFamilyToType(viper.GetString("addressfamily")),
-		Id:                       new(string),
-		Type:                     0,
-		Prefixes:                 []string{},
-		DestinationPrefixes:      []string{},
-		DefaultChildPrefixLength: &apiv2.ChildPrefixLength{},
-		MinChildPrefixLength:     &apiv2.ChildPrefixLength{},
-		// NatType:                    &0,
-		Vrf:                        new(uint32),
-		AdditionalAnnouncableCidrs: []string{},
+		ParentNetworkId:            pointer.PointerOrNil(viper.GetString("parent-network-id")),
+		AddressFamily:              common.AddressFamilyToType(viper.GetString("addressfamily")),
+		Id:                         pointer.PointerOrNil(viper.GetString("id")),
+		Type:                       nwType,
+		Prefixes:                   viper.GetStringSlice("prefixes"),
+		DestinationPrefixes:        viper.GetStringSlice("destination-prefixes"),
+		DefaultChildPrefixLength:   defaultCPL,
+		MinChildPrefixLength:       minCPL,
+		NatType:                    &natType,
+		Vrf:                        vrf,
+		AdditionalAnnouncableCidrs: viper.GetStringSlice("additional-announcable-cidrs"),
+		Length:                     length,
 	}, nil
 }
 
@@ -261,12 +330,42 @@ func (c *networkCmd) updateRequestFromCLI(args []string) (*adminv2.NetworkServic
 	}
 
 	var (
+		natType    = apiv2.NATType_NAT_TYPE_NONE
+		defaultCPL = &apiv2.ChildPrefixLength{}
+		minCPL     = &apiv2.ChildPrefixLength{}
+	)
+	if viper.IsSet("default-ipv4-prefix-length") {
+		defaultCPL.Ipv4 = pointer.Pointer(viper.GetUint32("default-ipv4-prefix-length"))
+	}
+	if viper.IsSet("default-ipv6-prefix-length") {
+		defaultCPL.Ipv6 = pointer.Pointer(viper.GetUint32("default-ipv6-prefix-length"))
+	}
+	if viper.IsSet("min-ipv4-prefix-length") {
+		minCPL.Ipv4 = pointer.Pointer(viper.GetUint32("min-ipv4-prefix-length"))
+	}
+	if viper.IsSet("min-ipv6-prefix-length") {
+		minCPL.Ipv6 = pointer.Pointer(viper.GetUint32("min-ipv6-prefix-length"))
+	}
+	if viper.IsSet("nat-type") {
+		natType, err = enum.GetEnum[apiv2.NATType](viper.GetString("nat-type"))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var (
 		ur = &adminv2.NetworkServiceUpdateRequest{
-			Id: id,
-			// Project:     c.c.GetProject(),
-			Description: pointer.PointerOrNil(viper.GetString("description")),
-			Name:        pointer.PointerOrNil(viper.GetString("name")),
-			Labels:      labels,
+			Id:                         id,
+			Description:                pointer.PointerOrNil(viper.GetString("description")),
+			Name:                       pointer.PointerOrNil(viper.GetString("name")),
+			Labels:                     labels,
+			Prefixes:                   viper.GetStringSlice("prefixes"),
+			DestinationPrefixes:        viper.GetStringSlice("destination-prefixes"),
+			DefaultChildPrefixLength:   defaultCPL,
+			MinChildPrefixLength:       minCPL,
+			NatType:                    &natType,
+			AdditionalAnnouncableCidrs: viper.GetStringSlice("additional-announcable-cidrs"),
+			Force:                      viper.GetBool("force"),
 		}
 	)
 

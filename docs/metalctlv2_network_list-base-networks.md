@@ -1,9 +1,9 @@
-## metalctlv2 network list
+## metalctlv2 network list-base-networks
 
-list all networks
+lists base networks that can be used for network creation
 
 ```
-metalctlv2 network list [flags]
+metalctlv2 network list-base-networks [flags]
 ```
 
 ### Options
@@ -12,15 +12,13 @@ metalctlv2 network list [flags]
       --addressfamily string           addressfamily to filter, either ipv4 or ipv6 [optional]
       --description string             description to filter [optional]
       --destination-prefixes strings   destination prefixes to filter
-  -h, --help                           help for list
+  -h, --help                           help for list-base-networks
       --id string                      ID to filter [optional]
       --labels strings                 labels to filter [optional]
       --name string                    name to filter [optional]
-      --parent-network-id string       parent network to filter [optional]
       --partition string               partition to filter [optional]
       --prefixes strings               prefixes to filter
       --project string                 project to filter [optional]
-      --sort-by strings                sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: description|id|name|partition|project
   -t, --type string                    type of the network. [optional]
       --vrf uint32                     vrf to filter [optional]
 ```
