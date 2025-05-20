@@ -5,17 +5,18 @@ import (
 	"strings"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/olekukonko/tablewriter"
 )
 
 func (t *TablePrinter) IPTable(data []*apiv2.IP, wide bool) ([]string, [][]string, error) {
 	var (
 		rows   [][]string
-		header = []string{"IP", "Project", "ID", "Type", "Name", "Attached Service"}
+		header = []string{"IP", "NS", "Project", "ID", "Type", "Name", "Attached Service"}
 	)
 
 	if wide {
-		header = []string{"IP", "Project", "ID", "Type", "Name", "Description", "Labels"}
+		header = []string{"IP", "NS", "Project", "ID", "Type", "Name", "Description", "Labels"}
 	}
 
 	for _, ip := range data {
@@ -42,11 +43,12 @@ func (t *TablePrinter) IPTable(data []*apiv2.IP, wide bool) ([]string, [][]strin
 				labels = append(labels, fmt.Sprintf("%s=%s", k, v))
 			}
 		}
+		ns := pointer.SafeDeref(ip.Namespace)
 
 		if wide {
-			rows = append(rows, []string{ip.Ip, ip.Project, ip.Uuid, t, ip.Name, ip.Description, strings.Join(labels, "\n")})
+			rows = append(rows, []string{ip.Ip, ns, ip.Project, ip.Uuid, t, ip.Name, ip.Description, strings.Join(labels, "\n")})
 		} else {
-			rows = append(rows, []string{ip.Ip, ip.Project, ip.Uuid, t, ip.Name, attachedService})
+			rows = append(rows, []string{ip.Ip, ns, ip.Project, ip.Uuid, t, ip.Name, attachedService})
 		}
 	}
 

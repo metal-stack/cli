@@ -2,16 +2,14 @@ module github.com/metal-stack/cli
 
 go 1.24.0
 
-toolchain go1.24.2
-
 require (
 	bou.ke/monkey v1.0.2
 	connectrpc.com/connect v1.18.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/google/go-cmp v0.7.0
-	github.com/metal-stack/api v0.0.0-20250519133343-5ef4e0524630
-	github.com/metal-stack/metal-lib v0.22.1
+	github.com/metal-stack/api v0.0.0-20250520125519-0fa114b11f2d
+	github.com/metal-stack/metal-lib v0.23.0
 	github.com/metal-stack/v v1.0.3
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/afero v1.14.0
@@ -20,7 +18,7 @@ require (
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/net v0.40.0
-	google.golang.org/grpc v1.71.0
+	google.golang.org/grpc v1.72.1
 	google.golang.org/protobuf v1.36.6
 	sigs.k8s.io/yaml v1.4.0
 )
@@ -58,9 +56,9 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250505200425-f936aa4a68b2 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.33.0 // indirect
+	k8s.io/apimachinery v0.33.1 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 )

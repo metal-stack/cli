@@ -9,8 +9,9 @@ metalctlv2 ip describe <id> [flags]
 ### Options
 
 ```
-  -h, --help             help for describe
-  -p, --project string   project of the ip
+  -h, --help               help for describe
+  -n, --namespace string   namespace of the ip
+  -p, --project string     project of the ip
 ```
 
 ### Options inherited from parent commands

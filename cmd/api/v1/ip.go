@@ -61,6 +61,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		},
 		DescribeCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
+			cmd.Flags().StringP("namespace", "n", "", "namespace of the ip")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		},
@@ -163,9 +164,17 @@ func (c *ip) Get(id string) (*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	var (
+		namespace *string
+	)
+	if viper.IsSet("namespace") {
+		namespace = pointer.Pointer(viper.GetString("namespace"))
+	}
+
 	resp, err := c.c.Client.Apiv2().IP().Get(ctx, connect.NewRequest(&apiv2.IPServiceGetRequest{
-		Project: c.c.GetProject(),
-		Ip:      id,
+		Project:   c.c.GetProject(),
+		Ip:        id,
+		Namespace: namespace,
 	}))
 	if err != nil {
 		return nil, err
