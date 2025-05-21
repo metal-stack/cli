@@ -20,3 +20,7 @@ func (c *Completion) IpListCompletion(cmd *cobra.Command, args []string, toCompl
 	}
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
+
+func (c *Completion) IpAddressFamilyCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return []string{apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4.String(), apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V6.String()}, cobra.ShellCompDirectiveNoFileComp
+}
