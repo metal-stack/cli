@@ -41,7 +41,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
-		genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
+		genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamilyCompletion))
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkTypeCompletion))
 	}
 
@@ -70,7 +70,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamilyCompletion))
 		},
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			listFlags(cmd)
@@ -128,7 +128,7 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 			DestinationPrefixes: viper.GetStringSlice("destination-prefixes"),
 			Vrf:                 pointer.PointerOrNil(viper.GetUint32("vrf")),
 			ParentNetworkId:     pointer.PointerOrNil(viper.GetString("parent-network-id")),
-			AddressFamily:       common.AddressFamilyToType(viper.GetString("addressfamily")),
+			AddressFamily:       common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
 			Labels: &apiv2.Labels{
 				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
 			},
@@ -243,7 +243,7 @@ func (c *networkCmd) createRequestFromCLI() (*apiv2.NetworkServiceCreateRequest,
 		},
 		ParentNetworkId: pointer.PointerOrNil(viper.GetString("parent-network-id")),
 		Length:          cpl,
-		AddressFamily:   common.AddressFamilyToType(viper.GetString("addressfamily")),
+		AddressFamily:   common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
 	}, nil
 }
 
@@ -304,7 +304,7 @@ func (c *networkCmd) listBaseNetworks() error {
 			Prefixes:            viper.GetStringSlice("prefixes"),
 			DestinationPrefixes: viper.GetStringSlice("destination-prefixes"),
 			Vrf:                 pointer.PointerOrNil(viper.GetUint32("vrf")),
-			AddressFamily:       common.AddressFamilyToType(viper.GetString("addressfamily")),
+			AddressFamily:       common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
 			Labels: &apiv2.Labels{
 				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
 			},

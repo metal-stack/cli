@@ -43,7 +43,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
-		genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
+		genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamilyCompletion))
 		genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkTypeCompletion))
 	}
 
@@ -83,7 +83,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamilyCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkTypeCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("nat-type", c.Completion.NetworkNatTypeCompletion))
 		},
@@ -141,7 +141,7 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 			DestinationPrefixes: viper.GetStringSlice("destination-prefixes"),
 			Vrf:                 pointer.PointerOrNil(viper.GetUint32("vrf")),
 			ParentNetworkId:     pointer.PointerOrNil(viper.GetString("parent-network-id")),
-			AddressFamily:       common.AddressFamilyToType(viper.GetString("addressfamily")),
+			AddressFamily:       common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
 			Labels: &apiv2.Labels{
 				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
 			},
@@ -310,7 +310,7 @@ func (c *networkCmd) createRequestFromCLI() (*adminv2.NetworkServiceCreateReques
 			Labels: labels,
 		},
 		ParentNetworkId:            pointer.PointerOrNil(viper.GetString("parent-network-id")),
-		AddressFamily:              common.AddressFamilyToType(viper.GetString("addressfamily")),
+		AddressFamily:              common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
 		Id:                         pointer.PointerOrNil(viper.GetString("id")),
 		Type:                       nwType,
 		Prefixes:                   viper.GetStringSlice("prefixes"),

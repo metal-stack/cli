@@ -78,7 +78,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 				Network:     viper.GetString("network"),
 				// Labels:        viper.GetStringSlice("tags"), // FIXME implement
 				Type:          pointer.Pointer(common.IpStaticToType(viper.GetBool("static"))),
-				AddressFamily: common.AddressFamilyToType(viper.GetString("addressfamily")),
+				AddressFamily: common.IPAddressFamilyToType(viper.GetString("addressfamily")),
 			}, nil
 		},
 		UpdateRequestFromCLI: w.updateFromCLI,

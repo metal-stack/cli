@@ -57,6 +57,8 @@ github.com/mattn/go-runewidth v0.0.16 h1:E5ScNMtiwvlvB5paMFdw9p4kSQzbXFikJ5SQO6T
 github.com/mattn/go-runewidth v0.0.16/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/metal-stack/api v0.0.0-20250520125519-0fa114b11f2d h1:ECKVEPIPYV5mXol92A95vDqoAdqoh98sY7aEsMLVbfY=
 github.com/metal-stack/api v0.0.0-20250520125519-0fa114b11f2d/go.mod h1:gLRg6Rxkt0FGJnTNmmhclgrdMKT3el6O85+KgqYYCqE=
+github.com/metal-stack/api v0.0.1 h1:kuxvFiWuMFcvvAecKY4OhSQxeBJfuojAYq5SUbJvK8U=
+github.com/metal-stack/api v0.0.1/go.mod h1:gLRg6Rxkt0FGJnTNmmhclgrdMKT3el6O85+KgqYYCqE=
 github.com/metal-stack/metal-lib v0.23.0 h1:O0I/kF49GeJjMkvrhSdNS/bIcXd5KcqyX2fNngefF6E=
 github.com/metal-stack/metal-lib v0.23.0/go.mod h1:QiFb7TpSrvnLAHOlxLiUm1aG+1t5nPHsoDT/bw+F5r8=
 github.com/metal-stack/v v1.0.3 h1:Sh2oBlnxrCUD+mVpzfC8HiqL045YWkxs0gpTvkjppqs=
@@ -113,6 +115,8 @@ google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 h1:
 google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237/go.mod h1:qQ0YXyHHx3XkvlzUtpXDkS29lDSafHMZBAZDc03LQ3A=
 google.golang.org/grpc v1.72.1 h1:HR03wO6eyZ7lknl75XlxABNVLLFc2PAb6mHlYh756mA=
 google.golang.org/grpc v1.72.1/go.mod h1:wH5Aktxcg25y1I3w7H69nHfXdOG3UiadoBtjh3izSDM=
+google.golang.org/grpc v1.72.2 h1:TdbGzwb82ty4OusHWepvFWGLgIbNo1/SUynEN0ssqv8=
+google.golang.org/grpc v1.72.2/go.mod h1:wH5Aktxcg25y1I3w7H69nHfXdOG3UiadoBtjh3izSDM=
 google.golang.org/protobuf v1.36.6 h1:z1NpPI8ku2WgiWnf+t9wTPsn6eP1L7ksHUlkfLvd9xY=
 google.golang.org/protobuf v1.36.6/go.mod h1:jduwjTPXsFjZGTmRluh+L6NjiWu7pchiJ2/5YcXBHnY=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

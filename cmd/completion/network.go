@@ -43,3 +43,11 @@ func (c *Completion) NetworkNatTypeCompletion(cmd *cobra.Command, args []string,
 	}
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
+
+func (c *Completion) NetworkAddressFamilyCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return []string{
+		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_V4.String(),
+		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_V6.String(),
+		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.String(),
+	}, cobra.ShellCompDirectiveNoFileComp
+}
