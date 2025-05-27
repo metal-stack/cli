@@ -9,7 +9,14 @@ import (
 )
 
 func (c *Completion) NetworkListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.Client.Apiv2().Network().List(c.Ctx, connect.NewRequest(&apiv2.NetworkServiceListRequest{
+	ownNetworks, err := c.Client.Apiv2().Network().List(c.Ctx, connect.NewRequest(&apiv2.NetworkServiceListRequest{
+		Project: c.Project,
+	}))
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	baseNetworks, err := c.Client.Apiv2().Network().ListBaseNetworks(c.Ctx, connect.NewRequest(&apiv2.NetworkServiceListBaseNetworksRequest{
 		Project: c.Project,
 	}))
 	if err != nil {
@@ -17,7 +24,10 @@ func (c *Completion) NetworkListCompletion(cmd *cobra.Command, args []string, to
 	}
 
 	var names []string
-	for _, s := range resp.Msg.Networks {
+	for _, s := range baseNetworks.Msg.Networks {
+		names = append(names, s.Id+"\t"+pointer.SafeDeref(s.Name))
+	}
+	for _, s := range ownNetworks.Msg.Networks {
 		names = append(names, s.Id+"\t"+pointer.SafeDeref(s.Name))
 	}
 
@@ -45,9 +55,17 @@ func (c *Completion) NetworkNatTypeCompletion(cmd *cobra.Command, args []string,
 }
 
 func (c *Completion) NetworkAddressFamilyCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return []string{
-		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_V4.String(),
-		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_V6.String(),
-		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.String(),
-	}, cobra.ShellCompDirectiveNoFileComp
+	var afs []string
+	for _, af := range []apiv2.NetworkAddressFamily{
+		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK,
+		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_V4,
+		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_V6} {
+		stringValue, err := enum.GetStringValue(af)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveError
+		}
+		afs = append(afs, *stringValue)
+	}
+
+	return afs, cobra.ShellCompDirectiveNoFileComp
 }

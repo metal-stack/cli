@@ -22,9 +22,9 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 		rows [][]string
 	)
 
-	header := []string{"ID", "Name", "Project", "Partition", "Nat", "Prefixes", "Prefix Usage", "IP Usage"}
+	header := []string{"ID", "Name", "Type", "Project", "Partition", "Nat", "Prefixes", "Prefix Usage", "IP Usage"}
 	if wide {
-		header = []string{"ID", "Description", "Name", "Project", "Partition", "Nat", "Prefixes", "Annotations"}
+		header = []string{"ID", "Description", "Name", "Type", "Project", "Partition", "Nat", "Prefixes", "Annotations"}
 	}
 
 	nn := &networks{}
@@ -130,10 +130,13 @@ func addNetwork(prefix string, n *apiv2.Network, wide bool) []string {
 
 	annotations := strings.Join(as, "\n")
 
+	var networkType *string
+	networkType, _ = enum.GetStringValue(n.Type)
+
 	if wide {
-		return []string{id, description, name, project, partition, natType, prefixes, annotations}
+		return []string{id, description, name, *networkType, project, partition, natType, prefixes, annotations}
 	} else {
-		return []string{id, name, project, partition, natType, prefixes, shortPrefixUsage, shortIPUsage}
+		return []string{id, name, *networkType, project, partition, natType, prefixes, shortPrefixUsage, shortIPUsage}
 	}
 }
 

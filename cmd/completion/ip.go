@@ -2,6 +2,7 @@ package completion
 
 import (
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/spf13/cobra"
 )
@@ -22,5 +23,16 @@ func (c *Completion) IpListCompletion(cmd *cobra.Command, args []string, toCompl
 }
 
 func (c *Completion) IpAddressFamilyCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return []string{apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4.String(), apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V6.String()}, cobra.ShellCompDirectiveNoFileComp
+	var afs []string
+	for _, af := range []apiv2.IPAddressFamily{
+		apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4,
+		apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V6} {
+		stringValue, err := enum.GetStringValue(af)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveError
+		}
+		afs = append(afs, *stringValue)
+	}
+
+	return afs, cobra.ShellCompDirectiveNoFileComp
 }

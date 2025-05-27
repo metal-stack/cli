@@ -71,6 +71,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamilyCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("parent-network-id", c.Completion.NetworkListCompletion))
 		},
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			listFlags(cmd)
