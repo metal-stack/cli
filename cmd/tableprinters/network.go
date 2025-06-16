@@ -130,13 +130,18 @@ func addNetwork(prefix string, n *apiv2.Network, wide bool) []string {
 
 	annotations := strings.Join(as, "\n")
 
-	var networkType *string
-	networkType, _ = enum.GetStringValue(n.Type)
+	var networkType string
+	nt, err := enum.GetStringValue(n.Type)
+	if err != nil {
+		networkType = "unknown"
+	} else {
+		networkType = *nt
+	}
 
 	if wide {
-		return []string{id, description, name, *networkType, project, partition, natType, prefixes, annotations}
+		return []string{id, description, name, networkType, project, partition, natType, prefixes, annotations}
 	} else {
-		return []string{id, name, *networkType, project, partition, natType, prefixes, shortPrefixUsage, shortIPUsage}
+		return []string{id, name, networkType, project, partition, natType, prefixes, shortPrefixUsage, shortIPUsage}
 	}
 }
 

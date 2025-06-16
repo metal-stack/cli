@@ -228,12 +228,12 @@ func networkResponseToUpdate(r *apiv2.Network) *adminv2.NetworkServiceUpdateRequ
 		Labels: &apiv2.UpdateLabels{
 			Update: meta.Labels, // TODO: this only ensures that the labels are present but it does not cleanup old one's, which would require fetching the current state and calculating the diff
 		},
-		Prefixes:                 []string{},
-		DestinationPrefixes:      []string{},
-		DefaultChildPrefixLength: &apiv2.ChildPrefixLength{},
-		MinChildPrefixLength:     &apiv2.ChildPrefixLength{},
+		Prefixes:                 r.Prefixes,
+		DestinationPrefixes:      r.DestinationPrefixes,
+		DefaultChildPrefixLength: r.DefaultChildPrefixLength,
+		MinChildPrefixLength:     r.MinChildPrefixLength,
 		// NatType:                    &0,
-		AdditionalAnnouncableCidrs: []string{},
+		AdditionalAnnouncableCidrs: r.AdditionalAnnouncableCidrs,
 		Force:                      false,
 	}
 }
