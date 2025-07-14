@@ -1,17 +1,15 @@
-## metalctlv2 ip describe
+## metalctlv2 network edit
 
-describes the ip
+edit the network through an editor and update
 
 ```
-metalctlv2 ip describe <id> [flags]
+metalctlv2 network edit <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help               help for describe
-  -n, --namespace string   namespace of the ip
-  -p, --project string     project of the ip
+  -h, --help   help for edit
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +27,5 @@ metalctlv2 ip describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
+* [metalctlv2 network](metalctlv2_network.md)	 - manage network entities
 
