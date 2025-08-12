@@ -13,7 +13,8 @@ import (
 )
 
 type TablePrinter struct {
-	t *printers.TablePrinter
+	t                       *printers.TablePrinter
+	lastEventErrorThreshold time.Duration
 }
 
 func New() *TablePrinter {
@@ -22,6 +23,10 @@ func New() *TablePrinter {
 
 func (t *TablePrinter) SetPrinter(printer *printers.TablePrinter) {
 	t.t = printer
+}
+
+func (t *TablePrinter) SetLastEventErrorThreshold(threshold time.Duration) {
+	t.lastEventErrorThreshold = threshold
 }
 
 func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]string, error) {
@@ -34,6 +39,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.IPTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.IP:
 		return t.IPTable(d, wide)
+
+	case *apiv2.Machine:
+		return t.MachineTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Machine:
+		return t.MachineTable(d, wide)
 
 	case *apiv2.Image:
 		return t.ImageTable(pointer.WrapInSlice(d), wide)
