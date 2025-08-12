@@ -118,7 +118,7 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 	// FIXME implement
 	// }
 
-	return IpResponseToUpdate(ipToUpdate), nil
+	return c.IpResponseToUpdate(ipToUpdate)
 }
 
 func (c *ip) Create(rq *apiv2.IPServiceCreateRequest) (*apiv2.IP, error) {
@@ -199,8 +199,9 @@ func (c *ip) Update(rq *apiv2.IPServiceUpdateRequest) (*apiv2.IP, error) {
 	return resp.Msg.Ip, nil
 }
 
-func (*ip) Convert(r *apiv2.IP) (string, *apiv2.IPServiceCreateRequest, *apiv2.IPServiceUpdateRequest, error) {
-	return helpers.EncodeProject(r.Uuid, r.Project), IpResponseToCreate(r), IpResponseToUpdate(r), nil
+func (c *ip) Convert(r *apiv2.IP) (string, *apiv2.IPServiceCreateRequest, *apiv2.IPServiceUpdateRequest, error) {
+	responseToUpdate, err := c.IpResponseToUpdate(r)
+	return helpers.EncodeProject(r.Uuid, r.Project), IpResponseToCreate(r), responseToUpdate, err
 }
 
 func IpResponseToCreate(r *apiv2.IP) *apiv2.IPServiceCreateRequest {
@@ -213,15 +214,48 @@ func IpResponseToCreate(r *apiv2.IP) *apiv2.IPServiceCreateRequest {
 	}
 }
 
-func IpResponseToUpdate(r *apiv2.IP) *apiv2.IPServiceUpdateRequest {
-	return &apiv2.IPServiceUpdateRequest{
-		Project:     r.Project,
-		Ip:          r.Ip,
-		Name:        &r.Name,
-		Description: &r.Description,
-		Type:        &r.Type,
-		Labels:      r.Meta.Labels,
+func (c *ip) IpResponseToUpdate(desired *apiv2.IP) (*apiv2.IPServiceUpdateRequest, error) {
+
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	current, err := c.c.Client.Apiv2().IP().Get(ctx, connect.NewRequest(&apiv2.IPServiceGetRequest{
+		Ip:      desired.Ip,
+		Project: desired.Project,
+	}))
+	if err != nil {
+		return nil, err
 	}
+
+	updateLabels := &apiv2.UpdateLabels{
+		Remove: []string{},
+		Update: &apiv2.Labels{},
+	}
+
+	for key, currentValue := range current.Msg.Ip.Meta.Labels.Labels {
+		value, ok := desired.Meta.Labels.Labels[key]
+
+		if !ok {
+			updateLabels.Remove = append(updateLabels.Remove, key)
+			continue
+		}
+
+		if currentValue != value {
+			if updateLabels.Update.Labels == nil {
+				updateLabels.Update.Labels = map[string]string{}
+			}
+			updateLabels.Update.Labels[key] = value
+		}
+	}
+
+	return &apiv2.IPServiceUpdateRequest{
+		Project:     desired.Project,
+		Ip:          desired.Ip,
+		Name:        &desired.Name,
+		Description: &desired.Description,
+		Type:        &desired.Type,
+		Labels:      updateLabels,
+	}, nil
 }
 
 func ipStaticToType(b bool) apiv2.IPType {

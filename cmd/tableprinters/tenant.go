@@ -2,7 +2,6 @@ package tableprinters
 
 import (
 	"github.com/dustin/go-humanize"
-	"github.com/olekukonko/tablewriter"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 )
@@ -73,9 +72,7 @@ func (t *TablePrinter) TenantInviteTable(data []*apiv2.TenantInvite, _ bool) ([]
 		rows = append(rows, row)
 	}
 
-	t.t.MutateTable(func(table *tablewriter.Table) {
-		table.SetAutoWrapText(false)
-	})
+	t.t.DisableAutoWrap(false)
 
 	return header, rows, nil
 }
