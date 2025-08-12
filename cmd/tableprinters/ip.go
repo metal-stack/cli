@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/olekukonko/tablewriter"
 )
 
 func (t *TablePrinter) IPTable(data []*apiv2.IP, wide bool) ([]string, [][]string, error) {
@@ -50,9 +49,7 @@ func (t *TablePrinter) IPTable(data []*apiv2.IP, wide bool) ([]string, [][]strin
 		}
 	}
 
-	t.t.MutateTable(func(table *tablewriter.Table) {
-		table.SetAutoWrapText(false)
-	})
+	t.t.DisableAutoWrap(false)
 
 	return header, rows, nil
 }
