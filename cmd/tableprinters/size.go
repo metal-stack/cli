@@ -6,7 +6,6 @@ import (
 	"github.com/dustin/go-humanize"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
-	"github.com/olekukonko/tablewriter"
 )
 
 func (t *TablePrinter) SizeTable(data []*apiv2.Size, wide bool) ([]string, [][]string, error) {
@@ -40,9 +39,7 @@ func (t *TablePrinter) SizeTable(data []*apiv2.Size, wide bool) ([]string, [][]s
 		rows = append(rows, []string{size.Id, pointer.SafeDeref(size.Name), pointer.SafeDeref(size.Description), cpu, memory, storage, gpu})
 	}
 
-	t.t.MutateTable(func(table *tablewriter.Table) {
-		table.SetAutoWrapText(false)
-	})
+	t.t.DisableAutoWrap(false)
 
 	return header, rows, nil
 }

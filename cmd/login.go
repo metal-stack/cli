@@ -117,7 +117,10 @@ func (l *login) login() error {
 	ctx.Token = token
 
 	if ctx.DefaultProject == "" {
-		mc := newApiClient(l.c.GetApiURL(), token)
+		mc, err := newApiClient(l.c.GetApiURL(), token)
+		if err != nil {
+			return err
+		}
 
 		projects, err := mc.Apiv2().Project().List(context.Background(), connect.NewRequest(&apiv2.ProjectServiceListRequest{}))
 		if err != nil {

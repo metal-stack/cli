@@ -7,7 +7,6 @@ import (
 	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
-	"github.com/olekukonko/tablewriter"
 )
 
 func (t *TablePrinter) ImageTable(data []*apiv2.Image, wide bool) ([]string, [][]string, error) {
@@ -42,9 +41,7 @@ func (t *TablePrinter) ImageTable(data []*apiv2.Image, wide bool) ([]string, [][
 		rows = append(rows, []string{image.Id, pointer.SafeDeref(image.Name), pointer.SafeDeref(image.Description), strings.Join(features, ","), expiresIn, *classification})
 	}
 
-	t.t.MutateTable(func(table *tablewriter.Table) {
-		table.SetAutoWrapText(false)
-	})
+	t.t.DisableAutoWrap(false)
 
 	return header, rows, nil
 }

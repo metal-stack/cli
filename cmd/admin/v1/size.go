@@ -56,26 +56,8 @@ func (c *size) Get(id string) (*apiv2.Size, error) {
 func (c *size) Create(rq *adminv2.SizeServiceCreateRequest) (*apiv2.Size, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
-	labels, err := genericcli.LabelsToMap(viper.GetStringSlice("labels"))
-	if err != nil {
-		return nil, err
-	}
 
-	req := &adminv2.SizeServiceCreateRequest{
-		Size: &apiv2.Size{
-			Id:          viper.GetString("id"),
-			Name:        pointer.PointerOrNil(viper.GetString("Name")),
-			Description: pointer.PointerOrNil(viper.GetString("description")),
-			Meta: &apiv2.Meta{
-				Labels: &apiv2.Labels{
-					Labels: labels,
-				},
-			},
-			Constraints: []*apiv2.SizeConstraint{}, // FIXME
-		},
-	}
-
-	resp, err := c.c.Client.Adminv2().Size().Create(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Adminv2().Size().Create(ctx, connect.NewRequest(rq))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get size: %w", err)
 	}
