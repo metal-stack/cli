@@ -79,7 +79,11 @@ func (t *TablePrinter) MachineTable(data []*apiv2.Machine, wide bool) ([]string,
 		if len(machine.RecentProvisioningEvents.Events) > 0 {
 			since := time.Since(machine.RecentProvisioningEvents.LastEventTime.AsTime())
 			when = humanizeDuration(since)
-			lastEvent = machine.RecentProvisioningEvents.Events[0].Event
+			lastEventString, err := enum.GetStringValue(machine.RecentProvisioningEvents.Events[0].Event)
+			if err != nil {
+				return nil, nil, err
+			}
+			lastEvent = *lastEventString
 		}
 
 		emojis, _ := t.getMachineStatusEmojis(machine.Status.Liveliness, machine.RecentProvisioningEvents, machine.Status.Condition.State, alloc.Vpn)

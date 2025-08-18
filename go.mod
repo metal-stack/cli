@@ -1,6 +1,6 @@
 module github.com/metal-stack/cli
 
-go 1.24.0
+go 1.25
 
 require (
 	bou.ke/monkey v1.0.2
@@ -8,10 +8,9 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/google/go-cmp v0.7.0
-	github.com/metal-stack/api v0.0.11
+	github.com/metal-stack/api v0.0.12-0.20250818052029-1d3c54d0b728
 	github.com/metal-stack/metal-lib v0.23.3
 	github.com/metal-stack/v v1.0.3
-	github.com/olekukonko/tablewriter v1.0.9
 	github.com/spf13/afero v1.14.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.7
@@ -45,6 +44,7 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/errors v1.1.0 // indirect
 	github.com/olekukonko/ll v0.0.9 // indirect
+	github.com/olekukonko/tablewriter v1.0.9 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
