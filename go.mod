@@ -8,7 +8,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/google/go-cmp v0.7.0
-	github.com/metal-stack/api v0.0.12-0.20250818052029-1d3c54d0b728
+	github.com/metal-stack/api v0.0.13
 	github.com/metal-stack/metal-lib v0.23.3
 	github.com/metal-stack/v v1.0.3
 	github.com/spf13/afero v1.14.0
@@ -60,6 +60,6 @@ require (
 	golang.org/x/text v0.28.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.33.3 // indirect
+	k8s.io/apimachinery v0.33.4 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 )

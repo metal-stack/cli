@@ -11,7 +11,7 @@ func TokenSorter() *multisort.Sorter[*apiv2.Token] {
 			return multisort.Compare(a.Uuid, b.Uuid, descending)
 		},
 		"user": func(a, b *apiv2.Token, descending bool) multisort.CompareResult {
-			return multisort.Compare(a.UserId, b.UserId, descending)
+			return multisort.Compare(a.User, b.User, descending)
 		},
 		"type": func(a, b *apiv2.Token, descending bool) multisort.CompareResult {
 			return multisort.Compare(a.TokenType.String(), b.TokenType.String(), descending)

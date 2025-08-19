@@ -402,8 +402,8 @@ func (c *project) removeMember(args []string) error {
 	defer cancel()
 
 	_, err = c.c.Client.Apiv2().Project().RemoveMember(ctx, connect.NewRequest(&apiv2.ProjectServiceRemoveMemberRequest{
-		Project:  c.c.GetProject(),
-		MemberId: member,
+		Project: c.c.GetProject(),
+		Member:  member,
 	}))
 	if err != nil {
 		return fmt.Errorf("failed to remove member from project: %w", err)
@@ -424,9 +424,9 @@ func (c *project) updateMember(args []string) error {
 	defer cancel()
 
 	resp, err := c.c.Client.Apiv2().Project().UpdateMember(ctx, connect.NewRequest(&apiv2.ProjectServiceUpdateMemberRequest{
-		Project:  c.c.GetProject(),
-		MemberId: member,
-		Role:     apiv2.ProjectRole(apiv2.ProjectRole_value[viper.GetString("role")]),
+		Project: c.c.GetProject(),
+		Member:  member,
+		Role:    apiv2.ProjectRole(apiv2.ProjectRole_value[viper.GetString("role")]),
 	}))
 	if err != nil {
 		return fmt.Errorf("failed to update member: %w", err)

@@ -38,7 +38,7 @@ func (t *TablePrinter) MachineTable(data []*apiv2.Machine, wide bool) ([]string,
 		name := alloc.Name
 		desc := alloc.Description
 		hostname := alloc.Hostname
-		image := pointer.SafeDeref(alloc.Image.Name)
+		image := pointer.SafeDeref(pointer.SafeDeref(alloc.Image).Name)
 
 		rack := machine.Rack
 
@@ -52,7 +52,8 @@ func (t *TablePrinter) MachineTable(data []*apiv2.Machine, wide bool) ([]string,
 
 		started := ""
 		age := ""
-		if alloc.Meta.CreatedAt != nil && !alloc.Meta.CreatedAt.AsTime().IsZero() {
+
+		if alloc.Meta != nil && alloc.Meta.CreatedAt != nil && !alloc.Meta.CreatedAt.AsTime().IsZero() {
 			started = alloc.Meta.CreatedAt.AsTime().Format(time.RFC3339)
 			age = humanizeDuration(time.Since(alloc.Meta.CreatedAt.AsTime()))
 		}

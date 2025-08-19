@@ -398,8 +398,8 @@ func (c *tenant) removeMember(args []string) error {
 	defer cancel()
 
 	_, err = c.c.Client.Apiv2().Tenant().RemoveMember(ctx, connect.NewRequest(&apiv2.TenantServiceRemoveMemberRequest{
-		Login:    tenant,
-		MemberId: member,
+		Login:  tenant,
+		Member: member,
 	}))
 	if err != nil {
 		return fmt.Errorf("failed to remove member from tenant: %w", err)
@@ -425,9 +425,9 @@ func (c *tenant) updateMember(args []string) error {
 	defer cancel()
 
 	resp, err := c.c.Client.Apiv2().Tenant().UpdateMember(ctx, connect.NewRequest(&apiv2.TenantServiceUpdateMemberRequest{
-		Login:    tenant,
-		MemberId: member,
-		Role:     apiv2.TenantRole(apiv2.TenantRole_value[viper.GetString("role")]),
+		Login:  tenant,
+		Member: member,
+		Role:   apiv2.TenantRole(apiv2.TenantRole_value[viper.GetString("role")]),
 	}))
 	if err != nil {
 		return fmt.Errorf("failed to update member: %w", err)
