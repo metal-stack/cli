@@ -257,8 +257,7 @@ func (c *tenant) createRequestFromCLI() (*apiv2.TenantServiceCreateRequest, erro
 		Name:        viper.GetString("name"),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
 		Email:       pointer.PointerOrNil(viper.GetString("email")),
-		AvatarUrl:   pointer.PointerOrNil(viper.GetString("phone")),
-		PhoneNumber: pointer.PointerOrNil(viper.GetString("avatar-url")),
+		AvatarUrl:   pointer.PointerOrNil(viper.GetString("avatar-url")),
 	}, nil
 }
 
