@@ -58,7 +58,7 @@ func (c *token) List() ([]*apiv2.Token, error) {
 	req := &adminv2.TokenServiceListRequest{}
 
 	if viper.IsSet("user") {
-		req.UserId = pointer.Pointer(viper.GetString("user"))
+		req.User = pointer.Pointer(viper.GetString("user"))
 	}
 
 	resp, err := c.c.Client.Adminv2().Token().List(ctx, connect.NewRequest(req))
@@ -82,8 +82,8 @@ func (c *token) Delete(id string) (*apiv2.Token, error) {
 	}
 
 	req := &adminv2.TokenServiceRevokeRequest{
-		Uuid:   id,
-		UserId: viper.GetString("user"),
+		Uuid: id,
+		User: viper.GetString("user"),
 	}
 
 	_, err := c.c.Client.Adminv2().Token().Revoke(ctx, connect.NewRequest(req))

@@ -27,7 +27,7 @@ func (t *TablePrinter) TokenTable(data []*apiv2.Token, _ bool) ([]string, [][]st
 			token.TokenType.String(),
 			token.Uuid,
 			admin,
-			token.UserId,
+			token.User,
 			token.Description,
 			strconv.Itoa(len(token.TenantRoles) + len(token.ProjectRoles)),
 			strconv.Itoa(len(token.Permissions)),

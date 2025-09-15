@@ -7,7 +7,7 @@ import (
 
 func (t *TablePrinter) ContextTable(data *config.Contexts, wide bool) ([]string, [][]string, error) {
 	var (
-		header = []string{"", "Name", "Default Project"}
+		header = []string{"", "Name", "Provider", "Default Project"}
 		rows   [][]string
 	)
 
@@ -16,7 +16,7 @@ func (t *TablePrinter) ContextTable(data *config.Contexts, wide bool) ([]string,
 		if c.Name == data.CurrentContext {
 			active = color.GreenString("✔")
 		}
-		rows = append(rows, []string{active, c.Name, c.DefaultProject})
+		rows = append(rows, []string{active, c.Name, c.Provider, c.DefaultProject})
 	}
 
 	return header, rows, nil
