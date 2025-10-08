@@ -121,16 +121,17 @@ func (c *image) Convert(r *apiv2.Image) (string, *adminv2.ImageServiceCreateRequ
 				ExpiresAt:      r.ExpiresAt,
 			},
 		}, &adminv2.ImageServiceUpdateRequest{
-			Image: &apiv2.Image{
-				Id:             r.Id,
-				Url:            r.Url,
-				Name:           r.Name,
-				Description:    r.Description,
-				Features:       r.Features,
-				Meta:           r.Meta,
-				Classification: r.Classification,
-				ExpiresAt:      r.ExpiresAt,
+			Id:          r.Id,
+			Url:         &r.Url,
+			Name:        r.Name,
+			Description: r.Description,
+			Features:    r.Features,
+			UpdateMeta: &apiv2.UpdateMeta{
+				LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+				UpdatedAt:       r.Meta.UpdatedAt,
 			},
+			Classification: r.Classification,
+			ExpiresAt:      r.ExpiresAt,
 		}, nil
 
 }
@@ -144,16 +145,17 @@ func (c *image) Update(rq *adminv2.ImageServiceUpdateRequest) (*apiv2.Image, err
 		expiresAt = timestamppb.New(time.Now().Add(viper.GetDuration("expires-in")))
 	}
 
-	req := &adminv2.ImageServiceUpdateRequest{Image: &apiv2.Image{
+	req := &adminv2.ImageServiceUpdateRequest{
 		Id:          viper.GetString("id"),
-		Url:         viper.GetString("url"),
+		Url:         pointer.Pointer(viper.GetString("url")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
 		ExpiresAt:   expiresAt,
 		Features:    imageFeaturesFromString(viper.GetStringSlice("features")),
-		Meta:        &apiv2.Meta{
-			// TODO labels
+		UpdateMeta: &apiv2.UpdateMeta{
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+			UpdatedAt:       rq.UpdateMeta.GetUpdatedAt(),
 		},
-	}}
+	}
 
 	resp, err := c.c.Client.Adminv2().Image().Update(ctx, connect.NewRequest(req))
 	if err != nil {
