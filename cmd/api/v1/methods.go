@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sort"
 
-	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
@@ -24,12 +23,12 @@ func newMethodsCmd(c *config.Config) *cobra.Command {
 
 				req := &apiv2.MethodServiceTokenScopedListRequest{}
 
-				resp, err := c.Client.Apiv2().Method().TokenScopedList(ctx, connect.NewRequest(req))
+				resp, err := c.Client.Apiv2().Method().TokenScopedList(ctx, req)
 				if err != nil {
 					return fmt.Errorf("failed to list methods: %w", err)
 				}
 
-				return printers.NewProtoYAMLPrinter().WithOut(c.Out).Print(resp.Msg)
+				return printers.NewProtoYAMLPrinter().WithOut(c.Out).Print(resp)
 			}
 
 			var (
@@ -37,12 +36,12 @@ func newMethodsCmd(c *config.Config) *cobra.Command {
 				req     = &apiv2.MethodServiceListRequest{}
 			)
 
-			resp, err := c.Client.Apiv2().Method().List(ctx, connect.NewRequest(req))
+			resp, err := c.Client.Apiv2().Method().List(ctx, req)
 			if err != nil {
 				return fmt.Errorf("failed to list methods: %w", err)
 			}
 
-			methods = resp.Msg.GetMethods()
+			methods = resp.GetMethods()
 
 			sort.Strings(methods)
 

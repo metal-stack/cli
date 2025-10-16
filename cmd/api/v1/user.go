@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 
-	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
@@ -47,12 +46,12 @@ func (c *user) Get(id string) (*apiv2.User, error) {
 
 	req := &apiv2.UserServiceGetRequest{}
 
-	resp, err := c.c.Client.Apiv2().User().Get(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().User().Get(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	return resp.Msg.GetUser(), nil
+	return resp.GetUser(), nil
 }
 
 func (c *user) List() ([]*apiv2.User, error) {

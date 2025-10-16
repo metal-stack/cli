@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"connectrpc.com/connect"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -52,12 +51,12 @@ func (c *image) Get(id string) (*apiv2.Image, error) {
 
 	req := &apiv2.ImageServiceGetRequest{Id: id}
 
-	resp, err := c.c.Client.Apiv2().Image().Get(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Image().Get(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get image: %w", err)
 	}
 
-	return resp.Msg.Image, nil
+	return resp.Image, nil
 }
 
 func (c *image) Create(rq *adminv2.ImageServiceCreateRequest) (*apiv2.Image, error) {
@@ -82,12 +81,12 @@ func (c *image) Create(rq *adminv2.ImageServiceCreateRequest) (*apiv2.Image, err
 		},
 	}
 
-	resp, err := c.c.Client.Adminv2().Image().Create(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Adminv2().Image().Create(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get image: %w", err)
 	}
 
-	return resp.Msg.Image, nil
+	return resp.Image, nil
 }
 
 func (c *image) Delete(id string) (*apiv2.Image, error) {
@@ -96,12 +95,12 @@ func (c *image) Delete(id string) (*apiv2.Image, error) {
 
 	req := &adminv2.ImageServiceDeleteRequest{Id: id}
 
-	resp, err := c.c.Client.Adminv2().Image().Delete(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Adminv2().Image().Delete(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete image: %w", err)
 	}
 
-	return resp.Msg.Image, nil
+	return resp.Image, nil
 }
 func (c *image) List() ([]*apiv2.Image, error) {
 	panic("unimplemented")
@@ -157,12 +156,12 @@ func (c *image) Update(rq *adminv2.ImageServiceUpdateRequest) (*apiv2.Image, err
 		},
 	}
 
-	resp, err := c.c.Client.Adminv2().Image().Update(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Adminv2().Image().Update(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get image: %w", err)
 	}
 
-	return resp.Msg.Image, nil
+	return resp.Image, nil
 }
 
 func imageFeaturesFromString(features []string) []apiv2.ImageFeature {

@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 
-	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -125,12 +124,12 @@ func (c *ip) Create(rq *apiv2.IPServiceCreateRequest) (*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().IP().Create(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().IP().Create(ctx, rq)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ip, nil
+	return resp.Ip, nil
 }
 
 func (c *ip) Delete(id string) (*apiv2.IP, error) {
@@ -150,53 +149,53 @@ func (c *ip) Delete(id string) (*apiv2.IP, error) {
 		}
 	}
 
-	resp, err := c.c.Client.Apiv2().IP().Delete(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().IP().Delete(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ip, nil
+	return resp.Ip, nil
 }
 
 func (c *ip) Get(id string) (*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().IP().Get(ctx, connect.NewRequest(&apiv2.IPServiceGetRequest{
+	resp, err := c.c.Client.Apiv2().IP().Get(ctx, &apiv2.IPServiceGetRequest{
 		Project: c.c.GetProject(),
 		Ip:      id,
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ip, nil
+	return resp.Ip, nil
 }
 
 func (c *ip) List() ([]*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().IP().List(ctx, connect.NewRequest(&apiv2.IPServiceListRequest{
+	resp, err := c.c.Client.Apiv2().IP().List(ctx, &apiv2.IPServiceListRequest{
 		Project: c.c.GetProject(),
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ips, nil
+	return resp.Ips, nil
 }
 
 func (c *ip) Update(rq *apiv2.IPServiceUpdateRequest) (*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().IP().Update(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().IP().Update(ctx, rq)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ip, nil
+	return resp.Ip, nil
 }
 
 func (c *ip) Convert(r *apiv2.IP) (string, *apiv2.IPServiceCreateRequest, *apiv2.IPServiceUpdateRequest, error) {
@@ -219,10 +218,10 @@ func (c *ip) IpResponseToUpdate(desired *apiv2.IP) (*apiv2.IPServiceUpdateReques
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	current, err := c.c.Client.Apiv2().IP().Get(ctx, connect.NewRequest(&apiv2.IPServiceGetRequest{
+	current, err := c.c.Client.Apiv2().IP().Get(ctx, &apiv2.IPServiceGetRequest{
 		Ip:      desired.Ip,
 		Project: desired.Project,
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +231,7 @@ func (c *ip) IpResponseToUpdate(desired *apiv2.IP) (*apiv2.IPServiceUpdateReques
 		Update: &apiv2.Labels{},
 	}
 
-	for key, currentValue := range current.Msg.Ip.Meta.Labels.Labels {
+	for key, currentValue := range current.Ip.Meta.Labels.Labels {
 		value, ok := desired.Meta.Labels.Labels[key]
 
 		if !ok {
