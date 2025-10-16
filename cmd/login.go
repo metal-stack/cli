@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"time"
 
-	"connectrpc.com/connect"
 	"github.com/fatih/color"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -129,16 +128,16 @@ func (l *login) login() error {
 			return err
 		}
 
-		tokenResp, err := mc.Apiv2().Token().Create(context.Background(), connect.NewRequest(&apiv2.TokenServiceCreateRequest{
+		tokenResp, err := mc.Apiv2().Token().Create(context.Background(), &apiv2.TokenServiceCreateRequest{
 			Description: "admin access issues by metal cli",
 			Expires:     durationpb.New(3 * time.Hour),
 			AdminRole:   pointer.Pointer(apiv2.AdminRole((apiv2.AdminRole_value[viper.GetString("admin-role")]))),
-		}))
+		})
 		if err != nil {
 			return fmt.Errorf("unable to issue admin token: %w", err)
 		}
 
-		token = tokenResp.Msg.Secret
+		token = tokenResp.Secret
 	}
 
 	ctx.Token = token
@@ -149,13 +148,13 @@ func (l *login) login() error {
 			return err
 		}
 
-		projects, err := mc.Apiv2().Project().List(context.Background(), connect.NewRequest(&apiv2.ProjectServiceListRequest{}))
+		projects, err := mc.Apiv2().Project().List(context.Background(), &apiv2.ProjectServiceListRequest{})
 		if err != nil {
 			return fmt.Errorf("unable to retrieve project list: %w", err)
 		}
 
-		if len(projects.Msg.Projects) > 0 {
-			ctx.DefaultProject = projects.Msg.Projects[0].Uuid
+		if len(projects.Projects) > 0 {
+			ctx.DefaultProject = projects.Projects[0].Uuid
 		}
 	}
 

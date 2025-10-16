@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
@@ -68,12 +67,12 @@ func (c *image) Get(id string) (*apiv2.Image, error) {
 
 	req := &apiv2.ImageServiceGetRequest{Id: id}
 
-	resp, err := c.c.Client.Apiv2().Image().Get(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Image().Get(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get image: %w", err)
 	}
 
-	return resp.Msg.Image, nil
+	return resp.Image, nil
 }
 
 func (c *image) List() ([]*apiv2.Image, error) {
@@ -89,12 +88,12 @@ func (c *image) List() ([]*apiv2.Image, error) {
 		Feature:     imageFeatureFromString(viper.GetString("feature")),
 	}}
 
-	resp, err := c.c.Client.Apiv2().Image().List(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Image().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get images: %w", err)
 	}
 
-	return resp.Msg.Images, nil
+	return resp.Images, nil
 }
 
 func (c *image) latest() error {
@@ -103,12 +102,12 @@ func (c *image) latest() error {
 
 	req := &apiv2.ImageServiceLatestRequest{Os: viper.GetString("os")}
 
-	resp, err := c.c.Client.Apiv2().Image().Latest(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Image().Latest(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to get images: %w", err)
 	}
 
-	return c.c.ListPrinter.Print(resp.Msg.Image)
+	return c.c.ListPrinter.Print(resp.Image)
 }
 
 func imageFeatureFromString(feature string) *apiv2.ImageFeature {
