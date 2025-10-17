@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -102,22 +101,22 @@ func (c *networkCmd) Get(id string) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().Get(ctx, connect.NewRequest(&apiv2.NetworkServiceGetRequest{
+	resp, err := c.c.Client.Apiv2().Network().Get(ctx, &apiv2.NetworkServiceGetRequest{
 		Id:      id,
 		Project: c.c.GetProject(),
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Network, nil
+	return resp.Network, nil
 }
 
 func (c *networkCmd) List() ([]*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().List(ctx, connect.NewRequest(&apiv2.NetworkServiceListRequest{
+	resp, err := c.c.Client.Apiv2().Network().List(ctx, &apiv2.NetworkServiceListRequest{
 		Project: c.c.GetProject(),
 		Query: &apiv2.NetworkQuery{
 			Id:                  pointer.PointerOrNil(viper.GetString("id")),
@@ -128,41 +127,41 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 			Prefixes:            viper.GetStringSlice("prefixes"),
 			DestinationPrefixes: viper.GetStringSlice("destination-prefixes"),
 			Vrf:                 pointer.PointerOrNil(viper.GetUint32("vrf")),
-			ParentNetworkId:     pointer.PointerOrNil(viper.GetString("parent-network-id")),
+			ParentNetwork:       pointer.PointerOrNil(viper.GetString("parent-network-id")),
 			AddressFamily:       common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
 			Labels: &apiv2.Labels{
 				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
 			},
 		},
-	}))
+	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Networks, nil
+	return resp.Networks, nil
 }
 
 func (c *networkCmd) Delete(id string) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().Delete(ctx, connect.NewRequest(&apiv2.NetworkServiceDeleteRequest{
+	resp, err := c.c.Client.Apiv2().Network().Delete(ctx, &apiv2.NetworkServiceDeleteRequest{
 		Id:      id,
 		Project: c.c.GetProject(),
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Network, nil
+	return resp.Network, nil
 }
 
 func (c *networkCmd) Create(rq *apiv2.NetworkServiceCreateRequest) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().Create(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().Network().Create(ctx, rq)
 	if err != nil {
 		if s, ok := status.FromError(err); ok && s.Code() == codes.AlreadyExists {
 			return nil, genericcli.AlreadyExistsError()
@@ -170,19 +169,19 @@ func (c *networkCmd) Create(rq *apiv2.NetworkServiceCreateRequest) (*apiv2.Netwo
 		return nil, err
 	}
 
-	return resp.Msg.Network, nil
+	return resp.Network, nil
 }
 
 func (c *networkCmd) Update(rq *apiv2.NetworkServiceUpdateRequest) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().Update(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().Network().Update(ctx, rq)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Network, nil
+	return resp.Network, nil
 }
 
 func (c *networkCmd) Convert(r *apiv2.Network) (string, *apiv2.NetworkServiceCreateRequest, *apiv2.NetworkServiceUpdateRequest, error) {
@@ -200,7 +199,7 @@ func networkResponseToCreate(r *apiv2.Network) *apiv2.NetworkServiceCreateReques
 		Labels: &apiv2.Labels{
 			Labels: pointer.SafeDeref(meta.Labels).Labels,
 		},
-		ParentNetworkId: r.ParentNetworkId,
+		ParentNetwork: r.ParentNetwork,
 		// TODO: allow defining length and addressfamilies somehow?
 	}
 }
@@ -242,9 +241,9 @@ func (c *networkCmd) createRequestFromCLI() (*apiv2.NetworkServiceCreateRequest,
 		Labels: &apiv2.Labels{
 			Labels: labels,
 		},
-		ParentNetworkId: pointer.PointerOrNil(viper.GetString("parent-network-id")),
-		Length:          cpl,
-		AddressFamily:   common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
+		ParentNetwork: pointer.PointerOrNil(viper.GetString("parent-network-id")),
+		Length:        cpl,
+		AddressFamily: common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
 	}, nil
 }
 
@@ -294,7 +293,7 @@ func (c *networkCmd) listBaseNetworks() error {
 		nwType = &nt
 	}
 
-	resp, err := c.c.Client.Apiv2().Network().ListBaseNetworks(ctx, connect.NewRequest(&apiv2.NetworkServiceListBaseNetworksRequest{
+	resp, err := c.c.Client.Apiv2().Network().ListBaseNetworks(ctx, &apiv2.NetworkServiceListBaseNetworksRequest{
 		Project: c.c.GetProject(),
 		Query: &apiv2.NetworkQuery{
 			Id:                  pointer.PointerOrNil(viper.GetString("id")),
@@ -311,11 +310,11 @@ func (c *networkCmd) listBaseNetworks() error {
 			},
 			Type: nwType,
 		},
-	}))
+	})
 
 	if err != nil {
 		return err
 	}
 
-	return c.c.ListPrinter.Print(resp.Msg.Networks)
+	return c.c.ListPrinter.Print(resp.Networks)
 }

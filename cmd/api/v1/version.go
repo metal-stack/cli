@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 
-	"connectrpc.com/connect"
 	v1 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/v"
@@ -28,9 +27,9 @@ func newVersionCmd(c *config.Config) *cobra.Command {
 				Client: v.V.String(),
 			}
 
-			resp, err := c.Client.Apiv2().Version().Get(ctx, connect.NewRequest(&v1.VersionServiceGetRequest{}))
+			resp, err := c.Client.Apiv2().Version().Get(ctx, &v1.VersionServiceGetRequest{})
 			if err == nil {
-				v.Server = resp.Msg.Version
+				v.Server = resp.Version
 			}
 
 			if err := c.DescribePrinter.Print(v); err != nil {

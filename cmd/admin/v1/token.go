@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 
-	"connectrpc.com/connect"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -58,15 +57,15 @@ func (c *token) List() ([]*apiv2.Token, error) {
 	req := &adminv2.TokenServiceListRequest{}
 
 	if viper.IsSet("user") {
-		req.UserId = pointer.Pointer(viper.GetString("user"))
+		req.User = pointer.Pointer(viper.GetString("user"))
 	}
 
-	resp, err := c.c.Client.Adminv2().Token().List(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Adminv2().Token().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tokens: %w", err)
 	}
 
-	return resp.Msg.GetTokens(), nil
+	return resp.GetTokens(), nil
 }
 
 func (t *token) Create(rq any) (*apiv2.Token, error) {
@@ -82,11 +81,11 @@ func (c *token) Delete(id string) (*apiv2.Token, error) {
 	}
 
 	req := &adminv2.TokenServiceRevokeRequest{
-		Uuid:   id,
-		UserId: viper.GetString("user"),
+		Uuid: id,
+		User: viper.GetString("user"),
 	}
 
-	_, err := c.c.Client.Adminv2().Token().Revoke(ctx, connect.NewRequest(req))
+	_, err := c.c.Client.Adminv2().Token().Revoke(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to revoke token: %w", err)
 	}

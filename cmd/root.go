@@ -123,12 +123,15 @@ func initConfigWithViperCtx(c *config.Config) error {
 }
 
 func newApiClient(apiURL, token string) (client.Client, error) {
+	logLevel := slog.LevelInfo
+	if viper.GetBool("debug") {
+		logLevel = slog.LevelDebug
+	}
 	dialConfig := &client.DialConfig{
 		BaseURL:   apiURL,
 		Token:     token,
 		UserAgent: "metal-stack-cli",
-		Debug:     viper.GetBool("debug"),
-		Log:       slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})),
+		Log:       slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel})),
 	}
 
 	return client.New(dialConfig)

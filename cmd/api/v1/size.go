@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 
-	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
@@ -50,12 +49,12 @@ func (c *size) Get(id string) (*apiv2.Size, error) {
 
 	req := &apiv2.SizeServiceGetRequest{Id: id}
 
-	resp, err := c.c.Client.Apiv2().Size().Get(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Size().Get(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get size: %w", err)
 	}
 
-	return resp.Msg.Size, nil
+	return resp.Size, nil
 }
 
 func (c *size) List() ([]*apiv2.Size, error) {
@@ -68,12 +67,12 @@ func (c *size) List() ([]*apiv2.Size, error) {
 		Description: pointer.PointerOrNil(viper.GetString("description")),
 	}}
 
-	resp, err := c.c.Client.Apiv2().Size().List(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Size().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sizes: %w", err)
 	}
 
-	return resp.Msg.Sizes, nil
+	return resp.Sizes, nil
 }
 
 func (c *size) Create(rq any) (*apiv2.Size, error) {

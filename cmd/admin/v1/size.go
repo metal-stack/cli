@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 
-	"connectrpc.com/connect"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -45,24 +44,24 @@ func (c *size) Get(id string) (*apiv2.Size, error) {
 
 	req := &apiv2.SizeServiceGetRequest{Id: id}
 
-	resp, err := c.c.Client.Apiv2().Size().Get(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Size().Get(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get image: %w", err)
 	}
 
-	return resp.Msg.Size, nil
+	return resp.Size, nil
 }
 
 func (c *size) Create(rq *adminv2.SizeServiceCreateRequest) (*apiv2.Size, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Adminv2().Size().Create(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Adminv2().Size().Create(ctx, rq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get size: %w", err)
 	}
 
-	return resp.Msg.Size, nil
+	return resp.Size, nil
 }
 
 func (c *size) Delete(id string) (*apiv2.Size, error) {
@@ -71,12 +70,12 @@ func (c *size) Delete(id string) (*apiv2.Size, error) {
 
 	req := &adminv2.SizeServiceDeleteRequest{Id: id}
 
-	resp, err := c.c.Client.Adminv2().Size().Delete(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Adminv2().Size().Delete(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete size: %w", err)
 	}
 
-	return resp.Msg.Size, nil
+	return resp.Size, nil
 }
 func (c *size) List() ([]*apiv2.Size, error) {
 	panic("unimplemented")
@@ -115,10 +114,10 @@ func (c *size) Update(rq *adminv2.SizeServiceUpdateRequest) (*apiv2.Size, error)
 		Labels:      &apiv2.UpdateLabels{}, // FIXME
 	}
 
-	resp, err := c.c.Client.Adminv2().Size().Update(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Adminv2().Size().Update(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get image: %w", err)
 	}
 
-	return resp.Msg.Size, nil
+	return resp.Size, nil
 }

@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"connectrpc.com/connect"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -47,14 +46,14 @@ func (c *ip) List() ([]*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Adminv2().IP().List(ctx, connect.NewRequest(&adminv2.IPServiceListRequest{
+	resp, err := c.c.Client.Adminv2().IP().List(ctx, &adminv2.IPServiceListRequest{
 		Query: &apiv2.IPQuery{},
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ips, nil
+	return resp.Ips, nil
 }
 
 func (t *ip) Get(id string) (*apiv2.IP, error) {

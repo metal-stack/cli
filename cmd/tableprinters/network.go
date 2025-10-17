@@ -29,13 +29,13 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 
 	nn := &networks{}
 	for _, n := range data {
-		if n.ParentNetworkId == nil {
+		if n.ParentNetwork == nil {
 			*nn = append(*nn, &network{parent: n})
 		}
 	}
 	for _, n := range data {
-		if n.ParentNetworkId != nil {
-			if !nn.appendChild(*n.ParentNetworkId, n) {
+		if n.ParentNetwork != nil {
+			if !nn.appendChild(*n.ParentNetwork, n) {
 				*nn = append(*nn, &network{parent: n})
 			}
 		}
