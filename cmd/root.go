@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"log/slog"
 	"os"
 
 	client "github.com/metal-stack/api/go/client"
@@ -108,7 +109,10 @@ func initConfigWithViperCtx(c *config.Config) error {
 		return nil
 	}
 
-	mc := newApiClient(c.GetApiURL(), c.GetToken())
+	mc, err := newApiClient(c.GetApiURL(), c.GetToken())
+	if err != nil {
+		return err
+	}
 
 	c.Client = mc
 	c.Completion.Client = mc
@@ -118,12 +122,16 @@ func initConfigWithViperCtx(c *config.Config) error {
 	return nil
 }
 
-func newApiClient(apiURL, token string) client.Client {
-	dialConfig := client.DialConfig{
+func newApiClient(apiURL, token string) (client.Client, error) {
+	logLevel := slog.LevelInfo
+	if viper.GetBool("debug") {
+		logLevel = slog.LevelDebug
+	}
+	dialConfig := &client.DialConfig{
 		BaseURL:   apiURL,
 		Token:     token,
 		UserAgent: "metal-stack-cli",
-		Debug:     viper.GetBool("debug"),
+		Log:       slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel})),
 	}
 
 	return client.New(dialConfig)

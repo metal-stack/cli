@@ -7,7 +7,6 @@ import (
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/pkg/helpers"
-	"github.com/olekukonko/tablewriter"
 )
 
 func (t *TablePrinter) TokenTable(data []*apiv2.Token, _ bool) ([]string, [][]string, error) {
@@ -28,7 +27,7 @@ func (t *TablePrinter) TokenTable(data []*apiv2.Token, _ bool) ([]string, [][]st
 			token.TokenType.String(),
 			token.Uuid,
 			admin,
-			token.UserId,
+			token.User,
 			token.Description,
 			strconv.Itoa(len(token.TenantRoles) + len(token.ProjectRoles)),
 			strconv.Itoa(len(token.Permissions)),
@@ -38,9 +37,7 @@ func (t *TablePrinter) TokenTable(data []*apiv2.Token, _ bool) ([]string, [][]st
 		rows = append(rows, row)
 	}
 
-	t.t.MutateTable(func(table *tablewriter.Table) {
-		table.SetAutoWrapText(false)
-	})
+	t.t.DisableAutoWrap(false)
 
 	return header, rows, nil
 }

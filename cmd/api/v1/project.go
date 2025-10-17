@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 
-	"connectrpc.com/connect"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -171,12 +170,12 @@ func (c *project) Get(id string) (*apiv2.Project, error) {
 		Project: id,
 	}
 
-	resp, err := c.c.Client.Apiv2().Project().Get(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Project().Get(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get project: %w", err)
 	}
 
-	return resp.Msg.GetProject(), nil
+	return resp.GetProject(), nil
 }
 
 func (c *project) List() ([]*apiv2.Project, error) {
@@ -188,38 +187,38 @@ func (c *project) List() ([]*apiv2.Project, error) {
 		Tenant: pointer.PointerOrNil(viper.GetString("tenant")),
 	}
 
-	resp, err := c.c.Client.Apiv2().Project().List(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Project().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list projects: %w", err)
 	}
 
-	return resp.Msg.GetProjects(), nil
+	return resp.GetProjects(), nil
 }
 
 func (c *project) Create(rq *apiv2.ProjectServiceCreateRequest) (*apiv2.Project, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Project().Create(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().Project().Create(ctx, rq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create project: %w", err)
 	}
 
-	return resp.Msg.Project, nil
+	return resp.Project, nil
 }
 
 func (c *project) Delete(id string) (*apiv2.Project, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Project().Delete(ctx, connect.NewRequest(&apiv2.ProjectServiceDeleteRequest{
+	resp, err := c.c.Client.Apiv2().Project().Delete(ctx, &apiv2.ProjectServiceDeleteRequest{
 		Project: id,
-	}))
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete project: %w", err)
 	}
 
-	return resp.Msg.Project, nil
+	return resp.Project, nil
 }
 
 func (c *project) Convert(r *apiv2.Project) (string, *apiv2.ProjectServiceCreateRequest, *apiv2.ProjectServiceUpdateRequest, error) {
@@ -238,12 +237,12 @@ func (c *project) Update(rq *apiv2.ProjectServiceUpdateRequest) (*apiv2.Project,
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Project().Update(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().Project().Update(ctx, rq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update project: %w", err)
 	}
 
-	return resp.Msg.Project, nil
+	return resp.Project, nil
 }
 
 func (c *project) createRequestFromCLI() (*apiv2.ProjectServiceCreateRequest, error) {
@@ -294,9 +293,9 @@ func (c *project) join(args []string) error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Project().InviteGet(ctx, connect.NewRequest(&apiv2.ProjectServiceInviteGetRequest{
+	resp, err := c.c.Client.Apiv2().Project().InviteGet(ctx, &apiv2.ProjectServiceInviteGetRequest{
 		Secret: secret,
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to get project invite: %w", err)
 	}
@@ -305,8 +304,8 @@ func (c *project) join(args []string) error {
 		ShowAnswers: true,
 		Message: fmt.Sprintf(
 			"Do you want to join project \"%s\" as %s?",
-			color.GreenString(resp.Msg.GetInvite().GetProjectName()),
-			resp.Msg.GetInvite().GetRole().String(),
+			color.GreenString(resp.GetInvite().GetProjectName()),
+			resp.GetInvite().GetRole().String(),
 		),
 		In:  c.c.In,
 		Out: c.c.Out,
@@ -318,14 +317,14 @@ func (c *project) join(args []string) error {
 	ctx2, cancel2 := c.c.NewRequestContext()
 	defer cancel2()
 
-	acceptResp, err := c.c.Client.Apiv2().Project().InviteAccept(ctx2, connect.NewRequest(&apiv2.ProjectServiceInviteAcceptRequest{
+	acceptResp, err := c.c.Client.Apiv2().Project().InviteAccept(ctx2, &apiv2.ProjectServiceInviteAcceptRequest{
 		Secret: secret,
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to join project: %w", err)
 	}
 
-	_, _ = fmt.Fprintf(c.c.Out, "%s successfully joined project \"%s\"\n", color.GreenString("✔"), color.GreenString(acceptResp.Msg.ProjectName))
+	_, _ = fmt.Fprintf(c.c.Out, "%s successfully joined project \"%s\"\n", color.GreenString("✔"), color.GreenString(acceptResp.ProjectName))
 
 	return nil
 }
@@ -339,16 +338,16 @@ func (c *project) generateInvite() error {
 		return fmt.Errorf("project is required")
 	}
 
-	resp, err := c.c.Client.Apiv2().Project().Invite(ctx, connect.NewRequest(&apiv2.ProjectServiceInviteRequest{
+	resp, err := c.c.Client.Apiv2().Project().Invite(ctx, &apiv2.ProjectServiceInviteRequest{
 		Project: project,
 		Role:    apiv2.ProjectRole(apiv2.ProjectRole_value[viper.GetString("role")]),
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to generate an invite: %w", err)
 	}
 
-	_, _ = fmt.Fprintf(c.c.Out, "You can share this secret with the member to join, it expires in %s:\n\n", humanize.Time(resp.Msg.Invite.ExpiresAt.AsTime()))
-	_, _ = fmt.Fprintf(c.c.Out, "%s (https://console.metal-stack.io/project-invite/%s)\n", resp.Msg.Invite.Secret, resp.Msg.Invite.Secret)
+	_, _ = fmt.Fprintf(c.c.Out, "You can share this secret with the member to join, it expires in %s:\n\n", humanize.Time(resp.Invite.ExpiresAt.AsTime()))
+	_, _ = fmt.Fprintf(c.c.Out, "%s (https://console.metal-stack.io/project-invite/%s)\n", resp.Invite.Secret, resp.Invite.Secret)
 
 	return nil
 }
@@ -357,19 +356,19 @@ func (c *project) listInvites() error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Project().InvitesList(ctx, connect.NewRequest(&apiv2.ProjectServiceInvitesListRequest{
+	resp, err := c.c.Client.Apiv2().Project().InvitesList(ctx, &apiv2.ProjectServiceInvitesListRequest{
 		Project: c.c.GetProject(),
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to list invites: %w", err)
 	}
 
-	err = sorters.ProjectInviteSorter().SortBy(resp.Msg.Invites)
+	err = sorters.ProjectInviteSorter().SortBy(resp.Invites)
 	if err != nil {
 		return err
 	}
 
-	return c.c.ListPrinter.Print(resp.Msg.Invites)
+	return c.c.ListPrinter.Print(resp.Invites)
 }
 
 func (c *project) deleteInvite(args []string) error {
@@ -381,10 +380,10 @@ func (c *project) deleteInvite(args []string) error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	_, err = c.c.Client.Apiv2().Project().InviteDelete(ctx, connect.NewRequest(&apiv2.ProjectServiceInviteDeleteRequest{
+	_, err = c.c.Client.Apiv2().Project().InviteDelete(ctx, &apiv2.ProjectServiceInviteDeleteRequest{
 		Project: c.c.GetProject(),
 		Secret:  secret,
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to delete invite: %w", err)
 	}
@@ -401,10 +400,10 @@ func (c *project) removeMember(args []string) error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	_, err = c.c.Client.Apiv2().Project().RemoveMember(ctx, connect.NewRequest(&apiv2.ProjectServiceRemoveMemberRequest{
-		Project:  c.c.GetProject(),
-		MemberId: member,
-	}))
+	_, err = c.c.Client.Apiv2().Project().RemoveMember(ctx, &apiv2.ProjectServiceRemoveMemberRequest{
+		Project: c.c.GetProject(),
+		Member:  member,
+	})
 	if err != nil {
 		return fmt.Errorf("failed to remove member from project: %w", err)
 	}
@@ -423,30 +422,30 @@ func (c *project) updateMember(args []string) error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Project().UpdateMember(ctx, connect.NewRequest(&apiv2.ProjectServiceUpdateMemberRequest{
-		Project:  c.c.GetProject(),
-		MemberId: member,
-		Role:     apiv2.ProjectRole(apiv2.ProjectRole_value[viper.GetString("role")]),
-	}))
+	resp, err := c.c.Client.Apiv2().Project().UpdateMember(ctx, &apiv2.ProjectServiceUpdateMemberRequest{
+		Project: c.c.GetProject(),
+		Member:  member,
+		Role:    apiv2.ProjectRole(apiv2.ProjectRole_value[viper.GetString("role")]),
+	})
 	if err != nil {
 		return fmt.Errorf("failed to update member: %w", err)
 	}
 
-	return c.c.DescribePrinter.Print(resp.Msg.GetProjectMember())
+	return c.c.DescribePrinter.Print(resp.GetProjectMember())
 }
 
 func (c *project) listMembers() error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Project().Get(ctx, connect.NewRequest(&apiv2.ProjectServiceGetRequest{
+	resp, err := c.c.Client.Apiv2().Project().Get(ctx, &apiv2.ProjectServiceGetRequest{
 		Project: c.c.GetProject(),
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to get project: %w", err)
 	}
 
-	members := resp.Msg.GetProjectMembers()
+	members := resp.GetProjectMembers()
 
 	if err := sorters.ProjectMemberSorter().SortBy(members); err != nil {
 		return err

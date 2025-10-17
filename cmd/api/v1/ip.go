@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 
-	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -123,19 +122,19 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 	// FIXME implement
 	// }
 
-	return IpResponseToUpdate(ipToUpdate), nil
+	return c.IpResponseToUpdate(ipToUpdate)
 }
 
 func (c *ip) Create(rq *apiv2.IPServiceCreateRequest) (*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().IP().Create(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().IP().Create(ctx, rq)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ip, nil
+	return resp.Ip, nil
 }
 
 func (c *ip) Delete(id string) (*apiv2.IP, error) {
@@ -155,12 +154,12 @@ func (c *ip) Delete(id string) (*apiv2.IP, error) {
 		}
 	}
 
-	resp, err := c.c.Client.Apiv2().IP().Delete(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().IP().Delete(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ip, nil
+	return resp.Ip, nil
 }
 
 func (c *ip) Get(id string) (*apiv2.IP, error) {
@@ -174,46 +173,47 @@ func (c *ip) Get(id string) (*apiv2.IP, error) {
 		namespace = pointer.Pointer(viper.GetString("namespace"))
 	}
 
-	resp, err := c.c.Client.Apiv2().IP().Get(ctx, connect.NewRequest(&apiv2.IPServiceGetRequest{
+	resp, err := c.c.Client.Apiv2().IP().Get(ctx, &apiv2.IPServiceGetRequest{
 		Project:   c.c.GetProject(),
 		Ip:        id,
 		Namespace: namespace,
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ip, nil
+	return resp.Ip, nil
 }
 
 func (c *ip) List() ([]*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().IP().List(ctx, connect.NewRequest(&apiv2.IPServiceListRequest{
+	resp, err := c.c.Client.Apiv2().IP().List(ctx, &apiv2.IPServiceListRequest{
 		Project: c.c.GetProject(),
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ips, nil
+	return resp.Ips, nil
 }
 
 func (c *ip) Update(rq *apiv2.IPServiceUpdateRequest) (*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().IP().Update(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().IP().Update(ctx, rq)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Ip, nil
+	return resp.Ip, nil
 }
 
-func (*ip) Convert(r *apiv2.IP) (string, *apiv2.IPServiceCreateRequest, *apiv2.IPServiceUpdateRequest, error) {
-	return helpers.EncodeProject(r.Uuid, r.Project), IpResponseToCreate(r), IpResponseToUpdate(r), nil
+func (c *ip) Convert(r *apiv2.IP) (string, *apiv2.IPServiceCreateRequest, *apiv2.IPServiceUpdateRequest, error) {
+	responseToUpdate, err := c.IpResponseToUpdate(r)
+	return helpers.EncodeProject(r.Uuid, r.Project), IpResponseToCreate(r), responseToUpdate, err
 }
 
 func IpResponseToCreate(r *apiv2.IP) *apiv2.IPServiceCreateRequest {
@@ -226,17 +226,66 @@ func IpResponseToCreate(r *apiv2.IP) *apiv2.IPServiceCreateRequest {
 	}
 }
 
-func IpResponseToUpdate(r *apiv2.IP) *apiv2.IPServiceUpdateRequest {
-	meta := pointer.SafeDeref(r.Meta)
+func (c *ip) IpResponseToUpdate(desired *apiv2.IP) (*apiv2.IPServiceUpdateRequest, error) {
+
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	current, err := c.c.Client.Apiv2().IP().Get(ctx, &apiv2.IPServiceGetRequest{
+		Ip:      desired.Ip,
+		Project: desired.Project,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	updateLabels := &apiv2.UpdateLabels{
+		Remove: []string{},
+		Update: &apiv2.Labels{},
+	}
+
+	for key, currentValue := range current.Ip.Meta.Labels.Labels {
+		value, ok := desired.Meta.Labels.Labels[key]
+
+		if !ok {
+			updateLabels.Remove = append(updateLabels.Remove, key)
+			continue
+		}
+
+		if currentValue != value {
+			if updateLabels.Update.Labels == nil {
+				updateLabels.Update.Labels = map[string]string{}
+			}
+			updateLabels.Update.Labels[key] = value
+		}
+	}
 
 	return &apiv2.IPServiceUpdateRequest{
-		Project:     r.Project,
-		Ip:          r.Ip,
-		Name:        &r.Name,
-		Description: &r.Description,
-		Type:        &r.Type,
-		Labels: &apiv2.UpdateLabels{
-			Update: meta.Labels, // TODO: this only ensures that the labels are present but it does not cleanup old one's, which would require fetching the current state and calculating the diff
-		},
+		Project:     desired.Project,
+		Ip:          desired.Ip,
+		Name:        &desired.Name,
+		Description: &desired.Description,
+		Type:        &desired.Type,
+		Labels:      updateLabels,
+	}, nil
+}
+
+func ipStaticToType(b bool) apiv2.IPType {
+	if b {
+		return apiv2.IPType_IP_TYPE_STATIC
+	}
+	return apiv2.IPType_IP_TYPE_EPHEMERAL
+}
+
+func addressFamilyToType(af string) *apiv2.IPAddressFamily {
+	switch af {
+	case "":
+		return nil
+	case "ipv4", "IPv4":
+		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4.Enum()
+	case "ipv6", "IPv6":
+		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V6.Enum()
+	default:
+		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_UNSPECIFIED.Enum()
 	}
 }

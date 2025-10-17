@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -128,12 +127,12 @@ func (c *token) Get(id string) (*apiv2.Token, error) {
 		Uuid: id,
 	}
 
-	resp, err := c.c.Client.Apiv2().Token().Get(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Token().Get(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get token: %w", err)
 	}
 
-	return resp.Msg.GetToken(), nil
+	return resp.GetToken(), nil
 }
 
 func (c *token) List() ([]*apiv2.Token, error) {
@@ -142,31 +141,31 @@ func (c *token) List() ([]*apiv2.Token, error) {
 
 	req := &apiv2.TokenServiceListRequest{}
 
-	resp, err := c.c.Client.Apiv2().Token().List(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Token().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tokens: %w", err)
 	}
 
-	return resp.Msg.GetTokens(), nil
+	return resp.GetTokens(), nil
 }
 
 func (c *token) Create(rq *apiv2.TokenServiceCreateRequest) (*apiv2.Token, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Token().Create(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().Token().Create(ctx, rq)
 	if err != nil {
 		return nil, err
 	}
 
 	_, _ = fmt.Fprintf(c.c.Out, "Make sure to copy your personal access token now as you will not be able to see this again.\n")
 	_, _ = fmt.Fprintln(c.c.Out)
-	_, _ = fmt.Fprintln(c.c.Out, resp.Msg.GetSecret())
+	_, _ = fmt.Fprintln(c.c.Out, resp.GetSecret())
 	_, _ = fmt.Fprintln(c.c.Out)
 
 	// TODO: allow printer in metal-lib to be silenced
 
-	return resp.Msg.GetToken(), nil
+	return resp.GetToken(), nil
 }
 
 func (c *token) Delete(id string) (*apiv2.Token, error) {
@@ -177,7 +176,7 @@ func (c *token) Delete(id string) (*apiv2.Token, error) {
 		Uuid: id,
 	}
 
-	_, err := c.c.Client.Apiv2().Token().Revoke(ctx, connect.NewRequest(req))
+	_, err := c.c.Client.Apiv2().Token().Revoke(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to revoke token: %w", err)
 	}
@@ -191,12 +190,12 @@ func (c *token) Update(rq *apiv2.TokenServiceUpdateRequest) (*apiv2.Token, error
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Token().Update(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().Token().Update(ctx, rq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update token: %w", err)
 	}
 
-	return resp.Msg.GetToken(), nil
+	return resp.GetToken(), nil
 }
 
 func (c *token) Convert(r *apiv2.Token) (string, *apiv2.TokenServiceCreateRequest, *apiv2.TokenServiceUpdateRequest, error) {

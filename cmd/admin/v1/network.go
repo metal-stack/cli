@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/enum"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -106,15 +105,15 @@ func (c *networkCmd) Get(id string) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Adminv2().Network().Get(ctx, connect.NewRequest(&adminv2.NetworkServiceGetRequest{
+	resp, err := c.c.Client.Adminv2().Network().Get(ctx, &adminv2.NetworkServiceGetRequest{
 		Id: id,
-	}))
+	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Network, nil
+	return resp.Network, nil
 }
 
 func (c *networkCmd) List() ([]*apiv2.Network, error) {
@@ -130,7 +129,7 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 		nwType = &nt
 	}
 
-	resp, err := c.c.Client.Adminv2().Network().List(ctx, connect.NewRequest(&adminv2.NetworkServiceListRequest{
+	resp, err := c.c.Client.Adminv2().Network().List(ctx, &adminv2.NetworkServiceListRequest{
 		Query: &apiv2.NetworkQuery{
 			Id:                  pointer.PointerOrNil(viper.GetString("id")),
 			Name:                pointer.PointerOrNil(viper.GetString("name")),
@@ -140,7 +139,7 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 			Prefixes:            viper.GetStringSlice("prefixes"),
 			DestinationPrefixes: viper.GetStringSlice("destination-prefixes"),
 			Vrf:                 pointer.PointerOrNil(viper.GetUint32("vrf")),
-			ParentNetworkId:     pointer.PointerOrNil(viper.GetString("parent-network-id")),
+			ParentNetwork:       pointer.PointerOrNil(viper.GetString("parent-network-id")),
 			AddressFamily:       common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
 			Labels: &apiv2.Labels{
 				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
@@ -148,34 +147,34 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 			Type: nwType,
 			// NatType: (*apiv2.NATType)(nwType),
 		},
-	}))
+	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Networks, nil
+	return resp.Networks, nil
 }
 
 func (c *networkCmd) Delete(id string) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Adminv2().Network().Delete(ctx, connect.NewRequest(&adminv2.NetworkServiceDeleteRequest{
+	resp, err := c.c.Client.Adminv2().Network().Delete(ctx, &adminv2.NetworkServiceDeleteRequest{
 		Id: id,
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Network, nil
+	return resp.Network, nil
 }
 
 func (c *networkCmd) Create(rq *adminv2.NetworkServiceCreateRequest) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Adminv2().Network().Create(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Adminv2().Network().Create(ctx, rq)
 	if err != nil {
 		if s, ok := status.FromError(err); ok && s.Code() == codes.AlreadyExists {
 			return nil, genericcli.AlreadyExistsError()
@@ -183,19 +182,19 @@ func (c *networkCmd) Create(rq *adminv2.NetworkServiceCreateRequest) (*apiv2.Net
 		return nil, err
 	}
 
-	return resp.Msg.Network, nil
+	return resp.Network, nil
 }
 
 func (c *networkCmd) Update(rq *adminv2.NetworkServiceUpdateRequest) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Adminv2().Network().Update(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Adminv2().Network().Update(ctx, rq)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Network, nil
+	return resp.Network, nil
 }
 
 func (c *networkCmd) Convert(r *apiv2.Network) (string, *adminv2.NetworkServiceCreateRequest, *adminv2.NetworkServiceUpdateRequest, error) {
@@ -213,7 +212,7 @@ func networkResponseToCreate(r *apiv2.Network) *adminv2.NetworkServiceCreateRequ
 		Labels: &apiv2.Labels{
 			Labels: pointer.SafeDeref(meta.Labels).Labels,
 		},
-		ParentNetworkId: r.ParentNetworkId,
+		ParentNetwork: r.ParentNetwork,
 		// TODO: allow defining length and addressfamilies somehow?
 	}
 }
@@ -309,7 +308,7 @@ func (c *networkCmd) createRequestFromCLI() (*adminv2.NetworkServiceCreateReques
 		Labels: &apiv2.Labels{
 			Labels: labels,
 		},
-		ParentNetworkId:            pointer.PointerOrNil(viper.GetString("parent-network-id")),
+		ParentNetwork:              pointer.PointerOrNil(viper.GetString("parent-network-id")),
 		AddressFamily:              common.NetworkAddressFamilyToType(viper.GetString("addressfamily")),
 		Id:                         pointer.PointerOrNil(viper.GetString("id")),
 		Type:                       nwType,

@@ -1,7 +1,6 @@
 package completion
 
 import (
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -9,25 +8,25 @@ import (
 )
 
 func (c *Completion) NetworkListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	ownNetworks, err := c.Client.Apiv2().Network().List(c.Ctx, connect.NewRequest(&apiv2.NetworkServiceListRequest{
+	ownNetworks, err := c.Client.Apiv2().Network().List(c.Ctx, &apiv2.NetworkServiceListRequest{
 		Project: c.Project,
-	}))
+	})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
 
-	baseNetworks, err := c.Client.Apiv2().Network().ListBaseNetworks(c.Ctx, connect.NewRequest(&apiv2.NetworkServiceListBaseNetworksRequest{
+	baseNetworks, err := c.Client.Apiv2().Network().ListBaseNetworks(c.Ctx, &apiv2.NetworkServiceListBaseNetworksRequest{
 		Project: c.Project,
-	}))
+	})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
 
 	var names []string
-	for _, s := range baseNetworks.Msg.Networks {
+	for _, s := range baseNetworks.Networks {
 		names = append(names, s.Id+"\t"+pointer.SafeDeref(s.Name))
 	}
-	for _, s := range ownNetworks.Msg.Networks {
+	for _, s := range ownNetworks.Networks {
 		names = append(names, s.Id+"\t"+pointer.SafeDeref(s.Name))
 	}
 
