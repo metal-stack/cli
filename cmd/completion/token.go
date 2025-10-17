@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"connectrpc.com/connect"
 	"github.com/spf13/cobra"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -12,13 +11,13 @@ import (
 
 func (c *Completion) TokenListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.TokenServiceListRequest{}
-	resp, err := c.Client.Apiv2().Token().List(c.Ctx, connect.NewRequest(req))
+	resp, err := c.Client.Apiv2().Token().List(c.Ctx, req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
 
 	var names []string
-	for _, s := range resp.Msg.Tokens {
+	for _, s := range resp.Tokens {
 		fmt.Println(s.Uuid)
 		names = append(names, s.Uuid+"\t"+s.Description)
 	}
@@ -27,14 +26,14 @@ func (c *Completion) TokenListCompletion(cmd *cobra.Command, args []string, toCo
 }
 
 func (c *Completion) TokenProjectRolesCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	methods, err := c.Client.Apiv2().Method().TokenScopedList(c.Ctx, connect.NewRequest(&apiv2.MethodServiceTokenScopedListRequest{}))
+	methods, err := c.Client.Apiv2().Method().TokenScopedList(c.Ctx, &apiv2.MethodServiceTokenScopedListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
 
 	var roles []string
 
-	for project, role := range methods.Msg.ProjectRoles {
+	for project, role := range methods.ProjectRoles {
 		roles = append(roles, project+"="+role.String())
 	}
 
@@ -42,14 +41,14 @@ func (c *Completion) TokenProjectRolesCompletion(cmd *cobra.Command, args []stri
 }
 
 func (c *Completion) TokenTenantRolesCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	methods, err := c.Client.Apiv2().Method().TokenScopedList(c.Ctx, connect.NewRequest(&apiv2.MethodServiceTokenScopedListRequest{}))
+	methods, err := c.Client.Apiv2().Method().TokenScopedList(c.Ctx, &apiv2.MethodServiceTokenScopedListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
 
 	var roles []string
 
-	for tenant, role := range methods.Msg.TenantRoles {
+	for tenant, role := range methods.TenantRoles {
 		roles = append(roles, tenant+"="+role.String())
 	}
 
@@ -67,7 +66,7 @@ func (c *Completion) TokenAdminRoleCompletion(cmd *cobra.Command, args []string,
 }
 
 func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	methods, err := c.Client.Apiv2().Method().TokenScopedList(c.Ctx, connect.NewRequest(&apiv2.MethodServiceTokenScopedListRequest{}))
+	methods, err := c.Client.Apiv2().Method().TokenScopedList(c.Ctx, &apiv2.MethodServiceTokenScopedListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -80,7 +79,7 @@ func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []s
 	if subject == "" {
 		var perms []string
 
-		for _, p := range methods.Msg.Permissions {
+		for _, p := range methods.Permissions {
 			perms = append(perms, p.Subject)
 		}
 
@@ -91,7 +90,7 @@ func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []s
 
 	var perms []string
 
-	for _, p := range methods.Msg.Permissions {
+	for _, p := range methods.Permissions {
 		perms = append(perms, p.Methods...)
 	}
 

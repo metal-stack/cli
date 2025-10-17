@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 
-	"connectrpc.com/connect"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -173,12 +172,12 @@ func (c *tenant) Get(id string) (*apiv2.Tenant, error) {
 		Login: id,
 	}
 
-	resp, err := c.c.Client.Apiv2().Tenant().Get(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Tenant().Get(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tenant: %w", err)
 	}
 
-	return resp.Msg.GetTenant(), nil
+	return resp.GetTenant(), nil
 }
 
 func (c *tenant) List() ([]*apiv2.Tenant, error) {
@@ -189,38 +188,38 @@ func (c *tenant) List() ([]*apiv2.Tenant, error) {
 		Name: pointer.PointerOrNil(viper.GetString("name")),
 		Id:   pointer.PointerOrNil(viper.GetString("tenant")),
 	}
-	resp, err := c.c.Client.Apiv2().Tenant().List(ctx, connect.NewRequest(req))
+	resp, err := c.c.Client.Apiv2().Tenant().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tenants: %w", err)
 	}
 
-	return resp.Msg.GetTenants(), nil
+	return resp.GetTenants(), nil
 }
 
 func (c *tenant) Create(rq *apiv2.TenantServiceCreateRequest) (*apiv2.Tenant, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Tenant().Create(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().Tenant().Create(ctx, rq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create tenant: %w", err)
 	}
 
-	return resp.Msg.Tenant, nil
+	return resp.Tenant, nil
 }
 
 func (c *tenant) Delete(id string) (*apiv2.Tenant, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Tenant().Delete(ctx, connect.NewRequest(&apiv2.TenantServiceDeleteRequest{
+	resp, err := c.c.Client.Apiv2().Tenant().Delete(ctx, &apiv2.TenantServiceDeleteRequest{
 		Login: id,
-	}))
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete tenant: %w", err)
 	}
 
-	return resp.Msg.Tenant, nil
+	return resp.Tenant, nil
 }
 
 func (c *tenant) Convert(r *apiv2.Tenant) (string, *apiv2.TenantServiceCreateRequest, *apiv2.TenantServiceUpdateRequest, error) {
@@ -244,12 +243,12 @@ func (c *tenant) Update(rq *apiv2.TenantServiceUpdateRequest) (*apiv2.Tenant, er
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Tenant().Update(ctx, connect.NewRequest(rq))
+	resp, err := c.c.Client.Apiv2().Tenant().Update(ctx, rq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update tenant: %w", err)
 	}
 
-	return resp.Msg.Tenant, nil
+	return resp.Tenant, nil
 }
 
 func (c *tenant) createRequestFromCLI() (*apiv2.TenantServiceCreateRequest, error) {
@@ -274,9 +273,9 @@ func (c *tenant) join(args []string) error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Tenant().InviteGet(ctx, connect.NewRequest(&apiv2.TenantServiceInviteGetRequest{
+	resp, err := c.c.Client.Apiv2().Tenant().InviteGet(ctx, &apiv2.TenantServiceInviteGetRequest{
 		Secret: secret,
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to get tenant invite: %w", err)
 	}
@@ -285,8 +284,8 @@ func (c *tenant) join(args []string) error {
 		ShowAnswers: true,
 		Message: fmt.Sprintf(
 			"Do you want to join tenant \"%s\" as %s?",
-			color.GreenString(resp.Msg.GetInvite().GetTargetTenantName()),
-			resp.Msg.GetInvite().GetRole().String(),
+			color.GreenString(resp.GetInvite().GetTargetTenantName()),
+			resp.GetInvite().GetRole().String(),
 		),
 		In:  c.c.In,
 		Out: c.c.Out,
@@ -298,14 +297,14 @@ func (c *tenant) join(args []string) error {
 	ctx2, cancel2 := c.c.NewRequestContext()
 	defer cancel2()
 
-	acceptResp, err := c.c.Client.Apiv2().Tenant().InviteAccept(ctx2, connect.NewRequest(&apiv2.TenantServiceInviteAcceptRequest{
+	acceptResp, err := c.c.Client.Apiv2().Tenant().InviteAccept(ctx2, &apiv2.TenantServiceInviteAcceptRequest{
 		Secret: secret,
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to join tenant: %w", err)
 	}
 
-	_, _ = fmt.Fprintf(c.c.Out, "%s successfully joined tenant \"%s\"\n", color.GreenString("✔"), color.GreenString(acceptResp.Msg.TenantName))
+	_, _ = fmt.Fprintf(c.c.Out, "%s successfully joined tenant \"%s\"\n", color.GreenString("✔"), color.GreenString(acceptResp.TenantName))
 
 	return nil
 }
@@ -319,16 +318,16 @@ func (c *tenant) generateInvite() error {
 		return err
 	}
 
-	resp, err := c.c.Client.Apiv2().Tenant().Invite(ctx, connect.NewRequest(&apiv2.TenantServiceInviteRequest{
+	resp, err := c.c.Client.Apiv2().Tenant().Invite(ctx, &apiv2.TenantServiceInviteRequest{
 		Login: tenant,
 		Role:  apiv2.TenantRole(apiv2.TenantRole_value[viper.GetString("role")]),
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to generate an invite: %w", err)
 	}
 
-	_, _ = fmt.Fprintf(c.c.Out, "You can share this secret with the member to join, it expires in %s:\n\n", humanize.Time(resp.Msg.Invite.ExpiresAt.AsTime()))
-	_, _ = fmt.Fprintf(c.c.Out, "%s (https://console.metal-stack.io/organization-invite/%s)\n", resp.Msg.Invite.Secret, resp.Msg.Invite.Secret)
+	_, _ = fmt.Fprintf(c.c.Out, "You can share this secret with the member to join, it expires in %s:\n\n", humanize.Time(resp.Invite.ExpiresAt.AsTime()))
+	_, _ = fmt.Fprintf(c.c.Out, "%s (https://console.metal-stack.io/organization-invite/%s)\n", resp.Invite.Secret, resp.Invite.Secret)
 
 	return nil
 }
@@ -342,19 +341,19 @@ func (c *tenant) listInvites() error {
 		return err
 	}
 
-	resp, err := c.c.Client.Apiv2().Tenant().InvitesList(ctx, connect.NewRequest(&apiv2.TenantServiceInvitesListRequest{
+	resp, err := c.c.Client.Apiv2().Tenant().InvitesList(ctx, &apiv2.TenantServiceInvitesListRequest{
 		Login: tenant,
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to list invites: %w", err)
 	}
 
-	err = sorters.TenantInviteSorter().SortBy(resp.Msg.Invites)
+	err = sorters.TenantInviteSorter().SortBy(resp.Invites)
 	if err != nil {
 		return err
 	}
 
-	return c.c.ListPrinter.Print(resp.Msg.Invites)
+	return c.c.ListPrinter.Print(resp.Invites)
 }
 
 func (c *tenant) deleteInvite(args []string) error {
@@ -371,10 +370,10 @@ func (c *tenant) deleteInvite(args []string) error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	_, err = c.c.Client.Apiv2().Tenant().InviteDelete(ctx, connect.NewRequest(&apiv2.TenantServiceInviteDeleteRequest{
+	_, err = c.c.Client.Apiv2().Tenant().InviteDelete(ctx, &apiv2.TenantServiceInviteDeleteRequest{
 		Login:  tenant,
 		Secret: secret,
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to delete invite: %w", err)
 	}
@@ -396,10 +395,10 @@ func (c *tenant) removeMember(args []string) error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	_, err = c.c.Client.Apiv2().Tenant().RemoveMember(ctx, connect.NewRequest(&apiv2.TenantServiceRemoveMemberRequest{
+	_, err = c.c.Client.Apiv2().Tenant().RemoveMember(ctx, &apiv2.TenantServiceRemoveMemberRequest{
 		Login:  tenant,
 		Member: member,
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to remove member from tenant: %w", err)
 	}
@@ -423,16 +422,16 @@ func (c *tenant) updateMember(args []string) error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Tenant().UpdateMember(ctx, connect.NewRequest(&apiv2.TenantServiceUpdateMemberRequest{
+	resp, err := c.c.Client.Apiv2().Tenant().UpdateMember(ctx, &apiv2.TenantServiceUpdateMemberRequest{
 		Login:  tenant,
 		Member: member,
 		Role:   apiv2.TenantRole(apiv2.TenantRole_value[viper.GetString("role")]),
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to update member: %w", err)
 	}
 
-	return c.c.DescribePrinter.Print(resp.Msg.GetTenantMember())
+	return c.c.DescribePrinter.Print(resp.GetTenantMember())
 }
 
 func (c *tenant) listMembers() error {
@@ -444,14 +443,14 @@ func (c *tenant) listMembers() error {
 		return err
 	}
 
-	resp, err := c.c.Client.Apiv2().Tenant().Get(ctx, connect.NewRequest(&apiv2.TenantServiceGetRequest{
+	resp, err := c.c.Client.Apiv2().Tenant().Get(ctx, &apiv2.TenantServiceGetRequest{
 		Login: tenant,
-	}))
+	})
 	if err != nil {
 		return fmt.Errorf("failed to get tenant: %w", err)
 	}
 
-	members := resp.Msg.GetTenantMembers()
+	members := resp.GetTenantMembers()
 
 	if err := sorters.TenantMemberSorter().SortBy(members); err != nil {
 		return err

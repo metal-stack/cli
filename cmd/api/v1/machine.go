@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -61,32 +60,32 @@ func (c *machine) Get(id string) (*apiv2.Machine, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Machine().Get(ctx, connect.NewRequest(&apiv2.MachineServiceGetRequest{
+	resp, err := c.c.Client.Apiv2().Machine().Get(ctx, &apiv2.MachineServiceGetRequest{
 		Project: c.c.GetProject(),
 		Uuid:    id,
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Machine, nil
+	return resp.Machine, nil
 }
 
 func (c *machine) List() ([]*apiv2.Machine, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Machine().List(ctx, connect.NewRequest(&apiv2.MachineServiceListRequest{
+	resp, err := c.c.Client.Apiv2().Machine().List(ctx, &apiv2.MachineServiceListRequest{
 		Project: c.c.GetProject(),
 		Query:   &apiv2.MachineQuery{
 			// FIXME implement
 		},
-	}))
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Msg.Machines, nil
+	return resp.Machines, nil
 }
 
 func (c *machine) Update(rq *apiv2.MachineServiceUpdateRequest) (*apiv2.Machine, error) {

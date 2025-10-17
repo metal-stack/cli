@@ -29,12 +29,11 @@ type Context struct {
 	Token          string         `json:"api-token"`
 	DefaultProject string         `json:"default-project"`
 	Timeout        *time.Duration `json:"timeout,omitempty"`
+	Provider       string         `json:"provider"`
 }
 
 func (cs *Contexts) Get(name string) (*Context, bool) {
 	for _, context := range cs.Contexts {
-		context := context
-
 		if context.Name == name {
 			return context, true
 		}
@@ -44,22 +43,12 @@ func (cs *Contexts) Get(name string) (*Context, bool) {
 }
 
 func (cs *Contexts) List() []*Context {
-	var res []*Context
-
-	for _, context := range cs.Contexts {
-		context := context
-
-		res = append(res, context)
-	}
-
-	return res
+	return append([]*Context{}, cs.Contexts...)
 }
 
 func (cs *Contexts) Validate() error {
 	names := map[string]bool{}
 	for _, context := range cs.Contexts {
-		context := context
-
 		names[context.Name] = true
 	}
 
@@ -132,10 +121,12 @@ func (c *Config) MustDefaultContext() Context {
 	if err != nil {
 		return defaultCtx()
 	}
+
 	ctx, ok := ctxs.Get(ctxs.CurrentContext)
 	if !ok {
 		return defaultCtx()
 	}
+
 	return *ctx
 }
 
@@ -153,7 +144,6 @@ func (c *Config) ContextListCompletion(cmd *cobra.Command, args []string, toComp
 	}
 	var names []string
 	for _, ctx := range ctxs.Contexts {
-		ctx := ctx
 		names = append(names, ctx.Name)
 	}
 	return names, cobra.ShellCompDirectiveNoFileComp

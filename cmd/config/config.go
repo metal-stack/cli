@@ -8,7 +8,6 @@ import (
 	"path"
 	"time"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	"github.com/metal-stack/cli/cmd/completion"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
@@ -49,22 +48,6 @@ func (c *Config) NewRequestContext() (context.Context, context.CancelFunc) {
 	}
 
 	return context.WithTimeout(context.Background(), *timeout)
-}
-
-func HelpTemplate() string {
-	return `Here is how an template configuration looks like:
-~/.metal-stack/config.yaml
----
-current: dev
-previous: prod
-contexts:
-    - name: dev
-    api-token: <dev-token>
-    default-project: dev-project
-    - name: prod
-    api-token: <prod-token>
-        default-project: prod-project
-`
 }
 
 func DefaultConfigDirectory() (string, error) {
@@ -108,14 +91,14 @@ func (c *Config) GetTenant() (string, error) {
 	ctx, cancel := c.NewRequestContext()
 	defer cancel()
 
-	projectResp, err := c.Client.Apiv2().Project().Get(ctx, connect.NewRequest(&apiv2.ProjectServiceGetRequest{
+	projectResp, err := c.Client.Apiv2().Project().Get(ctx, &apiv2.ProjectServiceGetRequest{
 		Project: c.GetProject(),
-	}))
+	})
 	if err != nil {
 		return "", fmt.Errorf("unable to derive tenant from project: %w", err)
 	}
 
-	return projectResp.Msg.Project.Tenant, nil
+	return projectResp.Project.Tenant, nil
 }
 
 func (c *Config) GetToken() string {
@@ -135,4 +118,11 @@ func (c *Config) GetApiURL() string {
 
 	// fallback to the default specified by viper
 	return viper.GetString("api-url")
+}
+
+func (c *Config) GetProvider() string {
+	if viper.IsSet("provider") {
+		return viper.GetString("provider")
+	}
+	return c.Context.Provider
 }

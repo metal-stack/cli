@@ -9,13 +9,14 @@ import (
 	"os/exec"
 	"time"
 
-	"connectrpc.com/connect"
 	"github.com/fatih/color"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 type login struct {
@@ -36,15 +37,18 @@ func newLoginCmd(c *config.Config) *cobra.Command {
 	}
 
 	loginCmd.Flags().String("provider", "oidc", "the provider used to login with")
-	loginCmd.Flags().String("context-name", "", "the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set")
+	loginCmd.Flags().String("context", "", "the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set")
+	loginCmd.Flags().String("admin-role", "", "operators can use this flag to issue an admin token with the token retrieved from login and store this into context")
 
+	genericcli.Must(loginCmd.Flags().MarkHidden("admin-role"))
 	genericcli.Must(loginCmd.RegisterFlagCompletionFunc("provider", cobra.FixedCompletions([]string{"oidc"}, cobra.ShellCompDirectiveNoFileComp)))
+	genericcli.Must(loginCmd.RegisterFlagCompletionFunc("admin-role", c.Completion.TokenAdminRoleCompletion))
 
 	return loginCmd
 }
 
 func (l *login) login() error {
-	provider := viper.GetString("provider")
+	provider := l.c.GetProvider()
 	if provider == "" {
 		return errors.New("provider must be specified")
 	}
@@ -55,22 +59,26 @@ func (l *login) login() error {
 	}
 
 	ctxName := ctxs.CurrentContext
-	if viper.IsSet("context-name") {
-		ctxName = viper.GetString("context-name")
+	if viper.IsSet("context") {
+		ctxName = viper.GetString("context")
 	}
-
 	ctx, ok := ctxs.Get(ctxName)
 	if !ok {
-		defaultCtx := l.c.MustDefaultContext()
-		defaultCtx.Name = "default"
-
-		ctxs.PreviousContext = ctxs.CurrentContext
-		ctxs.CurrentContext = ctxName
-
-		ctxs.Contexts = append(ctxs.Contexts, &defaultCtx)
-
-		ctx = &defaultCtx
+		newCtx := l.c.MustDefaultContext()
+		newCtx.Name = "default"
+		if viper.IsSet("context") {
+			newCtx.Name = viper.GetString("context")
+		}
+		newCtx.ApiURL = pointer.Pointer(l.c.GetApiURL())
+		ctxs.Contexts = append(ctxs.Contexts, &newCtx)
+		ctx = &newCtx
 	}
+
+	ctx.Provider = provider
+
+	// switch into new context
+	ctxs.PreviousContext = ctxs.CurrentContext
+	ctxs.CurrentContext = ctx.Name
 
 	tokenChan := make(chan string)
 
@@ -114,6 +122,24 @@ func (l *login) login() error {
 		return errors.New("no token was retrieved")
 	}
 
+	if viper.IsSet("admin-role") {
+		mc, err := newApiClient(l.c.GetApiURL(), token)
+		if err != nil {
+			return err
+		}
+
+		tokenResp, err := mc.Apiv2().Token().Create(context.Background(), &apiv2.TokenServiceCreateRequest{
+			Description: "admin access issues by metal cli",
+			Expires:     durationpb.New(3 * time.Hour),
+			AdminRole:   pointer.Pointer(apiv2.AdminRole((apiv2.AdminRole_value[viper.GetString("admin-role")]))),
+		})
+		if err != nil {
+			return fmt.Errorf("unable to issue admin token: %w", err)
+		}
+
+		token = tokenResp.Secret
+	}
+
 	ctx.Token = token
 
 	if ctx.DefaultProject == "" {
@@ -122,13 +148,13 @@ func (l *login) login() error {
 			return err
 		}
 
-		projects, err := mc.Apiv2().Project().List(context.Background(), connect.NewRequest(&apiv2.ProjectServiceListRequest{}))
+		projects, err := mc.Apiv2().Project().List(context.Background(), &apiv2.ProjectServiceListRequest{})
 		if err != nil {
 			return fmt.Errorf("unable to retrieve project list: %w", err)
 		}
 
-		if len(projects.Msg.Projects) > 0 {
-			ctx.DefaultProject = projects.Msg.Projects[0].Uuid
+		if len(projects.Projects) > 0 {
+			ctx.DefaultProject = projects.Projects[0].Uuid
 		}
 	}
 
