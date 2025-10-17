@@ -6,6 +6,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/common"
 	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
@@ -46,7 +47,10 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().BoolP("static", "", false, "make this ip static")
 			cmd.Flags().StringP("addressfamily", "", "", "addressfamily, can be either IPv4|IPv6, defaults to IPv4 (optional)")
 
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("network", c.Completion.NetworkListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
+
 		},
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
@@ -59,6 +63,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		},
 		DescribeCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
+			cmd.Flags().StringP("namespace", "n", "", "namespace of the ip")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		},
@@ -74,8 +79,8 @@ func newIPCmd(c *config.Config) *cobra.Command {
 				Description: pointer.Pointer(viper.GetString("description")),
 				Network:     viper.GetString("network"),
 				// Labels:        viper.GetStringSlice("tags"), // FIXME implement
-				Type:          pointer.Pointer(ipStaticToType(viper.GetBool("static"))),
-				AddressFamily: addressFamilyToType(viper.GetString("addressfamily")),
+				Type:          pointer.Pointer(common.IpStaticToType(viper.GetBool("static"))),
+				AddressFamily: common.IPAddressFamilyToType(viper.GetString("addressfamily")),
 			}, nil
 		},
 		UpdateRequestFromCLI: w.updateFromCLI,
@@ -103,7 +108,7 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		ipToUpdate.Description = viper.GetString("description")
 	}
 	if viper.IsSet("static") {
-		ipToUpdate.Type = ipStaticToType(viper.GetBool("static"))
+		ipToUpdate.Type = common.IpStaticToType(viper.GetBool("static"))
 	}
 	// if viper.IsSet("tags") {
 	// if ipToUpdate.Meta == nil {
@@ -161,9 +166,17 @@ func (c *ip) Get(id string) (*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	var (
+		namespace *string
+	)
+	if viper.IsSet("namespace") {
+		namespace = pointer.Pointer(viper.GetString("namespace"))
+	}
+
 	resp, err := c.c.Client.Apiv2().IP().Get(ctx, &apiv2.IPServiceGetRequest{
-		Project: c.c.GetProject(),
-		Ip:      id,
+		Project:   c.c.GetProject(),
+		Ip:        id,
+		Namespace: namespace,
 	})
 	if err != nil {
 		return nil, err
