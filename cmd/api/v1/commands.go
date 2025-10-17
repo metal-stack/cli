@@ -13,6 +13,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	cmd.AddCommand(newImageCmd(c))
 	cmd.AddCommand(newProjectCmd(c))
 	cmd.AddCommand(newTenantCmd(c))
+	cmd.AddCommand(newMachineCmd(c))
 	cmd.AddCommand(newMethodsCmd(c))
 	cmd.AddCommand(newUserCmd(c))
 }
