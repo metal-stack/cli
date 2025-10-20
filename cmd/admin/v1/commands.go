@@ -1,11 +1,12 @@
 package v1
 
 import (
-	"github.com/metal-stack/cli/cmd/config"
 	"github.com/spf13/cobra"
+
+	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
 )
 
-func AddCmds(cmd *cobra.Command, c *config.Config) {
+func AddCmds(cmd *cobra.Command, c *clitypes.Config) {
 	adminCmd := &cobra.Command{
 		Use:          "admin",
 		Short:        "admin commands",

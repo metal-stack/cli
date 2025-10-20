@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	v1 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/cmd/config"
+	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
 	"github.com/metal-stack/v"
 	"github.com/spf13/cobra"
 )
@@ -14,7 +14,7 @@ type version struct {
 	Server *v1.Version
 }
 
-func newVersionCmd(c *config.Config) *cobra.Command {
+func newVersionCmd(c *clitypes.Config) *cobra.Command {
 	versionCmd := &cobra.Command{
 		Use:   "version",
 		Short: "print the client and server version information",

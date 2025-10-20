@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/cmd/config"
+	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -14,10 +14,10 @@ import (
 )
 
 type image struct {
-	c *config.Config
+	c *clitypes.Config
 }
 
-func newImageCmd(c *config.Config) *cobra.Command {
+func newImageCmd(c *clitypes.Config) *cobra.Command {
 	w := &image{
 		c: c,
 	}
@@ -25,7 +25,7 @@ func newImageCmd(c *config.Config) *cobra.Command {
 	gcli := genericcli.NewGenericCLI(w).WithFS(c.Fs)
 
 	cmdsConfig := &genericcli.CmdsConfig[any, any, *apiv2.Image]{
-		BinaryName:      config.BinaryName,
+		BinaryName:      clitypes.BinaryName,
 		GenericCLI:      gcli,
 		Singular:        "image",
 		Plural:          "images",

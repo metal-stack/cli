@@ -2,12 +2,12 @@ package tableprinters
 
 import (
 	"github.com/fatih/color"
-	"github.com/metal-stack/cli/cmd/config"
+	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/viper"
 )
 
-func (t *TablePrinter) ContextTable(data *config.Contexts, wide bool) ([]string, [][]string, error) {
+func (t *TablePrinter) ContextTable(data *clitypes.Contexts, wide bool) ([]string, [][]string, error) {
 	var (
 		header = []string{"", "Name", "Provider", "Default Project"}
 		rows   [][]string

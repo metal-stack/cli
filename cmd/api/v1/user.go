@@ -4,17 +4,17 @@ import (
 	"fmt"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/cmd/config"
+	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/spf13/cobra"
 )
 
 type user struct {
-	c *config.Config
+	c *clitypes.Config
 }
 
-func newUserCmd(c *config.Config) *cobra.Command {
+func newUserCmd(c *clitypes.Config) *cobra.Command {
 	w := &user{
 		c: c,
 	}
@@ -22,7 +22,7 @@ func newUserCmd(c *config.Config) *cobra.Command {
 	gcli := genericcli.NewGenericCLI(w).WithFS(c.Fs)
 
 	cmdsConfig := &genericcli.CmdsConfig[any, any, *apiv2.User]{
-		BinaryName:      config.BinaryName,
+		BinaryName:      clitypes.BinaryName,
 		GenericCLI:      gcli,
 		Singular:        "user",
 		Plural:          "users",

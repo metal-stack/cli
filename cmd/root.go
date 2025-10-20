@@ -5,13 +5,14 @@ import (
 	"os"
 
 	client "github.com/metal-stack/api/go/client"
+	"github.com/metal-stack/metal-lib/pkg/commands"
+	"github.com/metal-stack/metal-lib/pkg/commands/helpers/completion"
+	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 
 	adminv2 "github.com/metal-stack/cli/cmd/admin/v1"
 	apiv2 "github.com/metal-stack/cli/cmd/api/v1"
 
-	"github.com/metal-stack/cli/cmd/completion"
-	"github.com/metal-stack/cli/cmd/config"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
@@ -20,7 +21,7 @@ import (
 )
 
 func Execute() {
-	cfg := &config.Config{
+	cfg := &clitypes.Config{
 		Fs:         afero.NewOsFs(),
 		Out:        os.Stdout,
 		PromptOut:  os.Stdout,
@@ -40,9 +41,9 @@ func Execute() {
 	}
 }
 
-func newRootCmd(c *config.Config) *cobra.Command {
+func newRootCmd(c *clitypes.Config) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:          config.BinaryName,
+		Use:          clitypes.BinaryName,
 		Aliases:      []string{"m"},
 		Short:        "cli for managing entities in metal-stack",
 		Long:         "",
@@ -83,14 +84,14 @@ func newRootCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	rootCmd.AddCommand(newContextCmd(c), markdownCmd, newLoginCmd(c), newLogoutCmd(c))
+	rootCmd.AddCommand(commands.NewContextCmd(c), markdownCmd, newLoginCmd(c), newLogoutCmd(c))
 	adminv2.AddCmds(rootCmd, c)
 	apiv2.AddCmds(rootCmd, c)
 
 	return rootCmd
 }
 
-func initConfigWithViperCtx(c *config.Config) error {
+func initConfigWithViperCtx(c *clitypes.Config) error {
 	c.Context = c.MustDefaultContext()
 
 	listPrinter, err := newPrinterFromCLI(c.Out)
