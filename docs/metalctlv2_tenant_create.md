@@ -27,7 +27,6 @@ metalctlv2 tenant create [flags]
                                 	
   -h, --help                    help for create
       --name string             the name of the tenant to create
-      --phone string            the phone number of the tenant to create
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
