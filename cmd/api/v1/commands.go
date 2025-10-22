@@ -1,11 +1,11 @@
 package v1
 
 import (
-	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
+	"github.com/metal-stack/cli/cmd/config"
 	"github.com/spf13/cobra"
 )
 
-func AddCmds(cmd *cobra.Command, c *clitypes.Config) {
+func AddCmds(cmd *cobra.Command, c *config.Config) {
 	cmd.AddCommand(newVersionCmd(c))
 	cmd.AddCommand(newHealthCmd(c))
 	cmd.AddCommand(newTokenCmd(c))

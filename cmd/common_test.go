@@ -16,8 +16,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	apitests "github.com/metal-stack/api/go/tests"
-	"github.com/metal-stack/metal-lib/pkg/commands/helpers/completion"
-	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
+	"github.com/metal-stack/cli/cmd/completion"
+	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/metal-stack/metal-lib/pkg/testcommon"
 	"github.com/spf13/afero"
@@ -61,7 +61,7 @@ func (c *Test[R]) TestCmd(t *testing.T) {
 		_, _, conf := c.newMockConfig(t)
 
 		cmd := newRootCmd(conf)
-		os.Args = append([]string{clitypes.BinaryName}, c.Cmd(c.Want)...)
+		os.Args = append([]string{config.BinaryName}, c.Cmd(c.Want)...)
 
 		err := cmd.Execute()
 		if diff := cmp.Diff(c.WantErr, err, testcommon.IgnoreUnexported(), testcommon.ErrorStringComparer()); diff != "" {
@@ -75,7 +75,7 @@ func (c *Test[R]) TestCmd(t *testing.T) {
 			_, out, conf := c.newMockConfig(t)
 
 			cmd := newRootCmd(conf)
-			os.Args = append([]string{clitypes.BinaryName}, c.Cmd(c.Want)...)
+			os.Args = append([]string{config.BinaryName}, c.Cmd(c.Want)...)
 			os.Args = append(os.Args, format.Args()...)
 
 			err := cmd.Execute()
@@ -86,7 +86,7 @@ func (c *Test[R]) TestCmd(t *testing.T) {
 	}
 }
 
-func (c *Test[R]) newMockConfig(t *testing.T) (any, *bytes.Buffer, *clitypes.Config) {
+func (c *Test[R]) newMockConfig(t *testing.T) (any, *bytes.Buffer, *config.Config) {
 	mock := apitests.New(t)
 
 	fs := afero.NewMemMapFs()
@@ -101,7 +101,7 @@ func (c *Test[R]) newMockConfig(t *testing.T) (any, *bytes.Buffer, *clitypes.Con
 
 	var (
 		out    bytes.Buffer
-		config = &clitypes.Config{
+		config = &config.Config{
 			Fs:         fs,
 			Out:        &out,
 			In:         in,
@@ -128,7 +128,7 @@ func AssertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
 		return fmt.Errorf("not exhaustive: does not contain %q", prefix)
 	}
 
-	root := newRootCmd(&clitypes.Config{})
+	root := newRootCmd(&config.Config{})
 	cmd, args, err := root.Find(args)
 	require.NoError(t, err)
 

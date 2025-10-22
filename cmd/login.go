@@ -11,7 +11,7 @@ import (
 
 	"github.com/fatih/color"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
+	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
@@ -20,10 +20,10 @@ import (
 )
 
 type login struct {
-	c *clitypes.Config
+	c *config.Config
 }
 
-func newLoginCmd(c *clitypes.Config) *cobra.Command {
+func newLoginCmd(c *config.Config) *cobra.Command {
 	w := &login{
 		c: c,
 	}

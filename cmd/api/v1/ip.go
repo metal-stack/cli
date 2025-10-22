@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
 	"github.com/metal-stack/cli/pkg/helpers"
-	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -15,16 +15,16 @@ import (
 )
 
 type ip struct {
-	c *clitypes.Config
+	c *config.Config
 }
 
-func newIPCmd(c *clitypes.Config) *cobra.Command {
+func newIPCmd(c *config.Config) *cobra.Command {
 	w := &ip{
 		c: c,
 	}
 
 	cmdsConfig := &genericcli.CmdsConfig[*apiv2.IPServiceCreateRequest, *apiv2.IPServiceUpdateRequest, *apiv2.IP]{
-		BinaryName:      clitypes.BinaryName,
+		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "ip",
 		Plural:          "ips",

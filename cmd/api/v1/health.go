@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	v1 "github.com/metal-stack/api/go/metalstack/api/v2"
-	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
+	"github.com/metal-stack/cli/cmd/config"
 	"github.com/spf13/cobra"
 )
 
-func newHealthCmd(c *clitypes.Config) *cobra.Command {
+func newHealthCmd(c *config.Config) *cobra.Command {
 	healthCmd := &cobra.Command{
 		Use:   "health",
 		Short: "print the client and server health information",

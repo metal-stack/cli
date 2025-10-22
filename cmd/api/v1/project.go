@@ -6,8 +6,8 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
-	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -16,16 +16,16 @@ import (
 )
 
 type project struct {
-	c *clitypes.Config
+	c *config.Config
 }
 
-func newProjectCmd(c *clitypes.Config) *cobra.Command {
+func newProjectCmd(c *config.Config) *cobra.Command {
 	w := &project{
 		c: c,
 	}
 
 	cmdsConfig := &genericcli.CmdsConfig[*apiv2.ProjectServiceCreateRequest, *apiv2.ProjectServiceUpdateRequest, *apiv2.Project]{
-		BinaryName:      clitypes.BinaryName,
+		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "project",
 		Plural:          "projects",

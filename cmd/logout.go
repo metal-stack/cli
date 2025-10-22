@@ -10,17 +10,17 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
+	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 type logout struct {
-	c *clitypes.Config
+	c *config.Config
 }
 
-func newLogoutCmd(c *clitypes.Config) *cobra.Command {
+func newLogoutCmd(c *config.Config) *cobra.Command {
 	w := &logout{
 		c: c,
 	}

@@ -5,13 +5,13 @@ import (
 	"sort"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	clitypes "github.com/metal-stack/metal-lib/pkg/commands/types"
+	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-func newMethodsCmd(c *clitypes.Config) *cobra.Command {
+func newMethodsCmd(c *config.Config) *cobra.Command {
 	methodCmd := &cobra.Command{
 		Use:   "api-methods",
 		Short: "show available api-methods of the metal-stack.io api",
