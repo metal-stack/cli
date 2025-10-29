@@ -6,6 +6,7 @@ import (
 
 	client "github.com/metal-stack/api/go/client"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
+	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 
 	adminv2 "github.com/metal-stack/cli/cmd/admin/v1"
 	apiv2 "github.com/metal-stack/cli/cmd/api/v1"
@@ -66,8 +67,8 @@ func newRootCmd(c *config.Config) *cobra.Command {
 	rootCmd.PersistentFlags().Bool("debug", false, "debug output")
 	rootCmd.PersistentFlags().Duration("timeout", 0, "request timeout used for api requests")
 
-	rootCmd.PersistentFlags().String("api-url", "https://api.metal-stack.io", "the url to the metal-stack.io api")
-	rootCmd.PersistentFlags().String("api-token", "", "the token used for api requests")
+	rootCmd.PersistentFlags().String(genericcli.KeyAPIURL, "https://api.metal-stack.io", "the url to the metal-stack.io api")
+	rootCmd.PersistentFlags().String(genericcli.KeyAPIToken, "", "the token used for api requests")
 
 	genericcli.Must(viper.BindPFlags(rootCmd.PersistentFlags()))
 
@@ -83,7 +84,20 @@ func newRootCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	rootCmd.AddCommand(newContextCmd(c), markdownCmd, newLoginCmd(c), newLogoutCmd(c))
+	c.ContextConfig = genericcli.ContextConfig{
+		BinaryName:            config.BinaryName,
+		ConfigDirName:         config.ConfigDir,
+		Fs:                    c.Fs,
+		DescribePrinter:       func() printers.Printer { return c.DescribePrinter },
+		ProjectListCompletion: c.Completion.ProjectListCompletion,
+	}
+
+	rootCmd.AddCommand(
+		markdownCmd,
+		newLoginCmd(c),
+		newLogoutCmd(c),
+		genericcli.NewContextCmd(&c.ContextConfig),
+	)
 	adminv2.AddCmds(rootCmd, c)
 	apiv2.AddCmds(rootCmd, c)
 
@@ -91,7 +105,7 @@ func newRootCmd(c *config.Config) *cobra.Command {
 }
 
 func initConfigWithViperCtx(c *config.Config) error {
-	c.Context = c.MustDefaultContext()
+	c.Context = c.ContextConfig.MustDefaultContext()
 
 	listPrinter, err := newPrinterFromCLI(c.Out)
 	if err != nil {

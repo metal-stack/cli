@@ -53,7 +53,7 @@ func (l *login) login() error {
 		return errors.New("provider must be specified")
 	}
 
-	ctxs, err := l.c.GetContexts()
+	ctxs, err := l.c.ContextConfig.GetContexts()
 	if err != nil {
 		return err
 	}
@@ -62,14 +62,14 @@ func (l *login) login() error {
 	if viper.IsSet("context") {
 		ctxName = viper.GetString("context")
 	}
-	ctx, ok := ctxs.Get(ctxName)
+	ctx, ok := ctxs.GetByName(ctxName)
 	if !ok {
-		newCtx := l.c.MustDefaultContext()
+		newCtx := l.c.ContextConfig.MustDefaultContext()
 		newCtx.Name = "default"
 		if viper.IsSet("context") {
 			newCtx.Name = viper.GetString("context")
 		}
-		newCtx.ApiURL = pointer.Pointer(l.c.GetApiURL())
+		newCtx.APIURL = pointer.Pointer(l.c.GetApiURL())
 		ctxs.Contexts = append(ctxs.Contexts, &newCtx)
 		ctx = &newCtx
 	}
@@ -77,8 +77,7 @@ func (l *login) login() error {
 	ctx.Provider = provider
 
 	// switch into new context
-	ctxs.PreviousContext = ctxs.CurrentContext
-	ctxs.CurrentContext = ctx.Name
+	ctxs.PreviousContext, ctxs.CurrentContext = ctxs.CurrentContext, ctx.Name
 
 	tokenChan := make(chan string)
 
@@ -140,7 +139,7 @@ func (l *login) login() error {
 		token = tokenResp.Secret
 	}
 
-	ctx.Token = token
+	ctx.APIToken = token
 
 	if ctx.DefaultProject == "" {
 		mc, err := newApiClient(l.c.GetApiURL(), token)
@@ -158,7 +157,7 @@ func (l *login) login() error {
 		}
 	}
 
-	err = l.c.WriteContexts(ctxs)
+	err = l.c.ContextConfig.WriteContexts(ctxs)
 	if err != nil {
 		return err
 	}

@@ -42,12 +42,12 @@ func newLogoutCmd(c *config.Config) *cobra.Command {
 }
 
 func (l *logout) logout() error {
-	provider := viper.GetString("provider")
+	provider := viper.GetString(genericcli.KeyProvider)
 	if provider == "" {
 		return errors.New("provider must be specified")
 	}
 
-	ctxs, err := l.c.GetContexts()
+	ctxs, err := l.c.ContextConfig.GetContexts()
 	if err != nil {
 		return err
 	}
@@ -57,9 +57,9 @@ func (l *logout) logout() error {
 		ctxName = viper.GetString("context-name")
 	}
 
-	ctx, ok := ctxs.Get(ctxName)
+	ctx, ok := ctxs.GetByName(ctxName)
 	if !ok {
-		defaultCtx := l.c.MustDefaultContext()
+		defaultCtx := l.c.ContextConfig.MustDefaultContext()
 		defaultCtx.Name = "default"
 
 		ctxs.PreviousContext = ctxs.CurrentContext
