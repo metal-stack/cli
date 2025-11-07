@@ -20,6 +20,11 @@ import (
 	"golang.org/x/net/context"
 )
 
+const (
+	keyAPIURL   = "api-url"
+	keyAPIToken = "api-token"
+)
+
 func Execute() {
 	cfg := &config.Config{
 		Fs:         afero.NewOsFs(),
@@ -67,8 +72,8 @@ func newRootCmd(c *config.Config) *cobra.Command {
 	rootCmd.PersistentFlags().Bool("debug", false, "debug output")
 	rootCmd.PersistentFlags().Duration("timeout", 0, "request timeout used for api requests")
 
-	rootCmd.PersistentFlags().String(genericcli.KeyAPIURL, "https://api.metal-stack.io", "the url to the metal-stack.io api")
-	rootCmd.PersistentFlags().String(genericcli.KeyAPIToken, "", "the token used for api requests")
+	rootCmd.PersistentFlags().String(keyAPIURL, "https://api.metal-stack.io", "the url to the metal-stack.io api")
+	rootCmd.PersistentFlags().String(keyAPIToken, "", "the token used for api requests")
 
 	genericcli.Must(viper.BindPFlags(rootCmd.PersistentFlags()))
 
@@ -83,20 +88,22 @@ func newRootCmd(c *config.Config) *cobra.Command {
 			recursiveAutoGenDisable(rootCmd)
 		},
 	}
-
-	c.ContextConfig = genericcli.ContextConfig{
+	contextConfig := &genericcli.ContextConfig{
 		BinaryName:            config.BinaryName,
 		ConfigDirName:         config.ConfigDir,
 		Fs:                    c.Fs,
 		DescribePrinter:       func() printers.Printer { return c.DescribePrinter },
+		ListPrinter:           func() printers.Printer { return c.ListPrinter },
 		ProjectListCompletion: c.Completion.ProjectListCompletion,
 	}
+
+	c.ContextManager = genericcli.NewContextManager(contextConfig)
 
 	rootCmd.AddCommand(
 		markdownCmd,
 		newLoginCmd(c),
 		newLogoutCmd(c),
-		genericcli.NewContextCmd(&c.ContextConfig),
+		genericcli.NewContextCmd(contextConfig),
 	)
 	adminv2.AddCmds(rootCmd, c)
 	apiv2.AddCmds(rootCmd, c)
@@ -105,7 +112,7 @@ func newRootCmd(c *config.Config) *cobra.Command {
 }
 
 func initConfigWithViperCtx(c *config.Config) error {
-	c.Context = c.ContextConfig.MustDefaultContext()
+	c.Context = *c.ContextManager.GetContextCurrentOrDefault()
 
 	listPrinter, err := newPrinterFromCLI(c.Out)
 	if err != nil {

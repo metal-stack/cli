@@ -35,8 +35,8 @@ type Config struct {
 	ListPrinter     printers.Printer
 	DescribePrinter printers.Printer
 	Completion      *completion.Completion
+	ContextManager  *genericcli.ContextManager
 	Context         genericcli.Context
-	ContextConfig   genericcli.ContextConfig
 }
 
 func (c *Config) NewRequestContext() (context.Context, context.CancelFunc) {
@@ -44,18 +44,15 @@ func (c *Config) NewRequestContext() (context.Context, context.CancelFunc) {
 	if timeout == nil {
 		timeout = pointer.Pointer(30 * time.Second)
 	}
-	if viper.IsSet(genericcli.KeyTimeout) {
-		timeout = pointer.Pointer(viper.GetDuration(genericcli.KeyTimeout))
+	if viper.IsSet(keyTimeout) {
+		timeout = pointer.Pointer(viper.GetDuration(keyTimeout))
 	}
 
 	return context.WithTimeout(context.Background(), *timeout)
 }
 
 func (c *Config) GetProject() string {
-	if viper.IsSet("project") {
-		return viper.GetString("project")
-	}
-	return c.Context.DefaultProject
+	return c.Context.GetProject()
 }
 
 func (c *Config) GetTenant() (string, error) {
@@ -81,27 +78,13 @@ func (c *Config) GetTenant() (string, error) {
 }
 
 func (c *Config) GetToken() string {
-	if viper.IsSet(genericcli.KeyAPIToken) {
-		return viper.GetString(genericcli.KeyAPIToken)
-	}
-	return c.Context.APIToken
+	return c.Context.GetAPIToken()
 }
 
 func (c *Config) GetApiURL() string {
-	if viper.IsSet(genericcli.KeyAPIURL) {
-		return viper.GetString(genericcli.KeyAPIURL)
-	}
-	if c.Context.APIURL != nil {
-		return *c.Context.APIURL
-	}
-
-	// fallback to the default specified by viper
-	return viper.GetString(genericcli.KeyAPIURL)
+	return c.Context.GetAPIURL()
 }
 
 func (c *Config) GetProvider() string {
-	if viper.IsSet(genericcli.KeyProvider) {
-		return viper.GetString(genericcli.KeyProvider)
-	}
-	return c.Context.Provider
+	return c.Context.GetProvider()
 }

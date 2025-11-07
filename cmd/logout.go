@@ -16,6 +16,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	keyProvider    = "provider"
+	keyContextName = "context-name"
+)
+
 type logout struct {
 	c *config.Config
 }
@@ -33,41 +38,18 @@ func newLogoutCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	logoutCmd.Flags().String("provider", "oidc", "the provider used to logout with")
-	logoutCmd.Flags().String("context-name", "", "the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set")
+	logoutCmd.Flags().String(keyProvider, "oidc", "the provider used to logout with")
+	logoutCmd.Flags().String(keyContextName, "", "the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set")
 
-	genericcli.Must(logoutCmd.RegisterFlagCompletionFunc("provider", cobra.FixedCompletions([]string{"oidc"}, cobra.ShellCompDirectiveNoFileComp)))
+	genericcli.Must(logoutCmd.RegisterFlagCompletionFunc(keyProvider, cobra.FixedCompletions([]string{"oidc"}, cobra.ShellCompDirectiveNoFileComp)))
 
 	return logoutCmd
 }
 
 func (l *logout) logout() error {
-	provider := viper.GetString(genericcli.KeyProvider)
+	provider := viper.GetString(keyProvider)
 	if provider == "" {
 		return errors.New("provider must be specified")
-	}
-
-	ctxs, err := l.c.ContextConfig.GetContexts()
-	if err != nil {
-		return err
-	}
-
-	ctxName := ctxs.CurrentContext
-	if viper.IsSet("context-name") {
-		ctxName = viper.GetString("context-name")
-	}
-
-	ctx, ok := ctxs.GetByName(ctxName)
-	if !ok {
-		defaultCtx := l.c.ContextConfig.MustDefaultContext()
-		defaultCtx.Name = "default"
-
-		ctxs.PreviousContext = ctxs.CurrentContext
-		ctxs.CurrentContext = ctx.Name
-
-		ctxs.Contexts = append(ctxs.Contexts, &defaultCtx)
-
-		ctx = &defaultCtx
 	}
 
 	listener, err := net.Listen("tcp", "localhost:0")
@@ -87,7 +69,7 @@ func (l *logout) logout() error {
 
 	url := fmt.Sprintf("%s/auth/logout/%s", l.c.GetApiURL(), provider)
 
-	err = exec.Command("xdg-open", url).Run() //nolint
+	err = exec.Command("xdg-open", url).Run() //nolint // TODO probably broken on MAC?
 	if err != nil {
 		return fmt.Errorf("error opening browser: %w", err)
 	}

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
@@ -35,6 +36,9 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.ImageTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Image:
 		return t.ImageTable(d, wide)
+
+	case []*genericcli.Context:
+		return genericcli.ContextTable(data, wide)
 
 	case *apiv2.Project:
 		return t.ProjectTable(pointer.WrapInSlice(d), wide)
