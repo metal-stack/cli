@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os/exec"
 	"time"
 
 	"github.com/fatih/color"
@@ -80,7 +79,7 @@ func (l *login) login() error {
 
 	url := fmt.Sprintf("%s/auth/%s?redirect-url=http://%s/callback", l.c.GetApiURL(), provider, listener.Addr().String()) // TODO(vknabel): nicify please
 
-	err = exec.Command("xdg-open", url).Run() //nolint // TODO probably broken on MAC?
+	err = openBrowser(url)
 	if err != nil {
 		return fmt.Errorf("error opening browser: %w", err)
 	}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os/exec"
 	"time"
 
 	"github.com/fatih/color"
@@ -69,7 +68,7 @@ func (l *logout) logout() error {
 
 	url := fmt.Sprintf("%s/auth/logout/%s", l.c.GetApiURL(), provider)
 
-	err = exec.Command("xdg-open", url).Run() //nolint // TODO probably broken on MAC?
+	err = openBrowser(url)
 	if err != nil {
 		return fmt.Errorf("error opening browser: %w", err)
 	}
