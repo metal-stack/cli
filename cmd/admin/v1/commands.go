@@ -17,6 +17,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	adminCmd.AddCommand(newImageCmd(c))
 	adminCmd.AddCommand(newTenantCmd(c))
 	adminCmd.AddCommand(newTokenCmd(c))
+	adminCmd.AddCommand(newProjectCmd(c))
 
 	cmd.AddCommand(adminCmd)
 }
