@@ -46,7 +46,7 @@ func (c *size) Get(id string) (*apiv2.Size, error) {
 
 	resp, err := c.c.Client.Apiv2().Size().Get(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get image: %w", err)
+		return nil, fmt.Errorf("failed to get size: %w", err)
 	}
 
 	return resp.Size, nil
@@ -116,7 +116,7 @@ func (c *size) Update(rq *adminv2.SizeServiceUpdateRequest) (*apiv2.Size, error)
 
 	resp, err := c.c.Client.Adminv2().Size().Update(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get image: %w", err)
+		return nil, fmt.Errorf("failed to get size: %w", err)
 	}
 
 	return resp.Size, nil
