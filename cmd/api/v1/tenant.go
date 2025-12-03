@@ -41,7 +41,6 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("name", "", "the name of the tenant to create")
 			cmd.Flags().String("description", "", "the description of the tenant to create")
 			cmd.Flags().String("email", "", "the email of the tenant to create")
-			cmd.Flags().String("phone", "", "the phone number of the tenant to create")
 			cmd.Flags().String("avatar-url", "", "the avatar url of the tenant to create")
 		},
 		CreateRequestFromCLI: w.createRequestFromCLI,
