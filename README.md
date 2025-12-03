@@ -71,7 +71,7 @@ In addition to the standard API services, there are also admin services that req
 
 You can access help for every service and command by using `--help` or `-h`. If you encounter any issues not covered in the help prompt, or if you have suggestions for improvement, please feel free to [contact us](mailto:support@metal-stack.io) or open an issue in this repository. Your feedback is greatly appreciated!
 
-A list of all available services (excluding admin topics). For their associated commands, arguments and flags visit the correct [documentation](./docs/metal.md).
+A list of all available services (excluding admin topics). For their associated commands, arguments and flags visit the [metalctlv2 documentation](./docs/metalctlv2.md).
 
 | Entity        | Description                                                | Documentation                                         |
 |---------------|------------------------------------------------------------|-------------------------------------------------------|
