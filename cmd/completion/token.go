@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/api/go/permissions"
 )
 
 func (c *Completion) TokenListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
@@ -66,11 +67,8 @@ func (c *Completion) TokenAdminRoleCompletion(cmd *cobra.Command, args []string,
 }
 
 func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	methods, err := c.Client.Apiv2().Method().TokenScopedList(c.Ctx, &apiv2.MethodServiceTokenScopedListRequest{})
-	if err != nil {
-		return nil, cobra.ShellCompDirectiveError
-	}
 
+	methods := permissions.GetServicePermissions().Methods
 	subject := ""
 	if s, _, ok := strings.Cut(toComplete, "="); ok {
 		subject = s
@@ -79,8 +77,8 @@ func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []s
 	if subject == "" {
 		var perms []string
 
-		for _, p := range methods.Permissions {
-			perms = append(perms, p.Subject)
+		for p := range methods {
+			perms = append(perms, p)
 		}
 
 		return perms, cobra.ShellCompDirectiveNoFileComp
@@ -90,8 +88,8 @@ func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []s
 
 	var perms []string
 
-	for _, p := range methods.Permissions {
-		perms = append(perms, p.Methods...)
+	for p := range methods {
+		perms = append(perms, p)
 	}
 
 	return perms, cobra.ShellCompDirectiveDefault
