@@ -33,10 +33,10 @@ func newLogoutCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	logoutCmd.Flags().String("provider", "oidc", "the provider used to logout with")
+	logoutCmd.Flags().String("provider", "openid-connect", "the provider used to logout with")
 	logoutCmd.Flags().String("context-name", "", "the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set")
 
-	genericcli.Must(logoutCmd.RegisterFlagCompletionFunc("provider", cobra.FixedCompletions([]string{"oidc"}, cobra.ShellCompDirectiveNoFileComp)))
+	genericcli.Must(logoutCmd.RegisterFlagCompletionFunc("provider", cobra.FixedCompletions([]string{"openid-connect"}, cobra.ShellCompDirectiveNoFileComp)))
 
 	return logoutCmd
 }

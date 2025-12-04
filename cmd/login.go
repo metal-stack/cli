@@ -36,12 +36,12 @@ func newLoginCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	loginCmd.Flags().String("provider", "oidc", "the provider used to login with")
+	loginCmd.Flags().String("provider", "openid-connect", "the provider used to login with")
 	loginCmd.Flags().String("context", "", "the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set")
 	loginCmd.Flags().String("admin-role", "", "operators can use this flag to issue an admin token with the token retrieved from login and store this into context")
 
 	genericcli.Must(loginCmd.Flags().MarkHidden("admin-role"))
-	genericcli.Must(loginCmd.RegisterFlagCompletionFunc("provider", cobra.FixedCompletions([]string{"oidc"}, cobra.ShellCompDirectiveNoFileComp)))
+	genericcli.Must(loginCmd.RegisterFlagCompletionFunc("provider", cobra.FixedCompletions([]string{"openid-connect"}, cobra.ShellCompDirectiveNoFileComp)))
 	genericcli.Must(loginCmd.RegisterFlagCompletionFunc("admin-role", c.Completion.TokenAdminRoleCompletion))
 
 	return loginCmd
