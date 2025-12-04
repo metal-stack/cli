@@ -11,7 +11,7 @@ metalctlv2 login [flags]
 ```
       --context string    the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set
   -h, --help              help for login
-      --provider string   the provider used to login with (default "oidc")
+      --provider string   the provider used to login with (default "openid-connect")
 ```
 
 ### Options inherited from parent commands

@@ -26,5 +26,6 @@ manage tenant invites
 * [metalctlv2 tenant](metalctlv2_tenant.md)	 - manage tenant entities
 * [metalctlv2 tenant invite delete](metalctlv2_tenant_invite_delete.md)	 - deletes a pending invite
 * [metalctlv2 tenant invite generate-join-secret](metalctlv2_tenant_invite_generate-join-secret.md)	 - generate an invite secret to share with the new member
+* [metalctlv2 tenant invite join](metalctlv2_tenant_invite_join.md)	 - join a tenant of someone who shared an invite secret with you
 * [metalctlv2 tenant invite list](metalctlv2_tenant_invite_list.md)	 - lists the currently pending invites
 
