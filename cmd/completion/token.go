@@ -84,8 +84,6 @@ func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []s
 		return perms, cobra.ShellCompDirectiveNoFileComp
 	}
 
-	// FIXME: completion does not work at this point, investigate why
-
 	var perms []string
 
 	for p := range methods {
