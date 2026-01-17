@@ -8,9 +8,8 @@ import (
 	client "github.com/metal-stack/api/go/client"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 
-	adminv2 "github.com/metal-stack/cli/cmd/admin/v1"
-	apiv2 "github.com/metal-stack/cli/cmd/api/v1"
-
+	adminv2 "github.com/metal-stack/cli/cmd/admin/v2"
+	apiv2 "github.com/metal-stack/cli/cmd/api/v2"
 
 	"github.com/metal-stack/cli/cmd/completion"
 	"github.com/metal-stack/cli/cmd/config"

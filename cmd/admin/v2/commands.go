@@ -1,4 +1,4 @@
-package v1
+package v2
 
 import (
 	"github.com/metal-stack/cli/cmd/config"
@@ -21,6 +21,8 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	adminCmd.AddCommand(newTenantCmd(c))
 	adminCmd.AddCommand(newTokenCmd(c))
 	adminCmd.AddCommand(newProjectCmd(c))
+	adminCmd.AddCommand(newVPNCmd(c))
+	adminCmd.AddCommand(newMachineCmd(c))
 
 	cmd.AddCommand(adminCmd)
 }

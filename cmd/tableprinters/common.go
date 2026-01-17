@@ -22,11 +22,16 @@ const (
 )
 
 type TablePrinter struct {
-	t *printers.TablePrinter
+	t                       *printers.TablePrinter
+	lastEventErrorThreshold time.Duration
 }
 
 func New() *TablePrinter {
 	return &TablePrinter{}
+}
+
+func (t *TablePrinter) SetLastEventErrorThreshold(threshold time.Duration) {
+	t.lastEventErrorThreshold = threshold
 }
 
 func (t *TablePrinter) SetPrinter(printer *printers.TablePrinter) {
@@ -54,6 +59,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Size:
 		return t.SizeTable(d, wide)
 
+	case *apiv2.Machine:
+		return t.MachineTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Machine:
+		return t.MachineTable(d, wide)
+
 	case *apiv2.Network:
 		return t.NetworkTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Network:
@@ -76,6 +86,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.TokenTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Token:
 		return t.TokenTable(d, wide)
+
+	case *apiv2.VPNNode:
+		return t.VPNTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.VPNNode:
+		return t.VPNTable(d, wide)
 
 	case *apiv2.Tenant:
 		return t.TenantTable(pointer.WrapInSlice(d), wide)

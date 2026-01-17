@@ -1,4 +1,4 @@
-package v1
+package v2
 
 import (
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
