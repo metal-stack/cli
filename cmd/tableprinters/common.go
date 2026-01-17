@@ -77,6 +77,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Token:
 		return t.TokenTable(d, wide)
 
+	case *apiv2.VPNNode:
+		return t.VPNTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.VPNNode:
+		return t.VPNTable(d, wide)
+
 	case *apiv2.Tenant:
 		return t.TenantTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Tenant:
