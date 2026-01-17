@@ -8,11 +8,9 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
 
 	"slices"
 
-	"bou.ke/monkey"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	apitests "github.com/metal-stack/api/go/tests"
@@ -27,12 +25,6 @@ import (
 	"google.golang.org/protobuf/runtime/protoimpl"
 	"sigs.k8s.io/yaml"
 )
-
-var testTime = time.Date(2022, time.May, 19, 1, 2, 3, 4, time.UTC)
-
-func init() {
-	_ = monkey.Patch(time.Now, func() time.Time { return testTime })
-}
 
 type Test[R any] struct {
 	Name string

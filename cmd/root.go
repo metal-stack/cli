@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"log/slog"
 	"os"
 
@@ -10,13 +11,13 @@ import (
 	adminv2 "github.com/metal-stack/cli/cmd/admin/v1"
 	apiv2 "github.com/metal-stack/cli/cmd/api/v1"
 
+
 	"github.com/metal-stack/cli/cmd/completion"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 	"github.com/spf13/viper"
-	"golang.org/x/net/context"
 )
 
 func Execute() {
