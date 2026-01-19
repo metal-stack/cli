@@ -12,6 +12,15 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
+const (
+	dot             = "●"
+	halfpie         = "◒"
+	threequarterpie = "◕"
+	nbr             = " "
+	poweron         = "⏻"
+	powersleep      = "⏾"
+)
+
 type TablePrinter struct {
 	t *printers.TablePrinter
 }
