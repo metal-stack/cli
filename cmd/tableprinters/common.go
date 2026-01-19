@@ -13,12 +13,8 @@ import (
 )
 
 const (
-	dot             = "●"
-	halfpie         = "◒"
-	threequarterpie = "◕"
-	nbr             = " "
-	poweron         = "⏻"
-	powersleep      = "⏾"
+	dot = "●"
+	nbr = " "
 )
 
 type TablePrinter struct {

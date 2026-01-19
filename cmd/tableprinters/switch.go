@@ -10,7 +10,7 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
-func (t *TablePrinter) SwitchTable(data []*apiv2.Switch, wide bool) ([]string, [][]string, error) {
+func (t *TablePrinter) SwitchTable(switches []*apiv2.Switch, wide bool) ([]string, [][]string, error) {
 	var (
 		rows [][]string
 	)
@@ -22,7 +22,7 @@ func (t *TablePrinter) SwitchTable(data []*apiv2.Switch, wide bool) ([]string, [
 		t.t.DisableAutoWrap(true)
 	}
 
-	for _, s := range data {
+	for _, s := range switches {
 		var (
 			id        = s.Id
 			partition = s.Partition
@@ -62,35 +62,54 @@ func (t *TablePrinter) SwitchTable(data []*apiv2.Switch, wide bool) ([]string, [
 			}
 		}
 
-		// FIXME: nil pointer checks and refactor
 		if s.LastSync != nil {
-			syncTime = s.LastSync.Time.AsTime()
-			syncAge := time.Since(syncTime)
-			syncDur := s.LastSync.Duration.AsDuration().Round(time.Millisecond)
+			var (
+				syncAge time.Duration
+				syncDur time.Duration
+			)
 
-			if syncAge >= time.Minute*10 || syncDur >= 30*time.Second {
-				shortStatus = color.RedString(dot)
-			} else if syncAge >= time.Minute*1 || syncDur >= 20*time.Second {
-				shortStatus = color.YellowString(dot)
-			} else {
-				shortStatus = color.GreenString(dot)
-				if !allUp {
-					shortStatus = color.YellowString(dot)
-				}
+			if s.LastSync.Time != nil && !s.LastSync.Time.AsTime().IsZero() {
+				syncTime = s.LastSync.Time.AsTime()
+				syncAge = time.Since(syncTime)
+			}
+			if s.LastSync.Duration != nil {
+				syncDur = s.LastSync.Duration.AsDuration().Round(time.Millisecond)
 			}
 
-			syncLast = humanizeDuration(syncAge) + " ago"
-			syncDurStr = fmt.Sprintf("%v", syncDur)
+			switch {
+			case syncAge >= 10*time.Minute, syncDur >= 30*time.Second:
+				shortStatus = color.RedString(dot)
+			case syncAge >= time.Minute, syncDur >= 20*time.Second, !allUp:
+				shortStatus = color.YellowString(dot)
+			default:
+				shortStatus = color.GreenString(dot)
+			}
+
+			if syncAge > 0 {
+				syncLast = humanizeDuration(syncAge) + " ago"
+			}
+			if syncDur > 0 {
+				syncDurStr = fmt.Sprintf("%v", syncDur)
+			}
 		}
 
-		// FIXME: nil pointer checks and refactor
 		if s.LastSyncError != nil {
-			errorTime := s.LastSyncError.Time.AsTime()
+			var (
+				errorTime time.Time
+				error     string
+			)
+
+			if s.LastSyncError.Time != nil {
+				errorTime = s.LastSyncError.Time.AsTime()
+			}
+			if s.LastSyncError.Error != nil {
+				error = *s.LastSyncError.Error
+			}
 			// after 7 days we do not show sync errors anymore
 			if !errorTime.IsZero() && time.Since(errorTime) < 7*24*time.Hour {
-				lastError = fmt.Sprintf("%s ago: %s", humanizeDuration(time.Since(errorTime)), s.LastSyncError.Error)
+				lastError = fmt.Sprintf("%s ago: %s", humanizeDuration(time.Since(errorTime)), error)
 
-				if errorTime.After(s.LastSync.Time.AsTime()) {
+				if errorTime.After(syncTime) {
 					shortStatus = color.RedString(dot)
 				}
 			}
