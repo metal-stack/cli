@@ -3,7 +3,7 @@ package v2
 import (
 	"fmt"
 
-	v1 "github.com/metal-stack/api/go/metalstack/api/v2"
+	v2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/v"
 	"github.com/spf13/cobra"
@@ -11,7 +11,7 @@ import (
 
 type version struct {
 	Client string
-	Server *v1.Version
+	Server *v2.Version
 }
 
 func newVersionCmd(c *config.Config) *cobra.Command {
@@ -27,7 +27,7 @@ func newVersionCmd(c *config.Config) *cobra.Command {
 				Client: v.V.String(),
 			}
 
-			resp, err := c.Client.Apiv2().Version().Get(ctx, &v1.VersionServiceGetRequest{})
+			resp, err := c.Client.Apiv2().Version().Get(ctx, &v2.VersionServiceGetRequest{})
 			if err == nil {
 				v.Server = resp.Version
 			}
