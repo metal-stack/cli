@@ -70,7 +70,7 @@ func (v *vpn) authKey() error {
 		return err
 	}
 
-	_, _ = fmt.Fprintf(v.c.Out, "authkey: %s ephemeral:%s created at:%s expires at:%s\n", resp.AuthKey, resp.Ephemeral, resp.CreatedAt, resp.ExpiresAt)
+	_, _ = fmt.Fprintf(v.c.Out, "authkey: %s ephemeral:%t created at:%s expires at:%s\n", resp.AuthKey, resp.Ephemeral, resp.CreatedAt, resp.ExpiresAt)
 	_, _ = fmt.Fprintf(v.c.Out, "vpn endpoint: %s\n", resp.Address)
 
 	return nil
