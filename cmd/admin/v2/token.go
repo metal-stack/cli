@@ -1,4 +1,4 @@
-package v1
+package v2
 
 import (
 	"fmt"
@@ -25,7 +25,7 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 
 	cmdsConfig := &genericcli.CmdsConfig[any, any, *apiv2.Token]{
 		BinaryName:      config.BinaryName,
-		GenericCLI:      genericcli.NewGenericCLI[any, any, *apiv2.Token](w).WithFS(c.Fs),
+		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "token",
 		Plural:          "tokens",
 		Description:     "manage api tokens for accessing the metal-stack.io api",
