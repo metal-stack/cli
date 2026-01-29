@@ -128,9 +128,6 @@ func (l *login) login() error {
 		defaultCtx = err != nil || ctx == nil
 	}
 
-	fmt.Println(defaultCtx)
-	fmt.Println(ctx)
-
 	var project string
 	if defaultCtx || ctx.DefaultProject == "" {
 		mc, err := newApiClient(l.c.GetApiURL(), token)
