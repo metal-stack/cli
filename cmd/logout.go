@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os/exec"
 	"time"
 
 	"github.com/fatih/color"
@@ -14,6 +13,11 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+)
+
+const (
+	keyProvider    = "provider"
+	keyContextName = "context-name"
 )
 
 type logout struct {
@@ -33,41 +37,18 @@ func newLogoutCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	logoutCmd.Flags().String("provider", "openid-connect", "the provider used to logout with")
-	logoutCmd.Flags().String("context-name", "", "the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set")
+	logoutCmd.Flags().String(keyProvider, "openid-connect", "the provider used to logout with")
+	logoutCmd.Flags().String(keyContextName, "", "the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set")
 
-	genericcli.Must(logoutCmd.RegisterFlagCompletionFunc("provider", cobra.FixedCompletions([]string{"openid-connect"}, cobra.ShellCompDirectiveNoFileComp)))
+	genericcli.Must(logoutCmd.RegisterFlagCompletionFunc(keyProvider, cobra.FixedCompletions([]string{"openid-connect"}, cobra.ShellCompDirectiveNoFileComp)))
 
 	return logoutCmd
 }
 
 func (l *logout) logout() error {
-	provider := viper.GetString("provider")
+	provider := viper.GetString(keyProvider)
 	if provider == "" {
 		return errors.New("provider must be specified")
-	}
-
-	ctxs, err := l.c.GetContexts()
-	if err != nil {
-		return err
-	}
-
-	ctxName := ctxs.CurrentContext
-	if viper.IsSet("context-name") {
-		ctxName = viper.GetString("context-name")
-	}
-
-	ctx, ok := ctxs.Get(ctxName)
-	if !ok {
-		defaultCtx := l.c.MustDefaultContext()
-		defaultCtx.Name = "default"
-
-		ctxs.PreviousContext = ctxs.CurrentContext
-		ctxs.CurrentContext = ctx.Name
-
-		ctxs.Contexts = append(ctxs.Contexts, &defaultCtx)
-
-		ctx = &defaultCtx
 	}
 
 	listener, err := net.Listen("tcp", "localhost:0")
@@ -87,7 +68,7 @@ func (l *logout) logout() error {
 
 	url := fmt.Sprintf("%s/auth/logout/%s", l.c.GetApiURL(), provider)
 
-	err = exec.Command("xdg-open", url).Run() //nolint
+	err = openBrowser(url)
 	if err != nil {
 		return fmt.Errorf("error opening browser: %w", err)
 	}

@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
-	"path"
 	"time"
 
 	"github.com/metal-stack/api/go/client"
 	"github.com/metal-stack/cli/cmd/completion"
+	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/afero"
@@ -23,7 +22,8 @@ const (
 	BinaryName = "metalctlv2"
 	// ConfigDir is the directory in either the homedir or in /etc where the cli searches for a file config.yaml
 	// also used as prefix for environment based configuration, e.g. METAL_STACK_CLOUD_ will be the variable prefix.
-	ConfigDir = "metal-stack"
+	ConfigDir  = "metal-stack"
+	keyTimeout = "timeout"
 )
 
 type Config struct {
@@ -35,7 +35,8 @@ type Config struct {
 	ListPrinter     printers.Printer
 	DescribePrinter printers.Printer
 	Completion      *completion.Completion
-	Context         Context
+	ContextManager  *genericcli.ContextManager
+	Context         genericcli.Context
 }
 
 func (c *Config) NewRequestContext() (context.Context, context.CancelFunc) {
@@ -43,40 +44,15 @@ func (c *Config) NewRequestContext() (context.Context, context.CancelFunc) {
 	if timeout == nil {
 		timeout = pointer.Pointer(30 * time.Second)
 	}
-	if viper.IsSet("timeout") {
-		timeout = pointer.Pointer(viper.GetDuration("timeout"))
+	if viper.IsSet(keyTimeout) {
+		timeout = pointer.Pointer(viper.GetDuration(keyTimeout))
 	}
 
 	return context.WithTimeout(context.Background(), *timeout)
 }
 
-func DefaultConfigDirectory() (string, error) {
-	h, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-
-	return path.Join(h, "."+ConfigDir), nil
-}
-
-func ConfigPath() (string, error) {
-	if viper.IsSet("config") {
-		return viper.GetString("config"), nil
-	}
-
-	dir, err := DefaultConfigDirectory()
-	if err != nil {
-		return "", err
-	}
-
-	return path.Join(dir, "config.yaml"), nil
-}
-
 func (c *Config) GetProject() string {
-	if viper.IsSet("project") {
-		return viper.GetString("project")
-	}
-	return c.Context.DefaultProject
+	return c.Context.GetProject()
 }
 
 func (c *Config) GetTenant() (string, error) {
@@ -102,27 +78,13 @@ func (c *Config) GetTenant() (string, error) {
 }
 
 func (c *Config) GetToken() string {
-	if viper.IsSet("api-token") {
-		return viper.GetString("api-token")
-	}
-	return c.Context.Token
+	return c.Context.GetAPIToken()
 }
 
 func (c *Config) GetApiURL() string {
-	if viper.IsSet("api-url") {
-		return viper.GetString("api-url")
-	}
-	if c.Context.ApiURL != nil {
-		return *c.Context.ApiURL
-	}
-
-	// fallback to the default specified by viper
-	return viper.GetString("api-url")
+	return c.Context.GetAPIURL()
 }
 
 func (c *Config) GetProvider() string {
-	if viper.IsSet("provider") {
-		return viper.GetString("provider")
-	}
-	return c.Context.Provider
+	return c.Context.GetProvider()
 }
