@@ -88,7 +88,7 @@ func newRootCmd(c *config.Config) *cobra.Command {
 			recursiveAutoGenDisable(rootCmd)
 		},
 	}
-	contextConfig := &genericcli.ContextConfig{
+	contextConfig := &genericcli.ContextCmdConfig{
 		BinaryName:            config.BinaryName,
 		ConfigDirName:         config.ConfigDir,
 		Fs:                    c.Fs,

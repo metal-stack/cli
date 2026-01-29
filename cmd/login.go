@@ -172,7 +172,7 @@ func (l *login) login() error {
 		APIToken:       &token,
 		DefaultProject: pointer.Pointer(cmp.Or(ctx.DefaultProject, project)),
 		Provider:       &provider,
-		Activate:       true,
+		IsCurrent:      true,
 	})
 	if err != nil {
 		return err
