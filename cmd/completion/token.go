@@ -1,7 +1,6 @@
 package completion
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -18,7 +17,6 @@ func (c *Completion) TokenListCompletion(cmd *cobra.Command, args []string, toCo
 
 	var names []string
 	for _, s := range resp.Tokens {
-		fmt.Println(s.Uuid)
 		names = append(names, s.Uuid+"\t"+s.Description)
 	}
 

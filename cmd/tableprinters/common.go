@@ -12,6 +12,11 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
+const (
+	dot = "●"
+	nbr = " "
+)
+
 type TablePrinter struct {
 	t *printers.TablePrinter
 }
@@ -75,6 +80,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.HealthTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Health:
 		return t.HealthTable(d, wide)
+
+	case []*apiv2.Switch:
+		return t.SwitchTable(d, wide)
+	case []SwitchDetail:
+		return t.SwitchDetailTable(d)
 
 	default:
 		return nil, nil, fmt.Errorf("unknown table printer for type: %T", d)
