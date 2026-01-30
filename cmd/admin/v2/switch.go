@@ -49,14 +49,12 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 		Sorter:          &multisort.Sorter[*apiv2.Switch]{},
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("id", "", "ID of the switch.")
-			cmd.Flags().String("name", "", "Name of the switch.")
 			cmd.Flags().String("os-vendor", "", "OS vendor of this switch.")
 			cmd.Flags().String("os-version", "", "OS version of this switch.")
 			cmd.Flags().String("partition", "", "Partition of this switch.")
 			cmd.Flags().String("rack", "", "Rack of this switch.")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.Completion.SwitchListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("name", c.Completion.SwitchNameListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRackListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("os-vendor", c.Completion.SwitchOSVendorListCompletion))
@@ -77,7 +75,6 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	}
 
 	switchConnectedMachinesCmd.Flags().String("id", "", "ID of the switch.")
-	switchConnectedMachinesCmd.Flags().String("name", "", "Name of the switch.")
 	switchConnectedMachinesCmd.Flags().String("os-vendor", "", "OS vendor of this switch.")
 	switchConnectedMachinesCmd.Flags().String("os-version", "", "OS version of this switch.")
 	switchConnectedMachinesCmd.Flags().String("partition", "", "Partition of this switch.")
@@ -88,7 +85,6 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	// switchMachinesCmd.Flags().String("machine-id", "", "The id of the connected machine, ignores size flag if set.")
 
 	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("id", c.Completion.SwitchListCompletion))
-	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("name", c.Completion.SwitchNameListCompletion))
 	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
 	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRackListCompletion))
 
@@ -116,14 +112,12 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	}
 
 	switchDetailCmd.Flags().String("id", "", "ID of the switch.")
-	switchDetailCmd.Flags().String("name", "", "Name of the switch.")
 	switchDetailCmd.Flags().String("os-vendor", "", "OS vendor of this switch.")
 	switchDetailCmd.Flags().String("os-version", "", "OS version of this switch.")
 	switchDetailCmd.Flags().String("partition", "", "Partition of this switch.")
 	switchDetailCmd.Flags().String("rack", "", "Rack of this switch.")
 
 	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("id", c.Completion.SwitchListCompletion))
-	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("name", c.Completion.SwitchNameListCompletion))
 	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
 	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRackListCompletion))
 
@@ -141,8 +135,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 		Short: "sets the given switch port state up or down",
 	}
 	switchPortCmd.PersistentFlags().String("port", "", "the port to be changed.")
-	// TODO: implement Completion.SwitchListPorts
-	// genericcli.Must(switchPortCmd.RegisterFlagCompletionFunc("port", c.Completion.SwitchListPorts))
+	genericcli.Must(switchPortCmd.RegisterFlagCompletionFunc("port", c.Completion.SwitchListPorts))
 
 	switchPortUpCmd := &cobra.Command{
 		Use:   "up <switch ID>",
