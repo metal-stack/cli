@@ -2,6 +2,7 @@ package completion
 
 import (
 	"github.com/metal-stack/api/go/enum"
+	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
@@ -67,4 +68,18 @@ func (c *Completion) NetworkAddressFamilyCompletion(cmd *cobra.Command, args []s
 	}
 
 	return afs, cobra.ShellCompDirectiveNoFileComp
+}
+
+func (c *Completion) NetworkAdminListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	networks, err := c.Client.Adminv2().Network().List(c.Ctx, &adminv2.NetworkServiceListRequest{})
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	var names []string
+	for _, s := range networks.Networks {
+		names = append(names, s.Id+"\t"+pointer.SafeDeref(s.Name))
+	}
+
+	return names, cobra.ShellCompDirectiveNoFileComp
 }

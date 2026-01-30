@@ -1,17 +1,15 @@
-## metalctlv2 login
+## metalctlv2 machine
 
-login
+manage machine entities
 
-```
-metalctlv2 login [flags]
-```
+### Synopsis
+
+an machine of metal-stack.io
 
 ### Options
 
 ```
-      --context string    the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set
-  -h, --help              help for login
-      --provider string   the provider used to login with (default "openid-connect")
+  -h, --help   help for machine
 ```
 
 ### Options inherited from parent commands
@@ -30,4 +28,11 @@ metalctlv2 login [flags]
 ### SEE ALSO
 
 * [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
+* [metalctlv2 machine apply](metalctlv2_machine_apply.md)	 - applies one or more machines from a given file
+* [metalctlv2 machine create](metalctlv2_machine_create.md)	 - creates the machine
+* [metalctlv2 machine delete](metalctlv2_machine_delete.md)	 - deletes the machine
+* [metalctlv2 machine describe](metalctlv2_machine_describe.md)	 - describes the machine
+* [metalctlv2 machine edit](metalctlv2_machine_edit.md)	 - edit the machine through an editor and update
+* [metalctlv2 machine list](metalctlv2_machine_list.md)	 - list all machines
+* [metalctlv2 machine update](metalctlv2_machine_update.md)	 - updates the machine
 
