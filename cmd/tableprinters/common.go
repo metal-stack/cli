@@ -81,6 +81,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Health:
 		return t.HealthTable(d, wide)
 
+	case []*apiv2.Switch:
+		return t.SwitchTable(d, wide)
+	case []SwitchDetail:
+		return t.SwitchDetailTable(d, wide)
+
 	default:
 		return nil, nil, fmt.Errorf("unknown table printer for type: %T", d)
 	}

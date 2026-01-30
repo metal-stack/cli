@@ -378,17 +378,19 @@ func (c *switchCmd) switchConsole(args []string) error {
 }
 
 func (c *switchCmd) switchDetail() error {
-	resp, err := c.List()
+	switches, err := c.List()
 	if err != nil {
 		return err
 	}
 
-	var result []*tableprinters.SwitchDetail
-	for _, s := range resp {
-		result = append(result, &tableprinters.SwitchDetail{Switch: s})
+	var switchDetails []tableprinters.SwitchDetail
+	for _, sw := range switches {
+		switchDetails = append(switchDetails, tableprinters.SwitchDetail{
+			Switch: sw,
+		})
 	}
 
-	return c.c.ListPrinter.Print(result)
+	return c.c.ListPrinter.Print(switchDetails)
 }
 
 func (c *switchCmd) switchMigrate(args []string) error {
