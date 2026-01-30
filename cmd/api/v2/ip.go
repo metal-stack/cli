@@ -29,7 +29,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "ip",
 		Plural:          "ips",
-		Description:     "an ip address of metal-stack.io",
+		Description:     "manage ip addresses",
 		Sorter:          sorters.IPSorter(),
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },

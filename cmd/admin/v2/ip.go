@@ -21,10 +21,10 @@ func newIPCmd(c *config.Config) *cobra.Command {
 
 	cmdsConfig := &genericcli.CmdsConfig[any, any, *apiv2.IP]{
 		BinaryName:      config.BinaryName,
-		GenericCLI:      genericcli.NewGenericCLI[any, any, *apiv2.IP](w).WithFS(c.Fs),
+		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "ip",
 		Plural:          "ips",
-		Description:     "an ip address of metal-stack.io",
+		Description:     "manage ip addresses",
 		Sorter:          sorters.IPSorter(),
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },

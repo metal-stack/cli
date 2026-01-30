@@ -11,7 +11,7 @@ metalctlv2 machine list [flags]
 ```
   -h, --help              help for list
   -p, --project string    project from where machines should be listed
-      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: partition|size|uuid
+      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: age|image|partition|project|rack|size|uuid
 ```
 
 ### Options inherited from parent commands
