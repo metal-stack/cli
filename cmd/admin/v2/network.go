@@ -55,7 +55,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		CreateRequestFromCLI: w.createRequestFromCLI,
 		UpdateRequestFromCLI: w.updateRequestFromCLI,
 		Sorter:               sorters.NetworkSorter(),
-		ValidArgsFn:          c.Completion.NetworkListCompletion,
+		ValidArgsFn:          c.Completion.NetworkAdminListCompletion,
 		DescribePrinter:      func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:          func() printers.Printer { return c.ListPrinter },
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
@@ -79,7 +79,6 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("destination-prefixes", nil, "destination-prefixes for this network. [optional]")
 			cmd.Flags().StringSlice("additional-announcable-cidrs", nil, "additional-announcable-cidrs for this network. [optional]")
 			cmd.Flags().Uint32("vrf", 0, "the vrf of the network to create. [optional]")
-
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamilyCompletion))
