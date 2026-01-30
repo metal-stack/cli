@@ -9,6 +9,8 @@ import (
 	"github.com/metal-stack/cli/cmd/sorters"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
+	"github.com/metal-stack/metal-lib/pkg/tag"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -27,7 +29,7 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "machine",
 		Plural:          "machines",
-		Description:     "an machine of metal-stack.io",
+		Description:     "manage machines",
 		Sorter:          sorters.MachineSorter(),
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
@@ -113,8 +115,56 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 
 	resp, err := c.c.Client.Adminv2().Machine().List(ctx, &adminv2.MachineServiceListRequest{
 		Query: &apiv2.MachineQuery{
-			// FIXME implement
+			Uuid:      pointer.PointerOrNil(viper.GetString("id")),
+			Name:      pointer.PointerOrNil(viper.GetString("name")),
+			Partition: pointer.PointerOrNil(viper.GetString("partition")),
+			Size:      pointer.PointerOrNil(viper.GetString("size")),
+			Rack:      pointer.PointerOrNil(viper.GetString("rack")),
+			Labels: &apiv2.Labels{
+				Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
+			},
+			Allocation: &apiv2.MachineAllocationQuery{
+				Uuid:             pointer.PointerOrNil(viper.GetString("allocation-uuid")),
+				Name:             pointer.PointerOrNil(viper.GetString("allocation-name")),
+				Project:          pointer.PointerOrNil(viper.GetString("project")),
+				Image:            pointer.PointerOrNil(viper.GetString("image")),
+				FilesystemLayout: pointer.PointerOrNil(viper.GetString("file-system-layout-id")),
+				Hostname:         pointer.PointerOrNil(viper.GetString("hostname")),
+				// AllocationType:   &0,
+				Labels: &apiv2.Labels{
+					Labels: tag.NewTagMap(viper.GetStringSlice("allocation-labels")),
+				},
+				// Vpn: &apiv2.MachineVPN{}, these query fields are no pointers and somehow seem wrong? how to search for vpn key?
+			},
+			Network: &apiv2.MachineNetworkQuery{},
+			Nic:     &apiv2.MachineNicQuery{},
+			Disk: &apiv2.MachineDiskQuery{
+				Names: viper.GetStringSlice("disk-names"),
+				// Sizes:
+			},
+			Bmc: &apiv2.MachineBMCQuery{
+				Address:   pointer.PointerOrNil(viper.GetString("bmc-address")),
+				Mac:       pointer.PointerOrNil(viper.GetString("bmc-mac")),
+				User:      pointer.PointerOrNil(viper.GetString("bmc-user")),
+				Interface: pointer.PointerOrNil(viper.GetString("bmc-interface")),
+			},
+			Fru: &apiv2.MachineFRUQuery{
+				ChassisPartNumber:   pointer.PointerOrNil(viper.GetString("chassis-part-number")),
+				ChassisPartSerial:   pointer.PointerOrNil(viper.GetString("chassis-part-serial")),
+				BoardMfg:            pointer.PointerOrNil(viper.GetString("board-mfg")),
+				BoardSerial:         pointer.PointerOrNil(viper.GetString("board-serial")),
+				BoardPartNumber:     pointer.PointerOrNil(viper.GetString("board-part-number")),
+				ProductManufacturer: pointer.PointerOrNil(viper.GetString("product-manufacturer")),
+				ProductPartNumber:   pointer.PointerOrNil(viper.GetString("product-part-number")),
+				ProductSerial:       pointer.PointerOrNil(viper.GetString("product-serial")),
+			},
+			Hardware: &apiv2.MachineHardwareQuery{
+				Memory:   pointer.PointerOrNil(viper.GetUint64("memory")),
+				CpuCores: pointer.PointerOrNil(viper.GetUint32("cpu-cores")),
+			},
+			// State:    &0,
 		},
+		Partition: nil, // again partition?
 	})
 	if err != nil {
 		return nil, err
