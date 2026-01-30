@@ -205,7 +205,7 @@ type SwitchDetail struct {
 	*apiv2.Switch
 }
 
-func (t *TablePrinter) SwitchDetailTable(switches []SwitchDetail, wide bool) ([]string, [][]string, error) {
+func (t *TablePrinter) SwitchDetailTable(switches []SwitchDetail) ([]string, [][]string, error) {
 	var (
 		header = []string{"Partition", "Rack", "Switch", "Port", "Machine", "VNI-Filter", "CIDR-Filter"}
 		rows   [][]string
@@ -231,6 +231,10 @@ func (t *TablePrinter) SwitchDetailTable(switches []SwitchDetail, wide bool) ([]
 			filter := filterByNic[conn.Nic.Name]
 			row := append([]string{sw.Partition, pointer.SafeDeref(sw.Rack), sw.Id, conn.Nic.Name, conn.MachineId}, filterColumns(filter, 0)...)
 			rows = append(rows, row)
+
+			if filter == nil {
+				continue
+			}
 
 			max := math.Max(float64(len(filter.Cidrs)), float64(len(filter.Vnis)))
 			for i := 1; i < int(max); i++ {

@@ -377,38 +377,125 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 }
 
 func TestTablePrinter_SwitchDetailTable(t *testing.T) {
-	type fields struct {
-		t *printers.TablePrinter
-	}
-	type args struct {
-		switches []SwitchDetail
-		wide     bool
-	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    []string
-		want1   [][]string
-		wantErr bool
+		name       string
+		switches   []SwitchDetail
+		wantHeader []string
+		wantRows   [][]string
 	}{
-		// TODO: Add test cases.
+		{
+			name:       "empty switches",
+			switches:   []SwitchDetail{},
+			wantHeader: []string{"Partition", "Rack", "Switch", "Port", "Machine", "VNI-Filter", "CIDR-Filter"},
+			wantRows:   nil,
+		},
+		{
+			name: "some switches",
+			switches: []SwitchDetail{
+				{
+					Switch: &apiv2.Switch{
+						Id:        "leaf01",
+						Rack:      pointer.Pointer("rack01"),
+						Partition: "partition-a",
+						Nics: []*apiv2.SwitchNic{
+							{
+								Name: "Ethernet0",
+								BgpFilter: &apiv2.BGPFilter{
+									Cidrs: []string{"1.1.1.0/24", "2.2.2.0/24"},
+									Vnis:  []string{"104"},
+								},
+							},
+							{
+								Name: "Ethernet1",
+							},
+						},
+						MachineConnections: []*apiv2.MachineConnection{
+							{
+								MachineId: "m1",
+								Nic: &apiv2.SwitchNic{
+									Name: "Ethernet0",
+									BgpFilter: &apiv2.BGPFilter{
+										Cidrs: []string{"1.1.1.0/24", "2.2.2.0/24"},
+										Vnis:  []string{"104"},
+									},
+								},
+							},
+							{
+								MachineId: "m2",
+								Nic: &apiv2.SwitchNic{
+									Name: "Ethernet1",
+								},
+							},
+						},
+					},
+				},
+				{
+					Switch: &apiv2.Switch{
+						Id:        "leaf02",
+						Rack:      pointer.Pointer("rack01"),
+						Partition: "partition-a",
+						Nics: []*apiv2.SwitchNic{
+							{
+								Name: "Ethernet0",
+								BgpFilter: &apiv2.BGPFilter{
+									Cidrs: []string{"1.1.1.0/24", "2.2.2.0/24"},
+									Vnis:  []string{"150"},
+								},
+							},
+							{
+								Name: "Ethernet1",
+							},
+						},
+						MachineConnections: []*apiv2.MachineConnection{
+							{
+								MachineId: "m1",
+								Nic: &apiv2.SwitchNic{
+									Name: "Ethernet0",
+									BgpFilter: &apiv2.BGPFilter{
+										Cidrs: []string{"1.1.1.0/24", "2.2.2.0/24"},
+										Vnis:  []string{"150"},
+									},
+								},
+							},
+							{
+								MachineId: "m2",
+								Nic: &apiv2.SwitchNic{
+									Name: "Ethernet1",
+								},
+							},
+						},
+					},
+				},
+			},
+			wantHeader: []string{"Partition", "Rack", "Switch", "Port", "Machine", "VNI-Filter", "CIDR-Filter"},
+			wantRows: [][]string{
+				{"partition-a", "rack01", "leaf01", "Ethernet0", "m1", "104", "1.1.1.0/24"},
+				{"", "", "", "", "", "", "2.2.2.0/24"},
+				{"partition-a", "rack01", "leaf01", "Ethernet1", "m2"},
+				{"partition-a", "rack01", "leaf02", "Ethernet0", "m1", "150", "1.1.1.0/24"},
+				{"", "", "", "", "", "", "2.2.2.0/24"},
+				{"partition-a", "rack01", "leaf02", "Ethernet1", "m2"},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tr := &TablePrinter{
-				t: tt.fields.t,
-			}
-			got, got1, err := tr.SwitchDetailTable(tt.args.switches, tt.args.wide)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("TablePrinter.SwitchDetailTable() error = %v, wantErr %v", err, tt.wantErr)
+			tp := New()
+			p := printers.NewTablePrinter(&printers.TablePrinterConfig{
+				ToHeaderAndRows: tp.ToHeaderAndRows,
+			})
+			tp.SetPrinter(p)
+
+			gotHeader, gotRows, err := tp.SwitchDetailTable(tt.switches)
+			if err != nil {
+				t.Errorf("TablePrinter.SwitchDetailTable() error = %v", err)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TablePrinter.SwitchDetailTable() got = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(tt.wantHeader, gotHeader); diff != "" {
+				t.Errorf("TablePrinter.SwitchDetailTable() diff header = %s", diff)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("TablePrinter.SwitchDetailTable() got1 = %v, want %v", got1, tt.want1)
+			if diff := cmp.Diff(tt.wantRows, gotRows); diff != "" {
+				t.Errorf("TablePrinter.SwitchDetailTable() diff rows = %s", diff)
 			}
 		})
 	}
