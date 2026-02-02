@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -55,7 +56,15 @@ func (t *TablePrinter) SwitchTable(switches []*apiv2.Switch, wide bool) ([]strin
 			allUp = allUp && actual == apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UP
 
 			if desired != nil && actual != *desired {
-				lastError = fmt.Sprintf("%q is %s but should be %s", c.Nic.Name, portStatusString(actual), portStatusString(*desired))
+				actualString, err := enum.GetStringValue(actual)
+				if err != nil {
+					return nil, nil, err
+				}
+				desiredString, err := enum.GetStringValue(*desired)
+				if err != nil {
+					return nil, nil, err
+				}
+				lastError = fmt.Sprintf("%q is %s but should be %s", c.Nic.Name, *actualString, *desiredString)
 				break
 			}
 
@@ -127,9 +136,12 @@ func (t *TablePrinter) SwitchTable(switches []*apiv2.Switch, wide bool) ([]strin
 			mode = "operational"
 		}
 
-		os := ""
-		osIcon := ""
-		metalCore := ""
+		var (
+			os        string
+			osIcon    string
+			metalCore string
+		)
+
 		if s.Os != nil {
 			switch s.Os.Vendor {
 			case apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_CUMULUS:
@@ -140,7 +152,14 @@ func (t *TablePrinter) SwitchTable(switches []*apiv2.Switch, wide bool) ([]strin
 				osIcon = s.Os.Vendor.String()
 			}
 
-			os = s.Os.Vendor.String()
+			if s.Os.Vendor != apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_UNSPECIFIED {
+				osString, err := enum.GetStringValue(s.Os.Vendor)
+				if err != nil {
+					return nil, nil, err
+				}
+				os = *osString
+			}
+
 			if s.Os.Version != "" {
 				os = fmt.Sprintf("%s (%s)", os, s.Os.Version)
 			}
@@ -265,20 +284,4 @@ func filterColumns(filter *apiv2.BGPFilter, i int) []string {
 	}
 
 	return []string{vni, cidr}
-}
-
-// FIXME: these values can be retrieved from the api enums
-func portStatusString(status apiv2.SwitchPortStatus) string {
-	switch status {
-	case apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UP:
-		return "UP"
-	case apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_DOWN:
-		return "DOWN"
-	case apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UNKNOWN:
-		return "UNKNOWN"
-	case apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UNSPECIFIED:
-		return "UNSPECIFIED"
-	default:
-		return ""
-	}
 }

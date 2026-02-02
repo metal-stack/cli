@@ -346,9 +346,9 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 			wide:       true,
 			wantHeader: []string{"ID", "Partition", "Rack", "OS", "Metalcore", "IP", "Mode", "Last Sync", "Sync Duration", "Last Error"},
 			wantRows: [][]string{
-				{"r01leaf01", "partition-a", "rack01", apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_SONIC.String(), "v0.15.0", "1.1.1.1", "operational", "0s ago", "1s", "\"Ethernet0\" is UP but should be DOWN"},
-				{"r01leaf02", "partition-a", "rack01", apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_CUMULUS.String(), "v0.13.0", "2.2.2.2", "replace", "0s ago", "", "6d 23h ago: sync took too long"},
-				{"r02leaf01", "partition-a", "rack02", apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_UNSPECIFIED.String(), "", "3.3.3.3", "operational", "1h ago", "", "0s ago: error"},
+				{"r01leaf01", "partition-a", "rack01", "SONiC", "v0.15.0", "1.1.1.1", "operational", "0s ago", "1s", "\"Ethernet0\" is up but should be down"},
+				{"r01leaf02", "partition-a", "rack01", "Cumulus", "v0.13.0", "2.2.2.2", "replace", "0s ago", "", "6d 23h ago: sync took too long"},
+				{"r02leaf01", "partition-a", "rack02", "", "", "3.3.3.3", "operational", "1h ago", "", "0s ago: error"},
 			},
 		},
 	}
