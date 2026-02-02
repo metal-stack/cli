@@ -267,6 +267,7 @@ func filterColumns(filter *apiv2.BGPFilter, i int) []string {
 	return []string{vni, cidr}
 }
 
+// FIXME: these values can be retrieved from the api enums
 func portStatusString(status apiv2.SwitchPortStatus) string {
 	switch status {
 	case apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UP:
