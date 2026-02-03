@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/metal-stack/api/go/enum"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
@@ -76,6 +77,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	switchConnectedMachinesCmd.Flags().String("id", "", "ID of the switch.")
 	switchConnectedMachinesCmd.Flags().String("partition", "", "Partition of this switch.")
 	switchConnectedMachinesCmd.Flags().String("rack", "", "Rack of this switch.")
+	switchConnectedMachinesCmd.Flags().Duration("last-event-error-threshold", 1*time.Hour, "the duration up to how long in the past a machine last event error will be counted as an issue [optional]")
 
 	// TODO: add once size and machine completion are implemented
 	// switchMachinesCmd.Flags().String("size", "", "Size of the connected machines.")
