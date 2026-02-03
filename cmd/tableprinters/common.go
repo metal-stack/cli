@@ -15,10 +15,20 @@ import (
 const (
 	dot = "●"
 	nbr = " "
+
+	ambulance   = "🚑"
+	exclamation = "❗"
+	bark        = "🚧"
+	loop        = "⭕"
+	lock        = "🔒"
+	question    = "❓"
+	skull       = "💀"
+	vpn         = "🛡"
 )
 
 type TablePrinter struct {
-	t *printers.TablePrinter
+	t                       *printers.TablePrinter
+	lastEventErrorThreshold time.Duration
 }
 
 func New() *TablePrinter {
@@ -27,6 +37,10 @@ func New() *TablePrinter {
 
 func (t *TablePrinter) SetPrinter(printer *printers.TablePrinter) {
 	t.t = printer
+}
+
+func (t *TablePrinter) SetLastEventErrorThreshold(threshold time.Duration) {
+	t.lastEventErrorThreshold = threshold
 }
 
 func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]string, error) {

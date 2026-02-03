@@ -6,7 +6,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/google/go-cmp v0.7.0
-	github.com/metal-stack/api v0.0.40
+	github.com/metal-stack/api v0.0.42-0.20260203084807-da59b77d98b7
 	github.com/metal-stack/metal-lib v0.23.5
 	github.com/metal-stack/v v1.0.3
 	github.com/spf13/afero v1.15.0
@@ -36,7 +36,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.18.3 // indirect
-	github.com/klauspost/connect-compress/v2 v2.1.0 // indirect
+	github.com/klauspost/connect-compress/v2 v2.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect

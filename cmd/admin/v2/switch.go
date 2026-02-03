@@ -10,7 +10,6 @@ import (
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
-	"github.com/metal-stack/cli/cmd/sorters"
 	"github.com/metal-stack/cli/cmd/tableprinters"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
@@ -75,8 +74,6 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	}
 
 	switchConnectedMachinesCmd.Flags().String("id", "", "ID of the switch.")
-	switchConnectedMachinesCmd.Flags().String("os-vendor", "", "OS vendor of this switch.")
-	switchConnectedMachinesCmd.Flags().String("os-version", "", "OS version of this switch.")
 	switchConnectedMachinesCmd.Flags().String("partition", "", "Partition of this switch.")
 	switchConnectedMachinesCmd.Flags().String("rack", "", "Rack of this switch.")
 
@@ -280,58 +277,24 @@ func (c *switchCmd) switchConnectedMachines() error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	switches, err := c.List()
-	if err != nil {
-		return err
-	}
-
-	err = sorters.SwitchSorter().SortBy(switches)
-	if err != nil {
-		return err
-	}
-
-	var (
-		id        *string
-		partition *string
-		rack      *string
-		size      *string
-	)
-
-	if viper.IsSet("machine-id") {
-		id = pointer.Pointer(viper.GetString("machine-id"))
-	}
-	if viper.IsSet("partition") {
-		partition = pointer.Pointer(viper.GetString("partition"))
-	}
-	if viper.IsSet("rack") {
-		rack = pointer.Pointer(viper.GetString("rack"))
-	}
-	if viper.IsSet("size") {
-		size = pointer.Pointer(viper.GetString("size"))
-	}
-
-	resp, err := c.c.Client.Adminv2().Machine().List(ctx, &adminv2.MachineServiceListRequest{
-		Query: &apiv2.MachineQuery{
-			Uuid:      id,
-			Partition: partition,
-			Size:      size,
-			Rack:      rack,
+	res, err := c.c.Client.Adminv2().Switch().ConnectedMachines(ctx, &adminv2.SwitchServiceConnectedMachinesRequest{
+		Query: &apiv2.SwitchQuery{
+			Id:        pointer.PointerOrNil(viper.GetString("id")),
+			Partition: pointer.PointerOrNil(viper.GetString("partition")),
+			Rack:      pointer.PointerOrNil(viper.GetString("rack")),
 		},
-		Partition: partition,
+		MachineQuery: &apiv2.MachineQuery{
+			Uuid:      pointer.PointerOrNil(viper.GetString("machine-id")),
+			Partition: pointer.PointerOrNil(viper.GetString("partition")),
+			Size:      pointer.PointerOrNil(viper.GetString("size")),
+			Rack:      pointer.PointerOrNil(viper.GetString("rack")),
+		},
 	})
 	if err != nil {
 		return err
 	}
 
-	machines := map[string]*apiv2.Machine{}
-	for _, m := range resp.Machines {
-		machines[m.Uuid] = m
-	}
-
-	return c.c.ListPrinter.Print(&tableprinters.SwitchesWithMachines{
-		Switches: switches,
-		Machines: machines,
-	})
+	return c.c.ListPrinter.Print(res)
 }
 
 func (c *switchCmd) switchConsole(args []string) error {

@@ -41,8 +41,8 @@ github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/klauspost/compress v1.18.3 h1:9PJRvfbmTabkOX8moIpXPbMMbYN60bWImDDU7L+/6zw=
 github.com/klauspost/compress v1.18.3/go.mod h1:R0h/fSBs8DE4ENlcrlib3PsXS61voFxhIs2DeRhCvJ4=
-github.com/klauspost/connect-compress/v2 v2.1.0 h1:8fM8QrVeHT69e5VVSh4yjDaQASYIvOp2uMZq7nVLj2U=
-github.com/klauspost/connect-compress/v2 v2.1.0/go.mod h1:Ayurh2wscMMx3AwdGGVL+ylSR5316WfApREDgsqHyH8=
+github.com/klauspost/connect-compress/v2 v2.1.1 h1:ycZNp4rWOZBodVE2Ls5AzK4aHkyK+GteEfzRZgKNs+c=
+github.com/klauspost/connect-compress/v2 v2.1.1/go.mod h1:9oilsPHJMzGKkjafSBk9J7iVo4mO+dw0G0KSdVpnlVE=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
@@ -53,8 +53,8 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mattn/go-runewidth v0.0.19 h1:v++JhqYnZuu5jSKrk9RbgF5v4CGUjqRfBm05byFGLdw=
 github.com/mattn/go-runewidth v0.0.19/go.mod h1:XBkDxAl56ILZc9knddidhrOlY5R/pDhgLpndooCuJAs=
-github.com/metal-stack/api v0.0.40 h1:3Uzocg7cZqNdFZKgyuSDKF6m2DYR0gA5AgktFoZk+XY=
-github.com/metal-stack/api v0.0.40/go.mod h1:DtKUrGbmCj5N+ECPikIIgwNmK+m1FCRvu0oz01dhH5E=
+github.com/metal-stack/api v0.0.42-0.20260203084807-da59b77d98b7 h1:gEo5k1MjOt3J4P5+NTI3pi1OZHCXAJvc9TFLkATNZWE=
+github.com/metal-stack/api v0.0.42-0.20260203084807-da59b77d98b7/go.mod h1:Vim6qn4+WOCYH4iH+XnMpaobYkdZtgplKOSfFK/775w=
 github.com/metal-stack/metal-lib v0.23.5 h1:ozrkB3DNr3Cqn8nkBvmzc/KKpYqC1j1mv2OVOj8i7Ac=
 github.com/metal-stack/metal-lib v0.23.5/go.mod h1:7uyHIrE19dkLwCZyeh2jmd7IEq5pEpzrzUGLoMN1eqY=
 github.com/metal-stack/v v1.0.3 h1:Sh2oBlnxrCUD+mVpzfC8HiqL045YWkxs0gpTvkjppqs=

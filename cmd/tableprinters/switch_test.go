@@ -19,12 +19,12 @@ import (
 func Test_switchInterfaceNameLessFunc(t *testing.T) {
 	tests := []struct {
 		name  string
-		conns []*apiv2.MachineConnection
-		want  []*apiv2.MachineConnection
+		conns []*apiv2.SwitchNicWithMachine
+		want  []*apiv2.SwitchNicWithMachine
 	}{
 		{
 			name: "sorts interface names for cumulus-like interface names",
-			conns: []*apiv2.MachineConnection{
+			conns: []*apiv2.SwitchNicWithMachine{
 				{Nic: &apiv2.SwitchNic{Name: "swp10"}},
 				{Nic: &apiv2.SwitchNic{Name: "swp1s4"}},
 				{Nic: &apiv2.SwitchNic{Name: "swp1s3"}},
@@ -32,7 +32,7 @@ func Test_switchInterfaceNameLessFunc(t *testing.T) {
 				{Nic: &apiv2.SwitchNic{Name: "swp1s2"}},
 				{Nic: &apiv2.SwitchNic{Name: "swp9"}},
 			},
-			want: []*apiv2.MachineConnection{
+			want: []*apiv2.SwitchNicWithMachine{
 				{Nic: &apiv2.SwitchNic{Name: "swp1s1"}},
 				{Nic: &apiv2.SwitchNic{Name: "swp1s2"}},
 				{Nic: &apiv2.SwitchNic{Name: "swp1s3"}},
@@ -43,7 +43,7 @@ func Test_switchInterfaceNameLessFunc(t *testing.T) {
 		},
 		{
 			name: "sorts interface names for sonic-like interface names",
-			conns: []*apiv2.MachineConnection{
+			conns: []*apiv2.SwitchNicWithMachine{
 				{Nic: &apiv2.SwitchNic{Name: "Ethernet3"}},
 				{Nic: &apiv2.SwitchNic{Name: "Ethernet49"}},
 				{Nic: &apiv2.SwitchNic{Name: "Ethernet10"}},
@@ -51,7 +51,7 @@ func Test_switchInterfaceNameLessFunc(t *testing.T) {
 				{Nic: &apiv2.SwitchNic{Name: "Ethernet1"}},
 				{Nic: &apiv2.SwitchNic{Name: "Ethernet11"}},
 			},
-			want: []*apiv2.MachineConnection{
+			want: []*apiv2.SwitchNicWithMachine{
 				{Nic: &apiv2.SwitchNic{Name: "Ethernet1"}},
 				{Nic: &apiv2.SwitchNic{Name: "Ethernet2"}},
 				{Nic: &apiv2.SwitchNic{Name: "Ethernet3"}},
@@ -62,7 +62,7 @@ func Test_switchInterfaceNameLessFunc(t *testing.T) {
 		},
 		{
 			name: "sorts interface names edge cases",
-			conns: []*apiv2.MachineConnection{
+			conns: []*apiv2.SwitchNicWithMachine{
 				{Nic: &apiv2.SwitchNic{Name: "123"}},
 				{Nic: &apiv2.SwitchNic{Name: ""}},
 				{Nic: &apiv2.SwitchNic{Name: "Ethernet1"}},
@@ -73,7 +73,7 @@ func Test_switchInterfaceNameLessFunc(t *testing.T) {
 				{Nic: &apiv2.SwitchNic{Name: "swp1s4w6"}},
 				{Nic: &apiv2.SwitchNic{Name: ""}},
 			},
-			want: []*apiv2.MachineConnection{
+			want: []*apiv2.SwitchNicWithMachine{
 				{Nic: &apiv2.SwitchNic{Name: "swp1s3w3"}},
 				{Nic: &apiv2.SwitchNic{Name: "swp1s4w5"}},
 				{Nic: &apiv2.SwitchNic{Name: "swp1s4w6"}},
@@ -496,6 +496,200 @@ func TestTablePrinter_SwitchDetailTable(t *testing.T) {
 			}
 			if diff := cmp.Diff(tt.wantRows, gotRows); diff != "" {
 				t.Errorf("TablePrinter.SwitchDetailTable() diff rows = %s", diff)
+			}
+		})
+	}
+}
+
+func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
+	now := timestamppb.Now()
+
+	tests := []struct {
+		name       string
+		res        []*apiv2.SwitchWithMachines
+		wide       bool
+		wantHeader []string
+		wantRows   [][]string
+	}{
+		{
+			name:       "empty response",
+			res:        []*apiv2.SwitchWithMachines{},
+			wide:       false,
+			wantHeader: []string{"ID", "NIC Name", "Identifier", "Partition", "Rack", "Size", "Product Serial", "Chassis Serial"},
+			wantRows:   nil,
+		},
+		{
+			name: "switches with machines",
+			res: []*apiv2.SwitchWithMachines{
+				{
+					Id:        "r01leaf01",
+					Partition: "partition-a",
+					Rack:      "rack01",
+					Connections: []*apiv2.SwitchNicWithMachine{
+						{
+							Nic: &apiv2.SwitchNic{
+								Name:       "Ethernet10",
+								Identifier: "Eth3/3",
+								BgpPortState: &apiv2.SwitchBGPPortState{
+									BgpState:              apiv2.BGPState_BGP_STATE_ESTABLISHED,
+									BgpTimerUpEstablished: timestamppb.New(now.AsTime().Add(-5 * 24 * time.Hour)),
+								},
+							},
+							Uuid:                 "m2",
+							Size:                 "medium",
+							FruProductSerial:     "p234",
+							FruChassisPartSerial: "c234",
+						},
+						{
+							Nic: &apiv2.SwitchNic{
+								Name:       "Ethernet2",
+								Identifier: "Eth1/3",
+								State: &apiv2.NicState{
+									Actual: apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_DOWN,
+								},
+							},
+							Uuid:                 "m1",
+							Size:                 "large",
+							FruProductSerial:     "p123",
+							FruChassisPartSerial: "c123",
+						},
+					},
+				},
+				{
+					Id:        "r02leaf02",
+					Partition: "partition-b",
+					Rack:      "rack02",
+					Connections: []*apiv2.SwitchNicWithMachine{
+						{
+							Nic: &apiv2.SwitchNic{
+								Name:       "Ethernet5",
+								Identifier: "Eth2/2",
+								BgpPortState: &apiv2.SwitchBGPPortState{
+									BgpState: apiv2.BGPState_BGP_STATE_ACTIVE,
+								},
+							},
+							Uuid:                 "m3",
+							Size:                 "small",
+							FruProductSerial:     "p345",
+							FruChassisPartSerial: "c345",
+						},
+					},
+				},
+			},
+			wide:       false,
+			wantHeader: []string{"ID", "NIC Name", "Identifier", "Partition", "Rack", "Size", "Product Serial", "Chassis Serial"},
+			wantRows: [][]string{
+				{"r01leaf01", "", "", "partition-a", "rack01"},
+				{"├─╴m1", "Ethernet2 (down)", "Eth1/3", "partition-a", "rack01", "large", "p123", "c123"},
+				{"└─╴m2", "Ethernet10", "Eth3/3", "partition-a", "rack01", "medium", "p234", "c234"},
+				{"r02leaf02", "", "", "partition-b", "rack02"},
+				{"└─╴m3", "Ethernet5", "Eth2/2", "partition-b", "rack02", "small", "p345", "c345"},
+			},
+		},
+		{
+			name: "wide",
+			res: []*apiv2.SwitchWithMachines{
+				{
+					Id:        "r01leaf01",
+					Partition: "partition-a",
+					Rack:      "rack01",
+					Connections: []*apiv2.SwitchNicWithMachine{
+						{
+							Nic: &apiv2.SwitchNic{
+								Name:       "Ethernet10",
+								Identifier: "Eth3/3",
+								BgpPortState: &apiv2.SwitchBGPPortState{
+									BgpState:              apiv2.BGPState_BGP_STATE_ESTABLISHED,
+									BgpTimerUpEstablished: timestamppb.New(now.AsTime().Add(-5 * 24 * time.Hour)),
+								},
+							},
+							Uuid:                 "m2",
+							Size:                 "medium",
+							FruProductSerial:     "p234",
+							FruChassisPartSerial: "c234",
+							AllocationHostname:   "fw1",
+							VpnConnected:         true,
+							Liveliness:           apiv2.MachineLiveliness_MACHINE_LIVELINESS_ALIVE,
+							State:                apiv2.MachineState_MACHINE_STATE_AVAILABLE,
+						},
+						{
+							Nic: &apiv2.SwitchNic{
+								Name:       "Ethernet2",
+								Identifier: "Eth1/3",
+								State: &apiv2.NicState{
+									Actual: apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_DOWN,
+								},
+							},
+							Uuid:                 "m1",
+							Size:                 "large",
+							FruProductSerial:     "p123",
+							FruChassisPartSerial: "c123",
+							Liveliness:           apiv2.MachineLiveliness_MACHINE_LIVELINESS_DEAD,
+							State:                apiv2.MachineState_MACHINE_STATE_LOCKED,
+							FailedReclaim:        true,
+							Crashloop:            true,
+							LastErrorEventTime:   timestamppb.New(now.AsTime().Add(-time.Hour)),
+						},
+					},
+				},
+				{
+					Id:        "r02leaf02",
+					Partition: "partition-b",
+					Rack:      "rack02",
+					Connections: []*apiv2.SwitchNicWithMachine{
+						{
+							Nic: &apiv2.SwitchNic{
+								Name:       "Ethernet5",
+								Identifier: "Eth2/2",
+								State: &apiv2.NicState{
+									Actual: apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UNKNOWN,
+								},
+								BgpPortState: &apiv2.SwitchBGPPortState{
+									BgpState: apiv2.BGPState_BGP_STATE_ACTIVE,
+								},
+							},
+							Uuid:                 "m3",
+							Size:                 "small",
+							FruProductSerial:     "p345",
+							FruChassisPartSerial: "c345",
+							AllocationHostname:   "worker1",
+							Liveliness:           apiv2.MachineLiveliness_MACHINE_LIVELINESS_UNKNOWN,
+							State:                apiv2.MachineState_MACHINE_STATE_RESERVED,
+							LastErrorEventTime:   timestamppb.New(now.AsTime().Add(-2 * time.Hour)),
+						},
+					},
+				},
+			},
+			wide:       true,
+			wantHeader: []string{"ID", "", "NIC Name", "Identifier", "Partition", "Rack", "Size", "Hostname", "Product Serial", "Chassis Serial"},
+			wantRows: [][]string{
+				{"r01leaf01", "", "", "", "partition-a", "rack01"},
+				{"├─╴m1", "💀 🔒 🚑 ❗ ⭕", "Ethernet2 (down)", "Eth1/3", "partition-a", "rack01", "large", "", "p123", "c123"},
+				{"└─╴m2", "🛡", "Ethernet10 (BGP:Established(5d))", "Eth3/3", "partition-a", "rack01", "medium", "fw1", "p234", "c234"},
+				{"r02leaf02", "", "", "", "partition-b", "rack02"},
+				{"└─╴m3", "❓ 🚧", "Ethernet5 (unknown) (BGP:Active)", "Eth2/2", "partition-b", "rack02", "small", "worker1", "p345", "c345"},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tp := New()
+			p := printers.NewTablePrinter(&printers.TablePrinterConfig{
+				ToHeaderAndRows: tp.ToHeaderAndRows,
+			})
+			tp.SetPrinter(p)
+			tp.SetLastEventErrorThreshold(2 * time.Hour)
+
+			gotHeader, gotRows, err := tp.SwitchWithConnectedMachinesTable(tt.res, tt.wide)
+			if err != nil {
+				t.Errorf("TablePrinter.SwitchWithConnectedMachinesTable() error = %v", err)
+				return
+			}
+			if diff := cmp.Diff(tt.wantHeader, gotHeader); diff != "" {
+				t.Errorf("TablePrinter.SwitchWithConnectedMachinesTable() header diff = %s", diff)
+			}
+			if diff := cmp.Diff(tt.wantRows, gotRows); diff != "" {
+				t.Errorf("TablePrinter.SwitchWithConnectedMachinesTable() rows diff = %s", diff)
 			}
 		})
 	}
