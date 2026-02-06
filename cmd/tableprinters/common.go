@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
@@ -22,11 +23,16 @@ const (
 )
 
 type TablePrinter struct {
-	t *printers.TablePrinter
+	t                       *printers.TablePrinter
+	lastEventErrorThreshold time.Duration
 }
 
 func New() *TablePrinter {
 	return &TablePrinter{}
+}
+
+func (t *TablePrinter) SetLastEventErrorThreshold(threshold time.Duration) {
+	t.lastEventErrorThreshold = threshold
 }
 
 func (t *TablePrinter) SetPrinter(printer *printers.TablePrinter) {
@@ -49,6 +55,16 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Image:
 		return t.ImageTable(d, wide)
 
+	case *apiv2.Size:
+		return t.SizeTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Size:
+		return t.SizeTable(d, wide)
+
+	case *apiv2.Machine:
+		return t.MachineTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Machine:
+		return t.MachineTable(d, wide)
+
 	case *apiv2.Network:
 		return t.NetworkTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Network:
@@ -67,10 +83,20 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.ProjectMember:
 		return t.ProjectMemberTable(d, wide)
 
+	case *adminv2.TaskInfo:
+		return t.TaskTable(pointer.WrapInSlice(d), wide)
+	case []*adminv2.TaskInfo:
+		return t.TaskTable(d, wide)
+
 	case *apiv2.Token:
 		return t.TokenTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Token:
 		return t.TokenTable(d, wide)
+
+	case *apiv2.VPNNode:
+		return t.VPNTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.VPNNode:
+		return t.VPNTable(d, wide)
 
 	case *apiv2.Tenant:
 		return t.TenantTable(pointer.WrapInSlice(d), wide)

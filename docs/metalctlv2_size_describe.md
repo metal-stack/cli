@@ -1,17 +1,15 @@
-## metalctlv2 login
+## metalctlv2 size describe
 
-login
+describes the size
 
 ```
-metalctlv2 login [flags]
+metalctlv2 size describe <id> [flags]
 ```
 
 ### Options
 
 ```
-      --context string    the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set
-  -h, --help              help for login
-      --provider string   the provider used to login with (default "openid-connect")
+  -h, --help   help for describe
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +27,5 @@ metalctlv2 login [flags]
 
 ### SEE ALSO
 
-* [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
+* [metalctlv2 size](metalctlv2_size.md)	 - manage size entities
 

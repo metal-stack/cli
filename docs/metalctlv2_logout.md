@@ -11,7 +11,7 @@ metalctlv2 logout [flags]
 ```
       --context-name string   the context into which the token gets injected, if not specified it uses the current context or creates a context named default in case there is no current context set
   -h, --help                  help for logout
-      --provider string       the provider used to logout with (default "oidc")
+      --provider string       the provider used to logout with (default "openid-connect")
 ```
 
 ### Options inherited from parent commands

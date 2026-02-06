@@ -4,7 +4,7 @@ manage token entities
 
 ### Synopsis
 
-manage api tokens for accessing the metal-stack.io api
+manage api tokens
 
 ### Options
 

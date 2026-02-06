@@ -1,32 +1,28 @@
-## metalctlv2 tenant create
+## metalctlv2 machine update
 
-creates the tenant
+updates the machine
 
 ```
-metalctlv2 tenant create [flags]
+metalctlv2 machine update [flags]
 ```
 
 ### Options
 
 ```
-      --avatar-url string       the avatar url of the tenant to create
       --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
-      --description string      the description of the tenant to create
-      --email string            the email of the tenant to create
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 tenant describe tenant-1 -o yaml > tenant.yaml
-                                $ vi tenant.yaml
+                                $ metalctlv2 machine describe machine-1 -o yaml > machine.yaml
+                                $ vi machine.yaml
                                 $ # either via stdin
-                                $ cat tenant.yaml | metalctlv2 tenant create -f -
+                                $ cat machine.yaml | metalctlv2 machine update -f -
                                 $ # or via file
-                                $ metalctlv2 tenant create -f tenant.yaml
+                                $ metalctlv2 machine update -f machine.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for create
-      --name string             the name of the tenant to create
+  -h, --help                    help for update
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -46,5 +42,5 @@ metalctlv2 tenant create [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 tenant](metalctlv2_tenant.md)	 - manage tenant entities
+* [metalctlv2 machine](metalctlv2_machine.md)	 - manage machine entities
 
