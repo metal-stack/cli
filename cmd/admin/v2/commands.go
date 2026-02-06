@@ -16,14 +16,14 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 
 	adminCmd.AddCommand(newImageCmd(c))
 	adminCmd.AddCommand(newIPCmd(c))
+	adminCmd.AddCommand(newMachineCmd(c))
 	adminCmd.AddCommand(newNetworkCmd(c))
+	adminCmd.AddCommand(newProjectCmd(c))
 	adminCmd.AddCommand(newSizeCmd(c))
+	adminCmd.AddCommand(newTaskCmd(c))
 	adminCmd.AddCommand(newTenantCmd(c))
 	adminCmd.AddCommand(newTokenCmd(c))
-	adminCmd.AddCommand(newProjectCmd(c))
 	adminCmd.AddCommand(newVPNCmd(c))
-	adminCmd.AddCommand(newMachineCmd(c))
-	adminCmd.AddCommand(newTaskCmd(c))
 
 	cmd.AddCommand(adminCmd)
 }
