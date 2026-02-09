@@ -203,6 +203,10 @@ func (t *TablePrinter) SwitchWithConnectedMachinesTable(res []*apiv2.SwitchWithM
 
 		sort.Slice(sm.Connections, switchInterfaceNameLessFunc(sm.Connections))
 		for i, con := range sm.Connections {
+			if con.Nic == nil || con.Machine == nil || con.Fru == nil {
+				continue
+			}
+
 			prefix := "├"
 			if i == len(sm.Connections)-1 {
 				prefix = "└"
@@ -210,33 +214,32 @@ func (t *TablePrinter) SwitchWithConnectedMachinesTable(res []*apiv2.SwitchWithM
 			prefix += "─╴"
 
 			var (
-				nicName       string
-				nicIdentifier string
+				nic                  = con.Nic
+				machine              = con.Machine
+				fru                  = con.Fru
+				nicName              = nic.Name
+				nicIdentifier        = nic.Identifier
+				fruProductSerial     = pointer.SafeDeref(fru.ProductSerial)
+				fruChassisPartSerial = pointer.SafeDeref(fru.ChassisPartSerial)
 
-				machineSize          = con.Size
-				fruProductSerial     = con.FruProductSerial
-				fruChassisPartSerial = con.FruChassisPartSerial
-				allocationHostname   = con.AllocationHostname
+				machineSize        string
+				allocationHostname string
 			)
-			if con.Nic != nil {
-				nicName = con.Nic.Name
-				nicIdentifier = con.Nic.Identifier
-			}
 
-			if con.Nic != nil && con.Nic.State != nil {
-				state, err := enum.GetStringValue(con.Nic.State.Actual)
+			if nic.State != nil {
+				state, err := enum.GetStringValue(nic.State.Actual)
 				if err != nil {
 					return nil, nil, err
 				}
 				nicName = fmt.Sprintf("%s (%s)", nicName, *state)
 			}
 
-			if con.Nic != nil && con.Nic.BgpPortState != nil && wide {
-				if con.Nic.BgpPortState.BgpState == apiv2.BGPState_BGP_STATE_ESTABLISHED {
-					up := humanizeDuration(time.Since(con.Nic.BgpPortState.BgpTimerUpEstablished.AsTime()))
+			if nic.BgpPortState != nil && wide {
+				if nic.BgpPortState.BgpState == apiv2.BGPState_BGP_STATE_ESTABLISHED {
+					up := humanizeDuration(time.Since(nic.BgpPortState.BgpTimerUpEstablished.AsTime()))
 					nicName = fmt.Sprintf("%s (BGP:Established(%s))", nicName, up)
 				} else {
-					state, err := enum.GetStringValue(con.Nic.BgpPortState.BgpState)
+					state, err := enum.GetStringValue(nic.BgpPortState.BgpState)
 					if err != nil {
 						return nil, nil, err
 					}
@@ -244,108 +247,24 @@ func (t *TablePrinter) SwitchWithConnectedMachinesTable(res []*apiv2.SwitchWithM
 				}
 			}
 
+			if machine.Size != nil {
+				machineSize = machine.Size.Id
+			}
+
+			if machine.Allocation != nil {
+				allocationHostname = machine.Allocation.Hostname
+			}
+
 			if wide {
-				rows = append(rows, []string{fmt.Sprintf("%s%s", prefix, con.Uuid), t.getMachineStatusEmojis(con), nicName, nicIdentifier, partition, rack, machineSize, allocationHostname, fruProductSerial, fruChassisPartSerial})
+				rows = append(rows, []string{fmt.Sprintf("%s%s", prefix, machine.Uuid), t.getMachineStatusEmojis(machine), nicName, nicIdentifier, partition, rack, machineSize, allocationHostname, fruProductSerial, fruChassisPartSerial})
 			} else {
-				rows = append(rows, []string{fmt.Sprintf("%s%s", prefix, con.Uuid), nicName, nicIdentifier, partition, rack, machineSize, fruProductSerial, fruChassisPartSerial})
+				rows = append(rows, []string{fmt.Sprintf("%s%s", prefix, machine.Uuid), nicName, nicIdentifier, partition, rack, machineSize, fruProductSerial, fruChassisPartSerial})
 			}
 		}
 	}
 
 	t.t.DisableAutoWrap(true)
 	return header, rows, nil
-
-	// 	for _, s := range data.SS {
-	// 		conns := s.Connections
-	// 		if viper.IsSet("size") || viper.IsSet("machine-id") {
-	// 			filteredConns := []*models.V1SwitchConnection{}
-
-	// 			for _, conn := range s.Connections {
-	// 				conn := conn
-
-	// 				m, ok := data.MS[conn.MachineID]
-	// 				if !ok {
-	// 					continue
-	// 				}
-
-	// 				if viper.IsSet("machine-id") && pointer.SafeDeref(m.ID) == viper.GetString("machine-id") {
-	// 					filteredConns = append(filteredConns, conn)
-	// 				}
-
-	// 				if viper.IsSet("size") && pointer.SafeDeref(m.Size.ID) == viper.GetString("size") {
-	// 					filteredConns = append(filteredConns, conn)
-	// 				}
-	// 			}
-
-	// 			conns = filteredConns
-	// 		}
-
-	// 		sort.Slice(conns, switchInterfaceNameLessFunc(conns))
-
-	// 		for i, conn := range conns {
-	// 			prefix := "├"
-	// 			if i == len(conns)-1 {
-	// 				prefix = "└"
-	// 			}
-	// 			prefix += "─╴"
-
-	// 			m, ok := data.MS[conn.MachineID]
-	// 			if !ok {
-	// 				return nil, nil, fmt.Errorf("switch port %s is connected to a machine which does not exist: %q", pointer.SafeDeref(pointer.SafeDeref(conn.Nic).Name), conn.MachineID)
-	// 			}
-
-	// 			identifier := pointer.SafeDeref(conn.Nic.Identifier)
-	// 			if identifier == "" {
-	// 				identifier = pointer.SafeDeref(conn.Nic.Mac)
-	// 			}
-
-	// 			nic := pointer.SafeDeref(conn.Nic)
-	// 			nicname := pointer.SafeDeref(nic.Name)
-	// 			nicstate := pointer.SafeDeref(nic.Actual)
-	// 			bgpstate := pointer.SafeDeref(nic.BgpPortState)
-	// 			if nicstate != "UP" {
-	// 				nicname = fmt.Sprintf("%s (%s)", nicname, color.RedString(nicstate))
-	// 			}
-	// 			if bgpstate.BgpState != nil && wide {
-	// 				switch *bgpstate.BgpState {
-	// 				case "Established":
-	// 					uptime := time.Since(time.Unix(*bgpstate.BgpTimerUpEstablished, 0)).Round(time.Second)
-	// 					nicname = fmt.Sprintf("%s (BGP:%s(%s))", nicname, *bgpstate.BgpState, uptime)
-	// 				default:
-	// 					nicname = fmt.Sprintf("%s (BGP:%s)", nicname, *bgpstate.BgpState)
-	// 				}
-	// 			}
-
-	// 			if wide {
-	// 				emojis, _ := t.getMachineStatusEmojis(m.Liveliness, m.Events, m.State, pointer.SafeDeref(m.Allocation).Vpn)
-
-	// 				rows = append(rows, []string{
-	// 					fmt.Sprintf("%s%s", prefix, pointer.SafeDeref(m.ID)),
-	// 					emojis,
-	// 					nicname,
-	// 					identifier,
-	// 					pointer.SafeDeref(pointer.SafeDeref(m.Partition).ID),
-	// 					m.Rackid,
-	// 					pointer.SafeDeref(pointer.SafeDeref(m.Size).ID),
-	// 					pointer.SafeDeref(pointer.SafeDeref(m.Allocation).Hostname),
-	// 					pointer.SafeDeref(pointer.SafeDeref(m.Ipmi).Fru).ProductSerial,
-	// 					pointer.SafeDeref(pointer.SafeDeref(m.Ipmi).Fru).ChassisPartSerial,
-	// 				})
-	// 			} else {
-	// 				rows = append(rows, []string{
-	// 					fmt.Sprintf("%s%s", prefix, pointer.SafeDeref(m.ID)),
-	// 					nicname,
-	// 					identifier,
-	// 					pointer.SafeDeref(pointer.SafeDeref(m.Partition).ID),
-	// 					m.Rackid,
-	// 					pointer.SafeDeref(pointer.SafeDeref(m.Size).ID),
-	// 					pointer.SafeDeref(pointer.SafeDeref(m.Ipmi).Fru).ProductSerial,
-	// 					pointer.SafeDeref(pointer.SafeDeref(m.Ipmi).Fru).ChassisPartSerial,
-	// 				})
-	// 			}
-	// 		}
-	// 	}
-
 }
 
 type SwitchDetail struct {
@@ -394,42 +313,54 @@ func (t *TablePrinter) SwitchDetailTable(switches []SwitchDetail) ([]string, [][
 	return header, rows, nil
 }
 
-func (t *TablePrinter) getMachineStatusEmojis(con *apiv2.SwitchNicWithMachine) string {
+func (t *TablePrinter) getMachineStatusEmojis(m *apiv2.Machine) string {
+	if m == nil {
+		return ""
+	}
+
 	var (
 		emojis []string
 	)
 
-	switch con.Liveliness {
-	case apiv2.MachineLiveliness_MACHINE_LIVELINESS_ALIVE:
-		// noop
-	case apiv2.MachineLiveliness_MACHINE_LIVELINESS_DEAD:
-		emojis = append(emojis, skull)
-	default:
-		emojis = append(emojis, question)
+	if status := m.Status; status != nil {
+		switch status.Liveliness {
+		case apiv2.MachineLiveliness_MACHINE_LIVELINESS_ALIVE:
+			// noop
+		case apiv2.MachineLiveliness_MACHINE_LIVELINESS_DEAD:
+			emojis = append(emojis, skull)
+		default:
+			emojis = append(emojis, question)
+		}
+
+		if status.Condition != nil {
+			switch status.Condition.State {
+			case apiv2.MachineState_MACHINE_STATE_LOCKED:
+				emojis = append(emojis, lock)
+			case apiv2.MachineState_MACHINE_STATE_RESERVED:
+				emojis = append(emojis, bark)
+			default:
+				// noop
+			}
+		}
 	}
 
-	switch con.State {
-	case apiv2.MachineState_MACHINE_STATE_LOCKED:
-		emojis = append(emojis, lock)
-	case apiv2.MachineState_MACHINE_STATE_RESERVED:
-		emojis = append(emojis, bark)
-	default:
-		// noop
+	if events := m.RecentProvisioningEvents; events != nil {
+		switch events.State {
+		case apiv2.MachineProvisioningEventState_MACHINE_PROVISIONING_EVENT_STATE_FAILED_RECLAIM:
+			emojis = append(emojis, ambulance)
+		case apiv2.MachineProvisioningEventState_MACHINE_PROVISIONING_EVENT_STATE_CRASHLOOP:
+			emojis = append(emojis, loop)
+		default:
+			// noop
+
+		}
+
+		if time.Since(events.LastErrorEvent.Time.AsTime()) < t.lastEventErrorThreshold {
+			emojis = append(emojis, exclamation)
+		}
 	}
 
-	if con.FailedReclaim {
-		emojis = append(emojis, ambulance)
-	}
-
-	if time.Since(con.LastErrorEventTime.AsTime()) < t.lastEventErrorThreshold {
-		emojis = append(emojis, exclamation)
-	}
-
-	if con.Crashloop {
-		emojis = append(emojis, loop)
-	}
-
-	if con.VpnConnected {
+	if m.Allocation != nil && m.Allocation.Vpn != nil && m.Allocation.Vpn.Connected {
 		emojis = append(emojis, vpn)
 	}
 

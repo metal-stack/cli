@@ -535,10 +535,16 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 									BgpTimerUpEstablished: timestamppb.New(now.AsTime().Add(-5 * 24 * time.Hour)),
 								},
 							},
-							Uuid:                 "m2",
-							Size:                 "medium",
-							FruProductSerial:     "p234",
-							FruChassisPartSerial: "c234",
+							Machine: &apiv2.Machine{
+								Uuid: "m2",
+								Size: &apiv2.Size{
+									Id: "medium",
+								},
+							},
+							Fru: &apiv2.MachineFRU{
+								ChassisPartSerial: pointer.Pointer("c234"),
+								ProductSerial:     pointer.Pointer("p234"),
+							},
 						},
 						{
 							Nic: &apiv2.SwitchNic{
@@ -548,10 +554,16 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 									Actual: apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_DOWN,
 								},
 							},
-							Uuid:                 "m1",
-							Size:                 "large",
-							FruProductSerial:     "p123",
-							FruChassisPartSerial: "c123",
+							Machine: &apiv2.Machine{
+								Uuid: "m1",
+								Size: &apiv2.Size{
+									Id: "large",
+								},
+							},
+							Fru: &apiv2.MachineFRU{
+								ChassisPartSerial: pointer.Pointer("c123"),
+								ProductSerial:     pointer.Pointer("p123"),
+							},
 						},
 					},
 				},
@@ -568,10 +580,16 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 									BgpState: apiv2.BGPState_BGP_STATE_ACTIVE,
 								},
 							},
-							Uuid:                 "m3",
-							Size:                 "small",
-							FruProductSerial:     "p345",
-							FruChassisPartSerial: "c345",
+							Machine: &apiv2.Machine{
+								Uuid: "m3",
+								Size: &apiv2.Size{
+									Id: "small",
+								},
+							},
+							Fru: &apiv2.MachineFRU{
+								ChassisPartSerial: pointer.Pointer("c345"),
+								ProductSerial:     pointer.Pointer("p345"),
+							},
 						},
 					},
 				},
@@ -603,14 +621,28 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 									BgpTimerUpEstablished: timestamppb.New(now.AsTime().Add(-5 * 24 * time.Hour)),
 								},
 							},
-							Uuid:                 "m2",
-							Size:                 "medium",
-							FruProductSerial:     "p234",
-							FruChassisPartSerial: "c234",
-							AllocationHostname:   "fw1",
-							VpnConnected:         true,
-							Liveliness:           apiv2.MachineLiveliness_MACHINE_LIVELINESS_ALIVE,
-							State:                apiv2.MachineState_MACHINE_STATE_AVAILABLE,
+							Machine: &apiv2.Machine{
+								Uuid: "m2",
+								Size: &apiv2.Size{
+									Id: "medium",
+								},
+								Allocation: &apiv2.MachineAllocation{
+									Hostname: "fw1",
+									Vpn: &apiv2.MachineVPN{
+										Connected: true,
+									},
+								},
+								Status: &apiv2.MachineStatus{
+									Condition: &apiv2.MachineCondition{
+										State: apiv2.MachineState_MACHINE_STATE_AVAILABLE,
+									},
+									Liveliness: apiv2.MachineLiveliness_MACHINE_LIVELINESS_ALIVE,
+								},
+							},
+							Fru: &apiv2.MachineFRU{
+								ChassisPartSerial: pointer.Pointer("c234"),
+								ProductSerial:     pointer.Pointer("p234"),
+							},
 						},
 						{
 							Nic: &apiv2.SwitchNic{
@@ -620,15 +652,28 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 									Actual: apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_DOWN,
 								},
 							},
-							Uuid:                 "m1",
-							Size:                 "large",
-							FruProductSerial:     "p123",
-							FruChassisPartSerial: "c123",
-							Liveliness:           apiv2.MachineLiveliness_MACHINE_LIVELINESS_DEAD,
-							State:                apiv2.MachineState_MACHINE_STATE_LOCKED,
-							FailedReclaim:        true,
-							Crashloop:            true,
-							LastErrorEventTime:   timestamppb.New(now.AsTime().Add(-time.Hour)),
+							Machine: &apiv2.Machine{
+								Uuid: "m1",
+								Size: &apiv2.Size{
+									Id: "large",
+								},
+								Status: &apiv2.MachineStatus{
+									Condition: &apiv2.MachineCondition{
+										State: apiv2.MachineState_MACHINE_STATE_LOCKED,
+									},
+									Liveliness: apiv2.MachineLiveliness_MACHINE_LIVELINESS_DEAD,
+								},
+								RecentProvisioningEvents: &apiv2.MachineRecentProvisioningEvents{
+									LastErrorEvent: &apiv2.MachineProvisioningEvent{
+										Time: timestamppb.New(now.AsTime().Add(-time.Hour)),
+									},
+									State: apiv2.MachineProvisioningEventState_MACHINE_PROVISIONING_EVENT_STATE_CRASHLOOP,
+								},
+							},
+							Fru: &apiv2.MachineFRU{
+								ChassisPartSerial: pointer.Pointer("c123"),
+								ProductSerial:     pointer.Pointer("p123"),
+							},
 						},
 					},
 				},
@@ -648,14 +693,31 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 									BgpState: apiv2.BGPState_BGP_STATE_ACTIVE,
 								},
 							},
-							Uuid:                 "m3",
-							Size:                 "small",
-							FruProductSerial:     "p345",
-							FruChassisPartSerial: "c345",
-							AllocationHostname:   "worker1",
-							Liveliness:           apiv2.MachineLiveliness_MACHINE_LIVELINESS_UNKNOWN,
-							State:                apiv2.MachineState_MACHINE_STATE_RESERVED,
-							LastErrorEventTime:   timestamppb.New(now.AsTime().Add(-2 * time.Hour)),
+							Machine: &apiv2.Machine{
+								Uuid: "m3",
+								Size: &apiv2.Size{
+									Id: "small",
+								},
+								Allocation: &apiv2.MachineAllocation{
+									Hostname: "worker1",
+								},
+								Status: &apiv2.MachineStatus{
+									Condition: &apiv2.MachineCondition{
+										State: apiv2.MachineState_MACHINE_STATE_RESERVED,
+									},
+									Liveliness: apiv2.MachineLiveliness_MACHINE_LIVELINESS_UNKNOWN,
+								},
+								RecentProvisioningEvents: &apiv2.MachineRecentProvisioningEvents{
+									LastErrorEvent: &apiv2.MachineProvisioningEvent{
+										Time: timestamppb.New(now.AsTime().Add(-2 * time.Hour)),
+									},
+									State: apiv2.MachineProvisioningEventState_MACHINE_PROVISIONING_EVENT_STATE_FAILED_RECLAIM,
+								},
+							},
+							Fru: &apiv2.MachineFRU{
+								ChassisPartSerial: pointer.Pointer("c345"),
+								ProductSerial:     pointer.Pointer("p345"),
+							},
 						},
 					},
 				},
@@ -664,10 +726,10 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 			wantHeader: []string{"ID", "", "NIC Name", "Identifier", "Partition", "Rack", "Size", "Hostname", "Product Serial", "Chassis Serial"},
 			wantRows: [][]string{
 				{"r01leaf01", "", "", "", "partition-a", "rack01"},
-				{"├─╴m1", "💀 🔒 🚑 ❗ ⭕", "Ethernet2 (down)", "Eth1/3", "partition-a", "rack01", "large", "", "p123", "c123"},
+				{"├─╴m1", "💀 🔒 ⭕ ❗", "Ethernet2 (down)", "Eth1/3", "partition-a", "rack01", "large", "", "p123", "c123"},
 				{"└─╴m2", "🛡", "Ethernet10 (BGP:Established(5d))", "Eth3/3", "partition-a", "rack01", "medium", "fw1", "p234", "c234"},
 				{"r02leaf02", "", "", "", "partition-b", "rack02"},
-				{"└─╴m3", "❓ 🚧", "Ethernet5 (unknown) (BGP:Active)", "Eth2/2", "partition-b", "rack02", "small", "worker1", "p345", "c345"},
+				{"└─╴m3", "❓ 🚧 🚑", "Ethernet5 (unknown) (BGP:Active)", "Eth2/2", "partition-b", "rack02", "small", "worker1", "p345", "c345"},
 			},
 		},
 	}
