@@ -269,23 +269,3 @@ func (c *ip) IpResponseToUpdate(desired *apiv2.IP) (*apiv2.IPServiceUpdateReques
 		Labels:      updateLabels,
 	}, nil
 }
-
-func ipStaticToType(b bool) apiv2.IPType {
-	if b {
-		return apiv2.IPType_IP_TYPE_STATIC
-	}
-	return apiv2.IPType_IP_TYPE_EPHEMERAL
-}
-
-func addressFamilyToType(af string) *apiv2.IPAddressFamily {
-	switch af {
-	case "":
-		return nil
-	case "ipv4", "IPv4":
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4.Enum()
-	case "ipv6", "IPv6":
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V6.Enum()
-	default:
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_UNSPECIFIED.Enum()
-	}
-}

@@ -44,10 +44,6 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 	return genericcli.NewCmds(cmdsConfig)
 }
 
-func (c *machine) updateFromCLI(args []string) (*apiv2.MachineServiceUpdateRequest, error) {
-	panic("unimplemented")
-}
-
 func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine, error) {
 	panic("unimplemented")
 }

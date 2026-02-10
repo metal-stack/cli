@@ -55,8 +55,8 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 	}
 	bmcCommandCmd.Flags().String("id", "", "id of the machine where the command should be sent to")
 	bmcCommandCmd.Flags().String("command", "", "the actual command to send to the machine")
-	bmcCommandCmd.RegisterFlagCompletionFunc("id", c.Completion.MachineListCompletion)
-	bmcCommandCmd.RegisterFlagCompletionFunc("command", c.Completion.BMCCommandListCompletion)
+	genericcli.Must(bmcCommandCmd.RegisterFlagCompletionFunc("id", c.Completion.MachineListCompletion))
+	genericcli.Must(bmcCommandCmd.RegisterFlagCompletionFunc("command", c.Completion.BMCCommandListCompletion))
 	genericcli.Must(bmcCommandCmd.MarkFlagRequired("id"))
 	genericcli.Must(bmcCommandCmd.MarkFlagRequired("command"))
 
@@ -81,10 +81,6 @@ func (c *machine) bmcCommand() error {
 		return err
 	}
 	return err
-}
-
-func (c *machine) updateFromCLI(args []string) (any, error) {
-	panic("unimplemented")
 }
 
 func (c *machine) Create(rq any) (*apiv2.Machine, error) {
