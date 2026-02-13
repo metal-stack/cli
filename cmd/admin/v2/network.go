@@ -250,36 +250,36 @@ func (c *networkCmd) createRequestFromCLI() (*adminv2.NetworkServiceCreateReques
 	)
 	if viper.IsSet("default-ipv4-prefix-length") {
 		defaultCPL = &apiv2.ChildPrefixLength{
-			Ipv4: pointer.Pointer(viper.GetUint32("default-ipv4-prefix-length")),
+			Ipv4: new(viper.GetUint32("default-ipv4-prefix-length")),
 		}
 	}
 	if viper.IsSet("default-ipv6-prefix-length") {
 		if defaultCPL == nil {
 			defaultCPL = &apiv2.ChildPrefixLength{}
 		}
-		defaultCPL.Ipv6 = pointer.Pointer(viper.GetUint32("default-ipv6-prefix-length"))
+		defaultCPL.Ipv6 = new(viper.GetUint32("default-ipv6-prefix-length"))
 	}
 	if viper.IsSet("min-ipv4-prefix-length") {
 		minCPL = &apiv2.ChildPrefixLength{
-			Ipv4: pointer.Pointer(viper.GetUint32("min-ipv4-prefix-length")),
+			Ipv4: new(viper.GetUint32("min-ipv4-prefix-length")),
 		}
 	}
 	if viper.IsSet("min-ipv6-prefix-length") {
 		if minCPL == nil {
 			minCPL = &apiv2.ChildPrefixLength{}
 		}
-		minCPL.Ipv6 = pointer.Pointer(viper.GetUint32("min-ipv6-prefix-length"))
+		minCPL.Ipv6 = new(viper.GetUint32("min-ipv6-prefix-length"))
 	}
 	if viper.IsSet("ipv4-prefix-length") {
 		length = &apiv2.ChildPrefixLength{
-			Ipv4: pointer.Pointer(viper.GetUint32("ipv4-prefix-length")),
+			Ipv4: new(viper.GetUint32("ipv4-prefix-length")),
 		}
 	}
 	if viper.IsSet("ipv6-prefix-length") {
 		if length == nil {
 			length = &apiv2.ChildPrefixLength{}
 		}
-		length.Ipv6 = pointer.Pointer(viper.GetUint32("ipv6-prefix-length"))
+		length.Ipv6 = new(viper.GetUint32("ipv6-prefix-length"))
 	}
 
 	nwType, err := enum.GetEnum[apiv2.NetworkType](viper.GetString("type"))
@@ -296,7 +296,7 @@ func (c *networkCmd) createRequestFromCLI() (*adminv2.NetworkServiceCreateReques
 
 	var vrf *uint32
 	if viper.IsSet("vrf") {
-		vrf = pointer.Pointer(viper.GetUint32("vrf"))
+		vrf = new(viper.GetUint32("vrf"))
 	}
 
 	return &adminv2.NetworkServiceCreateRequest{
@@ -349,25 +349,25 @@ func (c *networkCmd) updateRequestFromCLI(args []string) (*adminv2.NetworkServic
 	)
 	if viper.IsSet("default-ipv4-prefix-length") {
 		defaultCPL = &apiv2.ChildPrefixLength{
-			Ipv4: pointer.Pointer(viper.GetUint32("default-ipv4-prefix-length")),
+			Ipv4: new(viper.GetUint32("default-ipv4-prefix-length")),
 		}
 	}
 	if viper.IsSet("default-ipv6-prefix-length") {
 		if defaultCPL == nil {
 			defaultCPL = &apiv2.ChildPrefixLength{}
 		}
-		defaultCPL.Ipv6 = pointer.Pointer(viper.GetUint32("default-ipv6-prefix-length"))
+		defaultCPL.Ipv6 = new(viper.GetUint32("default-ipv6-prefix-length"))
 	}
 	if viper.IsSet("min-ipv4-prefix-length") {
 		minCPL = &apiv2.ChildPrefixLength{
-			Ipv4: pointer.Pointer(viper.GetUint32("min-ipv4-prefix-length")),
+			Ipv4: new(viper.GetUint32("min-ipv4-prefix-length")),
 		}
 	}
 	if viper.IsSet("min-ipv6-prefix-length") {
 		if minCPL == nil {
 			minCPL = &apiv2.ChildPrefixLength{}
 		}
-		minCPL.Ipv6 = pointer.Pointer(viper.GetUint32("min-ipv6-prefix-length"))
+		minCPL.Ipv6 = new(viper.GetUint32("min-ipv6-prefix-length"))
 	}
 
 	if viper.IsSet("nat-type") {

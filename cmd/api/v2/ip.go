@@ -10,7 +10,6 @@ import (
 	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -75,11 +74,11 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		CreateRequestFromCLI: func() (*apiv2.IPServiceCreateRequest, error) {
 			return &apiv2.IPServiceCreateRequest{
 				Project:     c.GetProject(),
-				Name:        pointer.Pointer(viper.GetString("name")),
-				Description: pointer.Pointer(viper.GetString("description")),
+				Name:        new(viper.GetString("name")),
+				Description: new(viper.GetString("description")),
 				Network:     viper.GetString("network"),
 				// Labels:        viper.GetStringSlice("tags"), // FIXME implement
-				Type:          pointer.Pointer(common.IpStaticToType(viper.GetBool("static"))),
+				Type:          new(common.IpStaticToType(viper.GetBool("static"))),
 				AddressFamily: common.IPAddressFamilyToType(viper.GetString("addressfamily")),
 			}, nil
 		},
@@ -170,7 +169,7 @@ func (c *ip) Get(id string) (*apiv2.IP, error) {
 		namespace *string
 	)
 	if viper.IsSet("namespace") {
-		namespace = pointer.Pointer(viper.GetString("namespace"))
+		namespace = new(viper.GetString("namespace"))
 	}
 
 	resp, err := c.c.Client.Apiv2().IP().Get(ctx, &apiv2.IPServiceGetRequest{

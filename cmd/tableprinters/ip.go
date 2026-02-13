@@ -19,7 +19,6 @@ func (t *TablePrinter) IPTable(data []*apiv2.IP, wide bool) ([]string, [][]strin
 	}
 
 	for _, ip := range data {
-		ip := ip
 
 		var t string
 

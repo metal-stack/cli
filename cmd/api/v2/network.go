@@ -123,7 +123,7 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 			Name:                pointer.PointerOrNil(viper.GetString("name")),
 			Description:         pointer.PointerOrNil(viper.GetString("description")),
 			Partition:           pointer.PointerOrNil(viper.GetString("partition")),
-			Project:             pointer.Pointer(c.c.GetProject()),
+			Project:             new(c.c.GetProject()),
 			Prefixes:            viper.GetStringSlice("prefixes"),
 			DestinationPrefixes: viper.GetStringSlice("destination-prefixes"),
 			Vrf:                 pointer.PointerOrNil(viper.GetUint32("vrf")),
@@ -227,10 +227,10 @@ func (c *networkCmd) createRequestFromCLI() (*apiv2.NetworkServiceCreateRequest,
 		cpl = &apiv2.ChildPrefixLength{}
 	)
 	if viper.IsSet("ipv4-prefix-length") {
-		cpl.Ipv4 = pointer.Pointer(viper.GetUint32("ipv4-prefix-length"))
+		cpl.Ipv4 = new(viper.GetUint32("ipv4-prefix-length"))
 	}
 	if viper.IsSet("ipv6-prefix-length") {
-		cpl.Ipv6 = pointer.Pointer(viper.GetUint32("ipv6-prefix-length"))
+		cpl.Ipv6 = new(viper.GetUint32("ipv6-prefix-length"))
 	}
 
 	return &apiv2.NetworkServiceCreateRequest{

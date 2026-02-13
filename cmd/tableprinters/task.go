@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/metal-stack/api/go/enum"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
 func (t *TablePrinter) TaskTable(data []*adminv2.TaskInfo, wide bool) ([]string, [][]string, error) {
@@ -24,7 +23,7 @@ func (t *TablePrinter) TaskTable(data []*adminv2.TaskInfo, wide bool) ([]string,
 		typeString := task.Type
 		state, err := enum.GetStringValue(task.State)
 		if err != nil {
-			state = pointer.Pointer("unknown")
+			state = new("unknown")
 		}
 		payload := string(task.Payload)
 		result := string(task.Result)

@@ -110,7 +110,7 @@ func (t *TablePrinter) getMachineStatusEmojis(liveliness apiv2.MachineLiveliness
 	)
 	livelinessString, err = enum.GetStringValue(liveliness)
 	if err != nil {
-		livelinessString = pointer.Pointer("unknown")
+		livelinessString = new("unknown")
 	}
 
 	switch l := liveliness; l {

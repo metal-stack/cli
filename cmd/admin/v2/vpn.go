@@ -9,7 +9,6 @@ import (
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -87,7 +86,7 @@ func (v *vpn) List() ([]*apiv2.VPNNode, error) {
 	req := &adminv2.VPNServiceListNodesRequest{}
 
 	if viper.IsSet("project") {
-		req.Project = pointer.Pointer(viper.GetString("project"))
+		req.Project = new(viper.GetString("project"))
 	}
 
 	resp, err := v.c.Client.Adminv2().VPN().ListNodes(ctx, req)

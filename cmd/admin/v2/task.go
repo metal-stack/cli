@@ -8,7 +8,6 @@ import (
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -88,7 +87,7 @@ func (t *task) List() ([]*adminv2.TaskInfo, error) {
 
 	req := &adminv2.TaskServiceListRequest{}
 	if viper.IsSet("queue") {
-		req.Queue = pointer.Pointer(viper.GetString("queue"))
+		req.Queue = new(viper.GetString("queue"))
 	}
 
 	resp, err := t.c.Client.Adminv2().Task().List(ctx, req)
