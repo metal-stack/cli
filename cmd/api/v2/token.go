@@ -30,7 +30,7 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "token",
 		Plural:          "tokens",
-		Description:     "manage api tokens for accessing the metal-stack.io api",
+		Description:     "manage api tokens",
 		Sorter:          sorters.TokenSorter(),
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
@@ -80,12 +80,13 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 
 			var adminRole *apiv2.AdminRole
 			if roleString := viper.GetString("admin-role"); roleString != "" {
-				role, ok := apiv2.AdminRole_value[roleString]
+				// FIXME see: https://github.com/golangci/golangci-lint/issues/6363
+				role, ok := apiv2.AdminRole_value[roleString] // nolint:staticcheck
 				if !ok {
 					return nil, fmt.Errorf("unknown role: %s", roleString)
 				}
 
-				adminRole = pointer.Pointer(apiv2.AdminRole(role))
+				adminRole = new(apiv2.AdminRole(role))
 			}
 
 			return &apiv2.TokenServiceCreateRequest{
