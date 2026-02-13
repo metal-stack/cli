@@ -47,7 +47,6 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 			return &adminv2.TenantServiceCreateRequest{
 				Name:        viper.GetString("name"),
 				Description: pointer.PointerOrNil(viper.GetString("description")),
-				Email:       pointer.PointerOrNil(viper.GetString("email")),
 				AvatarUrl:   pointer.PointerOrNil(viper.GetString("avatar-url")),
 			}, nil
 		},
@@ -69,7 +68,6 @@ func (c *tenant) List() ([]*apiv2.Tenant, error) {
 	req := &adminv2.TenantServiceListRequest{
 		Name:  pointer.PointerOrNil(viper.GetString("name")),
 		Login: pointer.PointerOrNil(viper.GetString("id")),
-		Email: pointer.PointerOrNil(viper.GetString("email")),
 	}
 
 	resp, err := c.c.Client.Adminv2().Tenant().List(ctx, req)
