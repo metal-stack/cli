@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
@@ -52,6 +53,15 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.ProjectMemberTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.ProjectMember:
 		return t.ProjectMemberTable(d, wide)
+
+	case *apiv2.Partition:
+		return t.PartitionTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Partition:
+		return t.PartitionTable(d, wide)
+	case *adminv2.PartitionCapacity:
+		return t.PartitionCapacityTable(pointer.WrapInSlice(d), wide)
+	case []*adminv2.PartitionCapacity:
+		return t.PartitionCapacityTable(d, wide)
 
 	case *apiv2.Token:
 		return t.TokenTable(pointer.WrapInSlice(d), wide)
