@@ -69,7 +69,6 @@ func (c *tenant) List() ([]*apiv2.Tenant, error) {
 	req := &adminv2.TenantServiceListRequest{
 		Name:  pointer.PointerOrNil(viper.GetString("name")),
 		Login: pointer.PointerOrNil(viper.GetString("id")),
-		Email: pointer.PointerOrNil(viper.GetString("email")),
 	}
 
 	resp, err := c.c.Client.Adminv2().Tenant().List(ctx, req)
