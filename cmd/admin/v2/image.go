@@ -146,7 +146,7 @@ func (c *image) Update(rq *adminv2.ImageServiceUpdateRequest) (*apiv2.Image, err
 
 	req := &adminv2.ImageServiceUpdateRequest{
 		Id:          viper.GetString("id"),
-		Url:         pointer.Pointer(viper.GetString("url")),
+		Url:         new(viper.GetString("url")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
 		ExpiresAt:   expiresAt,
 		Features:    imageFeaturesFromString(viper.GetStringSlice("features")),
