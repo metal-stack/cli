@@ -228,8 +228,8 @@ func (c *project) Convert(r *apiv2.Project) (string, *apiv2.ProjectServiceCreate
 			Description: r.Description,
 		}, &apiv2.ProjectServiceUpdateRequest{
 			Project:     r.Uuid,
-			Name:        pointer.Pointer(r.Name),
-			Description: pointer.Pointer(r.Description),
+			Name:        new(r.Name),
+			Description: new(r.Description),
 		}, nil
 }
 
