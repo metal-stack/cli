@@ -85,7 +85,7 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 					return nil, fmt.Errorf("unknown role: %s", roleString)
 				}
 
-				adminRole = pointer.Pointer(apiv2.AdminRole(role))
+				adminRole = new(apiv2.AdminRole(role))
 			}
 
 			return &apiv2.TokenServiceCreateRequest{
