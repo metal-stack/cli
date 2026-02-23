@@ -14,6 +14,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 		Hidden:       true,
 	}
 
+	adminCmd.AddCommand(newComponentCmd(c))
 	adminCmd.AddCommand(newImageCmd(c))
 	adminCmd.AddCommand(newPartitionCmd(c))
 	adminCmd.AddCommand(newProjectCmd(c))
