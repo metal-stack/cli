@@ -47,7 +47,6 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 			return &adminv2.TenantServiceCreateRequest{
 				Name:        viper.GetString("name"),
 				Description: pointer.PointerOrNil(viper.GetString("description")),
-				Email:       pointer.PointerOrNil(viper.GetString("email")),
 				AvatarUrl:   pointer.PointerOrNil(viper.GetString("avatar-url")),
 			}, nil
 		},

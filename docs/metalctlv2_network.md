@@ -1,15 +1,15 @@
-## metalctlv2 token
+## metalctlv2 network
 
-manage token entities
+manage network entities
 
 ### Synopsis
 
-manage api tokens
+networks can be attached to a machine or firewall such that they can communicate with each other.
 
 ### Options
 
 ```
-  -h, --help   help for token
+  -h, --help   help for network
 ```
 
 ### Options inherited from parent commands
@@ -28,11 +28,12 @@ manage api tokens
 ### SEE ALSO
 
 * [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
-* [metalctlv2 token apply](metalctlv2_token_apply.md)	 - applies one or more tokens from a given file
-* [metalctlv2 token create](metalctlv2_token_create.md)	 - creates the token
-* [metalctlv2 token delete](metalctlv2_token_delete.md)	 - deletes the token
-* [metalctlv2 token describe](metalctlv2_token_describe.md)	 - describes the token
-* [metalctlv2 token edit](metalctlv2_token_edit.md)	 - edit the token through an editor and update
-* [metalctlv2 token list](metalctlv2_token_list.md)	 - list all tokens
-* [metalctlv2 token update](metalctlv2_token_update.md)	 - updates the token
+* [metalctlv2 network apply](metalctlv2_network_apply.md)	 - applies one or more networks from a given file
+* [metalctlv2 network create](metalctlv2_network_create.md)	 - creates the network
+* [metalctlv2 network delete](metalctlv2_network_delete.md)	 - deletes the network
+* [metalctlv2 network describe](metalctlv2_network_describe.md)	 - describes the network
+* [metalctlv2 network edit](metalctlv2_network_edit.md)	 - edit the network through an editor and update
+* [metalctlv2 network list](metalctlv2_network_list.md)	 - list all networks
+* [metalctlv2 network list-base-networks](metalctlv2_network_list-base-networks.md)	 - lists base networks that can be used for network creation
+* [metalctlv2 network update](metalctlv2_network_update.md)	 - updates the network
 

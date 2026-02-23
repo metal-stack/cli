@@ -1,15 +1,16 @@
-## metalctlv2 token
+## metalctlv2 machine describe
 
-manage token entities
+describes the machine
 
-### Synopsis
-
-manage api tokens
+```
+metalctlv2 machine describe <id> [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for token
+  -h, --help             help for describe
+  -p, --project string   project of the machine
 ```
 
 ### Options inherited from parent commands
@@ -27,12 +28,5 @@ manage api tokens
 
 ### SEE ALSO
 
-* [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
-* [metalctlv2 token apply](metalctlv2_token_apply.md)	 - applies one or more tokens from a given file
-* [metalctlv2 token create](metalctlv2_token_create.md)	 - creates the token
-* [metalctlv2 token delete](metalctlv2_token_delete.md)	 - deletes the token
-* [metalctlv2 token describe](metalctlv2_token_describe.md)	 - describes the token
-* [metalctlv2 token edit](metalctlv2_token_edit.md)	 - edit the token through an editor and update
-* [metalctlv2 token list](metalctlv2_token_list.md)	 - list all tokens
-* [metalctlv2 token update](metalctlv2_token_update.md)	 - updates the token
+* [metalctlv2 machine](metalctlv2_machine.md)	 - manage machine entities
 

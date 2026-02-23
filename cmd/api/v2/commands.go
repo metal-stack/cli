@@ -6,13 +6,16 @@ import (
 )
 
 func AddCmds(cmd *cobra.Command, c *config.Config) {
-	cmd.AddCommand(newVersionCmd(c))
 	cmd.AddCommand(newHealthCmd(c))
-	cmd.AddCommand(newTokenCmd(c))
-	cmd.AddCommand(newIPCmd(c))
 	cmd.AddCommand(newImageCmd(c))
-	cmd.AddCommand(newProjectCmd(c))
-	cmd.AddCommand(newTenantCmd(c))
+	cmd.AddCommand(newIPCmd(c))
+	cmd.AddCommand(newMachineCmd(c))
 	cmd.AddCommand(newMethodsCmd(c))
+	cmd.AddCommand(newNetworkCmd(c))
+	cmd.AddCommand(newProjectCmd(c))
+	cmd.AddCommand(newSizeCmd(c))
+	cmd.AddCommand(newTenantCmd(c))
+	cmd.AddCommand(newTokenCmd(c))
 	cmd.AddCommand(newUserCmd(c))
+	cmd.AddCommand(newVersionCmd(c))
 }
