@@ -30,6 +30,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case *config.Contexts:
 		return t.ContextTable(d, wide)
 
+	case *apiv2.Component:
+		return t.ComponentTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Component:
+		return t.ComponentTable(d, wide)
+
 	case *apiv2.IP:
 		return t.IPTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.IP:
