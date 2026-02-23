@@ -6,7 +6,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
 func (t *TablePrinter) HealthTable(data []*apiv2.Health, wide bool) ([]string, [][]string, error) {
@@ -31,13 +30,11 @@ func (t *TablePrinter) HealthTable(data []*apiv2.Health, wide bool) ([]string, [
 	)
 
 	for _, h := range data {
-		h := h
 		for _, s := range h.Services {
-			s := s
 
 			name, err := enum.GetStringValue(s.Name)
 			if err != nil {
-				name = pointer.Pointer("service status unknown")
+				name = new("service status unknown")
 			}
 			message := "All systems operational"
 			if s.Message != "" {
@@ -53,7 +50,6 @@ func (t *TablePrinter) HealthTable(data []*apiv2.Health, wide bool) ([]string, [
 
 			var partitions []partitionStatus
 			for id, p := range s.Partitions {
-				p := p
 
 				partitions = append(partitions, partitionStatus{
 					ID:              id,
@@ -66,7 +62,6 @@ func (t *TablePrinter) HealthTable(data []*apiv2.Health, wide bool) ([]string, [
 			})
 
 			for i, status := range partitions {
-				status := status
 
 				prefix := "├"
 				if i == len(partitions)-1 {

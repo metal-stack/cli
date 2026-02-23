@@ -44,7 +44,7 @@ func (c *Config) NewRequestContext() (context.Context, context.CancelFunc) {
 		timeout = pointer.Pointer(30 * time.Second)
 	}
 	if viper.IsSet("timeout") {
-		timeout = pointer.Pointer(viper.GetDuration("timeout"))
+		timeout = new(viper.GetDuration("timeout"))
 	}
 
 	return context.WithTimeout(context.Background(), *timeout)
