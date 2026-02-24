@@ -1,0 +1,33 @@
+## metalctlv2 partition
+
+manage partition entities
+
+### Synopsis
+
+list and get partitions
+
+### Options
+
+```
+  -h, --help   help for partition
+```
+
+### Options inherited from parent commands
+
+```
+      --api-token string       the token used for api requests
+      --api-url string         the url to the metal-stack.io api (default "https://api.metal-stack.io")
+  -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
+      --debug                  debug output
+      --force-color            force colored output even without tty
+  -o, --output-format string   output format (table|wide|markdown|json|yaml|template|jsonraw|yamlraw), wide is a table with more columns, jsonraw and yamlraw do not translate proto enums into string types but leave the original int32 values intact. (default "table")
+      --template string        output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
+      --timeout duration       request timeout used for api requests
+```
+
+### SEE ALSO
+
+* [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
+* [metalctlv2 partition describe](metalctlv2_partition_describe.md)	 - describes the partition
+* [metalctlv2 partition list](metalctlv2_partition_list.md)	 - list all partitions
+
