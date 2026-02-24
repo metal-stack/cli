@@ -1,4 +1,4 @@
-package cmd
+package test
 
 import (
 	"bytes"
@@ -14,6 +14,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	apitests "github.com/metal-stack/api/go/tests"
+	"github.com/metal-stack/cli/cmd"
 	"github.com/metal-stack/cli/cmd/completion"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -52,7 +53,7 @@ func (c *Test[R]) TestCmd(t *testing.T) {
 	if c.WantErr != nil {
 		_, _, conf := c.newMockConfig(t)
 
-		cmd := newRootCmd(conf)
+		cmd := cmd.NewRootCmd(conf)
 		os.Args = append([]string{config.BinaryName}, c.Cmd(c.Want)...)
 
 		err := cmd.Execute()
@@ -65,7 +66,7 @@ func (c *Test[R]) TestCmd(t *testing.T) {
 		t.Run(fmt.Sprintf("%v", format.Args()), func(t *testing.T) {
 			_, out, conf := c.newMockConfig(t)
 
-			cmd := newRootCmd(conf)
+			cmd := cmd.NewRootCmd(conf)
 			os.Args = append([]string{config.BinaryName}, c.Cmd(c.Want)...)
 			os.Args = append(os.Args, format.Args()...)
 
@@ -119,7 +120,7 @@ func AssertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
 		return fmt.Errorf("not exhaustive: does not contain %q", prefix)
 	}
 
-	root := newRootCmd(&config.Config{})
+	root := cmd.NewRootCmd(&config.Config{})
 	cmd, args, err := root.Find(args)
 	require.NoError(t, err)
 
