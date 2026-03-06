@@ -13,7 +13,6 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -69,7 +68,7 @@ func (l *login) login() error {
 		if viper.IsSet("context") {
 			newCtx.Name = viper.GetString("context")
 		}
-		newCtx.ApiURL = pointer.Pointer(l.c.GetApiURL())
+		newCtx.ApiURL = new(l.c.GetApiURL())
 		ctxs.Contexts = append(ctxs.Contexts, &newCtx)
 		ctx = &newCtx
 	}
@@ -131,7 +130,7 @@ func (l *login) login() error {
 		tokenResp, err := mc.Apiv2().Token().Create(context.Background(), &apiv2.TokenServiceCreateRequest{
 			Description: "admin access issues by metal cli",
 			Expires:     durationpb.New(3 * time.Hour),
-			AdminRole:   pointer.Pointer(apiv2.AdminRole((apiv2.AdminRole_value[viper.GetString("admin-role")]))),
+			AdminRole:   new(apiv2.AdminRole((apiv2.AdminRole_value[viper.GetString("admin-role")]))),
 		})
 		if err != nil {
 			return fmt.Errorf("unable to issue admin token: %w", err)
