@@ -10,7 +10,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -174,10 +173,11 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 		},
 		{
 			name: "some switches",
+			// TODO: reorder to check correct sorting
 			switches: []*apiv2.Switch{
 				{
 					Id:          "r01leaf01",
-					Rack:        pointer.Pointer("rack01"),
+					Rack:        new("rack01"),
 					Partition:   "partition-a",
 					ReplaceMode: apiv2.SwitchReplaceMode_SWITCH_REPLACE_MODE_OPERATIONAL,
 					Os: &apiv2.SwitchOS{
@@ -199,12 +199,12 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 					},
 					LastSyncError: &apiv2.SwitchSync{
 						Time:  timestamppb.New(now.AsTime().Add(-7 * 24 * time.Hour)),
-						Error: pointer.Pointer("sync took too long"),
+						Error: new("sync took too long"),
 					},
 				},
 				{
 					Id:          "r01leaf02",
-					Rack:        pointer.Pointer("rack01"),
+					Rack:        new("rack01"),
 					Partition:   "partition-a",
 					ReplaceMode: apiv2.SwitchReplaceMode_SWITCH_REPLACE_MODE_REPLACE,
 					Os: &apiv2.SwitchOS{
@@ -215,12 +215,12 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 					},
 					LastSyncError: &apiv2.SwitchSync{
 						Time:  timestamppb.New(now.AsTime().Add(time.Hour - 7*24*time.Hour)),
-						Error: pointer.Pointer("sync took too long"),
+						Error: new("sync took too long"),
 					},
 				},
 				{
 					Id:        "r02leaf01",
-					Rack:      pointer.Pointer("rack02"),
+					Rack:      new("rack02"),
 					Partition: "partition-a",
 					Os:        &apiv2.SwitchOS{},
 					LastSync: &apiv2.SwitchSync{
@@ -232,7 +232,7 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 				},
 				{
 					Id:        "r02leaf02",
-					Rack:      pointer.Pointer("rack02"),
+					Rack:      new("rack02"),
 					Partition: "partition-a",
 					LastSync: &apiv2.SwitchSync{
 						Time: timestamppb.New(now.AsTime().Add(-10 * time.Minute)),
@@ -240,7 +240,7 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 				},
 				{
 					Id:        "r03leaf01",
-					Rack:      pointer.Pointer("rack03"),
+					Rack:      new("rack03"),
 					Partition: "partition-a",
 					LastSync: &apiv2.SwitchSync{
 						Time:     now,
@@ -249,7 +249,7 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 				},
 				{
 					Id:        "r03leaf02",
-					Rack:      pointer.Pointer("rack03"),
+					Rack:      new("rack03"),
 					Partition: "partition-a",
 					LastSync:  &apiv2.SwitchSync{},
 					MachineConnections: []*apiv2.MachineConnection{
@@ -282,7 +282,7 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 			switches: []*apiv2.Switch{
 				{
 					Id:           "r01leaf01",
-					Rack:         pointer.Pointer("rack01"),
+					Rack:         new("rack01"),
 					Partition:    "partition-a",
 					ReplaceMode:  apiv2.SwitchReplaceMode_SWITCH_REPLACE_MODE_OPERATIONAL,
 					ManagementIp: "1.1.1.1",
@@ -307,12 +307,12 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 					},
 					LastSyncError: &apiv2.SwitchSync{
 						Time:  timestamppb.New(now.AsTime().Add(-7 * 24 * time.Hour)),
-						Error: pointer.Pointer("sync took too long"),
+						Error: new("sync took too long"),
 					},
 				},
 				{
 					Id:           "r01leaf02",
-					Rack:         pointer.Pointer("rack01"),
+					Rack:         new("rack01"),
 					Partition:    "partition-a",
 					ReplaceMode:  apiv2.SwitchReplaceMode_SWITCH_REPLACE_MODE_REPLACE,
 					ManagementIp: "2.2.2.2",
@@ -325,12 +325,12 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 					},
 					LastSyncError: &apiv2.SwitchSync{
 						Time:  timestamppb.New(now.AsTime().Add(time.Hour - 7*24*time.Hour)),
-						Error: pointer.Pointer("sync took too long"),
+						Error: new("sync took too long"),
 					},
 				},
 				{
 					Id:           "r02leaf01",
-					Rack:         pointer.Pointer("rack02"),
+					Rack:         new("rack02"),
 					Partition:    "partition-a",
 					ManagementIp: "3.3.3.3",
 					Os:           &apiv2.SwitchOS{},
@@ -339,7 +339,7 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 					},
 					LastSyncError: &apiv2.SwitchSync{
 						Time:  now,
-						Error: pointer.Pointer("error"),
+						Error: new("error"),
 					},
 				},
 			},
@@ -395,7 +395,7 @@ func TestTablePrinter_SwitchDetailTable(t *testing.T) {
 				{
 					Switch: &apiv2.Switch{
 						Id:        "leaf01",
-						Rack:      pointer.Pointer("rack01"),
+						Rack:      new("rack01"),
 						Partition: "partition-a",
 						Nics: []*apiv2.SwitchNic{
 							{
@@ -432,7 +432,7 @@ func TestTablePrinter_SwitchDetailTable(t *testing.T) {
 				{
 					Switch: &apiv2.Switch{
 						Id:        "leaf02",
-						Rack:      pointer.Pointer("rack01"),
+						Rack:      new("rack01"),
 						Partition: "partition-a",
 						Nics: []*apiv2.SwitchNic{
 							{
@@ -542,8 +542,8 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 								},
 							},
 							Fru: &apiv2.MachineFRU{
-								ChassisPartSerial: pointer.Pointer("c234"),
-								ProductSerial:     pointer.Pointer("p234"),
+								ChassisPartSerial: new("c234"),
+								ProductSerial:     new("p234"),
 							},
 						},
 						{
@@ -561,8 +561,8 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 								},
 							},
 							Fru: &apiv2.MachineFRU{
-								ChassisPartSerial: pointer.Pointer("c123"),
-								ProductSerial:     pointer.Pointer("p123"),
+								ChassisPartSerial: new("c123"),
+								ProductSerial:     new("p123"),
 							},
 						},
 					},
@@ -587,8 +587,8 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 								},
 							},
 							Fru: &apiv2.MachineFRU{
-								ChassisPartSerial: pointer.Pointer("c345"),
-								ProductSerial:     pointer.Pointer("p345"),
+								ChassisPartSerial: new("c345"),
+								ProductSerial:     new("p345"),
 							},
 						},
 					},
@@ -640,8 +640,8 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 								},
 							},
 							Fru: &apiv2.MachineFRU{
-								ChassisPartSerial: pointer.Pointer("c234"),
-								ProductSerial:     pointer.Pointer("p234"),
+								ChassisPartSerial: new("c234"),
+								ProductSerial:     new("p234"),
 							},
 						},
 						{
@@ -671,8 +671,8 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 								},
 							},
 							Fru: &apiv2.MachineFRU{
-								ChassisPartSerial: pointer.Pointer("c123"),
-								ProductSerial:     pointer.Pointer("p123"),
+								ChassisPartSerial: new("c123"),
+								ProductSerial:     new("p123"),
 							},
 						},
 					},
@@ -715,8 +715,8 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 								},
 							},
 							Fru: &apiv2.MachineFRU{
-								ChassisPartSerial: pointer.Pointer("c345"),
-								ProductSerial:     pointer.Pointer("p345"),
+								ChassisPartSerial: new("c345"),
+								ProductSerial:     new("p345"),
 							},
 						},
 					},
