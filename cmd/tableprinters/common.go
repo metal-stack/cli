@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
@@ -104,8 +105,8 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.SwitchTable(d, wide)
 	case []SwitchDetail:
 		return t.SwitchDetailTable(d)
-	case []*apiv2.SwitchWithMachines:
-		return t.SwitchWithConnectedMachinesTable(d, wide)
+	case *adminv2.SwitchServiceConnectedMachinesResponse:
+		return t.SwitchWithConnectedMachinesTable(d.SwitchesWithMachines, wide)
 
 	default:
 		return nil, nil, fmt.Errorf("unknown table printer for type: %T", d)
