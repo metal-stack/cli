@@ -225,7 +225,7 @@ func (c *switchCmd) List() ([]*apiv2.Switch, error) {
 			Rack:      pointer.PointerOrNil(viper.GetString("rack")),
 			Os: &apiv2.SwitchOSQuery{
 				Vendor:  pointer.PointerOrNil(vendor),
-				Version: new(viper.GetString("os-version")),
+				Version: pointer.PointerOrNil(viper.GetString("os-version")),
 			},
 		},
 	})
