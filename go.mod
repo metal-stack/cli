@@ -6,7 +6,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/google/go-cmp v0.7.0
-	github.com/metal-stack/api v0.0.51
+	github.com/metal-stack/api v0.0.53
 	github.com/metal-stack/metal-lib v0.23.5
 	github.com/metal-stack/v v1.0.3
 	github.com/spf13/afero v1.15.0
@@ -14,7 +14,6 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/net v0.50.0
 	google.golang.org/protobuf v1.36.11
 	sigs.k8s.io/yaml v1.6.0
 )
@@ -58,6 +57,7 @@ require (
 	go.mongodb.org/mongo-driver v1.17.9 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
+	golang.org/x/net v0.50.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
