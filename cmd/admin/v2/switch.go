@@ -18,7 +18,6 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type switchCmd struct {
@@ -56,7 +55,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("rack", "", "Rack of this switch.")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.Completion.SwitchListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartitionListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRackListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("os-vendor", c.Completion.SwitchOSVendorListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("os-version", c.Completion.SwitchOSVersionListCompletion))
@@ -85,7 +84,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	// switchMachinesCmd.Flags().String("machine-id", "", "The id of the connected machine, ignores size flag if set.")
 
 	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("id", c.Completion.SwitchListCompletion))
-	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
+	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartitionListCompletion))
 	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRackListCompletion))
 
 	// TODO: add once size and machine completion are implemented
@@ -118,7 +117,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	switchDetailCmd.Flags().String("rack", "", "Rack of this switch.")
 
 	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("id", c.Completion.SwitchListCompletion))
-	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
+	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartitionListCompletion))
 	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRackListCompletion))
 
 	switchMigrateCmd := &cobra.Command{
@@ -181,7 +180,7 @@ Operational steps to replace a switch:
 	}
 
 	switchSSHCmd := &cobra.Command{
-		Use:   "ssh <switchID>",
+		Use:   "ssh <id>",
 		Short: "connect to the switch via ssh",
 		Long:  "this requires a network connectivity to the management ip address of the switch.",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -415,12 +414,10 @@ func (c *switchCmd) switchReplace(args []string) error {
 	resp, err := c.Update(&adminv2.SwitchServiceUpdateRequest{
 		Id: id,
 		UpdateMeta: &apiv2.UpdateMeta{
-			UpdatedAt:       timestamppb.Now(),
-			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+			UpdatedAt:       sw.Meta.UpdatedAt,
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
 		},
-		Description: &sw.Description,
 		ReplaceMode: apiv2.SwitchReplaceMode_SWITCH_REPLACE_MODE_REPLACE.Enum(),
-		Os:          sw.Os,
 	})
 	if err != nil {
 		return err

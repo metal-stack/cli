@@ -303,7 +303,7 @@ func (t *TablePrinter) SwitchDetailTable(switches []SwitchDetail) ([]string, [][
 			}
 
 			max := math.Max(float64(len(filter.Cidrs)), float64(len(filter.Vnis)))
-			for i := 1; i < int(max); i++ {
+			for i := range int(max) {
 				row = append([]string{"", "", "", "", ""}, filterColumns(filter, i)...)
 				rows = append(rows, row)
 			}
