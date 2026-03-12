@@ -104,6 +104,8 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.SwitchTable(d, wide)
 	case []SwitchDetail:
 		return t.SwitchDetailTable(d)
+	case []*apiv2.SwitchWithMachines:
+		return t.SwitchWithConnectedMachinesTable(d, wide)
 
 	default:
 		return nil, nil, fmt.Errorf("unknown table printer for type: %T", d)

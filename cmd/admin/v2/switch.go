@@ -11,10 +11,10 @@ import (
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
+	"github.com/metal-stack/cli/cmd/sorters"
 	"github.com/metal-stack/cli/cmd/tableprinters"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
-	"github.com/metal-stack/metal-lib/pkg/multisort"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -46,7 +46,8 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 		Aliases:         []string{"sw"},
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
-		Sorter:          &multisort.Sorter[*apiv2.Switch]{},
+		Sorter:          sorters.SwitchSorter(),
+		ValidArgsFn:     c.Completion.SwitchListCompletion,
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("id", "", "ID of the switch.")
 			cmd.Flags().String("os-vendor", "", "OS vendor of this switch.")
@@ -92,7 +93,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	// genericcli.Must(switchMachinesCmd.RegisterFlagCompletionFunc("machine-id", c.Completion.MachineListCompletion))
 
 	switchConsoleCmd := &cobra.Command{
-		Use:   "console <switchID>",
+		Use:   "console <id>",
 		Short: "connect to the switch console",
 		Long:  "this requires a network connectivity to the ip address of the console server this switch is connected to.",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -102,7 +103,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	}
 
 	switchDetailCmd := &cobra.Command{
-		Use:   "detail",
+		Use:   "detail <id>",
 		Short: "switch details",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sw.switchDetail()
@@ -208,19 +209,23 @@ func (c *switchCmd) List() ([]*apiv2.Switch, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	vendor, err := enum.GetEnum[apiv2.SwitchOSVendor](viper.GetString("os-vendor"))
-	if err != nil {
-		return nil, err
+	var vendor apiv2.SwitchOSVendor
+	if viper.IsSet("os-vendor") {
+		var err error
+		vendor, err = enum.GetEnum[apiv2.SwitchOSVendor](viper.GetString("os-vendor"))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	res, err := c.c.Client.Adminv2().Switch().List(ctx, &adminv2.SwitchServiceListRequest{
 		Query: &apiv2.SwitchQuery{
-			Id:        pointer.Pointer(viper.GetString("id")),
-			Partition: pointer.Pointer(viper.GetString("partition")),
-			Rack:      pointer.Pointer(viper.GetString("rack")),
+			Id:        new(viper.GetString("id")),
+			Partition: new(viper.GetString("partition")),
+			Rack:      new(viper.GetString("rack")),
 			Os: &apiv2.SwitchOSQuery{
-				Vendor:  &vendor,
-				Version: pointer.Pointer(viper.GetString("os-version")),
+				Vendor:  pointer.PointerOrNil(vendor),
+				Version: new(viper.GetString("os-version")),
 			},
 		},
 	})
