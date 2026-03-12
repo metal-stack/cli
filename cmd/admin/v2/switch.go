@@ -220,9 +220,9 @@ func (c *switchCmd) List() ([]*apiv2.Switch, error) {
 
 	res, err := c.c.Client.Adminv2().Switch().List(ctx, &adminv2.SwitchServiceListRequest{
 		Query: &apiv2.SwitchQuery{
-			Id:        new(viper.GetString("id")),
-			Partition: new(viper.GetString("partition")),
-			Rack:      new(viper.GetString("rack")),
+			Id:        pointer.PointerOrNil(viper.GetString("id")),
+			Partition: pointer.PointerOrNil(viper.GetString("partition")),
+			Rack:      pointer.PointerOrNil(viper.GetString("rack")),
 			Os: &apiv2.SwitchOSQuery{
 				Vendor:  pointer.PointerOrNil(vendor),
 				Version: new(viper.GetString("os-version")),
