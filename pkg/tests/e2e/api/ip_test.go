@@ -1,9 +1,10 @@
-package cmd
+package api_e2e
 
 import (
 	"testing"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/cli/pkg/tests/e2e"
 	"github.com/metal-stack/metal-lib/pkg/tag"
 )
 
@@ -44,8 +45,8 @@ var (
 	}
 )
 
-func Test_IPCmd_MultiResult(t *testing.T) {
-	tests := []*Test[apiv2.IPServiceListRequest, apiv2.IPServiceListResponse]{
+func Test_IPCmd_List(t *testing.T) {
+	tests := []*e2e.Test[apiv2.IPServiceListRequest, apiv2.IPServiceListResponse]{
 		{
 			Name: "list",
 			Cmd: func() []string {
@@ -88,10 +89,10 @@ IP       PROJECT                               ID                               
 	}
 }
 
-func Test_IPCmd_SingleResult(t *testing.T) {
+func Test_IPCmd_Describe(t *testing.T) {
 	ip1 := ip1()
 
-	tests := []*Test[apiv2.IPServiceGetRequest, apiv2.IPServiceGetResponse]{
+	tests := []*e2e.Test[apiv2.IPServiceGetRequest, apiv2.IPServiceGetResponse]{
 		{
 			Name: "describe",
 			Cmd: func() []string {

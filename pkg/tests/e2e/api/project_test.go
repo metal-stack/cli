@@ -1,10 +1,11 @@
-package cmd
+package api_e2e
 
 import (
 	"testing"
 	"time"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/cli/pkg/tests/e2e"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -33,10 +34,10 @@ var (
 	}
 )
 
-func Test_ProjectCmd_SingleResult(t *testing.T) {
+func Test_ProjectCmd_Describe(t *testing.T) {
 	p1 := project1()
 
-	tests := []*Test[apiv2.ProjectServiceGetRequest, apiv2.ProjectServiceGetResponse]{
+	tests := []*e2e.Test[apiv2.ProjectServiceGetRequest, apiv2.ProjectServiceGetResponse]{
 		{
 			Name: "describe",
 			Cmd: func() []string {
@@ -73,8 +74,8 @@ ID                                    TENANT       NAME       DESCRIPTION    CRE
 	}
 }
 
-func Test_ProjectCmd_MultiResult(t *testing.T) {
-	tests := []*Test[apiv2.ProjectServiceListRequest, apiv2.ProjectServiceListResponse]{
+func Test_ProjectCmd_List(t *testing.T) {
+	tests := []*e2e.Test[apiv2.ProjectServiceListRequest, apiv2.ProjectServiceListResponse]{
 		{
 			Name: "list",
 			Cmd: func() []string {

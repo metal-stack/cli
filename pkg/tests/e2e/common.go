@@ -1,4 +1,4 @@
-package cmd
+package e2e
 
 import (
 	"bytes"
@@ -17,6 +17,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	client "github.com/metal-stack/api/go/client"
+	"github.com/metal-stack/cli/cmd"
 	"github.com/metal-stack/cli/cmd/completion"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/testcommon"
@@ -41,13 +42,13 @@ type Test[Request, Response any] struct {
 
 	WantErr       error
 	WantRequest   Request
-	WantResponse  Response        // for client return and json and yaml
-	WantObject    proto.Message   // domain object for yaml/json structural comparison
-	WantTable     *string         // for table printer
-	WantWideTable *string         // for wide table printer
-	Template      *string         // for template printer
-	WantTemplate  *string         // for template printer
-	WantMarkdown  *string         // for markdown printer
+	WantResponse  Response      // for client return and json and yaml
+	WantObject    proto.Message // domain object for yaml/json structural comparison
+	WantTable     *string       // for table printer
+	WantWideTable *string       // for wide table printer
+	Template      *string       // for template printer
+	WantTemplate  *string       // for template printer
+	WantMarkdown  *string       // for markdown printer
 }
 
 func (c *Test[Request, Response]) TestCmd(t *testing.T) {
@@ -57,7 +58,7 @@ func (c *Test[Request, Response]) TestCmd(t *testing.T) {
 	if c.WantErr != nil {
 		_, _, conf := c.newCmdConfig(t)
 
-		cmd := newRootCmd(conf)
+		cmd := cmd.NewRootCmd(conf)
 		os.Args = append([]string{config.BinaryName}, c.Cmd()...)
 
 		err := cmd.Execute()
@@ -70,7 +71,7 @@ func (c *Test[Request, Response]) TestCmd(t *testing.T) {
 		t.Run(fmt.Sprintf("%v", format.Args()), func(t *testing.T) {
 			_, out, conf := c.newCmdConfig(t)
 
-			cmd := newRootCmd(conf)
+			cmd := cmd.NewRootCmd(conf)
 			os.Args = append([]string{config.BinaryName}, c.Cmd()...)
 			os.Args = append(os.Args, format.Args()...)
 
@@ -135,7 +136,7 @@ func AssertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
 		return fmt.Errorf("not exhaustive: does not contain %q", prefix)
 	}
 
-	root := newRootCmd(&config.Config{})
+	root := cmd.NewRootCmd(&config.Config{})
 	cmd, args, err := root.Find(args)
 	require.NoError(t, err)
 

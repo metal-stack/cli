@@ -1,9 +1,10 @@
-package cmd
+package api_e2e
 
 import (
 	"testing"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/cli/pkg/tests/e2e"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
@@ -29,7 +30,7 @@ var (
 )
 
 func Test_ImageCmd_List(t *testing.T) {
-	tests := []*Test[apiv2.ImageServiceListRequest, apiv2.ImageServiceListResponse]{
+	tests := []*e2e.Test[apiv2.ImageServiceListRequest, apiv2.ImageServiceListResponse]{
 		{
 			Name: "list",
 			Cmd: func() []string {
