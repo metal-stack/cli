@@ -46,7 +46,7 @@ var (
 )
 
 func Test_IPCmd_List(t *testing.T) {
-	tests := []*e2e.Test[apiv2.IPServiceListRequest, apiv2.IPServiceListResponse]{
+	tests := []*e2e.Test[apiv2.IPServiceListRequest, apiv2.IPServiceListResponse, apiv2.IP]{
 		{
 			Name: "list",
 			Cmd: func() []string {
@@ -92,7 +92,7 @@ IP       PROJECT                               ID                               
 func Test_IPCmd_Describe(t *testing.T) {
 	ip1 := ip1()
 
-	tests := []*e2e.Test[apiv2.IPServiceGetRequest, apiv2.IPServiceGetResponse]{
+	tests := []*e2e.Test[apiv2.IPServiceGetRequest, apiv2.IPServiceGetResponse, *apiv2.IP]{
 		{
 			Name: "describe",
 			Cmd: func() []string {
@@ -105,7 +105,8 @@ func Test_IPCmd_Describe(t *testing.T) {
 			WantResponse: apiv2.IPServiceGetResponse{
 				Ip: ip1,
 			},
-			WantObject: ip1,
+			WantObject:      ip1,
+			WantProtoObject: ip1,
 			WantTable: new(`
 IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
 1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a

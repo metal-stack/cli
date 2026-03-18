@@ -30,7 +30,7 @@ var (
 )
 
 func Test_ImageCmd_List(t *testing.T) {
-	tests := []*e2e.Test[apiv2.ImageServiceListRequest, apiv2.ImageServiceListResponse]{
+	tests := []*e2e.Test[apiv2.ImageServiceListRequest, apiv2.ImageServiceListResponse, *apiv2.Image]{
 		{
 			Name: "list",
 			Cmd: func() []string {

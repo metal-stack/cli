@@ -29,7 +29,7 @@ var (
 func Test_TokenCmd_Describe(t *testing.T) {
 	tk := token1()
 
-	tests := []*e2e.Test[apiv2.TokenServiceGetRequest, apiv2.TokenServiceGetResponse]{
+	tests := []*e2e.Test[apiv2.TokenServiceGetRequest, apiv2.TokenServiceGetResponse, *apiv2.Token]{
 		{
 			Name: "describe",
 			Cmd: func() []string {
@@ -41,8 +41,9 @@ func Test_TokenCmd_Describe(t *testing.T) {
 			WantResponse: apiv2.TokenServiceGetResponse{
 				Token: tk,
 			},
-			WantObject: tk,
-			Template:   new("{{ .uuid }} {{ .description }}"),
+			WantObject:      tk,
+			WantProtoObject: tk,
+			Template:        new("{{ .uuid }} {{ .description }}"),
 			WantTemplate: new(`
 a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90 ci token
 			`),

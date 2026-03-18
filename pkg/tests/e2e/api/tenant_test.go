@@ -26,7 +26,7 @@ var (
 func Test_TenantCmd_Describe(t *testing.T) {
 	tn := tenant1()
 
-	tests := []*e2e.Test[apiv2.TenantServiceGetRequest, apiv2.TenantServiceGetResponse]{
+	tests := []*e2e.Test[apiv2.TenantServiceGetRequest, apiv2.TenantServiceGetResponse, *apiv2.Tenant]{
 		{
 			Name: "describe",
 			Cmd: func() []string {
@@ -38,8 +38,9 @@ func Test_TenantCmd_Describe(t *testing.T) {
 			WantResponse: apiv2.TenantServiceGetResponse{
 				Tenant: tn,
 			},
-			WantObject: tn,
-			Template:   new("{{ .login }} {{ .name }}"),
+			WantObject:      tn,
+			WantProtoObject: tn,
+			Template:        new("{{ .login }} {{ .name }}"),
 			WantTemplate: new(`
 metal-stack Metal Stack
 			`),

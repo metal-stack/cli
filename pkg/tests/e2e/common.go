@@ -3,6 +3,7 @@ package e2e
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
@@ -28,9 +29,10 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/runtime/protoimpl"
+	"sigs.k8s.io/yaml"
 )
 
-type Test[Request, Response any] struct {
+type Test[Request, Response, Object any] struct {
 	Name string
 	Cmd  func() []string
 
@@ -38,20 +40,19 @@ type Test[Request, Response any] struct {
 	FsMocks   func(fs afero.Fs)
 	MockStdin *bytes.Buffer
 
-	// DisableMockClient bool // can switch off mock client creation
-
-	WantErr       error
-	WantRequest   Request
-	WantResponse  Response      // for client return and json and yaml
-	WantObject    proto.Message // domain object for yaml/json structural comparison
-	WantTable     *string       // for table printer
-	WantWideTable *string       // for wide table printer
-	Template      *string       // for template printer
-	WantTemplate  *string       // for template printer
-	WantMarkdown  *string       // for markdown printer
+	WantErr         error
+	WantRequest     Request       // for client expectation
+	WantResponse    Response      // for client return
+	WantObject      Object        // domain object for rawyaml/rawjson structural comparison
+	WantProtoObject proto.Message // domain object for yaml/json structural comparison
+	WantTable       *string       // for table printer
+	WantWideTable   *string       // for wide table printer
+	Template        *string       // for template printer
+	WantTemplate    *string       // for template printer
+	WantMarkdown    *string       // for markdown printer
 }
 
-func (c *Test[Request, Response]) TestCmd(t *testing.T) {
+func (c *Test[Request, Response, Object]) TestCmd(t *testing.T) {
 	require.NotEmpty(t, c.Name, "test name must not be empty")
 	require.NotEmpty(t, c.Cmd, "cmd must not be empty")
 
@@ -83,7 +84,7 @@ func (c *Test[Request, Response]) TestCmd(t *testing.T) {
 	}
 }
 
-func (c *Test[Request, Response]) newCmdConfig(t *testing.T) (any, *bytes.Buffer, *config.Config) {
+func (c *Test[Request, Response, Object]) newCmdConfig(t *testing.T) (any, *bytes.Buffer, *config.Config) {
 	interceptors := []connect.Interceptor{
 		&testClientInterceptor[Request, Response]{
 			t:        t,
@@ -148,13 +149,15 @@ func AssertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
 	})
 }
 
-func outputFormats[Request, Response any](c *Test[Request, Response]) []outputFormat[Response] {
+func outputFormats[Request, Response, Object any](c *Test[Request, Response, Object]) []outputFormat[Response] {
 	var formats []outputFormat[Response]
 
-	if c.WantObject != nil {
+	if c.WantProtoObject != nil {
 		formats = append(formats,
-			&protoYAMLOutputFormat[Response]{want: c.WantObject},
-			&protoJSONOutputFormat[Response]{want: c.WantObject},
+			&protoYAMLOutputFormat[Response]{want: c.WantProtoObject},
+			&rawYamlOutputFormat[Object]{want: c.WantObject},
+			&protoJSONOutputFormat[Response]{want: c.WantProtoObject},
+			&rawJsonOutputFormat[Object]{want: c.WantObject},
 		)
 	}
 
@@ -182,6 +185,48 @@ type outputFormat[R any] interface {
 	Validate(t *testing.T, output []byte)
 }
 
+type rawYamlOutputFormat[R any] struct {
+	want R
+}
+
+func (o *rawYamlOutputFormat[R]) Args() []string {
+	return []string{"-o", "yamlraw"}
+}
+
+func (o *rawYamlOutputFormat[R]) Validate(t *testing.T, output []byte) {
+	t.Logf("got following yamlraw output:\n\n%s\n", string(output))
+
+	var got R
+
+	err := yaml.Unmarshal(output, &got)
+	require.NoError(t, err)
+
+	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+		t.Errorf("diff (+got -want):\n %s", diff)
+	}
+}
+
+type rawJsonOutputFormat[R any] struct {
+	want R
+}
+
+func (o *rawJsonOutputFormat[R]) Args() []string {
+	return []string{"-o", "jsonraw"}
+}
+
+func (o *rawJsonOutputFormat[R]) Validate(t *testing.T, output []byte) {
+	t.Logf("got following jsonraw output:\n\n%s\n", string(output))
+
+	var got R
+
+	err := json.Unmarshal(output, &got)
+	require.NoError(t, err)
+
+	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+		t.Errorf("diff (+got -want):\n %s", diff)
+	}
+}
+
 type protoYAMLOutputFormat[R any] struct {
 	want proto.Message
 }
@@ -191,7 +236,7 @@ func (o *protoYAMLOutputFormat[R]) Args() []string {
 }
 
 func (o *protoYAMLOutputFormat[R]) Validate(t *testing.T, output []byte) {
-	t.Logf("got following yaml output:\n\n%s\n\nconsider using this for test comparison if it looks correct.", string(output))
+	t.Logf("got following yaml output:\n\n%s\n", string(output))
 
 	got := proto.Clone(o.want)
 	proto.Reset(got)
@@ -213,7 +258,7 @@ func (o *protoJSONOutputFormat[R]) Args() []string {
 }
 
 func (o *protoJSONOutputFormat[R]) Validate(t *testing.T, output []byte) {
-	t.Logf("got following json output:\n\n%s\n\nconsider using this for test comparison if it looks correct.", string(output))
+	t.Logf("got following json output:\n\n%s\n", string(output))
 
 	got := proto.Clone(o.want)
 	proto.Reset(got)
@@ -263,6 +308,8 @@ func (o *templateOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	t.Logf("got following template output:\n\n%s\n\nconsider using this for test comparison if it looks correct.", string(output))
 
 	assert.Equal(t, strings.TrimSpace(o.templateOutput), strings.TrimSpace(string(output)))
+
+	// somehow this diff does not look nice anymore. :(
 	// if diff := cmp.Diff(strings.TrimSpace(o.templateOutput), strings.TrimSpace(string(output))); diff != "" {
 	// 	t.Errorf("diff (+got -want):\n %s", diff)
 	// }
