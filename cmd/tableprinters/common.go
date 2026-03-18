@@ -47,6 +47,11 @@ func (t *TablePrinter) SetLastEventErrorThreshold(threshold time.Duration) {
 func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]string, error) {
 	switch d := data.(type) {
 
+	case *apiv2.AuditTrace:
+		return t.AuditTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.AuditTrace:
+		return t.AuditTable(d, wide)
+
 	case *config.Contexts:
 		return t.ContextTable(d, wide)
 
