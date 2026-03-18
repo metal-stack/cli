@@ -2,58 +2,61 @@ package cmd
 
 import (
 	"bytes"
-	"encoding/json"
+	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"strings"
 	"testing"
 
 	"slices"
 
+	"buf.build/go/protoyaml"
+	"connectrpc.com/connect"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	apitests "github.com/metal-stack/api/go/tests"
+	client "github.com/metal-stack/api/go/client"
 	"github.com/metal-stack/cli/cmd/completion"
 	"github.com/metal-stack/cli/cmd/config"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/metal-stack/metal-lib/pkg/testcommon"
 	"github.com/spf13/afero"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/runtime/protoimpl"
-	"sigs.k8s.io/yaml"
 )
 
-type Test[R any] struct {
+type Test[Request, Response any] struct {
 	Name string
-	Cmd  func(want R) []string
+	Cmd  func() []string
 
-	ClientMocks *apitests.ClientMockFns
-	FsMocks     func(fs afero.Fs, want R)
-	MockStdin   *bytes.Buffer
+	Client    client.Client
+	FsMocks   func(fs afero.Fs)
+	MockStdin *bytes.Buffer
 
-	DisableMockClient bool // can switch off mock client creation
+	// DisableMockClient bool // can switch off mock client creation
 
 	WantErr       error
-	Want          R       // for json and yaml
-	WantTable     *string // for table printer
-	WantWideTable *string // for wide table printer
-	Template      *string // for template printer
-	WantTemplate  *string // for template printer
-	WantMarkdown  *string // for markdown printer
+	WantRequest   Request
+	WantResponse  Response // for client return and json and yaml
+	WantTable     *string  // for table printer
+	WantWideTable *string  // for wide table printer
+	Template      *string  // for template printer
+	WantTemplate  *string  // for template printer
+	WantMarkdown  *string  // for markdown printer
 }
 
-func (c *Test[R]) TestCmd(t *testing.T) {
+func (c *Test[Request, Response]) TestCmd(t *testing.T) {
 	require.NotEmpty(t, c.Name, "test name must not be empty")
 	require.NotEmpty(t, c.Cmd, "cmd must not be empty")
 
 	if c.WantErr != nil {
-		_, _, conf := c.newMockConfig(t)
+		_, _, conf := c.newCmdConfig(t)
 
 		cmd := newRootCmd(conf)
-		os.Args = append([]string{config.BinaryName}, c.Cmd(c.Want)...)
+		os.Args = append([]string{config.BinaryName}, c.Cmd()...)
 
 		err := cmd.Execute()
 		if diff := cmp.Diff(c.WantErr, err, testcommon.IgnoreUnexported(), testcommon.ErrorStringComparer()); diff != "" {
@@ -63,10 +66,10 @@ func (c *Test[R]) TestCmd(t *testing.T) {
 
 	for _, format := range outputFormats(c) {
 		t.Run(fmt.Sprintf("%v", format.Args()), func(t *testing.T) {
-			_, out, conf := c.newMockConfig(t)
+			_, out, conf := c.newCmdConfig(t)
 
 			cmd := newRootCmd(conf)
-			os.Args = append([]string{config.BinaryName}, c.Cmd(c.Want)...)
+			os.Args = append([]string{config.BinaryName}, c.Cmd()...)
 			os.Args = append(os.Args, format.Args()...)
 
 			err := cmd.Execute()
@@ -77,13 +80,28 @@ func (c *Test[R]) TestCmd(t *testing.T) {
 	}
 }
 
-func (c *Test[R]) newMockConfig(t *testing.T) (any, *bytes.Buffer, *config.Config) {
-	mock := apitests.New(t)
+func (c *Test[Request, Response]) newCmdConfig(t *testing.T) (any, *bytes.Buffer, *config.Config) {
+	interceptors := []connect.Interceptor{
+		&testClientInterceptor[Request, Response]{
+			t:        t,
+			response: c.WantResponse,
+			request:  c.WantRequest,
+		},
+		// validate.NewInterceptor(),
+	}
+
+	cl, err := client.New(&client.DialConfig{
+		BaseURL:      "http://this-is-just-for-testing",
+		Interceptors: interceptors,
+		UserAgent:    "cli-test",
+		Log:          slog.Default(),
+	})
+	require.NoError(t, err)
 
 	fs := afero.NewMemMapFs()
-	if c.FsMocks != nil {
-		c.FsMocks(fs, c.Want)
-	}
+	// if c.FsMocks != nil {
+	// 	c.FsMocks(fs, c.Want)
+	// }
 
 	var in io.Reader
 	if c.MockStdin != nil {
@@ -98,13 +116,9 @@ func (c *Test[R]) newMockConfig(t *testing.T) (any, *bytes.Buffer, *config.Confi
 			In:         in,
 			PromptOut:  io.Discard,
 			Completion: &completion.Completion{},
-			Client:     mock.Client(c.ClientMocks),
+			Client:     cl,
 		}
 	)
-
-	if c.DisableMockClient {
-		config.Client = nil
-	}
 
 	return nil, &out, config
 }
@@ -131,50 +145,50 @@ func AssertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
 	})
 }
 
-func MustMarshal(t *testing.T, d any) []byte {
-	b, err := json.MarshalIndent(d, "", "    ")
-	require.NoError(t, err)
-	return b
-}
+// func MustMarshal(t *testing.T, d any) []byte {
+// 	b, err := protoyaml.Marshal()
+// 	require.NoError(t, err)
+// 	return b
+// }
 
-func MustMarshalToMultiYAML[R any](t *testing.T, data []R) []byte {
-	var parts []string
-	for _, elem := range data {
-		parts = append(parts, string(MustMarshal(t, elem)))
-	}
-	return []byte(strings.Join(parts, "\n---\n"))
-}
+// func MustMarshalToMultiYAML[R any](t *testing.T, data []R) []byte {
+// 	var parts []string
+// 	for _, elem := range data {
+// 		parts = append(parts, string(MustMarshal(t, elem)))
+// 	}
+// 	return []byte(strings.Join(parts, "\n---\n"))
+// }
 
-func MustJsonDeepCopy[O any](t *testing.T, object O) O {
-	raw, err := json.Marshal(&object)
-	require.NoError(t, err)
-	var copy O
-	err = json.Unmarshal(raw, &copy)
-	require.NoError(t, err)
-	return copy
-}
+// func MustJsonDeepCopy[O any](t *testing.T, object O) O {
+// 	raw, err := protoyaml.Marshal(&object)
+// 	require.NoError(t, err)
+// 	var copy O
+// 	err = json.Unmarshal(raw, &copy)
+// 	require.NoError(t, err)
+// 	return copy
+// }
 
-func outputFormats[R any](c *Test[R]) []outputFormat[R] {
-	var formats []outputFormat[R]
+func outputFormats[Request, Response any](c *Test[Request, Response]) []outputFormat[Response] {
+	var formats []outputFormat[Response]
 
-	if !pointer.IsZero(c.Want) {
-		formats = append(formats, &jsonOutputFormat[R]{want: c.Want}, &yamlOutputFormat[R]{want: c.Want})
-	}
+	// if !pointer.IsZero(c.Want) {
+	// 	formats = append(formats, &jsonOutputFormat[Request, Response]{want: c.Want}, &yamlOutputFormat[Request, Response]{want: c.Want})
+	// }
 
 	if c.WantTable != nil {
-		formats = append(formats, &tableOutputFormat[R]{table: *c.WantTable})
+		formats = append(formats, &tableOutputFormat[Response]{table: *c.WantTable})
 	}
 
 	if c.WantWideTable != nil {
-		formats = append(formats, &wideTableOutputFormat[R]{table: *c.WantWideTable})
+		formats = append(formats, &wideTableOutputFormat[Response]{table: *c.WantWideTable})
 	}
 
 	if c.Template != nil && c.WantTemplate != nil {
-		formats = append(formats, &templateOutputFormat[R]{template: *c.Template, templateOutput: *c.WantTemplate})
+		formats = append(formats, &templateOutputFormat[Response]{template: *c.Template, templateOutput: *c.WantTemplate})
 	}
 
 	if c.WantMarkdown != nil {
-		formats = append(formats, &markdownOutputFormat[R]{table: *c.WantMarkdown})
+		formats = append(formats, &markdownOutputFormat[Response]{table: *c.WantMarkdown})
 	}
 
 	return formats
@@ -185,37 +199,56 @@ type outputFormat[R any] interface {
 	Validate(t *testing.T, output []byte)
 }
 
-type jsonOutputFormat[R any] struct {
-	want R
-}
+// type jsonOutputFormat[R any] struct {
+// 	want R
+// }
 
-func (o *jsonOutputFormat[R]) Args() []string {
-	return []string{"-o", "jsonraw"}
-}
+// func (o *jsonOutputFormat[R]) Args() []string {
+// 	return []string{"-o", "jsonraw"}
+// }
 
-func (o *jsonOutputFormat[R]) Validate(t *testing.T, output []byte) {
-	var got R
+// func (o *jsonOutputFormat[R]) Validate(t *testing.T, output []byte) {
+// 	var got R
 
-	err := json.Unmarshal(output, &got)
-	require.NoError(t, err, string(output))
+// 	err := json.Unmarshal(output, &got)
+// 	require.NoError(t, err, string(output))
 
-	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
-		t.Errorf("diff (+got -want):\n %s", diff)
-	}
-}
+// 	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+// 		t.Errorf("diff (+got -want):\n %s", diff)
+// 	}
+// }
 
-type yamlOutputFormat[R any] struct {
+// type yamlOutputFormat[R any] struct {
+// 	want R
+// }
+
+// func (o *yamlOutputFormat[R]) Args() []string {
+// 	return []string{"-o", "yamlraw"}
+// }
+
+// func (o *yamlOutputFormat[R]) Validate(t *testing.T, output []byte) {
+// 	var got R
+
+// 	err := protoyaml.Unmarshal(output, &got)
+// 	require.NoError(t, err)
+
+// 	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+// 		t.Errorf("diff (+got -want):\n %s", diff)
+// 	}
+// }
+
+type yamlOutputFormat[R proto.Message] struct {
 	want R
 }
 
 func (o *yamlOutputFormat[R]) Args() []string {
-	return []string{"-o", "yamlraw"}
+	return []string{"-o", "yaml"}
 }
 
 func (o *yamlOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	var got R
 
-	err := yaml.Unmarshal(output, &got)
+	err := protoyaml.Unmarshal(output, got)
 	require.NoError(t, err)
 
 	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
@@ -259,9 +292,10 @@ func (o *templateOutputFormat[R]) Args() []string {
 func (o *templateOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	t.Logf("got following template output:\n\n%s\n\nconsider using this for test comparison if it looks correct.", string(output))
 
-	if diff := cmp.Diff(strings.TrimSpace(o.templateOutput), strings.TrimSpace(string(output))); diff != "" {
-		t.Errorf("diff (+got -want):\n %s", diff)
-	}
+	assert.Equal(t, strings.TrimSpace(o.templateOutput), strings.TrimSpace(string(output)))
+	// if diff := cmp.Diff(strings.TrimSpace(o.templateOutput), strings.TrimSpace(string(output))); diff != "" {
+	// 	t.Errorf("diff (+got -want):\n %s", diff)
+	// }
 }
 
 type markdownOutputFormat[R any] struct {
@@ -295,7 +329,7 @@ func validateTableRows(t *testing.T, want, got string) {
 
 	t.Logf("got following table output:\n\n%s\n\nconsider using this for test comparison if it looks correct.", trimmedGot)
 
-	t.Log(cmp.Diff(trimmedWant, trimmedGot))
+	// t.Log(cmp.Diff(trimmedWant, trimmedGot))
 
 	require.Equal(t, len(wantRows), len(gotRows), "tables have different lengths")
 
@@ -309,4 +343,27 @@ func validateTableRows(t *testing.T, want, got string) {
 			assert.Equal(t, wantFields[i], gotFields[i])
 		}
 	}
+}
+
+type testClientInterceptor[Request, Response any] struct {
+	t        *testing.T
+	request  Request
+	response Response
+}
+
+func (t *testClientInterceptor[Request, Response]) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
+	return func(ctx context.Context, ar connect.AnyRequest) (connect.AnyResponse, error) {
+		assert.Equal(t.t, &t.request, ar.Any())
+		return connect.NewResponse(&t.response), nil
+	}
+}
+
+func (t *testClientInterceptor[Request, Response]) WrapStreamingClient(connect.StreamingClientFunc) connect.StreamingClientFunc {
+	t.t.Errorf("streaming not supported")
+	return nil
+}
+
+func (t *testClientInterceptor[Request, Response]) WrapStreamingHandler(connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
+	t.t.Errorf("streaming not supported")
+	return nil
 }

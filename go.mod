@@ -3,6 +3,8 @@ module github.com/metal-stack/cli
 go 1.26
 
 require (
+	buf.build/go/protoyaml v0.6.0
+	connectrpc.com/connect v1.19.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/google/go-cmp v0.7.0
@@ -20,7 +22,9 @@ require (
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 // indirect
-	connectrpc.com/connect v1.19.1 // indirect
+	buf.build/go/protovalidate v1.1.3 // indirect
+	cel.dev/expr v0.25.1 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clipperhouse/displaywidth v0.6.2 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
@@ -34,6 +38,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
+	github.com/google/cel-go v0.27.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.18.4 // indirect
@@ -57,9 +62,12 @@ require (
 	go.mongodb.org/mongo-driver v1.17.9 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
+	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
 	golang.org/x/net v0.50.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260311181403-84a4fc48630c // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260311181403-84a4fc48630c // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apimachinery v0.35.1 // indirect
