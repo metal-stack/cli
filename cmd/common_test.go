@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/runtime/protoimpl"
 )
@@ -40,12 +41,13 @@ type Test[Request, Response any] struct {
 
 	WantErr       error
 	WantRequest   Request
-	WantResponse  Response // for client return and json and yaml
-	WantTable     *string  // for table printer
-	WantWideTable *string  // for wide table printer
-	Template      *string  // for template printer
-	WantTemplate  *string  // for template printer
-	WantMarkdown  *string  // for markdown printer
+	WantResponse  Response        // for client return and json and yaml
+	WantObject    proto.Message   // domain object for yaml/json structural comparison
+	WantTable     *string         // for table printer
+	WantWideTable *string         // for wide table printer
+	Template      *string         // for template printer
+	WantTemplate  *string         // for template printer
+	WantMarkdown  *string         // for markdown printer
 }
 
 func (c *Test[Request, Response]) TestCmd(t *testing.T) {
@@ -99,9 +101,9 @@ func (c *Test[Request, Response]) newCmdConfig(t *testing.T) (any, *bytes.Buffer
 	require.NoError(t, err)
 
 	fs := afero.NewMemMapFs()
-	// if c.FsMocks != nil {
-	// 	c.FsMocks(fs, c.Want)
-	// }
+	if c.FsMocks != nil {
+		c.FsMocks(fs)
+	}
 
 	var in io.Reader
 	if c.MockStdin != nil {
@@ -145,35 +147,15 @@ func AssertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
 	})
 }
 
-// func MustMarshal(t *testing.T, d any) []byte {
-// 	b, err := protoyaml.Marshal()
-// 	require.NoError(t, err)
-// 	return b
-// }
-
-// func MustMarshalToMultiYAML[R any](t *testing.T, data []R) []byte {
-// 	var parts []string
-// 	for _, elem := range data {
-// 		parts = append(parts, string(MustMarshal(t, elem)))
-// 	}
-// 	return []byte(strings.Join(parts, "\n---\n"))
-// }
-
-// func MustJsonDeepCopy[O any](t *testing.T, object O) O {
-// 	raw, err := protoyaml.Marshal(&object)
-// 	require.NoError(t, err)
-// 	var copy O
-// 	err = json.Unmarshal(raw, &copy)
-// 	require.NoError(t, err)
-// 	return copy
-// }
-
 func outputFormats[Request, Response any](c *Test[Request, Response]) []outputFormat[Response] {
 	var formats []outputFormat[Response]
 
-	// if !pointer.IsZero(c.Want) {
-	// 	formats = append(formats, &jsonOutputFormat[Request, Response]{want: c.Want}, &yamlOutputFormat[Request, Response]{want: c.Want})
-	// }
+	if c.WantObject != nil {
+		formats = append(formats,
+			&protoYAMLOutputFormat[Response]{want: c.WantObject},
+			&protoJSONOutputFormat[Response]{want: c.WantObject},
+		)
+	}
 
 	if c.WantTable != nil {
 		formats = append(formats, &tableOutputFormat[Response]{table: *c.WantTable})
@@ -199,56 +181,43 @@ type outputFormat[R any] interface {
 	Validate(t *testing.T, output []byte)
 }
 
-// type jsonOutputFormat[R any] struct {
-// 	want R
-// }
-
-// func (o *jsonOutputFormat[R]) Args() []string {
-// 	return []string{"-o", "jsonraw"}
-// }
-
-// func (o *jsonOutputFormat[R]) Validate(t *testing.T, output []byte) {
-// 	var got R
-
-// 	err := json.Unmarshal(output, &got)
-// 	require.NoError(t, err, string(output))
-
-// 	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
-// 		t.Errorf("diff (+got -want):\n %s", diff)
-// 	}
-// }
-
-// type yamlOutputFormat[R any] struct {
-// 	want R
-// }
-
-// func (o *yamlOutputFormat[R]) Args() []string {
-// 	return []string{"-o", "yamlraw"}
-// }
-
-// func (o *yamlOutputFormat[R]) Validate(t *testing.T, output []byte) {
-// 	var got R
-
-// 	err := protoyaml.Unmarshal(output, &got)
-// 	require.NoError(t, err)
-
-// 	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
-// 		t.Errorf("diff (+got -want):\n %s", diff)
-// 	}
-// }
-
-type yamlOutputFormat[R proto.Message] struct {
-	want R
+type protoYAMLOutputFormat[R any] struct {
+	want proto.Message
 }
 
-func (o *yamlOutputFormat[R]) Args() []string {
+func (o *protoYAMLOutputFormat[R]) Args() []string {
 	return []string{"-o", "yaml"}
 }
 
-func (o *yamlOutputFormat[R]) Validate(t *testing.T, output []byte) {
-	var got R
+func (o *protoYAMLOutputFormat[R]) Validate(t *testing.T, output []byte) {
+	t.Logf("got following yaml output:\n\n%s\n\nconsider using this for test comparison if it looks correct.", string(output))
+
+	got := proto.Clone(o.want)
+	proto.Reset(got)
 
 	err := protoyaml.Unmarshal(output, got)
+	require.NoError(t, err)
+
+	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+		t.Errorf("diff (+got -want):\n %s", diff)
+	}
+}
+
+type protoJSONOutputFormat[R any] struct {
+	want proto.Message
+}
+
+func (o *protoJSONOutputFormat[R]) Args() []string {
+	return []string{"-o", "json"}
+}
+
+func (o *protoJSONOutputFormat[R]) Validate(t *testing.T, output []byte) {
+	t.Logf("got following json output:\n\n%s\n\nconsider using this for test comparison if it looks correct.", string(output))
+
+	got := proto.Clone(o.want)
+	proto.Reset(got)
+
+	err := protojson.Unmarshal(output, got)
 	require.NoError(t, err)
 
 	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
