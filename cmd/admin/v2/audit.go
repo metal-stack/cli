@@ -99,11 +99,11 @@ func (a *adminAudit) List() ([]*apiv2.AuditTrace, error) {
 	ctx, cancel := a.c.NewRequestContext()
 	defer cancel()
 
-	fromDateTime, err := helpersaudit.EventuallyRelativeDateTime(viper.GetString("from"))
+	fromDateTime, err := helpersaudit.RelativeDateTime(viper.GetString("from"))
 	if err != nil {
 		return nil, err
 	}
-	toDateTime, err := helpersaudit.EventuallyRelativeDateTime(viper.GetString("to"))
+	toDateTime, err := helpersaudit.RelativeDateTime(viper.GetString("to"))
 	if err != nil {
 		return nil, err
 	}

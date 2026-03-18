@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func EventuallyRelativeDateTime(s string) (*timestamppb.Timestamp, error) {
+func RelativeDateTime(s string) (*timestamppb.Timestamp, error) {
 	if s == "" {
 		return nil, nil
 	}
