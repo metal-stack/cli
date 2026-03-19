@@ -36,6 +36,36 @@ var (
 	}
 )
 
+func Test_AdminTenantCmd_Create(t *testing.T) {
+	tests := []*e2e.Test[adminv2.TenantServiceCreateResponse, *apiv2.Tenant]{
+		{
+			Name:    "create",
+			CmdArgs: []string{"admin", "tenant", "create", "--name", adminTenant1().Name, "--description", adminTenant1().Description, "--email", adminTenant1().Email},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: adminv2.TenantServiceCreateRequest{
+							Name:        adminTenant1().Name,
+							Description: new(adminTenant1().Description),
+							Email:       new(adminTenant1().Email),
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.TenantServiceCreateResponse{
+								Tenant: adminTenant1(),
+							})
+						},
+					},
+				},
+			}),
+			WantObject:      adminTenant1(),
+			WantProtoObject: adminTenant1(),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
 func Test_AdminTenantCmd_List(t *testing.T) {
 	tests := []*e2e.Test[adminv2.TenantServiceListResponse, apiv2.Tenant]{
 		{
