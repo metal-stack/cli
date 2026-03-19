@@ -370,3 +370,30 @@ d2b3c4e5-f6a7-8901-bcde-f12345678901 pixiecore-1
 		tt.TestCmd(t)
 	}
 }
+
+func Test_AdminComponentCmd_Delete(t *testing.T) {
+	tests := []*e2e.Test[adminv2.ComponentServiceDeleteResponse, *apiv2.Component]{
+		{
+			Name:    "delete",
+			CmdArgs: []string{"admin", "component", "delete", component1().Uuid},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: adminv2.ComponentServiceDeleteRequest{
+							Uuid: component1().Uuid,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ComponentServiceDeleteResponse{
+								Component: component1(),
+							})
+						},
+					},
+				},
+			}),
+			WantObject: component1(),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
