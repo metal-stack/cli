@@ -472,3 +472,55 @@ func Test_AdminSwitchCmd_Describe(t *testing.T) {
 		tt.TestCmd(t)
 	}
 }
+
+func Test_AdminSwitchCmd_List(t *testing.T) {
+	tests := []*e2e.Test[adminv2.SwitchServiceListResponse, apiv2.Switch]{
+		{
+			Name:    "list",
+			CmdArgs: []string{"admin", "switch", "list"},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: adminv2.SwitchServiceListRequest{
+							Query: &apiv2.SwitchQuery{
+								Os: &apiv2.SwitchOSQuery{},
+							},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.SwitchServiceListResponse{
+								Switches: []*apiv2.Switch{
+									switch1(),
+									switch2(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+			ID      PARTITION  RACK    OS  STATUS  LAST SYNC
+			leaf01  fra-equ01  rack-1  🦔  ●
+			leaf02  fra-equ01  rack-1  🦔  ●
+			`),
+			WantWideTable: new(`
+			ID      PARTITION  RACK    OS             METALCORE         IP        MODE         LAST SYNC  SYNC DURATION  LAST ERROR
+			leaf01  fra-equ01  rack-1  SONiC (4.2.0)  v0.9.1 (abc1234)  10.0.0.1  operational             100ms
+			leaf02  fra-equ01  rack-1  SONiC (4.2.0)  v0.9.1 (abc1234)  10.0.0.2  operational             200ms
+			`),
+			Template: new("{{ .id }} {{ .partition }}"),
+			WantTemplate: new(`
+leaf01 fra-equ01
+leaf02 fra-equ01
+			`),
+			WantMarkdown: new(`
+			| ID     | PARTITION | RACK   | OS | STATUS | LAST SYNC |
+			|--------|-----------|--------|----|--------|-----------|
+			| leaf01 | fra-equ01 | rack-1 | 🦔 | ●      |           |
+			| leaf02 | fra-equ01 | rack-1 | 🦔 | ●      |           |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
