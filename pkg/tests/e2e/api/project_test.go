@@ -2,62 +2,36 @@ package api_e2e
 
 import (
 	"testing"
-	"time"
 
 	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/pkg/tests/e2e"
+	"github.com/metal-stack/cli/pkg/tests/e2e/testresources"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/protobuf/types/known/timestamppb"
-)
-
-var (
-	project1 = func() *apiv2.Project {
-		return &apiv2.Project{
-			Uuid:        "0d81bca7-73f6-4da3-8397-4a8c52a0c583",
-			Name:        "project-a",
-			Description: "first project",
-			Tenant:      "metal-stack",
-			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2025, 6, 1, 10, 0, 0, 0, time.UTC)),
-			},
-		}
-	}
-	project2 = func() *apiv2.Project {
-		return &apiv2.Project{
-			Uuid:        "f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c",
-			Name:        "project-b",
-			Description: "second project",
-			Tenant:      "metal-stack",
-			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2025, 7, 15, 14, 30, 0, 0, time.UTC)),
-			},
-		}
-	}
 )
 
 func Test_ProjectCmd_Describe(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ProjectServiceGetResponse, *apiv2.Project]{
 		{
 			Name:    "describe",
-			CmdArgs: []string{"project", "describe", project1().Uuid},
+			CmdArgs: []string{"project", "describe", testresources.Project1().Uuid},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
 						WantRequest: apiv2.ProjectServiceGetRequest{
-							Project: project1().Uuid,
+							Project: testresources.Project1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceGetResponse{
-								Project: project1(),
+								Project: testresources.Project1(),
 							})
 						},
 					},
 				},
 			}),
-			WantObject:      project1(),
-			WantProtoObject: project1(),
+			WantObject:      testresources.Project1(),
+			WantProtoObject: testresources.Project1(),
 			WantTable: new(`
 			ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
 			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
@@ -86,43 +60,43 @@ func Test_ProjectCmd_Create(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ProjectServiceCreateResponse, *apiv2.Project]{
 		{
 			Name:    "create",
-			CmdArgs: []string{"project", "create", "--name", project1().Name, "--description", project1().Description, "--tenant", project1().Tenant},
+			CmdArgs: []string{"project", "create", "--name", testresources.Project1().Name, "--description", testresources.Project1().Description, "--tenant", testresources.Project1().Tenant},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
 						WantRequest: apiv2.ProjectServiceCreateRequest{
-							Login:       project1().Tenant,
-							Name:        project1().Name,
-							Description: project1().Description,
+							Login:       testresources.Project1().Tenant,
+							Name:        testresources.Project1().Name,
+							Description: testresources.Project1().Description,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceCreateResponse{
-								Project: project1(),
+								Project: testresources.Project1(),
 							})
 						},
 					},
 				},
 			}),
-			WantObject:      project1(),
-			WantProtoObject: project1(),
+			WantObject:      testresources.Project1(),
+			WantProtoObject: testresources.Project1(),
 		},
 		{
 			Name:    "create from file",
 			CmdArgs: append([]string{"project", "create"}, e2e.AppendFromFileCommonArgs()...),
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
-					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, project1()), 0755))
+					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 				},
 				ClientCalls: []e2e.ClientCall{
 					{
 						WantRequest: apiv2.ProjectServiceCreateRequest{
-							Login:       project1().Tenant,
-							Name:        project1().Name,
-							Description: project1().Description,
+							Login:       testresources.Project1().Tenant,
+							Name:        testresources.Project1().Name,
+							Description: testresources.Project1().Description,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceCreateResponse{
-								Project: project1(),
+								Project: testresources.Project1(),
 							})
 						},
 					},
@@ -143,38 +117,38 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ProjectServiceDeleteResponse, *apiv2.Project]{
 		{
 			Name:    "delete",
-			CmdArgs: []string{"project", "delete", project1().Uuid},
+			CmdArgs: []string{"project", "delete", testresources.Project1().Uuid},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
 						WantRequest: apiv2.ProjectServiceDeleteRequest{
-							Project: project1().Uuid,
+							Project: testresources.Project1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceDeleteResponse{
-								Project: project1(),
+								Project: testresources.Project1(),
 							})
 						},
 					},
 				},
 			}),
-			WantObject: project1(),
+			WantObject: testresources.Project1(),
 		},
 		{
 			Name:    "delete from file",
 			CmdArgs: append([]string{"project", "delete"}, e2e.AppendFromFileCommonArgs()...),
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
-					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, project1()), 0755))
+					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 				},
 				ClientCalls: []e2e.ClientCall{
 					{
 						WantRequest: apiv2.ProjectServiceDeleteRequest{
-							Project: project1().Uuid,
+							Project: testresources.Project1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceDeleteResponse{
-								Project: project1(),
+								Project: testresources.Project1(),
 							})
 						},
 					},
@@ -195,42 +169,42 @@ func Test_ProjectCmd_Update(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ProjectServiceUpdateResponse, *apiv2.Project]{
 		{
 			Name:    "update",
-			CmdArgs: []string{"project", "update", project1().Uuid, "--name", "new-name", "--description", "new-desc"},
+			CmdArgs: []string{"project", "update", testresources.Project1().Uuid, "--name", "new-name", "--description", "new-desc"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
 						WantRequest: apiv2.ProjectServiceUpdateRequest{
-							Project:     project1().Uuid,
+							Project:     testresources.Project1().Uuid,
 							Name:        new("new-name"),
 							Description: new("new-desc"),
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
-								Project: project1(),
+								Project: testresources.Project1(),
 							})
 						},
 					},
 				},
 			}),
-			WantObject: project1(),
+			WantObject: testresources.Project1(),
 		},
 		{
 			Name:    "update from file",
 			CmdArgs: append([]string{"project", "update"}, e2e.AppendFromFileCommonArgs()...),
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
-					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, project1()), 0755))
+					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 				},
 				ClientCalls: []e2e.ClientCall{
 					{
 						WantRequest: apiv2.ProjectServiceUpdateRequest{
-							Project:     project1().Uuid,
-							Name:        new(project1().Name),
-							Description: new(project1().Description),
+							Project:     testresources.Project1().Uuid,
+							Name:        new(testresources.Project1().Name),
+							Description: new(testresources.Project1().Description),
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
-								Project: project1(),
+								Project: testresources.Project1(),
 							})
 						},
 					},
@@ -259,8 +233,8 @@ func Test_ProjectCmd_List(t *testing.T) {
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceListResponse{
 								Projects: []*apiv2.Project{
-									project1(),
-									project2(),
+									testresources.Project1(),
+									testresources.Project2(),
 								},
 							})
 						},
