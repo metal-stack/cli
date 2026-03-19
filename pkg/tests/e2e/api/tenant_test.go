@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/pkg/tests/e2e"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -24,18 +25,18 @@ var (
 )
 
 func Test_TenantCmd_Describe(t *testing.T) {
-	tn := tenant1()
-
 	tests := []*e2e.Test[apiv2.TenantServiceGetResponse, *apiv2.Tenant]{
 		{
 			Name:    "describe",
-			CmdArgs: []string{"tenant", "describe", tn.Login},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.TenantServiceGetRequest, apiv2.TenantServiceGetResponse]{
+			CmdArgs: []string{"tenant", "describe", tenant1().Login},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{}, e2e.ClientCall{
 				WantRequest: apiv2.TenantServiceGetRequest{
-					Login: tn.Login,
+					Login: tenant1().Login,
 				},
-				WantResponse: apiv2.TenantServiceGetResponse{
-					Tenant: tn,
+				WantResponse: func() connect.AnyResponse {
+					return connect.NewResponse(&apiv2.TenantServiceGetResponse{
+						Tenant: tenant1(),
+					})
 				},
 			}),
 			WantTable: new(`
@@ -51,8 +52,8 @@ func Test_TenantCmd_Describe(t *testing.T) {
             |-------------|-------------|---------------------|------------|---------|----------------------|
             | metal-stack | Metal Stack | info@metal-stack.io | now        | -       |                      |
 			`),
-			WantObject:      tn,
-			WantProtoObject: tn,
+			WantObject:      tenant1(),
+			WantProtoObject: tenant1(),
 			Template:        new("{{ .login }} {{ .name }}"),
 			WantTemplate: new(`
 			metal-stack Metal Stack

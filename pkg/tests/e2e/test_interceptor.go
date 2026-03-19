@@ -12,29 +12,43 @@ import (
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
-type testClientInterceptor[Request, Response any] struct {
-	t        *testing.T
-	request  Request
-	response Response
+type testClientInterceptor struct {
+	t     *testing.T
+	calls []ClientCall
+	count int
 }
 
-func (t *testClientInterceptor[Request, Response]) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
+type ClientCall struct {
+	WantRequest  any
+	WantResponse func() connect.AnyResponse
+}
+
+func (t *testClientInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return func(ctx context.Context, ar connect.AnyRequest) (connect.AnyResponse, error) {
-		if diff := cmp.Diff(&t.request, ar.Any(), protocmp.Transform(), testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+		defer func() { t.count++ }()
+
+		if t.count >= len(t.calls) {
+			t.t.Errorf("received an unexpected client call: %v", ar.Any())
+			t.t.FailNow()
+		}
+
+		call := t.calls[t.count]
+
+		if diff := cmp.Diff(call.WantRequest, ar.Any(), protocmp.Transform(), testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
 			t.t.Errorf("request diff (+got -want):\n %s", diff)
 			t.t.FailNow()
 		}
 
-		return connect.NewResponse(&t.response), nil
+		return call.WantResponse(), nil
 	}
 }
 
-func (t *testClientInterceptor[Request, Response]) WrapStreamingClient(connect.StreamingClientFunc) connect.StreamingClientFunc {
+func (t *testClientInterceptor) WrapStreamingClient(connect.StreamingClientFunc) connect.StreamingClientFunc {
 	t.t.Errorf("streaming not supported")
 	return nil
 }
 
-func (t *testClientInterceptor[Request, Response]) WrapStreamingHandler(connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
+func (t *testClientInterceptor) WrapStreamingHandler(connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
 	t.t.Errorf("streaming not supported")
 	return nil
 }

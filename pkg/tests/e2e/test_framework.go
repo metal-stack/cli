@@ -60,14 +60,14 @@ func (c *Test[Response, Object]) TestCmd(t *testing.T) {
 	require.NotEmpty(t, c.Name, "test name must not be empty")
 	require.NotEmpty(t, c.CmdArgs, "cmd must not be empty")
 
-	rootCmd, out := c.NewRootCmd()
+	if c.AssertExhaustiveArgs {
+		c.assertExhaustiveArgs(t)
+	}
 
 	if c.WantErr != nil {
-		os.Args = append([]string{rootCmd.Use}, c.CmdArgs...)
+		rootCmd, _ := c.NewRootCmd()
 
-		if c.AssertExhaustiveArgs {
-			c.assertExhaustiveArgs(t)
-		}
+		os.Args = append([]string{rootCmd.Use}, c.CmdArgs...)
 
 		synctest.Test(t, func(t *testing.T) {
 			err := rootCmd.Execute()
@@ -86,14 +86,10 @@ func (c *Test[Response, Object]) TestCmd(t *testing.T) {
 
 	for _, format := range formats {
 		succeeded := t.Run(fmt.Sprintf("%v", format.Args()), func(t *testing.T) {
-			out.Reset()
+			rootCmd, out := c.NewRootCmd()
 
 			os.Args = append([]string{rootCmd.Use}, c.CmdArgs...)
 			os.Args = append(os.Args, format.Args()...)
-
-			if c.AssertExhaustiveArgs {
-				c.assertExhaustiveArgs(t)
-			}
 
 			synctest.Test(t, func(t *testing.T) {
 				err := rootCmd.Execute()

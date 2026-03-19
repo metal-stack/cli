@@ -19,13 +19,19 @@ func TestInterceptor(t *testing.T) {
 	cl, err := client.New(&client.DialConfig{
 		BaseURL: "http://this-is-just-for-testing",
 		Interceptors: []connect.Interceptor{
-			&testClientInterceptor[apiv2.IPServiceGetRequest, apiv2.IPServiceGetResponse]{
+			&testClientInterceptor{
 				t: t,
-				response: apiv2.IPServiceGetResponse{
-					Ip: &apiv2.IP{Ip: "1.2.3.4"},
-				},
-				request: apiv2.IPServiceGetRequest{
-					Ip: "1.2.3.4",
+				calls: []ClientCall{
+					{
+						WantRequest: &apiv2.IPServiceGetRequest{
+							Ip: "1.2.3.4",
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.IPServiceGetResponse{
+								Ip: &apiv2.IP{Ip: "1.2.3.4"},
+							})
+						},
+					},
 				},
 			},
 		},

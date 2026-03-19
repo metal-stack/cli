@@ -3,9 +3,12 @@ package api_e2e
 import (
 	"testing"
 
+	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/pkg/tests/e2e"
 	"github.com/metal-stack/metal-lib/pkg/tag"
+	"github.com/spf13/afero"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -52,17 +55,21 @@ func Test_IPCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"ip", "list", "--project", ip1().Project},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceListRequest, apiv2.IPServiceListResponse]{
-				WantRequest: apiv2.IPServiceListRequest{
-					Project: ip1().Project,
-				},
-				WantResponse: apiv2.IPServiceListResponse{
-					Ips: []*apiv2.IP{
-						ip1(),
-						ip2(),
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{},
+				e2e.ClientCall{
+					WantRequest: apiv2.IPServiceListRequest{
+						Project: ip1().Project,
+					},
+					WantResponse: func() connect.AnyResponse {
+						return connect.NewResponse(&apiv2.IPServiceListResponse{
+							Ips: []*apiv2.IP{
+								ip1(),
+								ip2(),
+							},
+						})
 					},
 				},
-			}),
+			),
 			WantTable: new(`
 			IP       PROJECT                               ID                                    TYPE       NAME  ATTACHED SERVICE
 			4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b
@@ -96,15 +103,18 @@ func Test_IPCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"ip", "describe", "--project", ip1().Project, ip1().Ip},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceGetRequest, apiv2.IPServiceGetResponse]{
-				WantRequest: apiv2.IPServiceGetRequest{
-					Ip:      ip1().Ip,
-					Project: ip1().Project,
-				},
-				WantResponse: apiv2.IPServiceGetResponse{
-					Ip: ip1(),
-				},
-			}),
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{},
+				e2e.ClientCall{
+					WantRequest: apiv2.IPServiceGetRequest{
+						Ip:      ip1().Ip,
+						Project: ip1().Project,
+					},
+					WantResponse: func() connect.AnyResponse {
+						return connect.NewResponse(&apiv2.IPServiceGetResponse{
+							Ip: ip1(),
+						})
+					},
+				}),
 			WantObject:      ip1(),
 			WantProtoObject: ip1(),
 			WantTable: new(`
@@ -136,42 +146,60 @@ func Test_IPCmd_Create(t *testing.T) {
 		{
 			Name:    "create",
 			CmdArgs: []string{"ip", "create", "--project", ip1().Project, "--network", ip1().Network, "--static=true"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceCreateRequest, apiv2.IPServiceCreateResponse]{
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{}, e2e.ClientCall{
 				WantRequest: apiv2.IPServiceCreateRequest{
 					Project: ip1().Project,
 					Network: ip1().Network,
 					Type:    &ip1().Type,
 				},
-				WantResponse: apiv2.IPServiceCreateResponse{
-					Ip: ip1(),
+				WantResponse: func() connect.AnyResponse {
+					return connect.NewResponse(&apiv2.IPServiceCreateResponse{
+						Ip: ip1(),
+					})
 				},
 			}),
 			WantObject: ip1(),
 		},
-		// FIXME:
-		// {
-		// 	Name:    "create from file",
-		// 	CmdArgs: append([]string{"ip", "create"}, e2e.AppendFromFileCommonArgs()...),
-		// 	NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceCreateRequest, apiv2.IPServiceCreateResponse]{
-		// 		WantRequest: apiv2.IPServiceCreateRequest{
-		// 			Ip:            &ip1().Ip,
-		// 			Project:       ip1().Project,
-		// 			Network:       ip1().Network,
-		// 			Name:          &ip1().Name,
-		// 			Description:   &ip1().Description,
-		// 			Labels:        ip1().Meta.Labels,
-		// 			Type:          &ip1().Type,
-		// 			AddressFamily: nil,
-		// 		},
-		// 		WantResponse: apiv2.IPServiceCreateResponse{
-		// 			Ip: ip1(),
-		// 		},
-		// 		FsMocks: func(fs *afero.Afero) {
-		// 			require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, ip1()), 0755))
-		// 		},
-		// 	}),
-		// 	WantObject: ip1(),
-		// },
+		{
+			Name:    "create from file",
+			CmdArgs: append([]string{"ip", "create"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{
+				FsMocks: func(fs *afero.Afero) {
+					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, ip1()), 0755))
+				},
+			}, e2e.ClientCall{
+				WantRequest: apiv2.IPServiceGetRequest{
+					Ip:      ip1().Ip,
+					Project: ip1().Project,
+				},
+				WantResponse: func() connect.AnyResponse {
+					return connect.NewResponse(&apiv2.IPServiceGetResponse{
+						Ip: ip1(),
+					})
+				},
+			}, e2e.ClientCall{
+				WantRequest: apiv2.IPServiceCreateRequest{
+					Ip:            &ip1().Ip,
+					Project:       ip1().Project,
+					Network:       ip1().Network,
+					Name:          &ip1().Name,
+					Description:   &ip1().Description,
+					Labels:        ip1().Meta.Labels,
+					Type:          &ip1().Type,
+					AddressFamily: nil,
+				},
+				WantResponse: func() connect.AnyResponse {
+					return connect.NewResponse(&apiv2.IPServiceCreateResponse{
+						Ip: ip1(),
+					})
+				},
+			},
+			),
+			WantTable: new(`
+            IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+			`),
+		},
 	}
 	for _, tt := range tests {
 		tt.TestCmd(t)

@@ -3,6 +3,7 @@ package api_e2e
 import (
 	"testing"
 
+	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/pkg/tests/e2e"
 )
@@ -33,17 +34,21 @@ func Test_ImageCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"image", "list"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ImageServiceListRequest, apiv2.ImageServiceListResponse]{
-				WantRequest: apiv2.ImageServiceListRequest{
-					Query: &apiv2.ImageQuery{},
-				},
-				WantResponse: apiv2.ImageServiceListResponse{
-					Images: []*apiv2.Image{
-						image1(),
-						image2(),
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{},
+				e2e.ClientCall{
+					WantRequest: apiv2.ImageServiceListRequest{
+						Query: &apiv2.ImageQuery{},
+					},
+					WantResponse: func() connect.AnyResponse {
+						return connect.NewResponse(&apiv2.ImageServiceListResponse{
+							Images: []*apiv2.Image{
+								image1(),
+								image2(),
+							},
+						})
 					},
 				},
-			}),
+			),
 			WantTable: new(`
 			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
 			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
@@ -77,12 +82,14 @@ func Test_ImageCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"image", "describe", image1().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ImageServiceGetRequest, apiv2.ImageServiceGetResponse]{
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{}, e2e.ClientCall{
 				WantRequest: apiv2.ImageServiceGetRequest{
 					Id: image1().Id,
 				},
-				WantResponse: apiv2.ImageServiceGetResponse{
-					Image: image1(),
+				WantResponse: func() connect.AnyResponse {
+					return connect.NewResponse(&apiv2.ImageServiceGetResponse{
+						Image: image1(),
+					})
 				},
 			}),
 			WantTable: new(`

@@ -17,45 +17,42 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type TestClientConfig[Request, Response any] struct {
-	WantRequest  Request  // for client expectation
-	WantResponse Response // for client return
-
+type TestClientConfig struct {
 	FsMocks   func(fs *afero.Afero)
 	MockStdin *bytes.Buffer
 }
 
-func NewRootCmd[Request, Response any](t *testing.T, c *TestClientConfig[Request, Response]) NewRootCmdFunc {
-	interceptors := []connect.Interceptor{
-		validate.NewInterceptor(),
-		&testClientInterceptor[Request, Response]{
-			t:        t,
-			response: c.WantResponse,
-			request:  c.WantRequest,
-		},
-	}
-
-	cl, err := client.New(&client.DialConfig{
-		BaseURL:      "http://this-is-just-for-testing",
-		Interceptors: interceptors,
-		UserAgent:    "cli-test",
-		Log:          slog.Default(),
-	})
-	require.NoError(t, err)
-
-	fs := afero.NewMemMapFs()
-	if c.FsMocks != nil {
-		c.FsMocks(&afero.Afero{
-			Fs: fs,
-		})
-	}
-
-	var in io.Reader
-	if c.MockStdin != nil {
-		in = bytes.NewReader(c.MockStdin.Bytes())
-	}
-
+func NewRootCmd(t *testing.T, c *TestClientConfig, calls ...ClientCall) NewRootCmdFunc {
 	return func() (*cobra.Command, *bytes.Buffer) {
+		interceptors := []connect.Interceptor{
+			&testClientInterceptor{
+				t:     t,
+				calls: calls,
+				count: 0,
+			},
+			validate.NewInterceptor(),
+		}
+
+		cl, err := client.New(&client.DialConfig{
+			BaseURL:      "http://this-is-just-for-testing",
+			Interceptors: interceptors,
+			UserAgent:    "cli-test",
+			Log:          slog.Default(),
+		})
+		require.NoError(t, err)
+
+		fs := afero.NewMemMapFs()
+		if c.FsMocks != nil {
+			c.FsMocks(&afero.Afero{
+				Fs: fs,
+			})
+		}
+
+		var in io.Reader
+		if c.MockStdin != nil {
+			in = bytes.NewReader(c.MockStdin.Bytes())
+		}
+
 		var out bytes.Buffer
 
 		return cmd.NewRootCmd(&config.Config{
