@@ -99,6 +99,8 @@ func Test_ImageCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
+			WantObject:      image1(),
+			WantProtoObject: image1(),
 			WantTable: new(`
 			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
 			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
