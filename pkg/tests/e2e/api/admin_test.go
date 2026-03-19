@@ -161,3 +161,31 @@ b4c2e7f3-5a9d-4b8e-a1c3-2d6f9e4b8a01 dev token
 		tt.TestCmd(t)
 	}
 }
+
+func Test_AdminTokenCmd_Delete(t *testing.T) {
+	tests := []*e2e.Test[adminv2.TokenServiceRevokeResponse, *apiv2.Token]{
+		{
+			Name:    "delete",
+			CmdArgs: []string{"admin", "token", "delete", token1().Uuid, "--user", "user-123"},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: adminv2.TokenServiceRevokeRequest{
+							Uuid: token1().Uuid,
+							User: "user-123",
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.TokenServiceRevokeResponse{})
+						},
+					},
+				},
+			}),
+			WantObject: &apiv2.Token{
+				Uuid: token1().Uuid,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
