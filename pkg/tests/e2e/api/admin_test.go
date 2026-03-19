@@ -8,6 +8,7 @@ import (
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/pkg/tests/e2e"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -230,6 +231,71 @@ f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c project-b
 			|--------------------------------------|-------------|-----------|----------------|-------------------------|
 			| 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | metal-stack | project-a | first project  | 2025-06-01 10:00:00 UTC |
 			| f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | metal-stack | project-b | second project | 2025-07-15 14:30:00 UTC |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+var (
+	component1 = func() *apiv2.Component {
+		return &apiv2.Component{
+			Uuid:       "c1a2b3d4-e5f6-7890-abcd-ef1234567890",
+			Type:       apiv2.ComponentType_COMPONENT_TYPE_METAL_CORE,
+			Identifier: "metal-core-1",
+			StartedAt:  timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			ReportedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			Interval:   durationpb.New(10 * time.Second),
+			Version: &apiv2.Version{
+				Version: "v1.0.0",
+			},
+			Token: &apiv2.Token{
+				Uuid:    "t1a2b3d4-e5f6-7890-abcd-ef1234567890",
+				Expires: timestamppb.New(time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)),
+			},
+		}
+	}
+)
+
+func Test_AdminComponentCmd_Describe(t *testing.T) {
+	tests := []*e2e.Test[adminv2.ComponentServiceGetResponse, *apiv2.Component]{
+		{
+			Name:    "describe",
+			CmdArgs: []string{"admin", "component", "describe", component1().Uuid},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: adminv2.ComponentServiceGetRequest{
+							Uuid: component1().Uuid,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ComponentServiceGetResponse{
+								Component: component1(),
+							})
+						},
+					},
+				},
+			}),
+			WantObject:      component1(),
+			WantProtoObject: component1(),
+			WantTable: new(`
+			ID                                    TYPE        IDENTIFIER    STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN
+			c1a2b3d4-e5f6-7890-abcd-ef1234567890  metal-core  metal-core-1  0s       0s   v1.0.0   t1a2b3d4-e5f6-7890-abcd-ef1234567890  1d
+			`),
+			WantWideTable: new(`
+			ID                                    TYPE        IDENTIFIER    STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN
+			c1a2b3d4-e5f6-7890-abcd-ef1234567890  metal-core  metal-core-1  0s       0s   v1.0.0   t1a2b3d4-e5f6-7890-abcd-ef1234567890  1d
+			`),
+			Template: new("{{ .uuid }} {{ .identifier }}"),
+			WantTemplate: new(`
+			c1a2b3d4-e5f6-7890-abcd-ef1234567890 metal-core-1
+			`),
+			WantMarkdown: new(`
+			| ID                                   | TYPE       | IDENTIFIER   | STARTED | AGE | VERSION | TOKEN                                | TOKEN EXPIRES IN |
+			|--------------------------------------|------------|--------------|---------|-----|---------|--------------------------------------|------------------|
+			| c1a2b3d4-e5f6-7890-abcd-ef1234567890 | metal-core | metal-core-1 | 0s      | 0s  | v1.0.0  | t1a2b3d4-e5f6-7890-abcd-ef1234567890 | 1d               |
 			`),
 		},
 	}
