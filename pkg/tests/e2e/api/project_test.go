@@ -39,7 +39,8 @@ func Test_ProjectCmd_Describe(t *testing.T) {
 
 	tests := []*e2e.Test[apiv2.ProjectServiceGetResponse, *apiv2.Project]{
 		{
-			Name: "describe",
+			Name:    "describe",
+			CmdArgs: []string{"project", "describe", p1.Uuid},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ProjectServiceGetRequest, apiv2.ProjectServiceGetResponse]{
 				WantRequest: apiv2.ProjectServiceGetRequest{
 					Project: p1.Uuid,
@@ -48,26 +49,25 @@ func Test_ProjectCmd_Describe(t *testing.T) {
 					Project: p1,
 				},
 			}),
-			CmdArgs:         []string{"project", "describe", p1.Uuid},
 			WantObject:      p1,
 			WantProtoObject: p1,
 			WantTable: new(`
-ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
-0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
-`),
+			ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
+			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
+			`),
 			WantWideTable: new(`
-ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
-0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
-`),
+			ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
+			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
+			`),
 			Template: new("{{ .uuid }} {{ .name }}"),
 			WantTemplate: new(`
-0d81bca7-73f6-4da3-8397-4a8c52a0c583 project-a
+			0d81bca7-73f6-4da3-8397-4a8c52a0c583 project-a
 			`),
 			WantMarkdown: new(`
-| ID                                   | TENANT      | NAME      | DESCRIPTION   | CREATION DATE           |
-|--------------------------------------|-------------|-----------|---------------|-------------------------|
-| 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | metal-stack | project-a | first project | 2025-06-01 10:00:00 UTC |
-`),
+			| ID                                   | TENANT      | NAME      | DESCRIPTION   | CREATION DATE           |
+			|--------------------------------------|-------------|-----------|---------------|-------------------------|
+			| 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | metal-stack | project-a | first project | 2025-06-01 10:00:00 UTC |
+			`),
 		},
 	}
 	for _, tt := range tests {
@@ -78,7 +78,8 @@ ID                                    TENANT       NAME       DESCRIPTION    CRE
 func Test_ProjectCmd_List(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ProjectServiceListResponse, apiv2.Project]{
 		{
-			Name: "list",
+			Name:    "list",
+			CmdArgs: []string{"project", "list"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ProjectServiceListRequest, apiv2.ProjectServiceListResponse]{
 				WantRequest: apiv2.ProjectServiceListRequest{},
 				WantResponse: apiv2.ProjectServiceListResponse{
@@ -88,28 +89,27 @@ func Test_ProjectCmd_List(t *testing.T) {
 					},
 				},
 			}),
-			CmdArgs: []string{"project", "list"},
 			WantTable: new(`
-ID                                    TENANT       NAME       DESCRIPTION     CREATION DATE
-0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2025-06-01 10:00:00 UTC
-f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2025-07-15 14:30:00 UTC
-`),
+			ID                                    TENANT       NAME       DESCRIPTION     CREATION DATE
+			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2025-06-01 10:00:00 UTC
+			f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2025-07-15 14:30:00 UTC
+			`),
 			WantWideTable: new(`
-ID                                    TENANT       NAME       DESCRIPTION     CREATION DATE
-0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2025-06-01 10:00:00 UTC
-f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2025-07-15 14:30:00 UTC
-`),
+			ID                                    TENANT       NAME       DESCRIPTION     CREATION DATE
+			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2025-06-01 10:00:00 UTC
+			f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2025-07-15 14:30:00 UTC
+			`),
 			Template: new("{{ .uuid }} {{ .name }}"),
 			WantTemplate: new(`
 0d81bca7-73f6-4da3-8397-4a8c52a0c583 project-a
 f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c project-b
 			`),
 			WantMarkdown: new(`
-| ID                                   | TENANT      | NAME      | DESCRIPTION    | CREATION DATE           |
-|--------------------------------------|-------------|-----------|----------------|-------------------------|
-| 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | metal-stack | project-a | first project  | 2025-06-01 10:00:00 UTC |
-| f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | metal-stack | project-b | second project | 2025-07-15 14:30:00 UTC |
-`),
+			| ID                                   | TENANT      | NAME      | DESCRIPTION    | CREATION DATE           |
+			|--------------------------------------|-------------|-----------|----------------|-------------------------|
+			| 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | metal-stack | project-a | first project  | 2025-06-01 10:00:00 UTC |
+			| f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | metal-stack | project-b | second project | 2025-07-15 14:30:00 UTC |
+			`),
 		},
 	}
 	for _, tt := range tests {

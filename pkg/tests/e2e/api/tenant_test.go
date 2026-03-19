@@ -17,7 +17,7 @@ var (
 			Email:       "info@metal-stack.io",
 			Description: "a tenant",
 			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)),
+				CreatedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
 			},
 		}
 	}
@@ -28,7 +28,8 @@ func Test_TenantCmd_Describe(t *testing.T) {
 
 	tests := []*e2e.Test[apiv2.TenantServiceGetResponse, *apiv2.Tenant]{
 		{
-			Name: "describe",
+			Name:    "describe",
+			CmdArgs: []string{"tenant", "describe", tn.Login},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.TenantServiceGetRequest, apiv2.TenantServiceGetResponse]{
 				WantRequest: apiv2.TenantServiceGetRequest{
 					Login: tn.Login,
@@ -37,12 +38,24 @@ func Test_TenantCmd_Describe(t *testing.T) {
 					Tenant: tn,
 				},
 			}),
-			CmdArgs:         []string{"tenant", "describe", tn.Login},
+			WantTable: new(`
+            ID           NAME         EMAIL                REGISTERED  COUPONS  TERMS AND CONDITIONS
+            metal-stack  Metal Stack  info@metal-stack.io  now         -
+			`),
+			WantWideTable: new(`
+			ID           NAME         EMAIL                REGISTERED  COUPONS  TERMS AND CONDITIONS
+            metal-stack  Metal Stack  info@metal-stack.io  now         -
+			`),
+			WantMarkdown: new(`
+            | ID          | NAME        | EMAIL               | REGISTERED | COUPONS | TERMS AND CONDITIONS |
+            |-------------|-------------|---------------------|------------|---------|----------------------|
+            | metal-stack | Metal Stack | info@metal-stack.io | now        | -       |                      |
+			`),
 			WantObject:      tn,
 			WantProtoObject: tn,
 			Template:        new("{{ .login }} {{ .name }}"),
 			WantTemplate: new(`
-metal-stack Metal Stack
+			metal-stack Metal Stack
 			`),
 		},
 	}

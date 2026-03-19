@@ -12,6 +12,7 @@ var (
 	ip1 = func() *apiv2.IP {
 		return &apiv2.IP{
 			Uuid:        "2e0144a2-09ef-42b7-b629-4263295db6e8",
+			Network:     "internet",
 			Ip:          "1.1.1.1",
 			Name:        "a",
 			Description: "a description",
@@ -29,6 +30,7 @@ var (
 	ip2 = func() *apiv2.IP {
 		return &apiv2.IP{
 			Uuid:        "9cef40ec-29c6-4dfa-aee8-47ee1f49223d",
+			Network:     "internet",
 			Ip:          "4.3.2.1",
 			Name:        "b",
 			Description: "b description",
@@ -48,7 +50,8 @@ var (
 func Test_IPCmd_List(t *testing.T) {
 	tests := []*e2e.Test[apiv2.IPServiceListResponse, apiv2.IP]{
 		{
-			Name: "list",
+			Name:    "list",
+			CmdArgs: []string{"ip", "list", "--project", ip1().Project},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceListRequest, apiv2.IPServiceListResponse]{
 				WantRequest: apiv2.IPServiceListRequest{
 					Project: ip1().Project,
@@ -60,28 +63,27 @@ func Test_IPCmd_List(t *testing.T) {
 					},
 				},
 			}),
-			CmdArgs: []string{"ip", "list", "--project", ip1().Project},
 			WantTable: new(`
-IP       PROJECT                               ID                                    TYPE       NAME  ATTACHED SERVICE
-4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b
-1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static     a
-`),
+			IP       PROJECT                               ID                                    TYPE       NAME  ATTACHED SERVICE
+			4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b
+			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static     a
+			`),
 			WantWideTable: new(`
-IP       PROJECT                               ID                                    TYPE       NAME  DESCRIPTION    LABELS
-4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b     b description  a=b
-1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static     a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
-`),
+			IP       PROJECT                               ID                                    TYPE       NAME  DESCRIPTION    LABELS
+			4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b     b description  a=b
+			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static     a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+			`),
 			Template: new("{{ .ip }} {{ .project }}"),
 			WantTemplate: new(`
 4.3.2.1 46bdfc45-9c8d-4268-b359-b40e3079d384
 1.1.1.1 ce19a655-7933-4745-8f3e-9592b4a90488
 			`),
 			WantMarkdown: new(`
-| IP      | PROJECT                              | ID                                   | TYPE      | NAME | ATTACHED SERVICE |
-|---------|--------------------------------------|--------------------------------------|-----------|------|------------------|
-| 4.3.2.1 | 46bdfc45-9c8d-4268-b359-b40e3079d384 | 9cef40ec-29c6-4dfa-aee8-47ee1f49223d | ephemeral | b    |                  |
-| 1.1.1.1 | ce19a655-7933-4745-8f3e-9592b4a90488 | 2e0144a2-09ef-42b7-b629-4263295db6e8 | static    | a    |                  |
-`),
+			| IP      | PROJECT                              | ID                                   | TYPE      | NAME | ATTACHED SERVICE |
+			|---------|--------------------------------------|--------------------------------------|-----------|------|------------------|
+			| 4.3.2.1 | 46bdfc45-9c8d-4268-b359-b40e3079d384 | 9cef40ec-29c6-4dfa-aee8-47ee1f49223d | ephemeral | b    |                  |
+			| 1.1.1.1 | ce19a655-7933-4745-8f3e-9592b4a90488 | 2e0144a2-09ef-42b7-b629-4263295db6e8 | static    | a    |                  |
+			`),
 		},
 	}
 	for _, tt := range tests {
@@ -90,41 +92,86 @@ IP       PROJECT                               ID                               
 }
 
 func Test_IPCmd_Describe(t *testing.T) {
-	ip1 := ip1()
-
 	tests := []*e2e.Test[apiv2.IPServiceGetResponse, *apiv2.IP]{
 		{
-			Name: "describe",
+			Name:    "describe",
+			CmdArgs: []string{"ip", "describe", "--project", ip1().Project, ip1().Ip},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceGetRequest, apiv2.IPServiceGetResponse]{
 				WantRequest: apiv2.IPServiceGetRequest{
-					Ip:      ip1.Ip,
-					Project: ip1.Project,
+					Ip:      ip1().Ip,
+					Project: ip1().Project,
 				},
 				WantResponse: apiv2.IPServiceGetResponse{
-					Ip: ip1,
+					Ip: ip1(),
 				},
 			}),
-			CmdArgs:         []string{"ip", "describe", "--project", ip1.Project, ip1.Ip},
-			WantObject:      ip1,
-			WantProtoObject: ip1,
+			WantObject:      ip1(),
+			WantProtoObject: ip1(),
 			WantTable: new(`
-IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
-1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
-`),
+			IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+			`),
 			WantWideTable: new(`
-IP       PROJECT                               ID                                    TYPE    NAME  DESCRIPTION    LABELS
-1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
-`),
+			IP       PROJECT                               ID                                    TYPE    NAME  DESCRIPTION    LABELS
+			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+			`),
 			Template: new("{{ .ip }} {{ .project }}"),
 			WantTemplate: new(`
-1.1.1.1 ce19a655-7933-4745-8f3e-9592b4a90488
+			1.1.1.1 ce19a655-7933-4745-8f3e-9592b4a90488
 			`),
 			WantMarkdown: new(`
-| IP      | PROJECT                              | ID                                   | TYPE   | NAME | ATTACHED SERVICE |
-|---------|--------------------------------------|--------------------------------------|--------|------|------------------|
-| 1.1.1.1 | ce19a655-7933-4745-8f3e-9592b4a90488 | 2e0144a2-09ef-42b7-b629-4263295db6e8 | static | a    |                  |
-`),
+			| IP      | PROJECT                              | ID                                   | TYPE   | NAME | ATTACHED SERVICE |
+			|---------|--------------------------------------|--------------------------------------|--------|------|------------------|
+			| 1.1.1.1 | ce19a655-7933-4745-8f3e-9592b4a90488 | 2e0144a2-09ef-42b7-b629-4263295db6e8 | static | a    |                  |
+			`),
 		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_IPCmd_Create(t *testing.T) {
+	tests := []*e2e.Test[apiv2.IPServiceGetResponse, *apiv2.IP]{
+		{
+			Name:    "create",
+			CmdArgs: []string{"ip", "create", "--project", ip1().Project, "--network", ip1().Network, "--static=true"},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceCreateRequest, apiv2.IPServiceCreateResponse]{
+				WantRequest: apiv2.IPServiceCreateRequest{
+					Project: ip1().Project,
+					Network: ip1().Network,
+					Type:    &ip1().Type,
+				},
+				WantResponse: apiv2.IPServiceCreateResponse{
+					Ip: ip1(),
+				},
+			}),
+			WantObject: ip1(),
+		},
+		// FIXME:
+		// {
+		// 	Name:    "create from file",
+		// 	CmdArgs: append([]string{"ip", "create"}, e2e.AppendFromFileCommonArgs()...),
+		// 	NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceCreateRequest, apiv2.IPServiceCreateResponse]{
+		// 		WantRequest: apiv2.IPServiceCreateRequest{
+		// 			Ip:            &ip1().Ip,
+		// 			Project:       ip1().Project,
+		// 			Network:       ip1().Network,
+		// 			Name:          &ip1().Name,
+		// 			Description:   &ip1().Description,
+		// 			Labels:        ip1().Meta.Labels,
+		// 			Type:          &ip1().Type,
+		// 			AddressFamily: nil,
+		// 		},
+		// 		WantResponse: apiv2.IPServiceCreateResponse{
+		// 			Ip: ip1(),
+		// 		},
+		// 		FsMocks: func(fs *afero.Afero) {
+		// 			require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, ip1()), 0755))
+		// 		},
+		// 	}),
+		// 	WantObject: ip1(),
+		// },
 	}
 	for _, tt := range tests {
 		tt.TestCmd(t)

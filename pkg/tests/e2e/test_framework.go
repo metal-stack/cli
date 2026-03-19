@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"testing/synctest"
 
 	"slices"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/metal-stack/cli/cmd"
 	"github.com/metal-stack/cli/cmd/config"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/metal-stack/metal-lib/pkg/testcommon"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -23,7 +25,12 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/runtime/protoimpl"
+	"google.golang.org/protobuf/testing/protocmp"
 	"sigs.k8s.io/yaml"
+)
+
+const (
+	InputFilePath = "/file.yaml"
 )
 
 // NewRootCmdFunc returns the root command for the cli and an output buffer which returns the output after command execution
@@ -36,9 +43,12 @@ type Test[Response, Object any] struct {
 	CmdArgs    []string
 	Out        *bytes.Buffer
 
+	AssertExhaustiveArgs     bool
+	AssertExhaustiveExcludes []string
+
 	// output format tests
-	WantObject      Object        // object for rawyaml/rawjson structural comparison
-	WantProtoObject proto.Message // object for yaml/json structural comparison
+	WantObject      Object        // for rawyaml / rawjson printer
+	WantProtoObject proto.Message // for yaml / json printer
 	WantTable       *string       // for table printer
 	WantWideTable   *string       // for wide table printer
 	WantMarkdown    *string       // for markdown printer
@@ -57,10 +67,16 @@ func (c *Test[Response, Object]) TestCmd(t *testing.T) {
 	if c.WantErr != nil {
 		os.Args = append([]string{rootCmd.Use}, c.CmdArgs...)
 
-		err := rootCmd.Execute()
-		if diff := cmp.Diff(c.WantErr, err, testcommon.IgnoreUnexported(), testcommon.ErrorStringComparer()); diff != "" {
-			t.Errorf("error diff (+got -want):\n %s", diff)
+		if c.AssertExhaustiveArgs {
+			assertExhaustiveArgs(t, os.Args, c.AssertExhaustiveExcludes...)
 		}
+
+		synctest.Test(t, func(t *testing.T) {
+			err := rootCmd.Execute()
+			if diff := cmp.Diff(c.WantErr, err, testcommon.IgnoreUnexported(), testcommon.ErrorStringComparer()); diff != "" {
+				t.Errorf("error diff (+got -want):\n %s", diff)
+			}
+		})
 	}
 
 	formats := outputFormats(c)
@@ -77,8 +93,14 @@ func (c *Test[Response, Object]) TestCmd(t *testing.T) {
 			os.Args = append([]string{rootCmd.Use}, c.CmdArgs...)
 			os.Args = append(os.Args, format.Args()...)
 
-			err := rootCmd.Execute()
-			require.NoError(t, err)
+			if c.AssertExhaustiveArgs {
+				assertExhaustiveArgs(t, os.Args, c.AssertExhaustiveExcludes...)
+			}
+
+			synctest.Test(t, func(t *testing.T) {
+				err := rootCmd.Execute()
+				require.NoError(t, err)
+			})
 
 			format.Validate(t, out.Bytes())
 		})
@@ -89,7 +111,7 @@ func (c *Test[Response, Object]) TestCmd(t *testing.T) {
 	}
 }
 
-func AssertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
+func assertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
 	assertContainsPrefix := func(ss []string, prefix string) error {
 		for _, s := range ss {
 			if strings.HasPrefix(s, prefix) {
@@ -114,12 +136,17 @@ func AssertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
 func outputFormats[Response, Object any](c *Test[Response, Object]) []outputFormat {
 	var formats []outputFormat
 
+	if !pointer.IsZero(c.WantObject) {
+		formats = append(formats,
+			&rawYamlOutputFormat[Object]{want: c.WantObject},
+			&rawJsonOutputFormat[Object]{want: c.WantObject},
+		)
+	}
+
 	if c.WantProtoObject != nil {
 		formats = append(formats,
 			&protoYAMLOutputFormat[Response]{want: c.WantProtoObject},
-			&rawYamlOutputFormat[Object]{want: c.WantObject},
 			&protoJSONOutputFormat[Response]{want: c.WantProtoObject},
-			&rawJsonOutputFormat[Object]{want: c.WantObject},
 		)
 	}
 
@@ -206,7 +233,7 @@ func (o *protoYAMLOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	err := protoyaml.Unmarshal(output, got)
 	require.NoError(t, err)
 
-	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+	if diff := cmp.Diff(o.want, got, protocmp.Transform(), testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
 		t.Errorf("diff (+got -want):\n %s", diff)
 	}
 }
@@ -228,7 +255,7 @@ func (o *protoJSONOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	err := protojson.Unmarshal(output, got)
 	require.NoError(t, err)
 
-	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+	if diff := cmp.Diff(o.want, got, protocmp.Transform(), testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
 		t.Errorf("diff (+got -want):\n %s", diff)
 	}
 }
@@ -320,4 +347,26 @@ func validateTableRows(t *testing.T, want, got string) {
 			assert.Equal(t, wantFields[i], gotFields[i])
 		}
 	}
+}
+
+func CommonExcludedFileArgs() []string {
+	return []string{"file", "bulk-output", "skip-security-prompts", "timestamps"}
+}
+
+func AppendFromFileCommonArgs(args ...string) []string {
+	return append(args, []string{"-f", InputFilePath, "--skip-security-prompts", "--bulk-output"}...)
+}
+
+func MustMarshal(t *testing.T, d any) []byte {
+	b, err := json.MarshalIndent(d, "", "    ")
+	require.NoError(t, err)
+	return b
+}
+
+func MustMarshalToMultiYAML[R any](t *testing.T, data []R) []byte {
+	var parts []string
+	for _, elem := range data {
+		parts = append(parts, string(MustMarshal(t, elem)))
+	}
+	return []byte(strings.Join(parts, "\n---\n"))
 }

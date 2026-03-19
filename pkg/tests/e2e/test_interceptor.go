@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/metal-stack/metal-lib/pkg/testcommon"
 	"google.golang.org/protobuf/runtime/protoimpl"
+	"google.golang.org/protobuf/testing/protocmp"
 )
 
 type testClientInterceptor[Request, Response any] struct {
@@ -19,7 +20,7 @@ type testClientInterceptor[Request, Response any] struct {
 
 func (t *testClientInterceptor[Request, Response]) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return func(ctx context.Context, ar connect.AnyRequest) (connect.AnyResponse, error) {
-		if diff := cmp.Diff(&t.request, ar.Any(), testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+		if diff := cmp.Diff(&t.request, ar.Any(), protocmp.Transform(), testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
 			t.t.Errorf("request diff (+got -want):\n %s", diff)
 			t.t.FailNow()
 		}

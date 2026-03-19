@@ -21,7 +21,7 @@ type TestClientConfig[Request, Response any] struct {
 	WantRequest  Request  // for client expectation
 	WantResponse Response // for client return
 
-	FsMocks   func(fs afero.Fs)
+	FsMocks   func(fs *afero.Afero)
 	MockStdin *bytes.Buffer
 }
 
@@ -45,7 +45,9 @@ func NewRootCmd[Request, Response any](t *testing.T, c *TestClientConfig[Request
 
 	fs := afero.NewMemMapFs()
 	if c.FsMocks != nil {
-		c.FsMocks(fs)
+		c.FsMocks(&afero.Afero{
+			Fs: fs,
+		})
 	}
 
 	var in io.Reader

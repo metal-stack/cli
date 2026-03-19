@@ -9,6 +9,7 @@ import (
 	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -69,9 +70,9 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		CreateRequestFromCLI: func() (*apiv2.IPServiceCreateRequest, error) {
 			return &apiv2.IPServiceCreateRequest{
 				Project:     c.GetProject(),
-				Name:        new(viper.GetString("name")),
-				Description: new(viper.GetString("description")),
 				Network:     viper.GetString("network"),
+				Name:        pointer.PointerOrNil(viper.GetString("name")),
+				Description: pointer.PointerOrNil(viper.GetString("description")),
 				// Labels:        viper.GetStringSlice("tags"), // FIXME implement
 				Type:          new(ipStaticToType(viper.GetBool("static"))),
 				AddressFamily: addressFamilyToType(viper.GetString("addressfamily")),
@@ -204,7 +205,9 @@ func (c *ip) Convert(r *apiv2.IP) (string, *apiv2.IPServiceCreateRequest, *apiv2
 
 func IpResponseToCreate(r *apiv2.IP) *apiv2.IPServiceCreateRequest {
 	return &apiv2.IPServiceCreateRequest{
+		Ip:          &r.Ip,
 		Project:     r.Project,
+		Network:     r.Network,
 		Name:        &r.Name,
 		Description: &r.Description,
 		Labels:      r.Meta.Labels,
@@ -213,7 +216,6 @@ func IpResponseToCreate(r *apiv2.IP) *apiv2.IPServiceCreateRequest {
 }
 
 func (c *ip) IpResponseToUpdate(desired *apiv2.IP) (*apiv2.IPServiceUpdateRequest, error) {
-
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 

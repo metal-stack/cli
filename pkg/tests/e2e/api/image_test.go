@@ -31,7 +31,8 @@ var (
 func Test_ImageCmd_List(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ImageServiceListResponse, *apiv2.Image]{
 		{
-			Name: "list",
+			Name:    "list",
+			CmdArgs: []string{"image", "list"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ImageServiceListRequest, apiv2.ImageServiceListResponse]{
 				WantRequest: apiv2.ImageServiceListRequest{
 					Query: &apiv2.ImageQuery{},
@@ -43,28 +44,64 @@ func Test_ImageCmd_List(t *testing.T) {
 					},
 				},
 			}),
-			CmdArgs: []string{"image", "list"},
 			WantTable: new(`
-ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
-ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
-firewall-3.0  Firewall 3.0  Metal Firewall    firewall              preview
-`),
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
+			firewall-3.0  Firewall 3.0  Metal Firewall    firewall              preview
+			`),
 			WantWideTable: new(`
-ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
-ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
-firewall-3.0  Firewall 3.0  Metal Firewall    firewall              preview
-`),
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
+			firewall-3.0  Firewall 3.0  Metal Firewall    firewall              preview
+			`),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
 ubuntu-24.04 Ubuntu 24.04
 firewall-3.0 Firewall 3.0
 			`),
 			WantMarkdown: new(`
-| ID           | NAME         | DESCRIPTION      | FEATURES | EXPIRATION | STATUS    |
-|--------------|--------------|------------------|----------|------------|-----------|
-| ubuntu-24.04 | Ubuntu 24.04 | Ubuntu 24.04 LTS | machine  |            | supported |
-| firewall-3.0 | Firewall 3.0 | Metal Firewall   | firewall |            | preview   |
-`),
+			| ID           | NAME         | DESCRIPTION      | FEATURES | EXPIRATION | STATUS    |
+			|--------------|--------------|------------------|----------|------------|-----------|
+			| ubuntu-24.04 | Ubuntu 24.04 | Ubuntu 24.04 LTS | machine  |            | supported |
+			| firewall-3.0 | Firewall 3.0 | Metal Firewall   | firewall |            | preview   |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_ImageCmd_Describe(t *testing.T) {
+	tests := []*e2e.Test[apiv2.ImageServiceGetResponse, *apiv2.Image]{
+		{
+			Name:    "list",
+			CmdArgs: []string{"image", "describe", image1().Id},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ImageServiceGetRequest, apiv2.ImageServiceGetResponse]{
+				WantRequest: apiv2.ImageServiceGetRequest{
+					Id: image1().Id,
+				},
+				WantResponse: apiv2.ImageServiceGetResponse{
+					Image: image1(),
+				},
+			}),
+			WantTable: new(`
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
+			`),
+			WantWideTable: new(`
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
+			`),
+			Template: new("{{ .id }} {{ .name }}"),
+			WantTemplate: new(`
+			ubuntu-24.04 Ubuntu 24.04
+			`),
+			WantMarkdown: new(`
+            | ID           | NAME         | DESCRIPTION      | FEATURES | EXPIRATION | STATUS    |
+            |--------------|--------------|------------------|----------|------------|-----------|
+            | ubuntu-24.04 | Ubuntu 24.04 | Ubuntu 24.04 LTS | machine  |            | supported |
+			`),
 		},
 	}
 	for _, tt := range tests {
