@@ -129,13 +129,13 @@ func (c *Test[Response, RawObject]) assertExhaustiveArgs(t *testing.T) {
 	})
 }
 
-func outputFormats[Response, Object any](c *Test[Response, Object]) []outputFormat {
+func outputFormats[Response, RawObject any](c *Test[Response, RawObject]) []outputFormat {
 	var formats []outputFormat
 
 	if !pointer.IsZero(c.WantObject) {
 		formats = append(formats,
-			&rawYamlOutputFormat[Object]{want: c.WantObject},
-			&rawJsonOutputFormat[Object]{want: c.WantObject},
+			&rawYamlOutputFormat[RawObject]{want: c.WantObject},
+			&rawJsonOutputFormat[RawObject]{want: c.WantObject},
 		)
 	}
 
