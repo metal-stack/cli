@@ -34,7 +34,7 @@ const (
 // NewRootCmdFunc returns the root command for the cli and an output buffer which returns the output after command execution
 type NewRootCmdFunc func() (rootCmd *cobra.Command, out *bytes.Buffer)
 
-type Test[Response, Object any] struct {
+type Test[Response, RawObject any] struct {
 	Name string
 
 	NewRootCmd NewRootCmdFunc
@@ -45,7 +45,7 @@ type Test[Response, Object any] struct {
 	AssertExhaustiveExcludes []string
 
 	// output format tests
-	WantObject      Object        // for rawyaml / rawjson printer
+	WantObject      RawObject     // for rawyaml / rawjson printer
 	WantProtoObject proto.Message // for yaml / json printer
 	WantTable       *string       // for table printer
 	WantWideTable   *string       // for wide table printer
@@ -56,7 +56,7 @@ type Test[Response, Object any] struct {
 	WantErr error
 }
 
-func (c *Test[Response, Object]) TestCmd(t *testing.T) {
+func (c *Test[Response, RawObject]) TestCmd(t *testing.T) {
 	require.NotEmpty(t, c.Name, "test name must not be empty")
 	require.NotEmpty(t, c.CmdArgs, "cmd must not be empty")
 
@@ -105,7 +105,7 @@ func (c *Test[Response, Object]) TestCmd(t *testing.T) {
 	}
 }
 
-func (c *Test[Response, Object]) assertExhaustiveArgs(t *testing.T) {
+func (c *Test[Response, RawObject]) assertExhaustiveArgs(t *testing.T) {
 	assertContainsPrefix := func(ss []string, prefix string) error {
 		for _, s := range ss {
 			if strings.HasPrefix(s, prefix) {
