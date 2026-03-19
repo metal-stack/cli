@@ -5,15 +5,14 @@ import (
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/pkg/tests/e2e"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
 var (
 	image1 = func() *apiv2.Image {
 		return &apiv2.Image{
 			Id:             "ubuntu-24.04",
-			Name:           pointer.Pointer("Ubuntu 24.04"),
-			Description:    pointer.Pointer("Ubuntu 24.04 LTS"),
+			Name:           new("Ubuntu 24.04"),
+			Description:    new("Ubuntu 24.04 LTS"),
 			Features:       []apiv2.ImageFeature{apiv2.ImageFeature_IMAGE_FEATURE_MACHINE},
 			Classification: apiv2.ImageClassification_IMAGE_CLASSIFICATION_SUPPORTED,
 		}
@@ -21,8 +20,8 @@ var (
 	image2 = func() *apiv2.Image {
 		return &apiv2.Image{
 			Id:             "firewall-3.0",
-			Name:           pointer.Pointer("Firewall 3.0"),
-			Description:    pointer.Pointer("Metal Firewall"),
+			Name:           new("Firewall 3.0"),
+			Description:    new("Metal Firewall"),
 			Features:       []apiv2.ImageFeature{apiv2.ImageFeature_IMAGE_FEATURE_FIREWALL},
 			Classification: apiv2.ImageClassification_IMAGE_CLASSIFICATION_PREVIEW,
 		}
