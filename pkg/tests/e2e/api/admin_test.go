@@ -524,3 +524,30 @@ leaf02 fra-equ01
 		tt.TestCmd(t)
 	}
 }
+
+func Test_AdminSwitchCmd_Delete(t *testing.T) {
+	tests := []*e2e.Test[adminv2.SwitchServiceDeleteResponse, *apiv2.Switch]{
+		{
+			Name:    "delete",
+			CmdArgs: []string{"admin", "switch", "delete", switch1().Id},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: adminv2.SwitchServiceDeleteRequest{
+							Id: switch1().Id,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.SwitchServiceDeleteResponse{
+								Switch: switch1(),
+							})
+						},
+					},
+				},
+			}),
+			WantObject: switch1(),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
