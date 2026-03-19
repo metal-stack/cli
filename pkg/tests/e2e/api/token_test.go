@@ -32,15 +32,20 @@ func Test_TokenCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"token", "describe", token1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{}, e2e.ClientCall{
-				WantRequest: apiv2.TokenServiceGetRequest{
-					Uuid: token1().Uuid,
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: apiv2.TokenServiceGetRequest{
+							Uuid: token1().Uuid,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.TokenServiceGetResponse{
+								Token: token1(),
+							})
+						},
+					},
 				},
-				WantResponse: func() connect.AnyResponse {
-					return connect.NewResponse(&apiv2.TokenServiceGetResponse{
-						Token: token1(),
-					})
-				}}),
+			}),
 			WantTable: new(`
             TYPE            ID                                    ADMIN  USER                  DESCRIPTION  ROLES  PERMS  EXPIRES
             TOKEN_TYPE_API  a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90         admin@metal-stack.io  ci token     0      0      2000-01-02 00:00:00 UTC (in 1d)

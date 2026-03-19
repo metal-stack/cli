@@ -40,14 +40,18 @@ func Test_ProjectCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"project", "describe", project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{}, e2e.ClientCall{
-				WantRequest: apiv2.ProjectServiceGetRequest{
-					Project: project1().Uuid,
-				},
-				WantResponse: func() connect.AnyResponse {
-					return connect.NewResponse(&apiv2.ProjectServiceGetResponse{
-						Project: project1(),
-					})
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: apiv2.ProjectServiceGetRequest{
+							Project: project1().Uuid,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.ProjectServiceGetResponse{
+								Project: project1(),
+							})
+						},
+					},
 				},
 			}),
 			WantObject:      project1(),
@@ -81,15 +85,19 @@ func Test_ProjectCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"project", "list"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{}, e2e.ClientCall{
-				WantRequest: apiv2.ProjectServiceListRequest{},
-				WantResponse: func() connect.AnyResponse {
-					return connect.NewResponse(&apiv2.ProjectServiceListResponse{
-						Projects: []*apiv2.Project{
-							project1(),
-							project2(),
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: apiv2.ProjectServiceListRequest{},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.ProjectServiceListResponse{
+								Projects: []*apiv2.Project{
+									project1(),
+									project2(),
+								},
+							})
 						},
-					})
+					},
 				},
 			}),
 			WantTable: new(`

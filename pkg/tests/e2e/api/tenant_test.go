@@ -29,14 +29,18 @@ func Test_TenantCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"tenant", "describe", tenant1().Login},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig{}, e2e.ClientCall{
-				WantRequest: apiv2.TenantServiceGetRequest{
-					Login: tenant1().Login,
-				},
-				WantResponse: func() connect.AnyResponse {
-					return connect.NewResponse(&apiv2.TenantServiceGetResponse{
-						Tenant: tenant1(),
-					})
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: apiv2.TenantServiceGetRequest{
+							Login: tenant1().Login,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.TenantServiceGetResponse{
+								Tenant: tenant1(),
+							})
+						},
+					},
 				},
 			}),
 			WantTable: new(`

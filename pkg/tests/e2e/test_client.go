@@ -17,17 +17,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type TestClientConfig struct {
-	FsMocks   func(fs *afero.Afero)
-	MockStdin *bytes.Buffer
+type TestConfig struct {
+	FsMocks     func(fs *afero.Afero)
+	MockStdin   *bytes.Buffer
+	ClientCalls []ClientCall
 }
 
-func NewRootCmd(t *testing.T, c *TestClientConfig, calls ...ClientCall) NewRootCmdFunc {
+func NewRootCmd(t *testing.T, c *TestConfig) NewRootCmdFunc {
 	return func() (*cobra.Command, *bytes.Buffer) {
 		interceptors := []connect.Interceptor{
 			&testClientInterceptor{
 				t:     t,
-				calls: calls,
+				calls: c.ClientCalls,
 				count: 0,
 			},
 			validate.NewInterceptor(),
