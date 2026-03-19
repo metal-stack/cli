@@ -75,7 +75,7 @@ firewall-3.0 Firewall 3.0
 func Test_ImageCmd_Describe(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ImageServiceGetResponse, *apiv2.Image]{
 		{
-			Name:    "list",
+			Name:    "describe",
 			CmdArgs: []string{"image", "describe", image1().Id},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ImageServiceGetRequest, apiv2.ImageServiceGetResponse]{
 				WantRequest: apiv2.ImageServiceGetRequest{

@@ -14,8 +14,6 @@ import (
 	"buf.build/go/protoyaml"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/metal-stack/cli/cmd"
-	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/metal-stack/metal-lib/pkg/testcommon"
 	"github.com/spf13/cobra"
@@ -68,7 +66,7 @@ func (c *Test[Response, Object]) TestCmd(t *testing.T) {
 		os.Args = append([]string{rootCmd.Use}, c.CmdArgs...)
 
 		if c.AssertExhaustiveArgs {
-			assertExhaustiveArgs(t, os.Args, c.AssertExhaustiveExcludes...)
+			c.assertExhaustiveArgs(t)
 		}
 
 		synctest.Test(t, func(t *testing.T) {
@@ -94,7 +92,7 @@ func (c *Test[Response, Object]) TestCmd(t *testing.T) {
 			os.Args = append(os.Args, format.Args()...)
 
 			if c.AssertExhaustiveArgs {
-				assertExhaustiveArgs(t, os.Args, c.AssertExhaustiveExcludes...)
+				c.assertExhaustiveArgs(t)
 			}
 
 			synctest.Test(t, func(t *testing.T) {
@@ -111,7 +109,7 @@ func (c *Test[Response, Object]) TestCmd(t *testing.T) {
 	}
 }
 
-func assertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
+func (c *Test[Response, Object]) assertExhaustiveArgs(t *testing.T) {
 	assertContainsPrefix := func(ss []string, prefix string) error {
 		for _, s := range ss {
 			if strings.HasPrefix(s, prefix) {
@@ -121,15 +119,17 @@ func assertExhaustiveArgs(t *testing.T, args []string, exclude ...string) {
 		return fmt.Errorf("not exhaustive: does not contain %q", prefix)
 	}
 
-	root := cmd.NewRootCmd(&config.Config{})
-	cmd, args, err := root.Find(args)
+	rootCmd, _ := c.NewRootCmd()
+
+	cmd, args, err := rootCmd.Find(c.CmdArgs)
 	require.NoError(t, err)
 
 	cmd.LocalFlags().VisitAll(func(f *pflag.Flag) {
-		if slices.Contains(exclude, f.Name) {
+		if slices.Contains(c.AssertExhaustiveExcludes, f.Name) {
 			return
 		}
-		require.NoError(t, assertContainsPrefix(args, "--"+f.Name), "please ensure you all available args are used in order to increase coverage or exclude them explicitly")
+
+		require.NoError(t, assertContainsPrefix(args, "--"+f.Name), "ensure all available args are used in order to increase coverage")
 	})
 }
 
