@@ -59,12 +59,14 @@ func NewRootCmd[Request, Response any](t *testing.T, c *TestClientConfig[Request
 		var out bytes.Buffer
 
 		return cmd.NewRootCmd(&config.Config{
-			Fs:         fs,
-			Out:        &out,
-			In:         in,
-			PromptOut:  io.Discard,
-			Completion: &completion.Completion{},
-			Client:     cl,
+			Fs:        fs,
+			Out:       &out,
+			In:        in,
+			PromptOut: io.Discard,
+			Completion: &completion.Completion{
+				Client: cl,
+			},
+			Client: cl,
 		}), &out
 	}
 }
