@@ -397,3 +397,78 @@ func Test_AdminComponentCmd_Delete(t *testing.T) {
 		tt.TestCmd(t)
 	}
 }
+
+var (
+	switch1 = func() *apiv2.Switch {
+		return &apiv2.Switch{
+			Id:          "leaf01",
+			Partition:   "fra-equ01",
+			Rack:        new("rack-1"),
+			Description: "leaf switch 1",
+			ManagementIp:   "10.0.0.1",
+			ManagementUser: new("admin"),
+			Os: &apiv2.SwitchOS{
+				Vendor:           apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_SONIC,
+				Version:          "4.2.0",
+				MetalCoreVersion: "v0.9.1 (abc1234), tags/v0.9.1",
+			},
+			LastSync: &apiv2.SwitchSync{
+				Time:     timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				Duration: durationpb.New(100 * time.Millisecond),
+			},
+			Meta: &apiv2.Meta{
+				CreatedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			},
+		}
+	}
+	switch2 = func() *apiv2.Switch {
+		return &apiv2.Switch{
+			Id:          "leaf02",
+			Partition:   "fra-equ01",
+			Rack:        new("rack-1"),
+			Description: "leaf switch 2",
+			ManagementIp:   "10.0.0.2",
+			ManagementUser: new("admin"),
+			Os: &apiv2.SwitchOS{
+				Vendor:           apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_SONIC,
+				Version:          "4.2.0",
+				MetalCoreVersion: "v0.9.1 (abc1234), tags/v0.9.1",
+			},
+			LastSync: &apiv2.SwitchSync{
+				Time:     timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				Duration: durationpb.New(200 * time.Millisecond),
+			},
+			Meta: &apiv2.Meta{
+				CreatedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			},
+		}
+	}
+)
+
+func Test_AdminSwitchCmd_Describe(t *testing.T) {
+	tests := []*e2e.Test[adminv2.SwitchServiceGetResponse, *apiv2.Switch]{
+		{
+			Name:    "describe",
+			CmdArgs: []string{"admin", "switch", "describe", switch1().Id},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: adminv2.SwitchServiceGetRequest{
+							Id: switch1().Id,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.SwitchServiceGetResponse{
+								Switch: switch1(),
+							})
+						},
+					},
+				},
+			}),
+			WantObject:      switch1(),
+			WantProtoObject: switch1(),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
