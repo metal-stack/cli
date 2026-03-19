@@ -29,17 +29,17 @@ func Test_TenantCmd_Describe(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID           NAME         EMAIL                REGISTERED  COUPONS  TERMS AND CONDITIONS
-            metal-stack  Metal Stack  info@metal-stack.io  now         -
+            ID           NAME         EMAIL                REGISTERED
+            metal-stack  Metal Stack  info@metal-stack.io  now
 			`),
 			WantWideTable: new(`
-			ID           NAME         EMAIL                REGISTERED  COUPONS  TERMS AND CONDITIONS
-            metal-stack  Metal Stack  info@metal-stack.io  now         -
+            ID           NAME         EMAIL                REGISTERED
+            metal-stack  Metal Stack  info@metal-stack.io  now
 			`),
 			WantMarkdown: new(`
-            | ID          | NAME        | EMAIL               | REGISTERED | COUPONS | TERMS AND CONDITIONS |
-            |-------------|-------------|---------------------|------------|---------|----------------------|
-            | metal-stack | Metal Stack | info@metal-stack.io | now        | -       |                      |
+            | ID          | NAME        | EMAIL               | REGISTERED |
+            |-------------|-------------|---------------------|------------|
+            | metal-stack | Metal Stack | info@metal-stack.io | now        |
 			`),
 			WantObject:      testresources.Tenant1(),
 			WantProtoObject: testresources.Tenant1(),
@@ -75,14 +75,14 @@ func Test_TenantCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			ID           NAME         EMAIL                REGISTERED  COUPONS  TERMS AND CONDITIONS
-			metal-stack  Metal Stack  info@metal-stack.io  now         -
-			acme-corp    ACME Corp    admin@acme.io        now         -
+            ID           NAME         EMAIL                REGISTERED
+            metal-stack  Metal Stack  info@metal-stack.io  now
+            acme-corp    ACME Corp    admin@acme.io        now
 			`),
 			WantWideTable: new(`
-			ID           NAME         EMAIL                REGISTERED  COUPONS  TERMS AND CONDITIONS
-			metal-stack  Metal Stack  info@metal-stack.io  now         -
-			acme-corp    ACME Corp    admin@acme.io        now         -
+            ID           NAME         EMAIL                REGISTERED
+            metal-stack  Metal Stack  info@metal-stack.io  now
+            acme-corp    ACME Corp    admin@acme.io        now
 			`),
 			Template: new("{{ .login }} {{ .name }}"),
 			WantTemplate: new(`
@@ -90,10 +90,10 @@ metal-stack Metal Stack
 acme-corp ACME Corp
 			`),
 			WantMarkdown: new(`
-			| ID          | NAME        | EMAIL               | REGISTERED | COUPONS | TERMS AND CONDITIONS |
-			|-------------|-------------|---------------------|------------|---------|----------------------|
-			| metal-stack | Metal Stack | info@metal-stack.io | now        | -       |                      |
-			| acme-corp   | ACME Corp   | admin@acme.io       | now        | -       |                      |
+            | ID          | NAME        | EMAIL               | REGISTERED |
+            |-------------|-------------|---------------------|------------|
+            | metal-stack | Metal Stack | info@metal-stack.io | now        |
+            | acme-corp   | ACME Corp   | admin@acme.io       | now        |
 			`),
 		},
 	}
