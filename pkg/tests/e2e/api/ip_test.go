@@ -46,21 +46,21 @@ var (
 )
 
 func Test_IPCmd_List(t *testing.T) {
-	tests := []*e2e.Test[apiv2.IPServiceListRequest, apiv2.IPServiceListResponse, apiv2.IP]{
+	tests := []*e2e.Test[apiv2.IPServiceListResponse, apiv2.IP]{
 		{
 			Name: "list",
-			Cmd: func() []string {
-				return []string{"ip", "list", "--project", "a"}
-			},
-			WantRequest: apiv2.IPServiceListRequest{
-				Project: "a",
-			},
-			WantResponse: apiv2.IPServiceListResponse{
-				Ips: []*apiv2.IP{
-					ip1(),
-					ip2(),
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceListRequest, apiv2.IPServiceListResponse]{
+				WantRequest: apiv2.IPServiceListRequest{
+					Project: ip1().Project,
 				},
-			},
+				WantResponse: apiv2.IPServiceListResponse{
+					Ips: []*apiv2.IP{
+						ip1(),
+						ip2(),
+					},
+				},
+			}),
+			CmdArgs: []string{"ip", "list", "--project", ip1().Project},
 			WantTable: new(`
 IP       PROJECT                               ID                                    TYPE       NAME  ATTACHED SERVICE
 4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b
@@ -92,19 +92,19 @@ IP       PROJECT                               ID                               
 func Test_IPCmd_Describe(t *testing.T) {
 	ip1 := ip1()
 
-	tests := []*e2e.Test[apiv2.IPServiceGetRequest, apiv2.IPServiceGetResponse, *apiv2.IP]{
+	tests := []*e2e.Test[apiv2.IPServiceGetResponse, *apiv2.IP]{
 		{
 			Name: "describe",
-			Cmd: func() []string {
-				return []string{"ip", "describe", "--project", ip1.Project, ip1.Ip}
-			},
-			WantRequest: apiv2.IPServiceGetRequest{
-				Ip:      ip1.Ip,
-				Project: ip1.Project,
-			},
-			WantResponse: apiv2.IPServiceGetResponse{
-				Ip: ip1,
-			},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.IPServiceGetRequest, apiv2.IPServiceGetResponse]{
+				WantRequest: apiv2.IPServiceGetRequest{
+					Ip:      ip1.Ip,
+					Project: ip1.Project,
+				},
+				WantResponse: apiv2.IPServiceGetResponse{
+					Ip: ip1,
+				},
+			}),
+			CmdArgs:         []string{"ip", "describe", "--project", ip1.Project, ip1.Ip},
 			WantObject:      ip1,
 			WantProtoObject: ip1,
 			WantTable: new(`

@@ -30,21 +30,21 @@ var (
 )
 
 func Test_ImageCmd_List(t *testing.T) {
-	tests := []*e2e.Test[apiv2.ImageServiceListRequest, apiv2.ImageServiceListResponse, *apiv2.Image]{
+	tests := []*e2e.Test[apiv2.ImageServiceListResponse, *apiv2.Image]{
 		{
 			Name: "list",
-			Cmd: func() []string {
-				return []string{"image", "list"}
-			},
-			WantRequest: apiv2.ImageServiceListRequest{
-				Query: &apiv2.ImageQuery{},
-			},
-			WantResponse: apiv2.ImageServiceListResponse{
-				Images: []*apiv2.Image{
-					image1(),
-					image2(),
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ImageServiceListRequest, apiv2.ImageServiceListResponse]{
+				WantRequest: apiv2.ImageServiceListRequest{
+					Query: &apiv2.ImageQuery{},
 				},
-			},
+				WantResponse: apiv2.ImageServiceListResponse{
+					Images: []*apiv2.Image{
+						image1(),
+						image2(),
+					},
+				},
+			}),
+			CmdArgs: []string{"image", "list"},
 			WantTable: new(`
 ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
 ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported

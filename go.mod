@@ -5,6 +5,7 @@ go 1.26
 require (
 	buf.build/go/protoyaml v0.6.0
 	connectrpc.com/connect v1.19.1
+	connectrpc.com/validate v0.6.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/google/go-cmp v0.7.0

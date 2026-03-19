@@ -29,18 +29,18 @@ var (
 func Test_TokenCmd_Describe(t *testing.T) {
 	tk := token1()
 
-	tests := []*e2e.Test[apiv2.TokenServiceGetRequest, apiv2.TokenServiceGetResponse, *apiv2.Token]{
+	tests := []*e2e.Test[apiv2.TokenServiceGetResponse, *apiv2.Token]{
 		{
 			Name: "describe",
-			Cmd: func() []string {
-				return []string{"token", "describe", tk.Uuid}
-			},
-			WantRequest: apiv2.TokenServiceGetRequest{
-				Uuid: tk.Uuid,
-			},
-			WantResponse: apiv2.TokenServiceGetResponse{
-				Token: tk,
-			},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.TokenServiceGetRequest, apiv2.TokenServiceGetResponse]{
+				WantRequest: apiv2.TokenServiceGetRequest{
+					Uuid: tk.Uuid,
+				},
+				WantResponse: apiv2.TokenServiceGetResponse{
+					Token: tk,
+				},
+			}),
+			CmdArgs:         []string{"token", "describe", tk.Uuid},
 			WantObject:      tk,
 			WantProtoObject: tk,
 			Template:        new("{{ .uuid }} {{ .description }}"),

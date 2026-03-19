@@ -37,18 +37,18 @@ var (
 func Test_ProjectCmd_Describe(t *testing.T) {
 	p1 := project1()
 
-	tests := []*e2e.Test[apiv2.ProjectServiceGetRequest, apiv2.ProjectServiceGetResponse, *apiv2.Project]{
+	tests := []*e2e.Test[apiv2.ProjectServiceGetResponse, *apiv2.Project]{
 		{
 			Name: "describe",
-			Cmd: func() []string {
-				return []string{"project", "describe", p1.Uuid}
-			},
-			WantRequest: apiv2.ProjectServiceGetRequest{
-				Project: p1.Uuid,
-			},
-			WantResponse: apiv2.ProjectServiceGetResponse{
-				Project: p1,
-			},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ProjectServiceGetRequest, apiv2.ProjectServiceGetResponse]{
+				WantRequest: apiv2.ProjectServiceGetRequest{
+					Project: p1.Uuid,
+				},
+				WantResponse: apiv2.ProjectServiceGetResponse{
+					Project: p1,
+				},
+			}),
+			CmdArgs:         []string{"project", "describe", p1.Uuid},
 			WantObject:      p1,
 			WantProtoObject: p1,
 			WantTable: new(`
@@ -76,19 +76,19 @@ ID                                    TENANT       NAME       DESCRIPTION    CRE
 }
 
 func Test_ProjectCmd_List(t *testing.T) {
-	tests := []*e2e.Test[apiv2.ProjectServiceListRequest, apiv2.ProjectServiceListResponse, apiv2.Project]{
+	tests := []*e2e.Test[apiv2.ProjectServiceListResponse, apiv2.Project]{
 		{
 			Name: "list",
-			Cmd: func() []string {
-				return []string{"project", "list"}
-			},
-			WantRequest: apiv2.ProjectServiceListRequest{},
-			WantResponse: apiv2.ProjectServiceListResponse{
-				Projects: []*apiv2.Project{
-					project1(),
-					project2(),
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.ProjectServiceListRequest, apiv2.ProjectServiceListResponse]{
+				WantRequest: apiv2.ProjectServiceListRequest{},
+				WantResponse: apiv2.ProjectServiceListResponse{
+					Projects: []*apiv2.Project{
+						project1(),
+						project2(),
+					},
 				},
-			},
+			}),
+			CmdArgs: []string{"project", "list"},
 			WantTable: new(`
 ID                                    TENANT       NAME       DESCRIPTION     CREATION DATE
 0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2025-06-01 10:00:00 UTC

@@ -26,18 +26,18 @@ var (
 func Test_TenantCmd_Describe(t *testing.T) {
 	tn := tenant1()
 
-	tests := []*e2e.Test[apiv2.TenantServiceGetRequest, apiv2.TenantServiceGetResponse, *apiv2.Tenant]{
+	tests := []*e2e.Test[apiv2.TenantServiceGetResponse, *apiv2.Tenant]{
 		{
 			Name: "describe",
-			Cmd: func() []string {
-				return []string{"tenant", "describe", tn.Login}
-			},
-			WantRequest: apiv2.TenantServiceGetRequest{
-				Login: tn.Login,
-			},
-			WantResponse: apiv2.TenantServiceGetResponse{
-				Tenant: tn,
-			},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestClientConfig[apiv2.TenantServiceGetRequest, apiv2.TenantServiceGetResponse]{
+				WantRequest: apiv2.TenantServiceGetRequest{
+					Login: tn.Login,
+				},
+				WantResponse: apiv2.TenantServiceGetResponse{
+					Tenant: tn,
+				},
+			}),
+			CmdArgs:         []string{"tenant", "describe", tn.Login},
 			WantObject:      tn,
 			WantProtoObject: tn,
 			Template:        new("{{ .login }} {{ .name }}"),
