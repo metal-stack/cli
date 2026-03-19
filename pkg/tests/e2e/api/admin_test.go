@@ -257,6 +257,23 @@ var (
 			},
 		}
 	}
+	component2 = func() *apiv2.Component {
+		return &apiv2.Component{
+			Uuid:       "d2b3c4e5-f6a7-8901-bcde-f12345678901",
+			Type:       apiv2.ComponentType_COMPONENT_TYPE_PIXIECORE,
+			Identifier: "pixiecore-1",
+			StartedAt:  timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			ReportedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			Interval:   durationpb.New(10 * time.Second),
+			Version: &apiv2.Version{
+				Version: "v2.0.0",
+			},
+			Token: &apiv2.Token{
+				Uuid:    "t2b3c4e5-f6a7-8901-bcde-f12345678901",
+				Expires: timestamppb.New(time.Date(2000, 1, 3, 0, 0, 0, 0, time.UTC)),
+			},
+		}
+	}
 )
 
 func Test_AdminComponentCmd_Describe(t *testing.T) {
@@ -296,6 +313,56 @@ func Test_AdminComponentCmd_Describe(t *testing.T) {
 			| ID                                   | TYPE       | IDENTIFIER   | STARTED | AGE | VERSION | TOKEN                                | TOKEN EXPIRES IN |
 			|--------------------------------------|------------|--------------|---------|-----|---------|--------------------------------------|------------------|
 			| c1a2b3d4-e5f6-7890-abcd-ef1234567890 | metal-core | metal-core-1 | 0s      | 0s  | v1.0.0  | t1a2b3d4-e5f6-7890-abcd-ef1234567890 | 1d               |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_AdminComponentCmd_List(t *testing.T) {
+	tests := []*e2e.Test[adminv2.ComponentServiceListResponse, apiv2.Component]{
+		{
+			Name:    "list",
+			CmdArgs: []string{"admin", "component", "list"},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: adminv2.ComponentServiceListRequest{
+							Query: &apiv2.ComponentQuery{},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ComponentServiceListResponse{
+								Components: []*apiv2.Component{
+									component1(),
+									component2(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+			ID                                    TYPE        IDENTIFIER    STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN
+			c1a2b3d4-e5f6-7890-abcd-ef1234567890  metal-core  metal-core-1  0s       0s   v1.0.0   t1a2b3d4-e5f6-7890-abcd-ef1234567890  1d
+			d2b3c4e5-f6a7-8901-bcde-f12345678901  pixiecore   pixiecore-1   0s       0s   v2.0.0   t2b3c4e5-f6a7-8901-bcde-f12345678901  2d
+			`),
+			WantWideTable: new(`
+			ID                                    TYPE        IDENTIFIER    STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN
+			c1a2b3d4-e5f6-7890-abcd-ef1234567890  metal-core  metal-core-1  0s       0s   v1.0.0   t1a2b3d4-e5f6-7890-abcd-ef1234567890  1d
+			d2b3c4e5-f6a7-8901-bcde-f12345678901  pixiecore   pixiecore-1   0s       0s   v2.0.0   t2b3c4e5-f6a7-8901-bcde-f12345678901  2d
+			`),
+			Template: new("{{ .uuid }} {{ .identifier }}"),
+			WantTemplate: new(`
+c1a2b3d4-e5f6-7890-abcd-ef1234567890 metal-core-1
+d2b3c4e5-f6a7-8901-bcde-f12345678901 pixiecore-1
+			`),
+			WantMarkdown: new(`
+			| ID                                   | TYPE       | IDENTIFIER   | STARTED | AGE | VERSION | TOKEN                                | TOKEN EXPIRES IN |
+			|--------------------------------------|------------|--------------|---------|-----|---------|--------------------------------------|------------------|
+			| c1a2b3d4-e5f6-7890-abcd-ef1234567890 | metal-core | metal-core-1 | 0s      | 0s  | v1.0.0  | t1a2b3d4-e5f6-7890-abcd-ef1234567890 | 1d               |
+			| d2b3c4e5-f6a7-8901-bcde-f12345678901 | pixiecore  | pixiecore-1  | 0s      | 0s  | v2.0.0  | t2b3c4e5-f6a7-8901-bcde-f12345678901 | 2d               |
 			`),
 		},
 	}
