@@ -6,8 +6,8 @@ import (
 	"connectrpc.com/connect"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/pkg/tests/e2e"
-	"github.com/metal-stack/cli/pkg/tests/e2e/testresources"
+	"github.com/metal-stack/cli/testing/e2e"
+	"github.com/metal-stack/cli/tests/e2e/testresources"
 )
 
 func Test_AdminTokenCmd_List(t *testing.T) {

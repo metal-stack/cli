@@ -5,7 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/pkg/tests/e2e"
+	"github.com/metal-stack/cli/testing/e2e"
 )
 
 var (
