@@ -8,28 +8,17 @@ import (
 
 func (t *TablePrinter) TenantTable(data []*apiv2.Tenant, wide bool) ([]string, [][]string, error) {
 	var (
-		rows [][]string
+		rows   [][]string
+		header = []string{"ID", "Name", "Email", "Registered"}
 	)
-
-	header := []string{"ID", "Name", "Email", "Registered", "Coupons", "Terms And Conditions"}
-	if wide {
-		header = []string{"ID", "Name", "Email", "Registered", "Coupons", "Terms And Conditions"}
-	}
 
 	for _, tenant := range data {
 		id := tenant.Login
 		name := tenant.Name
 		email := tenant.Email
 		since := humanize.Time(tenant.Meta.CreatedAt.AsTime())
-		coupons := "-"
-		couponsWide := coupons
-		termsAndConditions := ""
 
-		if wide {
-			rows = append(rows, []string{id, name, email, since, couponsWide, termsAndConditions})
-		} else {
-			rows = append(rows, []string{id, name, email, since, coupons, termsAndConditions})
-		}
+		rows = append(rows, []string{id, name, email, since})
 	}
 
 	return header, rows, nil

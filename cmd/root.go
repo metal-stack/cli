@@ -28,7 +28,7 @@ func Execute() {
 		Completion: &completion.Completion{},
 	}
 
-	cmd := newRootCmd(cfg)
+	cmd := NewRootCmd(cfg)
 
 	err := cmd.Execute()
 	if err != nil {
@@ -40,7 +40,7 @@ func Execute() {
 	}
 }
 
-func newRootCmd(c *config.Config) *cobra.Command {
+func NewRootCmd(c *config.Config) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:          config.BinaryName,
 		Aliases:      []string{"m"},
@@ -57,7 +57,7 @@ func newRootCmd(c *config.Config) *cobra.Command {
 		},
 	}
 	rootCmd.PersistentFlags().StringP("config", "c", "", "alternative config file path, (default is ~/.metal-stack/config.yaml)")
-	rootCmd.PersistentFlags().StringP("output-format", "o", "table", "output format (table|wide|markdown|json|yaml|template|jsonraw|yamlraw), wide is a table with more columns, jsonraw and yamlraw do not translate proto enums into string types but leave the original int32 values intact.")
+	rootCmd.PersistentFlags().StringP("output-format", "o", "table", "output format (table|wide|markdown|json|yaml|template|jsonraw|yamlraw), wide is a table with more columns, jsonraw and yamlraw do not translate proto enums into string types but leave the original int32 values intact (for apply, create, update, delete commands from file the raw output formatters must be used).")
 
 	genericcli.Must(rootCmd.RegisterFlagCompletionFunc("output-format", cobra.FixedCompletions([]string{"table", "wide", "markdown", "json", "yaml", "template"}, cobra.ShellCompDirectiveNoFileComp)))
 
