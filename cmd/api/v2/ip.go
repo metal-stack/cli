@@ -1,10 +1,8 @@
 package v2
 
 import (
-	"errors"
 	"fmt"
 
-	"connectrpc.com/connect"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -128,9 +126,10 @@ func (c *ip) Create(rq *apiv2.IPServiceCreateRequest) (*apiv2.IP, error) {
 
 	resp, err := c.c.Client.Apiv2().IP().Create(ctx, rq)
 	if err != nil {
-		if connectErr, ok := errors.AsType[*connect.Error](err); ok && connectErr.Code() == connect.CodeAlreadyExists {
+		if helpers.IsAlreadyExists(err) {
 			return nil, genericcli.AlreadyExistsError()
 		}
+
 		return nil, err
 	}
 
