@@ -12,9 +12,9 @@ func (t *TablePrinter) AuditTable(data []*apiv2.AuditTrace, wide bool) ([]string
 		rows [][]string
 	)
 
-	header := []string{"Time", "Request-Id", "User", "Project", "Method", "Phase", "Code"}
+	header := []string{"Time", "RequestId", "User", "Project", "Method", "Phase", "Code"}
 	if wide {
-		header = []string{"Time", "Request-Id", "User", "Project", "Method", "Phase", "Source-Ip", "Code", "Body"}
+		header = []string{"Time", "RequestId", "User", "Project", "Method", "Phase", "SourceIp", "Code", "Body"}
 	}
 
 	for _, audit := range data {
