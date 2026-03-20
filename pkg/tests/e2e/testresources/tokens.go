@@ -4,6 +4,7 @@ import (
 	"time"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/cli/pkg/tests/e2e"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -14,11 +15,11 @@ var (
 			User:        "admin@metal-stack.io",
 			Description: "ci token",
 			TokenType:   apiv2.TokenType_TOKEN_TYPE_API,
-			Expires:     timestamppb.New(time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)),
-			IssuedAt:    timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			Expires:     timestamppb.New(e2e.TimeBubbleStartTime().Add(24 * time.Hour)),
+			IssuedAt:    timestamppb.New(e2e.TimeBubbleStartTime()),
 			Permissions: nil,
 			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
 		}
 	}
@@ -28,11 +29,11 @@ var (
 			User:        "dev@metal-stack.io",
 			Description: "dev token",
 			TokenType:   apiv2.TokenType_TOKEN_TYPE_API,
-			Expires:     timestamppb.New(time.Date(2000, 1, 3, 0, 0, 0, 0, time.UTC)),
-			IssuedAt:    timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			Expires:     timestamppb.New(e2e.TimeBubbleStartTime().Add(48 * time.Hour)),
+			IssuedAt:    timestamppb.New(e2e.TimeBubbleStartTime()),
 			Permissions: nil,
 			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
 		}
 	}

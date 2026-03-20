@@ -17,7 +17,7 @@ func Test_TokenCmd_Describe(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.TokenServiceGetRequest{
+						WantRequest: &apiv2.TokenServiceGetRequest{
 							Uuid: testresources.Token1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -62,7 +62,7 @@ func Test_TokenCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.TokenServiceListRequest{},
+						WantRequest: &apiv2.TokenServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TokenServiceListResponse{
 								Tokens: []*apiv2.Token{

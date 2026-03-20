@@ -2,7 +2,6 @@ package admin_e2e
 
 import (
 	"testing"
-	"time"
 
 	"connectrpc.com/connect"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
@@ -19,7 +18,7 @@ var (
 			Email:       "info@metal-stack.io",
 			Description: "a tenant",
 			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
 		}
 	}
@@ -30,7 +29,7 @@ var (
 			Email:       "admin@acme.io",
 			Description: "another tenant",
 			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
 		}
 	}
@@ -44,7 +43,7 @@ func Test_AdminTenantCmd_Create(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.TenantServiceCreateRequest{
+						WantRequest: &adminv2.TenantServiceCreateRequest{
 							Name:        adminTenant1().Name,
 							Description: new(adminTenant1().Description),
 							Email:       new(adminTenant1().Email),
@@ -74,7 +73,7 @@ func Test_AdminTenantCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.TenantServiceListRequest{},
+						WantRequest: &adminv2.TenantServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.TenantServiceListResponse{
 								Tenants: []*apiv2.Tenant{

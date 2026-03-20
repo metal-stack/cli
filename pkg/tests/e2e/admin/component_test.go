@@ -18,15 +18,15 @@ var (
 			Uuid:       "c1a2b3d4-e5f6-7890-abcd-ef1234567890",
 			Type:       apiv2.ComponentType_COMPONENT_TYPE_METAL_CORE,
 			Identifier: "metal-core-1",
-			StartedAt:  timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
-			ReportedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			StartedAt:  timestamppb.New(e2e.TimeBubbleStartTime()),
+			ReportedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			Interval:   durationpb.New(10 * time.Second),
 			Version: &apiv2.Version{
 				Version: "v1.0.0",
 			},
 			Token: &apiv2.Token{
 				Uuid:    "t1a2b3d4-e5f6-7890-abcd-ef1234567890",
-				Expires: timestamppb.New(time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)),
+				Expires: timestamppb.New(e2e.TimeBubbleStartTime().Add(24 * time.Hour)),
 			},
 		}
 	}
@@ -35,15 +35,15 @@ var (
 			Uuid:       "d2b3c4e5-f6a7-8901-bcde-f12345678901",
 			Type:       apiv2.ComponentType_COMPONENT_TYPE_PIXIECORE,
 			Identifier: "pixiecore-1",
-			StartedAt:  timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
-			ReportedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+			StartedAt:  timestamppb.New(e2e.TimeBubbleStartTime()),
+			ReportedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			Interval:   durationpb.New(10 * time.Second),
 			Version: &apiv2.Version{
 				Version: "v2.0.0",
 			},
 			Token: &apiv2.Token{
 				Uuid:    "t2b3c4e5-f6a7-8901-bcde-f12345678901",
-				Expires: timestamppb.New(time.Date(2000, 1, 3, 0, 0, 0, 0, time.UTC)),
+				Expires: timestamppb.New(e2e.TimeBubbleStartTime().Add(48 * time.Hour)),
 			},
 		}
 	}
@@ -57,7 +57,7 @@ func Test_AdminComponentCmd_Describe(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.ComponentServiceGetRequest{
+						WantRequest: &adminv2.ComponentServiceGetRequest{
 							Uuid: component1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -102,7 +102,7 @@ func Test_AdminComponentCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.ComponentServiceListRequest{
+						WantRequest: &adminv2.ComponentServiceListRequest{
 							Query: &apiv2.ComponentQuery{},
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -152,7 +152,7 @@ func Test_AdminComponentCmd_Delete(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.ComponentServiceDeleteRequest{
+						WantRequest: &adminv2.ComponentServiceDeleteRequest{
 							Uuid: component1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {

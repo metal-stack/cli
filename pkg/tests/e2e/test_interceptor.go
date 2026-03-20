@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/metal-stack/metal-lib/pkg/testcommon"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/runtime/protoimpl"
 	"google.golang.org/protobuf/testing/protocmp"
 )
@@ -19,7 +20,7 @@ type testClientInterceptor struct {
 }
 
 type ClientCall struct {
-	WantRequest  any
+	WantRequest  proto.Message
 	WantResponse func() connect.AnyResponse
 	WantError    *connect.Error
 }

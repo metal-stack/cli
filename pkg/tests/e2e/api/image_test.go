@@ -17,7 +17,7 @@ func Test_ImageCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ImageServiceListRequest{
+						WantRequest: &apiv2.ImageServiceListRequest{
 							Query: &apiv2.ImageQuery{},
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -68,7 +68,7 @@ func Test_ImageCmd_Describe(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ImageServiceGetRequest{
+						WantRequest: &apiv2.ImageServiceGetRequest{
 							Id: testresources.Image1().Id,
 						},
 						WantResponse: func() connect.AnyResponse {

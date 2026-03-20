@@ -18,7 +18,7 @@ func Test_AdminTokenCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.TokenServiceListRequest{},
+						WantRequest: &adminv2.TokenServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.TokenServiceListResponse{
 								Tokens: []*apiv2.Token{
@@ -66,7 +66,7 @@ func Test_AdminTokenCmd_Delete(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.TokenServiceRevokeRequest{
+						WantRequest: &adminv2.TokenServiceRevokeRequest{
 							Uuid: testresources.Token1().Uuid,
 							User: "user-123",
 						},

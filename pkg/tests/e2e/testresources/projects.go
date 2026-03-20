@@ -1,9 +1,8 @@
 package testresources
 
 import (
-	"time"
-
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/cli/pkg/tests/e2e"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -15,7 +14,7 @@ var (
 			Description: "first project",
 			Tenant:      "metal-stack",
 			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2025, 6, 1, 10, 0, 0, 0, time.UTC)),
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
 		}
 	}
@@ -26,7 +25,7 @@ var (
 			Description: "second project",
 			Tenant:      "metal-stack",
 			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2025, 7, 15, 14, 30, 0, 0, time.UTC)),
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
 		}
 	}

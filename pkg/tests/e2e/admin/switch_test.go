@@ -27,11 +27,11 @@ var (
 				MetalCoreVersion: "v0.9.1 (abc1234), tags/v0.9.1",
 			},
 			LastSync: &apiv2.SwitchSync{
-				Time:     timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				Time:     timestamppb.New(e2e.TimeBubbleStartTime()),
 				Duration: durationpb.New(100 * time.Millisecond),
 			},
 			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
 		}
 	}
@@ -49,11 +49,11 @@ var (
 				MetalCoreVersion: "v0.9.1 (abc1234), tags/v0.9.1",
 			},
 			LastSync: &apiv2.SwitchSync{
-				Time:     timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				Time:     timestamppb.New(e2e.TimeBubbleStartTime()),
 				Duration: durationpb.New(200 * time.Millisecond),
 			},
 			Meta: &apiv2.Meta{
-				CreatedAt: timestamppb.New(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)),
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
 		}
 	}
@@ -67,7 +67,7 @@ func Test_AdminSwitchCmd_Describe(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.SwitchServiceGetRequest{
+						WantRequest: &adminv2.SwitchServiceGetRequest{
 							Id: switch1().Id,
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -95,7 +95,7 @@ func Test_AdminSwitchCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.SwitchServiceListRequest{
+						WantRequest: &adminv2.SwitchServiceListRequest{
 							Query: &apiv2.SwitchQuery{
 								Os: &apiv2.SwitchOSQuery{},
 							},
@@ -147,7 +147,7 @@ func Test_AdminSwitchCmd_Delete(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: adminv2.SwitchServiceDeleteRequest{
+						WantRequest: &adminv2.SwitchServiceDeleteRequest{
 							Id: switch1().Id,
 						},
 						WantResponse: func() connect.AnyResponse {

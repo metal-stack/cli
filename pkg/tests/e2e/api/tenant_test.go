@@ -17,7 +17,7 @@ func Test_TenantCmd_Describe(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.TenantServiceGetRequest{
+						WantRequest: &apiv2.TenantServiceGetRequest{
 							Login: testresources.Tenant1().Login,
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -62,7 +62,7 @@ func Test_TenantCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.TenantServiceListRequest{},
+						WantRequest: &apiv2.TenantServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceListResponse{
 								Tenants: []*apiv2.Tenant{

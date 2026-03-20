@@ -19,7 +19,7 @@ func Test_ProjectCmd_Describe(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ProjectServiceGetRequest{
+						WantRequest: &apiv2.ProjectServiceGetRequest{
 							Project: testresources.Project1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -33,21 +33,21 @@ func Test_ProjectCmd_Describe(t *testing.T) {
 			WantObject:      testresources.Project1(),
 			WantProtoObject: testresources.Project1(),
 			WantTable: new(`
-			ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
-			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
+            ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
+            0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2000-01-01 00:00:00 UTC
 			`),
 			WantWideTable: new(`
-			ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
-			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
+            ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
+            0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2000-01-01 00:00:00 UTC
 			`),
 			Template: new("{{ .uuid }} {{ .name }}"),
 			WantTemplate: new(`
 			0d81bca7-73f6-4da3-8397-4a8c52a0c583 project-a
 			`),
 			WantMarkdown: new(`
-			| ID                                   | TENANT      | NAME      | DESCRIPTION   | CREATION DATE           |
-			|--------------------------------------|-------------|-----------|---------------|-------------------------|
-			| 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | metal-stack | project-a | first project | 2025-06-01 10:00:00 UTC |
+            | ID                                   | TENANT      | NAME      | DESCRIPTION   | CREATION DATE           |
+            |--------------------------------------|-------------|-----------|---------------|-------------------------|
+            | 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | metal-stack | project-a | first project | 2000-01-01 00:00:00 UTC |
 			`),
 		},
 	}
@@ -64,7 +64,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ProjectServiceCreateRequest{
+						WantRequest: &apiv2.ProjectServiceCreateRequest{
 							Login:       testresources.Project1().Tenant,
 							Name:        testresources.Project1().Name,
 							Description: testresources.Project1().Description,
@@ -89,7 +89,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 				},
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ProjectServiceCreateRequest{
+						WantRequest: &apiv2.ProjectServiceCreateRequest{
 							Login:       testresources.Project1().Tenant,
 							Name:        testresources.Project1().Name,
 							Description: testresources.Project1().Description,
@@ -103,8 +103,8 @@ func Test_ProjectCmd_Create(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
-			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
+            ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
+            0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2000-01-01 00:00:00 UTC
 			`),
 		},
 		{
@@ -116,7 +116,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 				},
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ProjectServiceCreateRequest{
+						WantRequest: &apiv2.ProjectServiceCreateRequest{
 							Login:       testresources.Project1().Tenant,
 							Name:        testresources.Project1().Name,
 							Description: testresources.Project1().Description,
@@ -128,7 +128,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 						},
 					},
 					{
-						WantRequest: apiv2.ProjectServiceCreateRequest{
+						WantRequest: &apiv2.ProjectServiceCreateRequest{
 							Login:       testresources.Project2().Tenant,
 							Name:        testresources.Project2().Name,
 							Description: testresources.Project2().Description,
@@ -143,8 +143,8 @@ func Test_ProjectCmd_Create(t *testing.T) {
 			}),
 			WantTable: new(`
             ID                                    TENANT       NAME       DESCRIPTION     CREATION DATE
-            0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2025-06-01 10:00:00 UTC
-            f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2025-07-15 14:30:00 UTC
+            0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2000-01-01 00:00:00 UTC
+            f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2000-01-01 00:00:00 UTC
 			`),
 		},
 	}
@@ -161,7 +161,7 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ProjectServiceDeleteRequest{
+						WantRequest: &apiv2.ProjectServiceDeleteRequest{
 							Project: testresources.Project1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -183,7 +183,7 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 				},
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ProjectServiceDeleteRequest{
+						WantRequest: &apiv2.ProjectServiceDeleteRequest{
 							Project: testresources.Project1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -196,7 +196,7 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 			}),
 			WantTable: new(`
 			ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
-			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
+			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2000-01-01 00:00:00 UTC
 			`),
 		},
 	}
@@ -213,7 +213,7 @@ func Test_ProjectCmd_Update(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ProjectServiceUpdateRequest{
+						WantRequest: &apiv2.ProjectServiceUpdateRequest{
 							Project:     testresources.Project1().Uuid,
 							Name:        new("new-name"),
 							Description: new("new-desc"),
@@ -237,7 +237,7 @@ func Test_ProjectCmd_Update(t *testing.T) {
 				},
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ProjectServiceUpdateRequest{
+						WantRequest: &apiv2.ProjectServiceUpdateRequest{
 							Project:     testresources.Project1().Uuid,
 							Name:        new(testresources.Project1().Name),
 							Description: new(testresources.Project1().Description),
@@ -252,7 +252,7 @@ func Test_ProjectCmd_Update(t *testing.T) {
 			}),
 			WantTable: new(`
 			ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
-			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
+			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2000-01-01 00:00:00 UTC
 			`),
 		},
 	}
@@ -269,7 +269,7 @@ func Test_ProjectCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.ProjectServiceListRequest{},
+						WantRequest: &apiv2.ProjectServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceListResponse{
 								Projects: []*apiv2.Project{
@@ -283,13 +283,13 @@ func Test_ProjectCmd_List(t *testing.T) {
 			}),
 			WantTable: new(`
 			ID                                    TENANT       NAME       DESCRIPTION     CREATION DATE
-			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2025-06-01 10:00:00 UTC
-			f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2025-07-15 14:30:00 UTC
+			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2000-01-01 00:00:00 UTC
+			f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2000-01-01 00:00:00 UTC
 			`),
 			WantWideTable: new(`
 			ID                                    TENANT       NAME       DESCRIPTION     CREATION DATE
-			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2025-06-01 10:00:00 UTC
-			f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2025-07-15 14:30:00 UTC
+			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2000-01-01 00:00:00 UTC
+			f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2000-01-01 00:00:00 UTC
 			`),
 			Template: new("{{ .uuid }} {{ .name }}"),
 			WantTemplate: new(`
@@ -299,8 +299,8 @@ f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c project-b
 			WantMarkdown: new(`
 			| ID                                   | TENANT      | NAME      | DESCRIPTION    | CREATION DATE           |
 			|--------------------------------------|-------------|-----------|----------------|-------------------------|
-			| 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | metal-stack | project-a | first project  | 2025-06-01 10:00:00 UTC |
-			| f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | metal-stack | project-b | second project | 2025-07-15 14:30:00 UTC |
+			| 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | metal-stack | project-a | first project  | 2000-01-01 00:00:00 UTC |
+			| f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | metal-stack | project-b | second project | 2000-01-01 00:00:00 UTC |
 			`),
 		},
 	}

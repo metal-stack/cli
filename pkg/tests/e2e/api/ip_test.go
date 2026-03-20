@@ -20,7 +20,7 @@ func Test_IPCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.IPServiceListRequest{
+						WantRequest: &apiv2.IPServiceListRequest{
 							Project: testresources.IP1().Project,
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -70,7 +70,7 @@ func Test_IPCmd_Describe(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.IPServiceGetRequest{
+						WantRequest: &apiv2.IPServiceGetRequest{
 							Ip:      testresources.IP1().Ip,
 							Project: testresources.IP1().Project,
 						},
@@ -116,7 +116,7 @@ func Test_IPCmd_Create(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.IPServiceCreateRequest{
+						WantRequest: &apiv2.IPServiceCreateRequest{
 							Project: testresources.IP1().Project,
 							Network: testresources.IP1().Network,
 							Type:    &testresources.IP1().Type,
@@ -141,7 +141,7 @@ func Test_IPCmd_Create(t *testing.T) {
 					},
 					ClientCalls: []e2e.ClientCall{
 						{
-							WantRequest: apiv2.IPServiceGetRequest{
+							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 							},
@@ -152,7 +152,7 @@ func Test_IPCmd_Create(t *testing.T) {
 							},
 						},
 						{
-							WantRequest: apiv2.IPServiceCreateRequest{
+							WantRequest: &apiv2.IPServiceCreateRequest{
 								Ip:            &testresources.IP1().Ip,
 								Project:       testresources.IP1().Project,
 								Network:       testresources.IP1().Network,
@@ -189,7 +189,7 @@ func Test_IPCmd_Delete(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []e2e.ClientCall{
 					{
-						WantRequest: apiv2.IPServiceDeleteRequest{
+						WantRequest: &apiv2.IPServiceDeleteRequest{
 							Ip:      testresources.IP1().Ip,
 							Project: testresources.IP1().Project,
 						},
@@ -213,7 +213,7 @@ func Test_IPCmd_Delete(t *testing.T) {
 					},
 					ClientCalls: []e2e.ClientCall{
 						{
-							WantRequest: apiv2.IPServiceGetRequest{
+							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 							},
@@ -224,7 +224,7 @@ func Test_IPCmd_Delete(t *testing.T) {
 							},
 						},
 						{
-							WantRequest: apiv2.IPServiceDeleteRequest{
+							WantRequest: &apiv2.IPServiceDeleteRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 							},
@@ -258,7 +258,7 @@ func Test_IPCmd_Update(t *testing.T) {
 					ClientCalls: []e2e.ClientCall{
 						// TODO: the client gets the IP two times?
 						{
-							WantRequest: apiv2.IPServiceGetRequest{
+							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 							},
@@ -269,7 +269,7 @@ func Test_IPCmd_Update(t *testing.T) {
 							},
 						},
 						{
-							WantRequest: apiv2.IPServiceGetRequest{
+							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 							},
@@ -280,7 +280,7 @@ func Test_IPCmd_Update(t *testing.T) {
 							},
 						},
 						{
-							WantRequest: apiv2.IPServiceUpdateRequest{
+							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 								Name:    new("foo"),
@@ -313,7 +313,7 @@ func Test_IPCmd_Update(t *testing.T) {
 					},
 					ClientCalls: []e2e.ClientCall{
 						{
-							WantRequest: apiv2.IPServiceGetRequest{
+							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 							},
@@ -324,7 +324,7 @@ func Test_IPCmd_Update(t *testing.T) {
 							},
 						},
 						{
-							WantRequest: apiv2.IPServiceUpdateRequest{
+							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:          testresources.IP1().Ip,
 								Project:     testresources.IP1().Project,
 								Description: &testresources.IP1().Description,
@@ -366,7 +366,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 					},
 					ClientCalls: []e2e.ClientCall{
 						{
-							WantRequest: apiv2.IPServiceGetRequest{
+							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 							},
@@ -377,7 +377,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 							},
 						},
 						{
-							WantRequest: apiv2.IPServiceCreateRequest{
+							WantRequest: &apiv2.IPServiceCreateRequest{
 								Ip:            &testresources.IP1().Ip,
 								Project:       testresources.IP1().Project,
 								Network:       testresources.IP1().Network,
@@ -411,7 +411,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 					},
 					ClientCalls: []e2e.ClientCall{
 						{
-							WantRequest: apiv2.IPServiceGetRequest{
+							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 							},
@@ -422,7 +422,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 							},
 						},
 						{
-							WantRequest: apiv2.IPServiceCreateRequest{
+							WantRequest: &apiv2.IPServiceCreateRequest{
 								Ip:            &testresources.IP1().Ip,
 								Project:       testresources.IP1().Project,
 								Network:       testresources.IP1().Network,
@@ -435,7 +435,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
 						},
 						{
-							WantRequest: apiv2.IPServiceGetRequest{
+							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 							},
@@ -446,7 +446,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 							},
 						},
 						{
-							WantRequest: apiv2.IPServiceUpdateRequest{
+							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:          testresources.IP1().Ip,
 								Project:     testresources.IP1().Project,
 								Description: &testresources.IP1().Description,

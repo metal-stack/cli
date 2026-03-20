@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 	"testing/synctest"
+	"time"
 
 	"slices"
 
@@ -54,6 +55,10 @@ type Test[Response, RawObject any] struct {
 	Template        *string       // for template printer
 
 	WantErr error
+}
+
+func TimeBubbleStartTime() time.Time {
+	return time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
 }
 
 func (c *Test[Response, RawObject]) TestCmd(t *testing.T) {
