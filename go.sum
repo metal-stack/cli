@@ -71,8 +71,8 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mattn/go-runewidth v0.0.20 h1:WcT52H91ZUAwy8+HUkdM3THM6gXqXuLJi9O3rjcQQaQ=
 github.com/mattn/go-runewidth v0.0.20/go.mod h1:XBkDxAl56ILZc9knddidhrOlY5R/pDhgLpndooCuJAs=
-github.com/metal-stack/api v0.0.55-0.20260317110240-a69915959370 h1:5G6ZmD1jOb961vn3SqqfLnFNyxDfM4bcdm/WAg+VbBE=
-github.com/metal-stack/api v0.0.55-0.20260317110240-a69915959370/go.mod h1:OU8KDSOw5JEfeEs9q8FY5TcaklBAiGx+Q9Em0BMZrlY=
+github.com/metal-stack/api v0.0.55 h1:n5Y91x+B5/rh6j9rai6CAgVWenLgEzAQwFD2nYbVDXA=
+github.com/metal-stack/api v0.0.55/go.mod h1:OU8KDSOw5JEfeEs9q8FY5TcaklBAiGx+Q9Em0BMZrlY=
 github.com/metal-stack/metal-lib v0.24.0 h1:wvQQPWIXcA2tP+I6zAHUNdtVLLJfQnnV9yG2SoqUkz4=
 github.com/metal-stack/metal-lib v0.24.0/go.mod h1:oITaqj/BtB9vDKM66jCXkeA+4D0eTZElgIKal5vtiNY=
 github.com/metal-stack/v v1.0.3 h1:Sh2oBlnxrCUD+mVpzfC8HiqL045YWkxs0gpTvkjppqs=
@@ -137,6 +137,8 @@ google.golang.org/genproto/googleapis/api v0.0.0-20260311181403-84a4fc48630c h1:
 google.golang.org/genproto/googleapis/api v0.0.0-20260311181403-84a4fc48630c/go.mod h1:X2gu9Qwng7Nn009s/r3RUxqkzQNqOrAy79bluY7ojIg=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20260311181403-84a4fc48630c h1:xgCzyF2LFIO/0X2UAoVRiXKU5Xg6VjToG4i2/ecSswk=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20260311181403-84a4fc48630c/go.mod h1:4Hqkh8ycfw05ld/3BWL7rJOSfebL2Q+DVDeRgYgxUU8=
+google.golang.org/grpc v1.79.1 h1:zGhSi45ODB9/p3VAawt9a+O/MULLl9dpizzNNpq7flY=
+google.golang.org/grpc v1.79.1/go.mod h1:KmT0Kjez+0dde/v2j9vzwoAScgEPx/Bw1CYChhHLrHQ=
 google.golang.org/protobuf v1.36.11 h1:fV6ZwhNocDyBLK0dj+fg8ektcVegBBuEolpbTQyBNVE=
 google.golang.org/protobuf v1.36.11/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j23XfzDpco=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
