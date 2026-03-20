@@ -359,7 +359,7 @@ func MustMarshal(t *testing.T, d any) []byte {
 	return b
 }
 
-func MustMarshalToMultiYAML[R any](t *testing.T, data []R) []byte {
+func MustMarshalToMultiYAML(t *testing.T, data ...any) []byte {
 	var parts []string
 	for _, elem := range data {
 		parts = append(parts, string(MustMarshal(t, elem)))

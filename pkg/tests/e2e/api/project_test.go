@@ -107,6 +107,46 @@ func Test_ProjectCmd_Create(t *testing.T) {
 			0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2025-06-01 10:00:00 UTC
 			`),
 		},
+		{
+			Name:    "create many from file",
+			CmdArgs: append([]string{"project", "create"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				FsMocks: func(fs *afero.Afero) {
+					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshalToMultiYAML(t, testresources.Project1(), testresources.Project2()), 0755))
+				},
+				ClientCalls: []e2e.ClientCall{
+					{
+						WantRequest: apiv2.ProjectServiceCreateRequest{
+							Login:       testresources.Project1().Tenant,
+							Name:        testresources.Project1().Name,
+							Description: testresources.Project1().Description,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.ProjectServiceCreateResponse{
+								Project: testresources.Project1(),
+							})
+						},
+					},
+					{
+						WantRequest: apiv2.ProjectServiceCreateRequest{
+							Login:       testresources.Project2().Tenant,
+							Name:        testresources.Project2().Name,
+							Description: testresources.Project2().Description,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.ProjectServiceCreateResponse{
+								Project: testresources.Project2(),
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                    TENANT       NAME       DESCRIPTION     CREATION DATE
+            0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project   2025-06-01 10:00:00 UTC
+            f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  metal-stack  project-b  second project  2025-07-15 14:30:00 UTC
+			`),
+		},
 	}
 	for _, tt := range tests {
 		tt.TestCmd(t)
