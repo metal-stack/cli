@@ -19,6 +19,7 @@ cli for managing entities in metal-stack
 ### SEE ALSO
 
 * [metalctlv2 api-methods](metalctlv2_api-methods.md)	 - show available api-methods of the metal-stack.io api
+* [metalctlv2 audit](metalctlv2_audit.md)	 - manage audit entities
 * [metalctlv2 completion](metalctlv2_completion.md)	 - Generate the autocompletion script for the specified shell
 * [metalctlv2 context](metalctlv2_context.md)	 - manage cli contexts
 * [metalctlv2 health](metalctlv2_health.md)	 - print the client and server health information

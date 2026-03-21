@@ -20,6 +20,14 @@ const (
 	nbr             = " "
 	poweron         = "⏻"
 	powersleep      = "⏾"
+	ambulance       = "🚑"
+	exclamation     = "❗"
+	bark            = "🚧"
+	loop            = "⭕"
+	lock            = "🔒"
+	question        = "❓"
+	skull           = "💀"
+	vpn             = "🛡"
 )
 
 type TablePrinter struct {
@@ -42,8 +50,18 @@ func (t *TablePrinter) SetPrinter(printer *printers.TablePrinter) {
 func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]string, error) {
 	switch d := data.(type) {
 
+	case *apiv2.AuditTrace:
+		return t.AuditTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.AuditTrace:
+		return t.AuditTable(d, wide)
+
 	case *config.Contexts:
 		return t.ContextTable(d, wide)
+
+	case *apiv2.Component:
+		return t.ComponentTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Component:
+		return t.ComponentTable(d, wide)
 
 	case *apiv2.IP:
 		return t.IPTable(pointer.WrapInSlice(d), wide)
@@ -115,6 +133,13 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.HealthTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Health:
 		return t.HealthTable(d, wide)
+
+	case []*apiv2.Switch:
+		return t.SwitchTable(d, wide)
+	case []SwitchDetail:
+		return t.SwitchDetailTable(d)
+	case *adminv2.SwitchServiceConnectedMachinesResponse:
+		return t.SwitchWithConnectedMachinesTable(d.SwitchesWithMachines, wide)
 
 	default:
 		return nil, nil, fmt.Errorf("unknown table printer for type: %T", d)
