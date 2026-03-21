@@ -13,8 +13,23 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 )
 
+const (
+	dot = "●"
+	nbr = " "
+
+	ambulance   = "🚑"
+	exclamation = "❗"
+	bark        = "🚧"
+	loop        = "⭕"
+	lock        = "🔒"
+	question    = "❓"
+	skull       = "💀"
+	vpn         = "🛡"
+)
+
 type TablePrinter struct {
-	t *printers.TablePrinter
+	t                       *printers.TablePrinter
+	lastEventErrorThreshold time.Duration
 }
 
 func New() *TablePrinter {
@@ -25,8 +40,17 @@ func (t *TablePrinter) SetPrinter(printer *printers.TablePrinter) {
 	t.t = printer
 }
 
+func (t *TablePrinter) SetLastEventErrorThreshold(threshold time.Duration) {
+	t.lastEventErrorThreshold = threshold
+}
+
 func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]string, error) {
 	switch d := data.(type) {
+
+	case *apiv2.AuditTrace:
+		return t.AuditTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.AuditTrace:
+		return t.AuditTable(d, wide)
 
 	case *config.Contexts:
 		return t.ContextTable(d, wide)
@@ -90,6 +114,13 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.HealthTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Health:
 		return t.HealthTable(d, wide)
+
+	case []*apiv2.Switch:
+		return t.SwitchTable(d, wide)
+	case []SwitchDetail:
+		return t.SwitchDetailTable(d)
+	case *adminv2.SwitchServiceConnectedMachinesResponse:
+		return t.SwitchWithConnectedMachinesTable(d.SwitchesWithMachines, wide)
 
 	default:
 		return nil, nil, fmt.Errorf("unknown table printer for type: %T", d)

@@ -41,6 +41,8 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("name", "", "the name of the project to create")
 			cmd.Flags().String("description", "", "the description of the project to create")
 			cmd.Flags().String("tenant", "", "the tenant of this project, defaults to tenant of the default project")
+
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant", c.Completion.TenantListCompletion))
 		},
 		CreateRequestFromCLI: w.createRequestFromCLI,
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {

@@ -33,11 +33,6 @@ func newImageCmd(c *config.Config) *cobra.Command {
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		OnlyCmds:        genericcli.OnlyCmds(genericcli.DescribeCmd, genericcli.ListCmd),
-		DescribeCmdMutateFn: func(cmd *cobra.Command) {
-			cmd.RunE = func(cmd *cobra.Command, args []string) error {
-				return gcli.DescribeAndPrint("", w.c.DescribePrinter)
-			}
-		},
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("id", "", "", "image id to filter for")
 			cmd.Flags().StringP("os", "", "", "image os to filter for")
