@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
@@ -15,7 +16,7 @@ func Test_TenantCmd_Describe(t *testing.T) {
 			Name:    "describe",
 			CmdArgs: []string{"tenant", "describe", testresources.Tenant1().Login},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceGetRequest{
 							Login: testresources.Tenant1().Login,
@@ -60,7 +61,7 @@ func Test_TenantCmd_List(t *testing.T) {
 			Name:    "list",
 			CmdArgs: []string{"tenant", "list"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {

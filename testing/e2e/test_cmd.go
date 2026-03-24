@@ -20,17 +20,13 @@ import (
 type TestConfig struct {
 	FsMocks     func(fs *afero.Afero)
 	MockStdin   *bytes.Buffer
-	ClientCalls []ClientCall
+	ClientCalls []client.ClientCall
 }
 
 func NewRootCmd(t *testing.T, c *TestConfig) NewRootCmdFunc {
 	return func() (*cobra.Command, *bytes.Buffer) {
 		interceptors := []connect.Interceptor{
-			&testClientInterceptor{
-				t:     t,
-				calls: c.ClientCalls,
-				count: 0,
-			},
+			client.NewTestInterceptor(t, c.ClientCalls),
 			validate.NewInterceptor(),
 		}
 
