@@ -7,8 +7,9 @@ import (
 	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
+	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +19,7 @@ func Test_IPCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"ip", "list", "--project", testresources.IP1().Project},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceListRequest{
@@ -68,7 +69,7 @@ func Test_IPCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"ip", "describe", "--project", testresources.IP1().Project, testresources.IP1().Ip},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceGetRequest{
@@ -114,7 +115,7 @@ func Test_IPCmd_Create(t *testing.T) {
 		{
 			Name:    "create",
 			CmdArgs: []string{"ip", "create", "--project", testresources.IP1().Project, "--network", testresources.IP1().Network, "--static=true"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceCreateRequest{
@@ -135,8 +136,8 @@ func Test_IPCmd_Create(t *testing.T) {
 		{
 			Name:    "create from file",
 			CmdArgs: append([]string{"ip", "create"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
@@ -187,7 +188,7 @@ func Test_IPCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete",
 			CmdArgs: []string{"ip", "delete", "--project", testresources.IP1().Project, testresources.IP1().Ip},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceDeleteRequest{
@@ -207,8 +208,8 @@ func Test_IPCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete from file",
 			CmdArgs: append([]string{"ip", "delete"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
@@ -254,8 +255,8 @@ func Test_IPCmd_Update(t *testing.T) {
 		{
 			Name:    "update",
 			CmdArgs: []string{"ip", "update", "--project", testresources.IP1().Project, testresources.IP1().Ip, "--name", "foo"},
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					ClientCalls: []client.ClientCall{
 						// TODO: the client gets the IP two times?
 						{
@@ -307,8 +308,8 @@ func Test_IPCmd_Update(t *testing.T) {
 		{
 			Name:    "update from file",
 			CmdArgs: append([]string{"ip", "update"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
@@ -360,8 +361,8 @@ func Test_IPCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply",
 			CmdArgs: append([]string{"ip", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
@@ -405,8 +406,8 @@ func Test_IPCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply already exists",
 			CmdArgs: append([]string{"ip", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},

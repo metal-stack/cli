@@ -6,7 +6,8 @@ import (
 	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
+	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 )
 
 var (
@@ -28,7 +29,7 @@ func Test_HealthCmd(t *testing.T) {
 		{
 			Name:    "health",
 			CmdArgs: []string{"health"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.HealthServiceGetRequest{},
