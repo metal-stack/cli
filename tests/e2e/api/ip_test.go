@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
@@ -18,7 +19,7 @@ func Test_IPCmd_List(t *testing.T) {
 			Name:    "list",
 			CmdArgs: []string{"ip", "list", "--project", testresources.IP1().Project},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceListRequest{
 							Project: testresources.IP1().Project,
@@ -68,7 +69,7 @@ func Test_IPCmd_Describe(t *testing.T) {
 			Name:    "describe",
 			CmdArgs: []string{"ip", "describe", "--project", testresources.IP1().Project, testresources.IP1().Ip},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceGetRequest{
 							Ip:      testresources.IP1().Ip,
@@ -114,7 +115,7 @@ func Test_IPCmd_Create(t *testing.T) {
 			Name:    "create",
 			CmdArgs: []string{"ip", "create", "--project", testresources.IP1().Project, "--network", testresources.IP1().Network, "--static=true"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceCreateRequest{
 							Project: testresources.IP1().Project,
@@ -139,7 +140,7 @@ func Test_IPCmd_Create(t *testing.T) {
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
-					ClientCalls: []e2e.ClientCall{
+					ClientCalls: []client.ClientCall{
 						{
 							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
@@ -187,7 +188,7 @@ func Test_IPCmd_Delete(t *testing.T) {
 			Name:    "delete",
 			CmdArgs: []string{"ip", "delete", "--project", testresources.IP1().Project, testresources.IP1().Ip},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceDeleteRequest{
 							Ip:      testresources.IP1().Ip,
@@ -211,7 +212,7 @@ func Test_IPCmd_Delete(t *testing.T) {
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
-					ClientCalls: []e2e.ClientCall{
+					ClientCalls: []client.ClientCall{
 						{
 							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
@@ -255,7 +256,7 @@ func Test_IPCmd_Update(t *testing.T) {
 			CmdArgs: []string{"ip", "update", "--project", testresources.IP1().Project, testresources.IP1().Ip, "--name", "foo"},
 			NewRootCmd: e2e.NewRootCmd(t,
 				&e2e.TestConfig{
-					ClientCalls: []e2e.ClientCall{
+					ClientCalls: []client.ClientCall{
 						// TODO: the client gets the IP two times?
 						{
 							WantRequest: &apiv2.IPServiceGetRequest{
@@ -311,7 +312,7 @@ func Test_IPCmd_Update(t *testing.T) {
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
-					ClientCalls: []e2e.ClientCall{
+					ClientCalls: []client.ClientCall{
 						{
 							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
@@ -364,7 +365,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
-					ClientCalls: []e2e.ClientCall{
+					ClientCalls: []client.ClientCall{
 						{
 							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,
@@ -409,7 +410,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
-					ClientCalls: []e2e.ClientCall{
+					ClientCalls: []client.ClientCall{
 						{
 							WantRequest: &apiv2.IPServiceGetRequest{
 								Ip:      testresources.IP1().Ip,

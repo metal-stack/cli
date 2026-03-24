@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
@@ -17,7 +18,7 @@ func Test_ProjectCmd_Describe(t *testing.T) {
 			Name:    "describe",
 			CmdArgs: []string{"project", "describe", testresources.Project1().Uuid},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceGetRequest{
 							Project: testresources.Project1().Uuid,
@@ -62,7 +63,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 			Name:    "create",
 			CmdArgs: []string{"project", "create", "--name", testresources.Project1().Name, "--description", testresources.Project1().Description, "--tenant", testresources.Project1().Tenant},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceCreateRequest{
 							Login:       testresources.Project1().Tenant,
@@ -87,7 +88,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 				},
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceCreateRequest{
 							Login:       testresources.Project1().Tenant,
@@ -114,7 +115,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshalToMultiYAML(t, testresources.Project1(), testresources.Project2()), 0755))
 				},
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceCreateRequest{
 							Login:       testresources.Project1().Tenant,
@@ -159,7 +160,7 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 			Name:    "delete",
 			CmdArgs: []string{"project", "delete", testresources.Project1().Uuid},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceDeleteRequest{
 							Project: testresources.Project1().Uuid,
@@ -181,7 +182,7 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 				},
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceDeleteRequest{
 							Project: testresources.Project1().Uuid,
@@ -211,7 +212,7 @@ func Test_ProjectCmd_Update(t *testing.T) {
 			Name:    "update",
 			CmdArgs: []string{"project", "update", testresources.Project1().Uuid, "--name", "new-name", "--description", "new-desc"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceUpdateRequest{
 							Project:     testresources.Project1().Uuid,
@@ -235,7 +236,7 @@ func Test_ProjectCmd_Update(t *testing.T) {
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 				},
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceUpdateRequest{
 							Project:     testresources.Project1().Uuid,
@@ -267,7 +268,7 @@ func Test_ProjectCmd_List(t *testing.T) {
 			Name:    "list",
 			CmdArgs: []string{"project", "list"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {
