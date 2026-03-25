@@ -36,8 +36,20 @@ func newPartitionCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		OnlyCmds:        genericcli.OnlyCmds(genericcli.DescribeCmd, genericcli.ListCmd),
 		DescribeCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("id", "", "id of the partition")
 			cmd.RunE = func(cmd *cobra.Command, args []string) error {
-				return gcli.DescribeAndPrint("", w.c.DescribePrinter)
+				id, err := cmd.Flags().GetString("id")
+				if err != nil {
+					return err
+				}
+				if id == "" && len(args) > 0 {
+					id = args[0]
+				}
+				p, err := w.Get(id)
+				if err != nil {
+					return err
+				}
+				return w.c.DescribePrinter.Print(p)
 			}
 		},
 	}

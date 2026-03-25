@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/testing/e2e"
@@ -55,7 +56,7 @@ func Test_AdminComponentCmd_Describe(t *testing.T) {
 			Name:    "describe",
 			CmdArgs: []string{"admin", "component", "describe", component1().Uuid},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.ComponentServiceGetRequest{
 							Uuid: component1().Uuid,
@@ -100,7 +101,7 @@ func Test_AdminComponentCmd_List(t *testing.T) {
 			Name:    "list",
 			CmdArgs: []string{"admin", "component", "list"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.ComponentServiceListRequest{
 							Query: &apiv2.ComponentQuery{},
@@ -150,7 +151,7 @@ func Test_AdminComponentCmd_Delete(t *testing.T) {
 			Name:    "delete",
 			CmdArgs: []string{"admin", "component", "delete", component1().Uuid},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.ComponentServiceDeleteRequest{
 							Uuid: component1().Uuid,

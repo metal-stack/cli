@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/testing/e2e"
@@ -65,7 +66,7 @@ func Test_AdminSwitchCmd_Describe(t *testing.T) {
 			Name:    "describe",
 			CmdArgs: []string{"admin", "switch", "describe", switch1().Id},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceGetRequest{
 							Id: switch1().Id,
@@ -93,7 +94,7 @@ func Test_AdminSwitchCmd_List(t *testing.T) {
 			Name:    "list",
 			CmdArgs: []string{"admin", "switch", "list"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceListRequest{
 							Query: &apiv2.SwitchQuery{
@@ -145,7 +146,7 @@ func Test_AdminSwitchCmd_Delete(t *testing.T) {
 			Name:    "delete",
 			CmdArgs: []string{"admin", "switch", "delete", switch1().Id},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceDeleteRequest{
 							Id: switch1().Id,

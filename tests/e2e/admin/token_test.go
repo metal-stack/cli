@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/testing/e2e"
@@ -16,7 +17,7 @@ func Test_AdminTokenCmd_List(t *testing.T) {
 			Name:    "list",
 			CmdArgs: []string{"admin", "token", "list"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TokenServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {
@@ -64,7 +65,7 @@ func Test_AdminTokenCmd_Delete(t *testing.T) {
 			Name:    "delete",
 			CmdArgs: []string{"admin", "token", "delete", testresources.Token1().Uuid, "--user", "user-123"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TokenServiceRevokeRequest{
 							Uuid: testresources.Token1().Uuid,
