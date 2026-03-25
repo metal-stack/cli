@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/testing/e2e"
@@ -16,7 +17,7 @@ func Test_AdminProjectCmd_List(t *testing.T) {
 			Name:    "list",
 			CmdArgs: []string{"admin", "project", "list"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.ProjectServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {

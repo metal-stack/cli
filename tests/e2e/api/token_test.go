@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
@@ -15,7 +16,7 @@ func Test_TokenCmd_Describe(t *testing.T) {
 			Name:    "describe",
 			CmdArgs: []string{"token", "describe", testresources.Token1().Uuid},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TokenServiceGetRequest{
 							Uuid: testresources.Token1().Uuid,
@@ -60,7 +61,7 @@ func Test_TokenCmd_List(t *testing.T) {
 			Name:    "list",
 			CmdArgs: []string{"token", "list"},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
-				ClientCalls: []e2e.ClientCall{
+				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TokenServiceListRequest{},
 						WantResponse: func() connect.AnyResponse {
