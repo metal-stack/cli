@@ -10,6 +10,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	cmd.AddCommand(newHealthCmd(c))
 	cmd.AddCommand(newImageCmd(c))
 	cmd.AddCommand(newIPCmd(c))
+	cmd.AddCommand(newMachineCmd(c))
 	cmd.AddCommand(newMethodsCmd(c))
 	cmd.AddCommand(newNetworkCmd(c))
 	cmd.AddCommand(newProjectCmd(c))
