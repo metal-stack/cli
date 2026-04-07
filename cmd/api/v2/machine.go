@@ -392,7 +392,6 @@ IPs can be added per network colon separated, these ips must be already allocate
 
 	// Completion for arguments
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("networks", c.c.Completion.NetworkListCompletion))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("ips", c.c.Completion.IpListCompletion))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.c.Completion.PartitionListCompletion))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("size", c.c.Completion.SizeListCompletion))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.c.Completion.ProjectListCompletion))
