@@ -171,3 +171,139 @@ func Test_AdminComponentCmd_Delete(t *testing.T) {
 		tt.TestCmd(t)
 	}
 }
+
+func Test_AdminComponentCmd_List_Filter(t *testing.T) {
+	tests := []*e2e.Test[adminv2.ComponentServiceListResponse, apiv2.Component]{
+		{
+			Name:    "list with uuid filter",
+			CmdArgs: []string{"admin", "component", "list", "--uuid", component1().Uuid},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.ComponentServiceListRequest{
+							Query: &apiv2.ComponentQuery{
+								Uuid: &component1().Uuid,
+							},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ComponentServiceListResponse{
+								Components: []*apiv2.Component{
+									component1(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			Template: new("{{ .uuid }} {{ .identifier }}"),
+			WantTemplate: new(`
+c1a2b3d4-e5f6-7890-abcd-ef1234567890 metal-core-1
+			`),
+		},
+		{
+			Name:    "list with type filter",
+			CmdArgs: []string{"admin", "component", "list", "--type", "metal-core"},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.ComponentServiceListRequest{
+							Query: &apiv2.ComponentQuery{
+								Type: &[]apiv2.ComponentType{apiv2.ComponentType_COMPONENT_TYPE_METAL_CORE}[0],
+							},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ComponentServiceListResponse{
+								Components: []*apiv2.Component{
+									component1(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			Template: new("{{ .uuid }} {{ .type }}"),
+			WantTemplate: new(`
+c1a2b3d4-e5f6-7890-abcd-ef1234567890 2
+			`),
+		},
+		{
+			Name:    "list with identifier filter",
+			CmdArgs: []string{"admin", "component", "list", "--identifier", component1().Identifier},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.ComponentServiceListRequest{
+							Query: &apiv2.ComponentQuery{
+								Identifier: &component1().Identifier,
+							},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ComponentServiceListResponse{
+								Components: []*apiv2.Component{
+									component1(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			Template: new("{{ .uuid }} {{ .identifier }}"),
+			WantTemplate: new(`
+c1a2b3d4-e5f6-7890-abcd-ef1234567890 metal-core-1
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_AdminComponentCmd_List_WithBothComponents(t *testing.T) {
+	tests := []*e2e.Test[adminv2.ComponentServiceListResponse, apiv2.Component]{
+		{
+			Name:    "list both components",
+			CmdArgs: []string{"admin", "component", "list"},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.ComponentServiceListRequest{
+							Query: &apiv2.ComponentQuery{},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ComponentServiceListResponse{
+								Components: []*apiv2.Component{
+									component1(),
+									component2(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+			ID                                    TYPE        IDENTIFIER    STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN
+			c1a2b3d4-e5f6-7890-abcd-ef1234567890  metal-core  metal-core-1  0s       0s   v1.0.0   t1a2b3d4-e5f6-7890-abcd-ef1234567890  1d
+			d2b3c4e5-f6a7-8901-bcde-f12345678901  pixiecore   pixiecore-1   0s       0s   v2.0.0   t2b3c4e5-f6a7-8901-bcde-f12345678901  2d
+			`),
+			WantWideTable: new(`
+			ID                                    TYPE        IDENTIFIER    STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN
+			c1a2b3d4-e5f6-7890-abcd-ef1234567890  metal-core  metal-core-1  0s       0s   v1.0.0   t1a2b3d4-e5f6-7890-abcd-ef1234567890  1d
+			d2b3c4e5-f6a7-8901-bcde-f12345678901  pixiecore   pixiecore-1   0s       0s   v2.0.0   t2b3c4e5-f6a7-8901-bcde-f12345678901  2d
+			`),
+			Template: new("{{ .uuid }} {{ .identifier }}"),
+			WantTemplate: new(`
+c1a2b3d4-e5f6-7890-abcd-ef1234567890 metal-core-1
+d2b3c4e5-f6a7-8901-bcde-f12345678901 pixiecore-1
+			`),
+			WantMarkdown: new(`
+			| ID                                   | TYPE       | IDENTIFIER   | STARTED | AGE | VERSION | TOKEN                                | TOKEN EXPIRES IN |
+			|--------------------------------------|------------|--------------|---------|-----|---------|--------------------------------------|------------------|
+			| c1a2b3d4-e5f6-7890-abcd-ef1234567890 | metal-core | metal-core-1 | 0s      | 0s  | v1.0.0  | t1a2b3d4-e5f6-7890-abcd-ef1234567890 | 1d               |
+			| d2b3c4e5-f6a7-8901-bcde-f12345678901 | pixiecore  | pixiecore-1  | 0s      | 0s  | v2.0.0  | t2b3c4e5-f6a7-8901-bcde-f12345678901 | 2d               |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}

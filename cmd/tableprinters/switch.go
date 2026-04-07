@@ -256,7 +256,12 @@ func (t *TablePrinter) SwitchWithConnectedMachinesTable(res []*apiv2.SwitchWithM
 			}
 
 			if wide {
-				rows = append(rows, []string{fmt.Sprintf("%s%s", prefix, machine.Uuid), t.getMachineStatusEmojis(machine), nicName, nicIdentifier, partition, rack, machineSize, allocationHostname, fruProductSerial, fruChassisPartSerial})
+				status := &apiv2.MachineStatus{
+					Condition:  machine.Status.GetCondition(),
+					Liveliness: machine.Status.GetLiveliness(),
+				}
+				emojis, _ := t.getMachineStatusEmojis(status.GetLiveliness(), machine.RecentProvisioningEvents, status.GetCondition().GetState(), machine.Allocation.GetVpn())
+				rows = append(rows, []string{fmt.Sprintf("%s%s", prefix, machine.Uuid), emojis, nicName, nicIdentifier, partition, rack, machineSize, allocationHostname, fruProductSerial, fruChassisPartSerial})
 			} else {
 				rows = append(rows, []string{fmt.Sprintf("%s%s", prefix, machine.Uuid), nicName, nicIdentifier, partition, rack, machineSize, fruProductSerial, fruChassisPartSerial})
 			}
@@ -311,60 +316,6 @@ func (t *TablePrinter) SwitchDetailTable(switches []SwitchDetail) ([]string, [][
 	}
 
 	return header, rows, nil
-}
-
-func (t *TablePrinter) getMachineStatusEmojis(m *apiv2.Machine) string {
-	if m == nil {
-		return ""
-	}
-
-	var (
-		emojis []string
-	)
-
-	if status := m.Status; status != nil {
-		switch status.Liveliness {
-		case apiv2.MachineLiveliness_MACHINE_LIVELINESS_ALIVE:
-			// noop
-		case apiv2.MachineLiveliness_MACHINE_LIVELINESS_DEAD:
-			emojis = append(emojis, skull)
-		default:
-			emojis = append(emojis, question)
-		}
-
-		if status.Condition != nil {
-			switch status.Condition.State {
-			case apiv2.MachineState_MACHINE_STATE_LOCKED:
-				emojis = append(emojis, lock)
-			case apiv2.MachineState_MACHINE_STATE_RESERVED:
-				emojis = append(emojis, bark)
-			default:
-				// noop
-			}
-		}
-	}
-
-	if events := m.RecentProvisioningEvents; events != nil {
-		switch events.State {
-		case apiv2.MachineProvisioningEventState_MACHINE_PROVISIONING_EVENT_STATE_FAILED_RECLAIM:
-			emojis = append(emojis, ambulance)
-		case apiv2.MachineProvisioningEventState_MACHINE_PROVISIONING_EVENT_STATE_CRASHLOOP:
-			emojis = append(emojis, loop)
-		default:
-			// noop
-
-		}
-
-		if time.Since(events.LastErrorEvent.Time.AsTime()) < t.lastEventErrorThreshold {
-			emojis = append(emojis, exclamation)
-		}
-	}
-
-	if m.Allocation != nil && m.Allocation.Vpn != nil && m.Allocation.Vpn.Connected {
-		emojis = append(emojis, vpn)
-	}
-
-	return strings.Join(emojis, nbr)
 }
 
 func filterColumns(filter *apiv2.BGPFilter, i int) []string {
