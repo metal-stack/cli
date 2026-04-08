@@ -40,6 +40,26 @@ func newImageCmd(c *config.Config) *cobra.Command {
 				return gcli.DescribeAndPrint("", w.c.DescribePrinter)
 			}
 		},
+		CreateCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("id", "", "image id")
+			cmd.Flags().String("url", "", "image url")
+			cmd.Flags().String("name", "", "image name")
+			cmd.Flags().String("classification", "", "image classification")
+			cmd.Flags().String("expires-in", "", "expires-in duration")
+			cmd.Flags().String("description", "", "image description")
+			cmd.Flags().StringSlice("features", nil, "image features can be machine and/or firewall")
+		},
+		CreateRequestFromCLI: w.createFromCLI,
+		UpdateCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("id", "", "image id")
+			cmd.Flags().String("url", "", "image url")
+			cmd.Flags().String("name", "", "image name")
+			cmd.Flags().String("classification", "", "image classification")
+			cmd.Flags().String("expires-in", "", "expires-in duration")
+			cmd.Flags().String("description", "", "image description")
+			cmd.Flags().StringSlice("features", nil, "image features can be machine and/or firewall")
+		},
+		UpdateRequestFromCLI: w.updateFromCLI,
 	}
 
 	return genericcli.NewCmds(cmdsConfig)
@@ -63,30 +83,34 @@ func (c *image) Create(rq *adminv2.ImageServiceCreateRequest) (*apiv2.Image, err
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	resp, err := c.c.Client.Adminv2().Image().Create(ctx, rq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create image: %w", err)
+	}
+
+	return resp.Image, nil
+}
+
+func (c *image) createFromCLI() (*adminv2.ImageServiceCreateRequest, error) {
 	var expiresAt *timestamppb.Timestamp
 	if viper.IsSet("expires-in") {
 		expiresAt = timestamppb.New(time.Now().Add(viper.GetDuration("expires-in")))
 	}
 
-	req := &adminv2.ImageServiceCreateRequest{
+	return &adminv2.ImageServiceCreateRequest{
 		Image: &apiv2.Image{
-			Id:          viper.GetString("id"),
-			Url:         viper.GetString("url"),
-			Description: pointer.PointerOrNil(viper.GetString("description")),
-			ExpiresAt:   expiresAt,
-			Features:    imageFeaturesFromString(viper.GetStringSlice("features")),
-			Meta:        &apiv2.Meta{
+			Id:             viper.GetString("id"),
+			Url:            viper.GetString("url"),
+			Classification: imageClassificationFromString(viper.GetString("classification")),
+			Name:           pointer.PointerOrNil(viper.GetString("name")),
+			Description:    pointer.PointerOrNil(viper.GetString("description")),
+			ExpiresAt:      expiresAt,
+			Features:       imageFeaturesFromString(viper.GetStringSlice("features")),
+			Meta:           &apiv2.Meta{
 				// TODO labels
 			},
 		},
-	}
-
-	resp, err := c.c.Client.Adminv2().Image().Create(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get image: %w", err)
-	}
-
-	return resp.Image, nil
+	}, nil
 }
 
 func (c *image) Delete(id string) (*apiv2.Image, error) {
@@ -139,29 +163,51 @@ func (c *image) Update(rq *adminv2.ImageServiceUpdateRequest) (*apiv2.Image, err
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	var expiresAt *timestamppb.Timestamp
-	if viper.IsSet("expires-in") {
-		expiresAt = timestamppb.New(time.Now().Add(viper.GetDuration("expires-in")))
+	resp, err := c.c.Client.Adminv2().Image().Update(ctx, rq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update image: %w", err)
 	}
 
-	req := &adminv2.ImageServiceUpdateRequest{
-		Id:          viper.GetString("id"),
-		Url:         new(viper.GetString("url")),
-		Description: pointer.PointerOrNil(viper.GetString("description")),
-		ExpiresAt:   expiresAt,
-		Features:    imageFeaturesFromString(viper.GetStringSlice("features")),
-		UpdateMeta: &apiv2.UpdateMeta{
-			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
-			UpdatedAt:       rq.UpdateMeta.GetUpdatedAt(),
-		},
+	return resp.Image, nil
+}
+
+func (c *image) updateFromCLI(args []string) (*adminv2.ImageServiceUpdateRequest, error) {
+	id, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return nil, err
 	}
 
-	resp, err := c.c.Client.Adminv2().Image().Update(ctx, req)
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	rq := &apiv2.ImageServiceGetRequest{Id: id}
+	imageToUpdate, err := c.c.Client.Apiv2().Image().Get(ctx, rq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get image: %w", err)
 	}
 
-	return resp.Image, nil
+	req := &adminv2.ImageServiceUpdateRequest{
+		Id:          id,
+		Url:         pointer.PointerOrNil(viper.GetString("url")),
+		Name:        pointer.PointerOrNil(viper.GetString("name")),
+		Description: pointer.PointerOrNil(viper.GetString("description")),
+		UpdateMeta: &apiv2.UpdateMeta{
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+			UpdatedAt:       imageToUpdate.Image.Meta.UpdatedAt,
+		},
+	}
+
+	if viper.IsSet("expires-in") {
+		req.ExpiresAt = timestamppb.New(time.Now().Add(viper.GetDuration("expires-in")))
+	}
+	if viper.IsSet("features") {
+		req.Features = imageFeaturesFromString(viper.GetStringSlice("features"))
+	}
+	if viper.IsSet("classification") {
+		req.Classification = imageClassificationFromString(viper.GetString("classification"))
+	}
+
+	return req, nil
 }
 
 func imageFeaturesFromString(features []string) []apiv2.ImageFeature {
@@ -179,4 +225,17 @@ func imageFeaturesFromString(features []string) []apiv2.ImageFeature {
 		}
 	}
 	return result
+}
+
+func imageClassificationFromString(classification string) apiv2.ImageClassification {
+	switch strings.ToLower(strings.TrimSpace(classification)) {
+	case "preview":
+		return apiv2.ImageClassification_IMAGE_CLASSIFICATION_PREVIEW
+	case "supported":
+		return apiv2.ImageClassification_IMAGE_CLASSIFICATION_SUPPORTED
+	case "deprecated":
+		return apiv2.ImageClassification_IMAGE_CLASSIFICATION_DEPRECATED
+	}
+
+	return apiv2.ImageClassification_IMAGE_CLASSIFICATION_UNSPECIFIED
 }

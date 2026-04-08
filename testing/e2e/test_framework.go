@@ -84,7 +84,7 @@ func (c *Test[Response, RawObject]) TestCmd(t *testing.T) {
 
 	formats := outputFormats(c)
 
-	if len(formats) == 0 {
+	if len(formats) == 0 && c.WantErr == nil {
 		t.Errorf("at least one want section for output formats must be specified, otherwise no command is getting executed")
 		return
 	}
