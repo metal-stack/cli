@@ -102,17 +102,11 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		return nil, err
 	}
 
-	ipToUpdate, err := c.Get(uuid)
-	if err != nil {
-		return nil, err
-	}
-
 	req := &apiv2.IPServiceUpdateRequest{
 		Ip:      uuid,
 		Project: c.c.GetProject(),
 		UpdateMeta: &apiv2.UpdateMeta{
-			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
-			UpdatedAt:       ipToUpdate.Meta.UpdatedAt,
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 		},
 	}
 

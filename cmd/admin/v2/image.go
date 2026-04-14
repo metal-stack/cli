@@ -177,23 +177,13 @@ func (c *image) updateFromCLI(args []string) (*adminv2.ImageServiceUpdateRequest
 		return nil, err
 	}
 
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	rq := &apiv2.ImageServiceGetRequest{Id: id}
-	imageToUpdate, err := c.c.Client.Apiv2().Image().Get(ctx, rq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get image: %w", err)
-	}
-
 	req := &adminv2.ImageServiceUpdateRequest{
 		Id:          id,
 		Url:         pointer.PointerOrNil(viper.GetString("url")),
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
 		UpdateMeta: &apiv2.UpdateMeta{
-			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
-			UpdatedAt:       imageToUpdate.Image.Meta.UpdatedAt,
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 		},
 	}
 

@@ -258,23 +258,12 @@ func Test_IPCmd_Update(t *testing.T) {
 				&e2e.TestConfig{
 					ClientCalls: []client.ClientCall{
 						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
 							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 								Name:    new("foo"),
 								UpdateMeta: &apiv2.UpdateMeta{
-									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
 							WantResponse: func() connect.AnyResponse {

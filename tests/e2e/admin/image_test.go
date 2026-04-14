@@ -142,21 +142,11 @@ func Test_AdminImageCmd_Update(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
-						WantRequest: &apiv2.ImageServiceGetRequest{
-							Id: testresources.Image1().Id,
-						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ImageServiceGetResponse{
-								Image: testresources.Image1(),
-							})
-						},
-					},
-					{
 						WantRequest: &adminv2.ImageServiceUpdateRequest{
 							Id:   testresources.Image1().Id,
 							Name: testresources.Image1().Name,
 							UpdateMeta: &apiv2.UpdateMeta{
-								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 							},
 						},
 						WantResponse: func() connect.AnyResponse {
