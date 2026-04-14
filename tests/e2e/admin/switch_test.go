@@ -34,6 +34,23 @@ func Test_AdminSwitchCmd_Describe(t *testing.T) {
 			}),
 			WantObject:      testresources.Switch2(),
 			WantProtoObject: testresources.Switch2(),
+			WantDefault: new(`
+description: leaf switch 2
+id: leaf02
+lastSync:
+  duration: 0.200s
+  time: "2000-01-01T00:00:00Z"
+managementIp: 10.0.0.2
+managementUser: admin
+meta:
+  createdAt: "2000-01-01T00:00:00Z"
+os:
+  metalCoreVersion: v0.9.1 (abc1234), tags/v0.9.1
+  vendor: SWITCH_OS_VENDOR_SONIC
+  version: 4.2.0
+partition: fra-equ01
+rack: rack-1
+			`),
 		},
 	}
 	for _, tt := range tests {
@@ -184,14 +201,16 @@ func Test_AdminSwitchCmd_ConnectedMachines(t *testing.T) {
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.SwitchServiceConnectedMachinesResponse{
-								SwitchesWithMachines: []*apiv2.SwitchWithMachines{},
+								SwitchesWithMachines: []*apiv2.SwitchWithMachines{testresources.SwitchWithMachines1()},
 							})
 						},
 					},
 				},
 			}),
 			WantTable: new(`
-			ID  NIC NAME  IDENTIFIER  PARTITION  RACK  SIZE  PRODUCT SERIAL  CHASSIS SERIAL
+            ID      NIC NAME        IDENTIFIER           PARTITION  RACK    SIZE      PRODUCT SERIAL  CHASSIS SERIAL  
+            leaf01                                       fra-equ01  rack-1                                            
+            └─╴id1  Ethernet0 (up)  oid:0x1000000000001  fra-equ01  rack-1  m1-small  ps-1            cs-1
 			`),
 		},
 	}
@@ -263,8 +282,24 @@ func Test_AdminSwitchCmd_Migrate(t *testing.T) {
 					},
 				},
 			}),
-			Template:     new("{{ .switch.id }} {{ .switch.management_user }} {{ .switch.os.vendor }}"),
-			WantTemplate: new(`leaf02 admin 2`),
+			WantDefault: new(`
+switch:
+  description: leaf switch 2
+  id: leaf02
+  lastSync:
+    duration: 0.200s
+    time: "2000-01-01T00:00:00Z"
+  managementIp: 10.0.0.2
+  managementUser: admin
+  meta:
+    createdAt: "2000-01-01T00:00:00Z"
+  os:
+    metalCoreVersion: v0.9.1 (abc1234), tags/v0.9.1
+    vendor: SWITCH_OS_VENDOR_SONIC
+    version: 4.2.0
+  partition: fra-equ01
+  rack: rack-1
+			`),
 		},
 	}
 	for _, tt := range tests {

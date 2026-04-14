@@ -117,4 +117,30 @@ var (
 			},
 		}
 	}
+	SwitchWithMachines1 = func() *apiv2.SwitchWithMachines {
+		return &apiv2.SwitchWithMachines{
+			Id:        Switch1().Id,
+			Partition: Switch1().Partition,
+			Rack:      *Switch1().Rack,
+			Connections: []*apiv2.SwitchNicWithMachine{
+				{
+					Nic: Switch1().Nics[0],
+					Machine: &apiv2.Machine{
+						Uuid: "id1",
+						Partition: &apiv2.Partition{
+							Id: Switch1().Partition,
+						},
+						Rack: *Switch1().Rack,
+						Size: &apiv2.Size{
+							Id: "m1-small",
+						},
+					},
+					Fru: &apiv2.MachineFRU{
+						ProductSerial:     new("ps-1"),
+						ChassisPartSerial: new("cs-1"),
+					},
+				},
+			},
+		}
+	}
 )

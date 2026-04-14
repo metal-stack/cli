@@ -124,11 +124,7 @@ func Test_TokenCmd_Delete(t *testing.T) {
 					},
 				},
 			}),
-			WantMarkdown: new(`
-			| TYPE                   | ID                                   | ADMIN | USER | DESCRIPTION | ROLES | PERMS | EXPIRES                              |
-            |------------------------|--------------------------------------|-------|------|-------------|-------|-------|--------------------------------------|
-            | TOKEN_TYPE_UNSPECIFIED | a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90 |       |      |             | 0     | 0     | 1970-01-01 00:00:00 UTC (in -10957d) |
-			`),
+			WantObject: &apiv2.Token{Uuid: testresources.Token1().Uuid},
 		},
 		{
 			Name:    "delete from file",
