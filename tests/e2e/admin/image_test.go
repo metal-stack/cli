@@ -16,7 +16,7 @@ import (
 func Test_AdminImageCmd_Delete(t *testing.T) {
 	tests := []*e2e.Test[adminv2.ImageServiceDeleteResponse, *apiv2.Image]{
 		{
-			Name:    "describe",
+			Name:    "delete",
 			CmdArgs: []string{"admin", "image", "delete", testresources.Image1().Id},
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []client.ClientCall{
