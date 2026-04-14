@@ -330,6 +330,59 @@ func Test_AdminSwitchCmd_Port(t *testing.T) {
 			}),
 			Template:     new("{{ .Actual.machine_id }} {{ .Actual.nic.name }} {{ .Desired.name }}"),
 			WantTemplate: new(`id1 Ethernet0 Ethernet0`),
+			WantDefault: new(`
+---
+Actual:
+  machine_id: id1
+  nic:
+    bgp_filter:
+      cidrs:
+      - 10.0.0.0/24
+      - 192.168.100.0/24
+      vnis:
+      - "10001"
+      - "10002"
+    bgp_port_state:
+      accepted_prefix_counter: 118
+      bgp_state: 6
+      bgp_timer_up_established:
+        seconds: 946677600
+      neighbor: 10.0.0.2
+      peer_group: TOR-LEAFS
+      sent_prefix_counter: 120
+      vrf_name: default
+    identifier: oid:0x1000000000001
+    mac: 52:54:00:ab:cd:01
+    name: Ethernet0
+    state:
+      actual: 1
+      desired: 1
+    vrf: default
+Desired:
+  bgp_filter:
+    cidrs:
+    - 10.0.0.0/24
+    - 192.168.100.0/24
+    vnis:
+    - "10001"
+    - "10002"
+  bgp_port_state:
+    accepted_prefix_counter: 118
+    bgp_state: 6
+    bgp_timer_up_established:
+      seconds: 946677600
+    neighbor: 10.0.0.2
+    peer_group: TOR-LEAFS
+    sent_prefix_counter: 120
+    vrf_name: default
+  identifier: oid:0x1000000000001
+  mac: 52:54:00:ab:cd:01
+  name: Ethernet0
+  state:
+    actual: 1
+    desired: 1
+  vrf: default
+`),
 		},
 		{
 			Name:    "down",
@@ -352,6 +405,59 @@ func Test_AdminSwitchCmd_Port(t *testing.T) {
 			}),
 			Template:     new("{{ .Actual.machine_id }} {{ .Actual.nic.name }} {{ .Desired.name }}"),
 			WantTemplate: new(`id1 Ethernet0 Ethernet0`),
+			WantDefault: new(`
+---
+Actual:
+  machine_id: id1
+  nic:
+    bgp_filter:
+      cidrs:
+      - 10.0.0.0/24
+      - 192.168.100.0/24
+      vnis:
+      - "10001"
+      - "10002"
+    bgp_port_state:
+      accepted_prefix_counter: 118
+      bgp_state: 6
+      bgp_timer_up_established:
+        seconds: 946677600
+      neighbor: 10.0.0.2
+      peer_group: TOR-LEAFS
+      sent_prefix_counter: 120
+      vrf_name: default
+    identifier: oid:0x1000000000001
+    mac: 52:54:00:ab:cd:01
+    name: Ethernet0
+    state:
+      actual: 1
+      desired: 1
+    vrf: default
+Desired:
+  bgp_filter:
+    cidrs:
+    - 10.0.0.0/24
+    - 192.168.100.0/24
+    vnis:
+    - "10001"
+    - "10002"
+  bgp_port_state:
+    accepted_prefix_counter: 118
+    bgp_state: 6
+    bgp_timer_up_established:
+      seconds: 946677600
+    neighbor: 10.0.0.2
+    peer_group: TOR-LEAFS
+    sent_prefix_counter: 120
+    vrf_name: default
+  identifier: oid:0x1000000000001
+  mac: 52:54:00:ab:cd:01
+  name: Ethernet0
+  state:
+    actual: 1
+    desired: 1
+  vrf: default
+			`),
 		},
 	}
 	for _, tt := range tests {

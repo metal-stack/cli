@@ -29,6 +29,16 @@ func Test_VersionCmd(t *testing.T) {
 			}),
 			Template:     new("{{ .Server.build_date }} {{ .Server.git_sha1 }} {{ .Server.revision }} {{ .Server.version }}"),
 			WantTemplate: new(`2026-03-21T15:35:07+00:00 477edc0b tags/v0.1.8-0-g476edc0 v0.1.8`),
+			WantDefault: new(`
+---
+Client: version not set, please build your app with appropriate ldflags, see https://github.com/metal-stack/v
+  for reference, go1.26.2-X:nodwarf5
+Server:
+  build_date: "2026-03-21T15:35:07+00:00"
+  git_sha1: 477edc0b
+  revision: tags/v0.1.8-0-g476edc0
+  version: v0.1.8
+			`),
 		},
 	}
 	for _, tt := range tests {
