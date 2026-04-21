@@ -11,6 +11,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	cmd.AddCommand(newImageCmd(c))
 	cmd.AddCommand(newIPCmd(c))
 	cmd.AddCommand(newMethodsCmd(c))
+	cmd.AddCommand(newPartitionCmd(c))
 	cmd.AddCommand(newProjectCmd(c))
 	cmd.AddCommand(newTenantCmd(c))
 	cmd.AddCommand(newTokenCmd(c))

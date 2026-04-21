@@ -83,6 +83,15 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.ProjectMember:
 		return t.ProjectMemberTable(d, wide)
 
+	case *apiv2.Partition:
+		return t.PartitionTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Partition:
+		return t.PartitionTable(d, wide)
+	case *adminv2.PartitionCapacity:
+		return t.PartitionCapacityTable(pointer.WrapInSlice(d), wide)
+	case []*adminv2.PartitionCapacity:
+		return t.PartitionCapacityTable(d, wide)
+
 	case *apiv2.Token:
 		return t.TokenTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Token:
