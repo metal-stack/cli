@@ -52,6 +52,7 @@ type Test[Response, RawObject any] struct {
 	WantWideTable   *string       // for wide table printer
 	WantMarkdown    *string       // for markdown printer
 	WantTemplate    *string       // for template printer
+	WantDefault     *string       // for default printer
 	Template        *string       // for template printer
 
 	WantErr error
@@ -84,7 +85,7 @@ func (c *Test[Response, RawObject]) TestCmd(t *testing.T) {
 
 	formats := outputFormats(c)
 
-	if len(formats) == 0 {
+	if len(formats) == 0 && c.WantErr == nil {
 		t.Errorf("at least one want section for output formats must be specified, otherwise no command is getting executed")
 		return
 	}
@@ -161,6 +162,10 @@ func outputFormats[Response, RawObject any](c *Test[Response, RawObject]) []outp
 
 	if c.Template != nil && c.WantTemplate != nil {
 		formats = append(formats, &templateOutputFormat{template: *c.Template, templateOutput: *c.WantTemplate})
+	}
+
+	if c.WantDefault != nil {
+		formats = append(formats, &defaultOutputFormat{output: *c.WantDefault})
 	}
 
 	if c.WantMarkdown != nil {
@@ -257,6 +262,22 @@ func (o *protoJSONOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	require.NoError(t, err)
 
 	if diff := cmp.Diff(o.want, got, protocmp.Transform(), testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+		t.Errorf("diff (+got -want):\n %s", diff)
+	}
+}
+
+type defaultOutputFormat struct {
+	output string
+}
+
+func (o *defaultOutputFormat) Args() []string {
+	return []string{}
+}
+
+func (o *defaultOutputFormat) Validate(t *testing.T, output []byte) {
+	t.Logf("got following default output:\n\n%s\n\nconsider using this for test comparison if it looks correct.", string(output))
+
+	if diff := cmp.Diff(strings.TrimSpace(o.output), strings.TrimSpace(string(output))); diff != "" {
 		t.Errorf("diff (+got -want):\n %s", diff)
 	}
 }

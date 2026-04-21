@@ -10,6 +10,7 @@ var (
 			Description:    new("Ubuntu 24.04 LTS"),
 			Features:       []apiv2.ImageFeature{apiv2.ImageFeature_IMAGE_FEATURE_MACHINE},
 			Classification: apiv2.ImageClassification_IMAGE_CLASSIFICATION_SUPPORTED,
+			Meta:           &apiv2.Meta{},
 		}
 	}
 	Image2 = func() *apiv2.Image {
@@ -19,6 +20,7 @@ var (
 			Description:    new("Metal Firewall"),
 			Features:       []apiv2.ImageFeature{apiv2.ImageFeature_IMAGE_FEATURE_FIREWALL},
 			Classification: apiv2.ImageClassification_IMAGE_CLASSIFICATION_PREVIEW,
+			Meta:           &apiv2.Meta{},
 		}
 	}
 )

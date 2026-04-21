@@ -250,48 +250,21 @@ func Test_IPCmd_Delete(t *testing.T) {
 }
 
 func Test_IPCmd_Update(t *testing.T) {
-	tests := []*e2e.Test[apiv2.IPServiceDeleteResponse, *apiv2.IP]{
+	tests := []*e2e.Test[apiv2.IPServiceUpdateResponse, *apiv2.IP]{
 		{
 			Name:    "update",
 			CmdArgs: []string{"ip", "update", "--project", testresources.IP1().Project, testresources.IP1().Ip, "--name", "foo"},
 			NewRootCmd: e2e.NewRootCmd(t,
 				&e2e.TestConfig{
 					ClientCalls: []client.ClientCall{
-						// TODO: the client gets the IP two times?
-						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
 						{
 							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 								Name:    new("foo"),
-
-								// TODO: these fields do not need to be sent?
-								Description: &testresources.IP1().Description,
-								Labels: &apiv2.UpdateLabels{
-									Update: &apiv2.Labels{},
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
-								Type: &testresources.IP1().Type,
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.IPServiceUpdateResponse{
@@ -303,6 +276,14 @@ func Test_IPCmd_Update(t *testing.T) {
 				},
 			),
 			WantObject: testresources.IP1(),
+			WantTable: new(`
+			IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE  
+            1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+			`),
+			WantWideTable: new(`
+			IP       PROJECT                               ID                                    TYPE    NAME  DESCRIPTION    LABELS
+			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+			`),
 		},
 		{
 			Name:    "update from file",
@@ -334,6 +315,9 @@ func Test_IPCmd_Update(t *testing.T) {
 								},
 								Name: &testresources.IP1().Name,
 								Type: &testresources.IP1().Type,
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.IPServiceUpdateResponse{
@@ -356,7 +340,7 @@ func Test_IPCmd_Update(t *testing.T) {
 }
 
 func Test_IPCmd_Apply(t *testing.T) {
-	tests := []*e2e.Test[apiv2.IPServiceDeleteResponse, *apiv2.IP]{
+	tests := []*e2e.Test[apiv2.IPServiceUpdateResponse, *apiv2.IP]{
 		{
 			Name:    "apply",
 			CmdArgs: append([]string{"ip", "apply"}, e2e.AppendFromFileCommonArgs()...),
@@ -456,6 +440,9 @@ func Test_IPCmd_Apply(t *testing.T) {
 								},
 								Name: &testresources.IP1().Name,
 								Type: &testresources.IP1().Type,
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.IPServiceUpdateResponse{
