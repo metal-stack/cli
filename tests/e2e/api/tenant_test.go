@@ -461,7 +461,7 @@ func Test_TenantCmd_DeleteMember(t *testing.T) {
 					},
 				},
 			}),
-			WantMarkdown: new(fmt.Sprintf("✔ successfully removed member \"%s\"", testresources.Tenant1Members().Id)),
+			WantDefault: new(fmt.Sprintf("✔ successfully removed member \"%s\"", testresources.Tenant1Members().Id)),
 		},
 	}
 	for _, tt := range tests {
@@ -598,7 +598,7 @@ func Test_TenantCmd_CreateInvite(t *testing.T) {
 					},
 				},
 			}),
-			WantMarkdown: new(fmt.Sprintf("You can share this secret with the member to join, it expires in %s:\n\n%s (https://console.metal-stack.io/organization-invite/%s)",
+			WantDefault: new(fmt.Sprintf("You can share this secret with the member to join, it expires in %s:\n\n%s (https://console.metal-stack.io/organization-invite/%s)",
 				humanize.RelTime(e2e.TimeBubbleStartTime(), testresources.Project1Invite().ExpiresAt.AsTime(), "from now", "ago"),
 				testresources.Project1Invite().Secret,
 				testresources.Project1Invite().Secret,
@@ -640,7 +640,7 @@ func Test_TenantCmd_Join(t *testing.T) {
 					},
 				},
 			}),
-			WantMarkdown: new(fmt.Sprintf("Do you want to join tenant \"%s\" as %s? [Y/n] ✔ successfully joined tenant \"%s\"",
+			WantDefault: new(fmt.Sprintf("Do you want to join tenant \"%s\" as %s? [Y/n] ✔ successfully joined tenant \"%s\"",
 				testresources.Tenant1Invite().TenantName,
 				testresources.Tenant1Invite().Role.String(),
 				testresources.Tenant1Invite().TenantName)),

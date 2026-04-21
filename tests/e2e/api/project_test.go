@@ -481,7 +481,7 @@ func Test_ProjectCmd_CreateInvite(t *testing.T) {
 					},
 				},
 			}),
-			WantMarkdown: new(fmt.Sprintf("You can share this secret with the member to join, it expires in %s:\n\n%s (https://console.metal-stack.io/project-invite/%s)",
+			WantDefault: new(fmt.Sprintf("You can share this secret with the member to join, it expires in %s:\n\n%s (https://console.metal-stack.io/project-invite/%s)",
 				humanize.RelTime(e2e.TimeBubbleStartTime(), testresources.Project1Invite().ExpiresAt.AsTime(), "from now", "ago"),
 				testresources.Project1Invite().Secret,
 				testresources.Project1Invite().Secret,
@@ -523,7 +523,7 @@ func Test_ProjectCmd_Join(t *testing.T) {
 					},
 				},
 			}),
-			WantMarkdown: new(fmt.Sprintf("Do you want to join project \"%s\" as %s? [Y/n] ✔ successfully joined project \"%s\"",
+			WantDefault: new(fmt.Sprintf("Do you want to join project \"%s\" as %s? [Y/n] ✔ successfully joined project \"%s\"",
 				testresources.Project1Invite().ProjectName,
 				testresources.Project1Invite().Role.String(),
 				testresources.Project1Invite().ProjectName)),
@@ -559,7 +559,7 @@ func Test_ProjectCmd_ListMembers(t *testing.T) {
 			WantTable: new(`
             ID                                    ROLE                 INHERITED  SINCE  
             16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  PROJECT_ROLE_OWNER   false      now    
-            40c0da4b-9eb9-4371-91aa-1ae62193fa54  PROJECT_ROLE_EDITOR  true       now
+            40c0da4b-9eb9-4371-91aa-1ae62193fa54  PROJECT_ROLE_EDITOR  true       now    
 			`),
 			WantWideTable: new(`
             ID                                    ROLE                 INHERITED  SINCE  
@@ -570,12 +570,6 @@ func Test_ProjectCmd_ListMembers(t *testing.T) {
 			WantTemplate: new(`
 16d6e8ba-f574-494f-8d5e-74f6cb2d8db0 1
 40c0da4b-9eb9-4371-91aa-1ae62193fa54 2
-			`),
-			WantMarkdown: new(`
-            | ID                                   | ROLE                | INHERITED | SINCE |
-            |--------------------------------------|---------------------|-----------|-------|
-            | 16d6e8ba-f574-494f-8d5e-74f6cb2d8db0 | PROJECT_ROLE_OWNER  | false     | now   |
-            | 40c0da4b-9eb9-4371-91aa-1ae62193fa54 | PROJECT_ROLE_EDITOR | true      | now   |
 			`),
 		},
 	}
@@ -602,7 +596,7 @@ func Test_ProjectCmd_DeleteMember(t *testing.T) {
 					},
 				},
 			}),
-			WantMarkdown: new(fmt.Sprintf("✔ successfully removed member \"%s\"", testresources.Project1Members().Id)),
+			WantDefault: new(fmt.Sprintf("✔ successfully removed member \"%s\"", testresources.Project1Members().Id)),
 		},
 	}
 	for _, tt := range tests {

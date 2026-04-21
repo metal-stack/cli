@@ -30,17 +30,17 @@ func Test_UserCmd_Describe(t *testing.T) {
 			WantObject:      testresources.User(),
 			WantProtoObject: testresources.User(),
 			WantTable: new(`
-			LOGIN                                NAME   EMAIL                 DEFAULT - TENANT  
-            larry@metal-stack.io@openid-connect  Larry  larry@metal-stack.io  Metal Stack
+            LOGIN                                NAME   EMAIL                 
+            larry@metal-stack.io@openid-connect  Larry  larry@metal-stack.io
 			`),
 			WantWideTable: new(`
-			LOGIN                                NAME   EMAIL                 DEFAULT - TENANT  TENANTS                 PROJECTS              
-            larry@metal-stack.io@openid-connect  Larry  larry@metal-stack.io  Metal Stack       Metal Stack, ACME Corp  project-a, project-b
+            LOGIN                                NAME   EMAIL                 TENANTS                 PROJECTS              
+            larry@metal-stack.io@openid-connect  Larry  larry@metal-stack.io  Metal Stack, ACME Corp  project-a, project-b
 			`),
 			WantMarkdown: new(`
-			| LOGIN                               | NAME  | EMAIL                | DEFAULT - TENANT |
-            |-------------------------------------|-------|----------------------|------------------|
-            | larry@metal-stack.io@openid-connect | Larry | larry@metal-stack.io | Metal Stack      |
+            | LOGIN                               | NAME  | EMAIL                |
+            |-------------------------------------|-------|----------------------|
+            | larry@metal-stack.io@openid-connect | Larry | larry@metal-stack.io |
 			`),
 		},
 	}

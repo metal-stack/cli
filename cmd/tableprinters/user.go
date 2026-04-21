@@ -13,24 +13,23 @@ type Named interface {
 func (t *TablePrinter) UserTable(data []*apiv2.User, wide bool) ([]string, [][]string, error) {
 	var (
 		rows   [][]string
-		header = []string{"Login", "Name", "Email", "Default-Tenant"}
+		header = []string{"Login", "Name", "Email"}
 	)
 
 	if wide {
-		header = []string{"Login", "Name", "Email", "Default-Tenant", "Tenants", "Projects"}
+		header = []string{"Login", "Name", "Email", "Tenants", "Projects"}
 	}
 
 	for _, user := range data {
 		login := user.Login
 		name := user.Name
 		email := user.Email
-		defaultTenant := user.DefaultTenant.Name
 
 		if wide {
-			rows = append(rows, []string{login, name, email, defaultTenant, namesString(user.Tenants), namesString(user.Projects)})
+			rows = append(rows, []string{login, name, email, namesString(user.Tenants), namesString(user.Projects)})
 
 		} else {
-			rows = append(rows, []string{login, name, email, defaultTenant})
+			rows = append(rows, []string{login, name, email})
 		}
 	}
 
