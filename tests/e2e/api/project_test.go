@@ -571,6 +571,12 @@ func Test_ProjectCmd_ListMembers(t *testing.T) {
 16d6e8ba-f574-494f-8d5e-74f6cb2d8db0 1
 40c0da4b-9eb9-4371-91aa-1ae62193fa54 2
 			`),
+			WantMarkdown: new(`
+            | ID                                   | ROLE                | INHERITED | SINCE |
+            |--------------------------------------|---------------------|-----------|-------|
+            | 16d6e8ba-f574-494f-8d5e-74f6cb2d8db0 | PROJECT_ROLE_OWNER  | false     | now   |
+            | 40c0da4b-9eb9-4371-91aa-1ae62193fa54 | PROJECT_ROLE_EDITOR | true      | now   |
+			`),
 		},
 	}
 	for _, tt := range tests {
