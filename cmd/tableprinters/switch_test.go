@@ -703,7 +703,7 @@ func TestTablePrinter_SwitchWithConnectedMachinesTable(t *testing.T) {
 								},
 								Status: &apiv2.MachineStatus{
 									Condition: &apiv2.MachineCondition{
-										State: apiv2.MachineState_MACHINE_STATE_RESERVED,
+										State: apiv2.MachineState_MACHINE_STATE_TAINTED,
 									},
 									Liveliness: apiv2.MachineLiveliness_MACHINE_LIVELINESS_UNKNOWN,
 								},
