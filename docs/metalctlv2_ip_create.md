@@ -25,12 +25,12 @@ metalctlv2 ip create [flags]
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
   -h, --help                    help for create
+      --labels strings          labels to add to the ip
       --name string             name of the ip
   -n, --network string          network from which the ip should get created
   -p, --project string          project of the ip
       --skip-security-prompts   skips security prompt for bulk operations
       --static                  make this ip static
-      --tags strings            tags to add to the ip
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
 
@@ -42,7 +42,7 @@ metalctlv2 ip create [flags]
   -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
       --debug                  debug output
       --force-color            force colored output even without tty
-  -o, --output-format string   output format (table|wide|markdown|json|yaml|template|jsonraw|yamlraw), wide is a table with more columns, jsonraw and yamlraw do not translate proto enums into string types but leave the original int32 values intact. (default "table")
+  -o, --output-format string   output format (table|wide|markdown|json|yaml|template|jsonraw|yamlraw), wide is a table with more columns, jsonraw and yamlraw do not translate proto enums into string types but leave the original int32 values intact (for apply, create, update, delete commands from file the raw output formatters must be used). (default "table")
       --template string        output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
       --timeout duration       request timeout used for api requests
 ```

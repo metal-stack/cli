@@ -336,7 +336,7 @@ func (t *TablePrinter) getMachineStatusEmojis(m *apiv2.Machine) string {
 			switch status.Condition.State {
 			case apiv2.MachineState_MACHINE_STATE_LOCKED:
 				emojis = append(emojis, lock)
-			case apiv2.MachineState_MACHINE_STATE_RESERVED:
+			case apiv2.MachineState_MACHINE_STATE_TAINTED:
 				emojis = append(emojis, bark)
 			default:
 				// noop
