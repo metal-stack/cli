@@ -107,10 +107,10 @@ func addNetwork(prefix string, n *apiv2.Network, wide bool) []string {
 		name        = pointer.SafeDeref(n.Name)
 		project     = pointer.SafeDeref(n.Project)
 		partition   = pointer.SafeDeref(n.Partition)
-		natType     = pointer.SafeDeref(n.NatType).String()
+		natType     = n.NatType.String()
 	)
 
-	if t, err := enum.GetStringValue(pointer.SafeDeref(n.NatType)); err == nil {
+	if t, err := enum.GetStringValue(n.NatType); err == nil {
 		natType = *t
 	} else {
 		fmt.Println(err)

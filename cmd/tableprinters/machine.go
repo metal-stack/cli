@@ -133,9 +133,9 @@ func (t *TablePrinter) getMachineStatusEmojis(liveliness apiv2.MachineLiveliness
 	case apiv2.MachineState_MACHINE_STATE_LOCKED:
 		emojis = append(emojis, helpers.Lock)
 		wide = append(wide, "Locked")
-	case apiv2.MachineState_MACHINE_STATE_RESERVED:
+	case apiv2.MachineState_MACHINE_STATE_TAINTED:
 		emojis = append(emojis, helpers.Bark)
-		wide = append(wide, "Reserved")
+		wide = append(wide, "Tainted")
 	}
 
 	if events != nil {

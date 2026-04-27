@@ -29,14 +29,15 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 	}
 
 	cmdsConfig := &genericcli.CmdsConfig[*apiv2.MachineServiceCreateRequest, *apiv2.MachineServiceUpdateRequest, *apiv2.Machine]{
-		BinaryName:      config.BinaryName,
-		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
-		Singular:        "machine",
-		Plural:          "machines",
-		Description:     "an machine of metal-stack.io",
-		Sorter:          sorters.MachineSorter(),
-		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
-		ListPrinter:     func() printers.Printer { return c.ListPrinter },
+		BinaryName:           config.BinaryName,
+		GenericCLI:           genericcli.NewGenericCLI(w).WithFS(c.Fs),
+		Singular:             "machine",
+		Plural:               "machines",
+		Description:          "an machine of metal-stack.io",
+		Sorter:               sorters.MachineSorter(),
+		DescribePrinter:      func() printers.Printer { return c.DescribePrinter },
+		ListPrinter:          func() printers.Printer { return c.ListPrinter },
+		CreateRequestFromCLI: w.createRequestFromCLI,
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			w.addMachineCreateFlags(cmd, "machine")
 			cmd.Aliases = []string{"allocate"}
@@ -158,7 +159,7 @@ func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine,
 
 	allocationType = apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE
 	if viper.GetString("allocation-type") == "firewall" {
-		allocationType = apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE
+		allocationType = apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL
 	}
 
 	for k, v := range viper.GetStringMap("labels") {
@@ -183,7 +184,7 @@ func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine,
 		size = new(viper.GetString("size"))
 	}
 	var uuid *string
-	if viper.IsSet("uuid") {
+	if viper.IsSet("id") {
 		uuid = new(viper.GetString("id"))
 	}
 	var partition *string
@@ -223,9 +224,139 @@ func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine,
 	defer cancel()
 	resp, err := c.c.Client.Apiv2().Machine().Create(ctx, mcr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to create machine:%w", err)
 	}
 	return resp.Machine, nil
+}
+
+func (c *machine) createRequestFromCLI() (*apiv2.MachineServiceCreateRequest, error) {
+	var (
+		keys           []string
+		dnsServers     []*apiv2.DNSServer
+		ntpServers     []*apiv2.NTPServer
+		allocationType apiv2.MachineAllocationType
+		firewallSpec   *apiv2.FirewallSpec
+		labels         *apiv2.Labels
+	)
+
+	sshPublicKeyArgument := viper.GetString("sshpublickey")
+	dnsServersArgument := viper.GetStringSlice("dnsservers")
+	ntpServersArgument := viper.GetStringSlice("ntpservers")
+
+	if strings.HasPrefix(sshPublicKeyArgument, "@") {
+		var err error
+		sshPublicKeyArgument, err = readFromFile(sshPublicKeyArgument[1:])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if len(sshPublicKeyArgument) == 0 {
+		sshKey, err := searchSSHKey()
+		if err != nil {
+			return nil, err
+		}
+		sshPublicKey := sshKey + ".pub"
+		sshPublicKeyArgument, err = readFromFile(sshPublicKey)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if sshPublicKeyArgument != "" {
+		keys = append(keys, sshPublicKeyArgument)
+	}
+
+	userDataArgument := viper.GetString("userdata")
+	if strings.HasPrefix(userDataArgument, "@") {
+		var err error
+		userDataArgument, err = readFromFile(userDataArgument[1:])
+		if err != nil {
+			return nil, err
+		}
+	}
+	if userDataArgument != "" {
+		userDataArgument = base64.StdEncoding.EncodeToString([]byte(userDataArgument))
+	}
+
+	possibleNetworks := viper.GetStringSlice("networks")
+	networks, err := parseNetworks(possibleNetworks)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, s := range dnsServersArgument {
+		dnsServers = append(dnsServers, &apiv2.DNSServer{Ip: s})
+	}
+
+	for _, s := range ntpServersArgument {
+		ntpServers = append(ntpServers, &apiv2.NTPServer{Address: s})
+	}
+
+	allocationType = apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE
+	if viper.GetString("allocation-type") == "firewall" {
+		allocationType = apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL
+	}
+
+	for k, v := range viper.GetStringMap("labels") {
+		if labels == nil {
+			labels = &apiv2.Labels{}
+		} else {
+			value, ok := v.(string)
+			if ok {
+				labels.Labels[k] = value
+			} else {
+				labels.Labels[k] = ""
+			}
+		}
+	}
+
+	var filesystemlayout *string
+	if viper.IsSet("filesystemlayout") {
+		filesystemlayout = new(viper.GetString("filesystemlayout"))
+	}
+	var size *string
+	if viper.IsSet("size") {
+		size = new(viper.GetString("size"))
+	}
+	var uuid *string
+	if viper.IsSet("id") {
+		uuid = new(viper.GetString("id"))
+	}
+	var partition *string
+	if viper.IsSet("partition") {
+		partition = new(viper.GetString("partition"))
+	}
+	var hostname *string
+	if viper.IsSet("hostname") {
+		hostname = new(viper.GetString("hostname"))
+	}
+	var description *string
+	if viper.IsSet("description") {
+		description = new(viper.GetString("description"))
+	}
+
+	mcr := &apiv2.MachineServiceCreateRequest{
+		Description:      description,
+		Partition:        partition,
+		Hostname:         hostname,
+		Image:            viper.GetString("image"),
+		Name:             viper.GetString("name"),
+		Uuid:             uuid,
+		Project:          viper.GetString("project"),
+		Size:             size,
+		SshPublicKeys:    keys,
+		Labels:           labels,
+		Userdata:         new(userDataArgument),
+		Networks:         networks,
+		DnsServers:       dnsServers,
+		NtpServers:       ntpServers,
+		FilesystemLayout: filesystemlayout,
+		PlacementTags:    viper.GetStringSlice("placement-tags"),
+		AllocationType:   allocationType,
+		FirewallSpec:     firewallSpec,
+	}
+	return mcr, nil
 }
 
 func (c *machine) Delete(id string) (*apiv2.Machine, error) {
@@ -341,6 +472,9 @@ func expandFilepath(filePath string) (string, error) {
 func parseNetworks(possibleNetworks []string) ([]*apiv2.MachineAllocationNetwork, error) {
 	var result []*apiv2.MachineAllocationNetwork
 	for _, n := range possibleNetworks {
+		if n == "" {
+			continue
+		}
 		man := &apiv2.MachineAllocationNetwork{
 			Network: n,
 		}
@@ -348,9 +482,12 @@ func parseNetworks(possibleNetworks []string) ([]*apiv2.MachineAllocationNetwork
 		if found {
 			man.Network = nw
 			for ip := range strings.SplitSeq(ipsString, ",") {
+				if ip == "" {
+					continue
+				}
 				_, err := netip.ParseAddr(ip)
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("malformed ip:%s %w", ip, err)
 				}
 				man.Ips = append(man.Ips, ip)
 			}
@@ -370,6 +507,7 @@ func (c *machine) addMachineCreateFlags(cmd *cobra.Command, name string) {
 	cmd.Flags().StringP("id", "I", "", "ID of a specific "+name+" to allocate, if given, size and partition are ignored. Need to be set to reserved (--reserve) state before.")
 	cmd.Flags().StringP("project", "P", "", "Project where the "+name+" should belong to. [required]")
 	cmd.Flags().StringP("size", "s", "", "Size of the "+name+". [required, except for reserved machines]")
+	cmd.Flags().StringP("allocation-type", "t", "machine", "allocation type, can be either machine|firewall")
 	cmd.Flags().StringP("sshpublickey", "p", "",
 		`SSH public key for access via ssh and console. [optional]
 Can be either the public key as string, or pointing to the public key file to use e.g.: "@~/.ssh/id_rsa.pub".
