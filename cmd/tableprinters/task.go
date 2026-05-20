@@ -41,7 +41,7 @@ func (t *TablePrinter) TaskTable(data []*adminv2.TaskInfo, wide bool) ([]string,
 
 		var (
 			sec, nano = parsed.Time().UnixTime()
-			issuedAt  = time.Unix(sec, nano)
+			issuedAt  = time.Unix(sec, nano).UTC()
 			when      = humanizeDuration(time.Since(issuedAt)) + " ago"
 		)
 

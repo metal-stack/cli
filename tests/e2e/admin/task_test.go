@@ -42,8 +42,8 @@ func Test_AdminTaskCmd_List(t *testing.T) {
 			`),
 			WantWideTable: new(`
             ID                                    QUEUE    WHEN     TYPE             STATE    ISSUED AT                      PAYLOAD                    RESULT
-            00dc6a98-bd80-787a-9725-ffb692d83261  default  1h ago   image-provision  active   2000-01-01 00:00:00 +0100 CET  {"machine_id":"machine1"}
-            00dc6ab4-34c0-73ce-af77-3e07748d0e0d  default  30m ago  firewall-update  pending  2000-01-01 00:30:00 +0100 CET  {"firewall_id":"fw1"}
+            00dc6a98-bd80-787a-9725-ffb692d83261  default  1h ago   image-provision  active   1999-12-31 23:00:00 +0000 UTC  {"machine_id":"machine1"}
+            00dc6ab4-34c0-73ce-af77-3e07748d0e0d  default  30m ago  firewall-update  pending  1999-12-31 23:30:00 +0000 UTC  {"firewall_id":"fw1"}
 			`),
 			WantMarkdown: new(`
             | ID                                   | QUEUE   | WHEN    | TYPE            | STATE   |
@@ -139,7 +139,7 @@ func Test_AdminTaskCmd_Describe(t *testing.T) {
 			`),
 			WantWideTable: new(`
             ID                                    QUEUE          WHEN     TYPE             STATE      ISSUED AT                      PAYLOAD                    RESULT
-            00dc6ab5-1f20-7426-a397-8644fb78324e  high-priority  29m ago  machine-reimage  completed  2000-01-01 00:31:00 +0100 CET  {"machine_id":"machine2"}  success
+            00dc6ab5-1f20-7426-a397-8644fb78324e  high-priority  29m ago  machine-reimage  completed  1999-12-31 23:31:00 +0000 UTC  {"machine_id":"machine2"}  success
 			`),
 			WantMarkdown: new(`
             | ID                                   | QUEUE         | WHEN    | TYPE            | STATE     |
