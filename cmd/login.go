@@ -128,7 +128,7 @@ func (l *login) login() error {
 		}
 
 		tokenResp, err := mc.Apiv2().Token().Create(context.Background(), &apiv2.TokenServiceCreateRequest{
-			Description: "admin access issues by metal cli",
+			Description: "admin access issued by metal cli",
 			Expires:     durationpb.New(3 * time.Hour),
 			AdminRole:   new(apiv2.AdminRole((apiv2.AdminRole_value[viper.GetString("admin-role")]))),
 		})
