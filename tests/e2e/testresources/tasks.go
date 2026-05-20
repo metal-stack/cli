@@ -12,7 +12,7 @@ import (
 var (
 	Task1 = func() *adminv2.TaskInfo {
 		return &adminv2.TaskInfo{
-			Id:            "550e8400-e29b-41d4-a716-446655440000",
+			Id:            "00dc6a98-bd80-787a-9725-ffb692d83261",
 			Queue:         "default",
 			Type:          "image-provision",
 			Payload:       []byte(`{"machine_id":"machine1"}`),
@@ -30,7 +30,7 @@ var (
 	}
 	Task2 = func() *adminv2.TaskInfo {
 		return &adminv2.TaskInfo{
-			Id:            "550e8400-e29b-41d4-a716-446655440001",
+			Id:            "00dc6ab4-34c0-73ce-af77-3e07748d0e0d",
 			Queue:         "default",
 			Type:          "firewall-update",
 			Payload:       []byte(`{"firewall_id":"fw1"}`),
@@ -48,7 +48,7 @@ var (
 	}
 	Task3 = func() *adminv2.TaskInfo {
 		return &adminv2.TaskInfo{
-			Id:            "550e8400-e29b-41d4-a716-446655440002",
+			Id:            "00dc6ab5-1f20-7426-a397-8644fb78324e",
 			Queue:         "high-priority",
 			Type:          "machine-reimage",
 			Payload:       []byte(`{"machine_id":"machine2"}`),
