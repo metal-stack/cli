@@ -105,6 +105,8 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.TaskTable(pointer.WrapInSlice(d), wide)
 	case []*adminv2.TaskInfo:
 		return t.TaskTable(d, wide)
+	case *adminv2.TaskServiceQueuesResponse:
+		return t.TaskQueueTable(d, wide)
 
 	case *apiv2.Token:
 		return t.TokenTable(pointer.WrapInSlice(d), wide)
@@ -140,6 +142,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.SwitchDetailTable(d)
 	case *adminv2.SwitchServiceConnectedMachinesResponse:
 		return t.SwitchWithConnectedMachinesTable(d.SwitchesWithMachines, wide)
+
+	case *apiv2.User:
+		return t.UserTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.User:
+		return t.UserTable(d, wide)
 
 	default:
 		return nil, nil, fmt.Errorf("unknown table printer for type: %T", d)

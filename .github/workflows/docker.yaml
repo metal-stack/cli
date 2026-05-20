@@ -16,27 +16,13 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  draft:
+    uses: metal-stack/actions-common/.github/workflows/release-drafter.yaml@v1
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: 'go.mod'
-          cache: false
-
-      - name: Lint
-        uses: golangci/golangci-lint-action@v9
-        with:
-          args: --build-tags integration --timeout=5m
-
-      - name: Test
-        run: |
-          make test
+  go-build:
+    uses: metal-stack/actions-common/.github/workflows/go-build.yaml@v1
+    with:
+      build: false
 
   build:
     runs-on: ubuntu-latest

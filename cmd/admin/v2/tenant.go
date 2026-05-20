@@ -48,6 +48,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 				Name:        viper.GetString("name"),
 				Description: pointer.PointerOrNil(viper.GetString("description")),
 				AvatarUrl:   pointer.PointerOrNil(viper.GetString("avatar-url")),
+				Email:       pointer.PointerOrNil(viper.GetString("email")),
 			}, nil
 		},
 		OnlyCmds:    genericcli.OnlyCmds(genericcli.ListCmd, genericcli.CreateCmd),

@@ -9,7 +9,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	adminCmd := &cobra.Command{
 		Use:          "admin",
 		Short:        "admin commands",
-		Long:         "",
+		Long:         "these commands utilize the admin api, which can only be accessed by metal-stack operators.",
 		SilenceUsage: true,
 		Hidden:       true,
 	}

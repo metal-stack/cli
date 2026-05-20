@@ -32,8 +32,24 @@ func Test_AdminTaskCmd_List(t *testing.T) {
 			}),
 			Template: new("{{ .id }} {{ .type }}"),
 			WantTemplate: new(`
-550e8400-e29b-41d4-a716-446655440000 image-provision
-550e8400-e29b-41d4-a716-446655440001 firewall-update
+00dc6a98-bd80-787a-9725-ffb692d83261 image-provision
+00dc6ab4-34c0-73ce-af77-3e07748d0e0d firewall-update
+			`),
+			WantTable: new(`
+            ID                                    QUEUE    WHEN     TYPE             STATE
+            00dc6a98-bd80-787a-9725-ffb692d83261  default  1h ago   image-provision  active
+            00dc6ab4-34c0-73ce-af77-3e07748d0e0d  default  30m ago  firewall-update  pending
+			`),
+			WantWideTable: new(`
+            ID                                    QUEUE    WHEN     TYPE             STATE    ISSUED AT                      PAYLOAD                    RESULT
+            00dc6a98-bd80-787a-9725-ffb692d83261  default  1h ago   image-provision  active   1999-12-31 23:00:00 +0000 UTC  {"machine_id":"machine1"}
+            00dc6ab4-34c0-73ce-af77-3e07748d0e0d  default  30m ago  firewall-update  pending  1999-12-31 23:30:00 +0000 UTC  {"firewall_id":"fw1"}
+			`),
+			WantMarkdown: new(`
+            | ID                                   | QUEUE   | WHEN    | TYPE            | STATE   |
+            |--------------------------------------|---------|---------|-----------------|---------|
+            | 00dc6a98-bd80-787a-9725-ffb692d83261 | default | 1h ago  | image-provision | active  |
+            | 00dc6ab4-34c0-73ce-af77-3e07748d0e0d | default | 30m ago | firewall-update | pending |
 			`),
 		},
 		{
@@ -55,9 +71,9 @@ func Test_AdminTaskCmd_List(t *testing.T) {
 					},
 				},
 			}),
-			Template: new("{{ .id }} {{ .queue }} {{ .type }}"),
-			WantTemplate: new(`
-550e8400-e29b-41d4-a716-446655440002 high-priority machine-reimage
+			WantTable: new(`
+            ID                                    QUEUE          WHEN     TYPE             STATE
+            00dc6ab5-1f20-7426-a397-8644fb78324e  high-priority  29m ago  machine-reimage  completed
 			`),
 		},
 	}
@@ -90,7 +106,7 @@ func Test_AdminTaskCmd_Describe(t *testing.T) {
 			WantProtoObject: testresources.Task1(),
 			Template:        new("{{ .id }} {{ .type }}"),
 			WantTemplate: new(`
-550e8400-e29b-41d4-a716-446655440000 image-provision
+00dc6a98-bd80-787a-9725-ffb692d83261 image-provision
 			`),
 		},
 		{
@@ -115,7 +131,20 @@ func Test_AdminTaskCmd_Describe(t *testing.T) {
 			WantProtoObject: testresources.Task3(),
 			Template:        new("{{ .id }} {{ .queue }} {{ .type }}"),
 			WantTemplate: new(`
-550e8400-e29b-41d4-a716-446655440002 high-priority machine-reimage
+00dc6ab5-1f20-7426-a397-8644fb78324e high-priority machine-reimage
+			`),
+			WantTable: new(`
+            ID                                    QUEUE          WHEN     TYPE             STATE
+            00dc6ab5-1f20-7426-a397-8644fb78324e  high-priority  29m ago  machine-reimage  completed
+			`),
+			WantWideTable: new(`
+            ID                                    QUEUE          WHEN     TYPE             STATE      ISSUED AT                      PAYLOAD                    RESULT
+            00dc6ab5-1f20-7426-a397-8644fb78324e  high-priority  29m ago  machine-reimage  completed  1999-12-31 23:31:00 +0000 UTC  {"machine_id":"machine2"}  success
+			`),
+			WantMarkdown: new(`
+            | ID                                   | QUEUE         | WHEN    | TYPE            | STATE     |
+            |--------------------------------------|---------------|---------|-----------------|-----------|
+            | 00dc6ab5-1f20-7426-a397-8644fb78324e | high-priority | 29m ago | machine-reimage | completed |
 			`),
 		},
 	}
@@ -142,16 +171,25 @@ func Test_AdminTaskQueuesCmd(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-default
-high-priority
-low-priority
+			QUEUE
+			default
+			high-priority
+			low-priority
 			`),
 			WantWideTable: new(`
-default
-high-priority
-low-priority
+			QUEUE
+			default
+			high-priority
+			low-priority
 			`),
-			Template: new("{{ . }}"),
+			WantMarkdown: new(`
+			| QUEUE         |
+            |---------------|
+            | default       |
+            | high-priority |
+            | low-priority  |
+			`),
+			Template: new(`{{ range .queues }}{{ . }}{{ "\n" }}{{ end }}`),
 			WantTemplate: new(`
 default
 high-priority

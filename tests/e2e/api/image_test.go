@@ -105,3 +105,48 @@ func Test_ImageCmd_Describe(t *testing.T) {
 		tt.TestCmd(t)
 	}
 }
+
+func Test_ImageCmd_Latest(t *testing.T) {
+	tests := []*e2e.Test[apiv2.ImageServiceLatestResponse, *apiv2.Image]{
+		{
+			Name:    "latest",
+			CmdArgs: []string{"image", "latest", "--os", testresources.Image1().Id},
+			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &apiv2.ImageServiceLatestRequest{
+							Os: testresources.Image1().Id,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.ImageServiceLatestResponse{
+								Image: testresources.Image1(),
+							})
+						},
+					},
+				},
+			}),
+			WantObject:      testresources.Image1(),
+			WantProtoObject: testresources.Image1(),
+			WantTable: new(`
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
+			`),
+			WantWideTable: new(`
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
+			`),
+			Template: new("{{ .id }} {{ .name }}"),
+			WantTemplate: new(`
+			ubuntu-24.04 Ubuntu 24.04
+			`),
+			WantMarkdown: new(`
+            | ID           | NAME         | DESCRIPTION      | FEATURES | EXPIRATION | STATUS    |
+            |--------------|--------------|------------------|----------|------------|-----------|
+            | ubuntu-24.04 | Ubuntu 24.04 | Ubuntu 24.04 LTS | machine  |            | supported |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
