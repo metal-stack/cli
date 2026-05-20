@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/metal-stack/api/go/enum"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
+	"github.com/metal-stack/metal-lib/pkg/genericcli"
 )
 
 func (t *TablePrinter) TaskTable(data []*adminv2.TaskInfo, wide bool) ([]string, [][]string, error) {
@@ -24,8 +25,8 @@ func (t *TablePrinter) TaskTable(data []*adminv2.TaskInfo, wide bool) ([]string,
 			id         = task.Id
 			queue      = task.Queue
 			typeString = task.Type
-			payload    = string(task.Payload)
-			result     = string(task.Result)
+			payload    = genericcli.TruncateEnd(string(task.Payload), 40)
+			result     = genericcli.TruncateEnd(string(task.Result), 40)
 		)
 
 		state, err := enum.GetStringValue(task.State)
