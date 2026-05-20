@@ -36,14 +36,14 @@ func Test_IPCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			IP       PROJECT                               ID                                    TYPE       NAME  ATTACHED SERVICE
-			4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b
-			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static     a
+            IP       NS  PROJECT                               ID                                    TYPE       NAME  ATTACHED SERVICE
+            4.3.2.1      46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static     a
 			`),
 			WantWideTable: new(`
-			IP       PROJECT                               ID                                    TYPE       NAME  DESCRIPTION    LABELS
-			4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b     b description  a=b
-			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static     a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+            IP       NS  PROJECT                               ID                                    TYPE       NAME  DESCRIPTION    LABELS
+            4.3.2.1      46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  ephemeral  b     b description  a=b
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static     a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
 			`),
 			Template: new("{{ .ip }} {{ .project }}"),
 			WantTemplate: new(`
@@ -51,10 +51,10 @@ func Test_IPCmd_List(t *testing.T) {
 1.1.1.1 ce19a655-7933-4745-8f3e-9592b4a90488
 			`),
 			WantMarkdown: new(`
-			| IP      | PROJECT                              | ID                                   | TYPE      | NAME | ATTACHED SERVICE |
-			|---------|--------------------------------------|--------------------------------------|-----------|------|------------------|
-			| 4.3.2.1 | 46bdfc45-9c8d-4268-b359-b40e3079d384 | 9cef40ec-29c6-4dfa-aee8-47ee1f49223d | ephemeral | b    |                  |
-			| 1.1.1.1 | ce19a655-7933-4745-8f3e-9592b4a90488 | 2e0144a2-09ef-42b7-b629-4263295db6e8 | static    | a    |                  |
+            | IP      | NS | PROJECT                              | ID                                   | TYPE      | NAME | ATTACHED SERVICE |
+            |---------|----|--------------------------------------|--------------------------------------|-----------|------|------------------|
+            | 4.3.2.1 |    | 46bdfc45-9c8d-4268-b359-b40e3079d384 | 9cef40ec-29c6-4dfa-aee8-47ee1f49223d | ephemeral | b    |                  |
+            | 1.1.1.1 |    | ce19a655-7933-4745-8f3e-9592b4a90488 | 2e0144a2-09ef-42b7-b629-4263295db6e8 | static    | a    |                  |
 			`),
 		},
 	}
@@ -86,21 +86,21 @@ func Test_IPCmd_Describe(t *testing.T) {
 			WantObject:      testresources.IP1(),
 			WantProtoObject: testresources.IP1(),
 			WantTable: new(`
-			IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
-			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+            IP       NS  PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
 			`),
 			WantWideTable: new(`
-			IP       PROJECT                               ID                                    TYPE    NAME  DESCRIPTION    LABELS
-			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+            IP       NS  PROJECT                               ID                                    TYPE    NAME  DESCRIPTION    LABELS
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
 			`),
 			Template: new("{{ .ip }} {{ .project }}"),
 			WantTemplate: new(`
 			1.1.1.1 ce19a655-7933-4745-8f3e-9592b4a90488
 			`),
 			WantMarkdown: new(`
-			| IP      | PROJECT                              | ID                                   | TYPE   | NAME | ATTACHED SERVICE |
-			|---------|--------------------------------------|--------------------------------------|--------|------|------------------|
-			| 1.1.1.1 | ce19a655-7933-4745-8f3e-9592b4a90488 | 2e0144a2-09ef-42b7-b629-4263295db6e8 | static | a    |                  |
+            | IP      | NS | PROJECT                              | ID                                   | TYPE   | NAME | ATTACHED SERVICE |
+            |---------|----|--------------------------------------|--------------------------------------|--------|------|------------------|
+            | 1.1.1.1 |    | ce19a655-7933-4745-8f3e-9592b4a90488 | 2e0144a2-09ef-42b7-b629-4263295db6e8 | static | a    |                  |
 			`),
 		},
 	}
@@ -172,8 +172,8 @@ func Test_IPCmd_Create(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-            IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
-            1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+            IP       NS  PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
 			`),
 		},
 	}
@@ -239,8 +239,8 @@ func Test_IPCmd_Delete(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-		    IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
-		    1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+            IP       NS  PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
 			`),
 		},
 	}
@@ -277,13 +277,13 @@ func Test_IPCmd_Update(t *testing.T) {
 			),
 			WantObject: testresources.IP1(),
 			WantTable: new(`
-			IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE  
-            1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+            IP       NS  PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
 			`),
 			WantWideTable: new(`
-			IP       PROJECT                               ID                                    TYPE    NAME  DESCRIPTION    LABELS
-			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
-			`),
+            IP       NS  PROJECT                               ID                                    TYPE    NAME  DESCRIPTION    LABELS
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+            `),
 		},
 		{
 			Name:    "update from file",
@@ -329,8 +329,8 @@ func Test_IPCmd_Update(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-		    IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
-		    1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+            IP       NS  PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
 			`),
 		},
 	}
@@ -382,8 +382,8 @@ func Test_IPCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-		    IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
-		    1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+            IP       NS  PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
 			`),
 		},
 		{
@@ -454,8 +454,8 @@ func Test_IPCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-		    IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
-		    1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+            IP       NS  PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1      ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
 			`),
 		},
 	}

@@ -1,17 +1,18 @@
-## metalctlv2 ip describe
+## metalctlv2 size list
 
-describes the ip
+list all sizes
 
 ```
-metalctlv2 ip describe <id> [flags]
+metalctlv2 size list [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help               help for describe
-  -n, --namespace string   namespace of the ip
-  -p, --project string     project of the ip
+      --description string   size description to filter for
+  -h, --help                 help for list
+      --id string            size id to filter for
+      --name string          size name to filter for
 ```
 
 ### Options inherited from parent commands
@@ -22,12 +23,12 @@ metalctlv2 ip describe <id> [flags]
   -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
       --debug                  debug output
       --force-color            force colored output even without tty
-  -o, --output-format string   output format (table|wide|markdown|json|yaml|template|jsonraw|yamlraw), wide is a table with more columns, jsonraw and yamlraw do not translate proto enums into string types but leave the original int32 values intact (for apply, create, update, delete commands from file the raw output formatters must be used). (default "table")
+  -o, --output-format string   output format (table|wide|markdown|json|yaml|template|jsonraw|yamlraw), wide is a table with more columns, jsonraw and yamlraw do not translate proto enums into string types but leave the original int32 values intact. (default "table")
       --template string        output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
       --timeout duration       request timeout used for api requests
 ```
 
 ### SEE ALSO
 
-* [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
+* [metalctlv2 size](metalctlv2_size.md)	 - manage size entities
 
