@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"testing/synctest"
@@ -13,10 +14,10 @@ import (
 	"slices"
 
 	"buf.build/go/protoyaml"
+	"connectrpc.com/connect"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
-	"github.com/metal-stack/metal-lib/pkg/testcommon"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
@@ -77,7 +78,7 @@ func (c *Test[Response, RawObject]) TestCmd(t *testing.T) {
 
 		synctest.Test(t, func(t *testing.T) {
 			err := rootCmd.Execute()
-			if diff := cmp.Diff(c.WantErr, err, testcommon.IgnoreUnexported(), testcommon.ErrorStringComparer()); diff != "" {
+			if diff := cmp.Diff(c.WantErr, err, IgnoreUnexported(), ConnectErrorComparer()); diff != "" {
 				t.Errorf("error diff (+got -want):\n %s", diff)
 			}
 		})
@@ -196,7 +197,7 @@ func (o *rawYamlOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	err := yaml.Unmarshal(output, &got)
 	require.NoError(t, err)
 
-	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+	if diff := cmp.Diff(o.want, got, IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
 		t.Errorf("diff (+got -want):\n %s", diff)
 	}
 }
@@ -217,7 +218,7 @@ func (o *rawJsonOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	err := json.Unmarshal(output, &got)
 	require.NoError(t, err)
 
-	if diff := cmp.Diff(o.want, got, testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+	if diff := cmp.Diff(o.want, got, IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
 		t.Errorf("diff (+got -want):\n %s", diff)
 	}
 }
@@ -239,7 +240,7 @@ func (o *protoYAMLOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	err := protoyaml.Unmarshal(output, got)
 	require.NoError(t, err)
 
-	if diff := cmp.Diff(o.want, got, protocmp.Transform(), testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+	if diff := cmp.Diff(o.want, got, protocmp.Transform(), IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
 		t.Errorf("diff (+got -want):\n %s", diff)
 	}
 }
@@ -261,7 +262,7 @@ func (o *protoJSONOutputFormat[R]) Validate(t *testing.T, output []byte) {
 	err := protojson.Unmarshal(output, got)
 	require.NoError(t, err)
 
-	if diff := cmp.Diff(o.want, got, protocmp.Transform(), testcommon.IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
+	if diff := cmp.Diff(o.want, got, protocmp.Transform(), IgnoreUnexported(), cmpopts.IgnoreTypes(protoimpl.MessageState{})); diff != "" {
 		t.Errorf("diff (+got -want):\n %s", diff)
 	}
 }
@@ -391,4 +392,26 @@ func MustMarshalToMultiYAML(t *testing.T, data ...any) []byte {
 		parts = append(parts, string(MustMarshal(t, elem)))
 	}
 	return []byte(strings.Join(parts, "\n---\n"))
+}
+func ConnectErrorComparer() cmp.Option {
+	return cmp.Comparer(func(x, y *connect.Error) bool {
+		if x == nil && y == nil {
+			return true
+		}
+		if x == nil && y != nil {
+			return false
+		}
+		if x != nil && y == nil {
+			return false
+		}
+		if x.Error() != y.Error() {
+			return false
+		}
+		return x.Code() == y.Code()
+	})
+}
+
+func IgnoreUnexported() cmp.Option {
+	// the exporter opt allows all unexported fields: https://github.com/google/go-cmp/pull/176
+	return cmp.Exporter(func(reflect.Type) bool { return true })
 }
