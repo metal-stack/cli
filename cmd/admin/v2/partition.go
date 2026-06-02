@@ -26,7 +26,7 @@ func newPartitionCmd(c *config.Config) *cobra.Command {
 
 	gcli := genericcli.NewGenericCLI(w).WithFS(c.Fs)
 
-	cmdsConfig := &genericcli.CmdsConfig[any, any, *apiv2.Partition]{
+	cmdsConfig := &genericcli.CmdsConfig[*adminv2.PartitionServiceCreateRequest, *adminv2.PartitionServiceUpdateRequest, *apiv2.Partition]{
 		BinaryName:      config.BinaryName,
 		GenericCLI:      gcli,
 		Singular:        "partition",
@@ -34,7 +34,33 @@ func newPartitionCmd(c *config.Config) *cobra.Command {
 		Description:     "manage partitions",
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
-		OnlyCmds:        genericcli.OnlyCmds(genericcli.DescribeCmd, genericcli.ListCmd),
+		OnlyCmds: genericcli.OnlyCmds(
+			genericcli.DescribeCmd,
+			genericcli.ListCmd,
+			genericcli.CreateCmd,
+			genericcli.UpdateCmd,
+			genericcli.DeleteCmd,
+			genericcli.EditCmd,
+		),
+		CreateCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("id", "", "the id of the partition to create")
+			genericcli.Must(cmd.MarkFlagRequired("id"))
+			partitionMutableFlags(cmd)
+		},
+		CreateRequestFromCLI: func() (*adminv2.PartitionServiceCreateRequest, error) {
+			return &adminv2.PartitionServiceCreateRequest{
+				Partition: &apiv2.Partition{
+					Id:                   viper.GetString("id"),
+					Description:          viper.GetString("description"),
+					BootConfiguration:    partitionBootConfigurationFromCLI(),
+					DnsServers:           dnsServersFromCLI(viper.GetStringSlice("dns-servers")),
+					NtpServers:           ntpServersFromCLI(viper.GetStringSlice("ntp-servers")),
+					MgmtServiceAddresses: viper.GetStringSlice("mgmt-service-addresses"),
+				},
+			}, nil
+		},
+		UpdateCmdMutateFn:    partitionMutableFlags,
+		UpdateRequestFromCLI: w.updateRequestFromCLI,
 		DescribeCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("id", "", "id of the partition")
 			cmd.RunE = func(cmd *cobra.Command, args []string) error {
@@ -52,6 +78,7 @@ func newPartitionCmd(c *config.Config) *cobra.Command {
 				return w.c.DescribePrinter.Print(p)
 			}
 		},
+		ValidArgsFn: c.Completion.PartitionListCompletion,
 	}
 
 	capacityCmd := &cobra.Command{
@@ -72,6 +99,17 @@ func newPartitionCmd(c *config.Config) *cobra.Command {
 	genericcli.Must(capacityCmd.RegisterFlagCompletionFunc("sort-by", cobra.FixedCompletions(sorters.PartitionCapacitySorter().AvailableKeys(), cobra.ShellCompDirectiveNoFileComp)))
 
 	return genericcli.NewCmds(cmdsConfig, capacityCmd)
+}
+
+// Create and Update share these mutable flags
+func partitionMutableFlags(cmd *cobra.Command) {
+	cmd.Flags().String("description", "", "the description of the partition")
+	cmd.Flags().String("image-url", "", "the url of the boot image used by metal-hammer")
+	cmd.Flags().String("kernel-url", "", "the url of the kernel used by metal-hammer")
+	cmd.Flags().String("commandline", "", "the kernel commandline used by metal-hammer")
+	cmd.Flags().StringSlice("dns-servers", nil, "the dns servers of this partition")
+	cmd.Flags().StringSlice("ntp-servers", nil, "the ntp servers of this partition")
+	cmd.Flags().StringSlice("mgmt-service-addresses", nil, "the management service addresses of this partition, each in the form <ip|host>:<port>")
 }
 
 func (c *partition) capacity() error {
@@ -132,18 +170,148 @@ func (c *partition) List() ([]*apiv2.Partition, error) {
 	return resp.Partitions, nil
 }
 
-func (c *partition) Create(rq any) (*apiv2.Partition, error) {
-	panic("unimplemented")
+func (c *partition) Create(rq *adminv2.PartitionServiceCreateRequest) (*apiv2.Partition, error) {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Adminv2().Partition().Create(ctx, rq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create partition: %w", err)
+	}
+
+	return resp.Partition, nil
 }
 
 func (c *partition) Delete(id string) (*apiv2.Partition, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	req := &adminv2.PartitionServiceDeleteRequest{Id: id}
+
+	resp, err := c.c.Client.Adminv2().Partition().Delete(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete partition: %w", err)
+	}
+
+	return resp.Partition, nil
 }
 
-func (t *partition) Convert(r *apiv2.Partition) (string, any, any, error) {
-	panic("unimplemented")
+func (c *partition) Convert(r *apiv2.Partition) (string, *adminv2.PartitionServiceCreateRequest, *adminv2.PartitionServiceUpdateRequest, error) {
+	return r.Id, &adminv2.PartitionServiceCreateRequest{
+			Partition: r,
+		}, &adminv2.PartitionServiceUpdateRequest{
+			Id:                   r.Id,
+			Description:          new(r.Description),
+			BootConfiguration:    r.BootConfiguration,
+			DnsServers:           r.DnsServers,
+			NtpServers:           r.NtpServers,
+			MgmtServiceAddresses: r.MgmtServiceAddresses,
+			UpdateMeta: &apiv2.UpdateMeta{
+				LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+				UpdatedAt:       r.Meta.GetUpdatedAt(),
+			},
+		}, nil
 }
 
-func (t *partition) Update(rq any) (*apiv2.Partition, error) {
-	panic("unimplemented")
+func (c *partition) Update(rq *adminv2.PartitionServiceUpdateRequest) (*apiv2.Partition, error) {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Adminv2().Partition().Update(ctx, rq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update partition: %w", err)
+	}
+
+	return resp.Partition, nil
+}
+
+func (c *partition) updateRequestFromCLI(args []string) (*adminv2.PartitionServiceUpdateRequest, error) {
+	id, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return nil, err
+	}
+
+	current, err := c.Get(id)
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve partition: %w", err)
+	}
+
+	req := &adminv2.PartitionServiceUpdateRequest{
+		Id: id,
+		UpdateMeta: &apiv2.UpdateMeta{
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+			UpdatedAt:       current.Meta.GetUpdatedAt(),
+		},
+	}
+
+	if viper.IsSet("description") {
+		req.Description = new(viper.GetString("description"))
+	}
+	if bc := patchPartitionBootConfiguration(current.BootConfiguration); bc != nil {
+		req.BootConfiguration = bc
+	}
+	if viper.IsSet("dns-servers") {
+		req.DnsServers = dnsServersFromCLI(viper.GetStringSlice("dns-servers"))
+	}
+	if viper.IsSet("ntp-servers") {
+		req.NtpServers = ntpServersFromCLI(viper.GetStringSlice("ntp-servers"))
+	}
+	if viper.IsSet("mgmt-service-addresses") {
+		req.MgmtServiceAddresses = viper.GetStringSlice("mgmt-service-addresses")
+	}
+
+	return req, nil
+}
+
+func partitionBootConfigurationFromCLI() *apiv2.PartitionBootConfiguration {
+	if !viper.IsSet("image-url") && !viper.IsSet("kernel-url") && !viper.IsSet("commandline") {
+		return nil
+	}
+
+	return &apiv2.PartitionBootConfiguration{
+		ImageUrl:    viper.GetString("image-url"),
+		KernelUrl:   viper.GetString("kernel-url"),
+		Commandline: viper.GetString("commandline"),
+	}
+}
+
+func patchPartitionBootConfiguration(current *apiv2.PartitionBootConfiguration) *apiv2.PartitionBootConfiguration {
+	if !viper.IsSet("image-url") && !viper.IsSet("kernel-url") && !viper.IsSet("commandline") {
+		return nil
+	}
+
+	patched := &apiv2.PartitionBootConfiguration{}
+	if current != nil {
+		patched.ImageUrl = current.ImageUrl
+		patched.KernelUrl = current.KernelUrl
+		patched.Commandline = current.Commandline
+	}
+
+	if viper.IsSet("image-url") {
+		patched.ImageUrl = viper.GetString("image-url")
+	}
+	if viper.IsSet("kernel-url") {
+		patched.KernelUrl = viper.GetString("kernel-url")
+	}
+	if viper.IsSet("commandline") {
+		patched.Commandline = viper.GetString("commandline")
+	}
+
+	return patched
+}
+
+func dnsServersFromCLI(ips []string) []*apiv2.DNSServer {
+	var servers []*apiv2.DNSServer
+	for _, ip := range ips {
+		servers = append(servers, &apiv2.DNSServer{Ip: ip})
+	}
+	return servers
+}
+
+func ntpServersFromCLI(addresses []string) []*apiv2.NTPServer {
+	var servers []*apiv2.NTPServer
+	for _, address := range addresses {
+		servers = append(servers, &apiv2.NTPServer{Address: address})
+	}
+	return servers
 }
