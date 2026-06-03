@@ -9,6 +9,7 @@ import (
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
+	"github.com/metal-stack/cli/tests/e2e/testresources"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -55,23 +56,23 @@ func Test_AdminComponentCmd_Describe(t *testing.T) {
 	tests := []*e2e.Test[adminv2.ComponentServiceGetResponse, *apiv2.Component]{
 		{
 			Name:    "describe",
-			CmdArgs: []string{"admin", "component", "describe", component1().Uuid},
+			CmdArgs: []string{"admin", "component", "describe", testresources.Component1().Uuid},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.ComponentServiceGetRequest{
-							Uuid: component1().Uuid,
+							Uuid: testresources.Component1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.ComponentServiceGetResponse{
-								Component: component1(),
+								Component: testresources.Component1(),
 							})
 						},
 					},
 				},
 			}),
-			WantObject:      component1(),
-			WantProtoObject: component1(),
+			WantObject:      testresources.Component1(),
+			WantProtoObject: testresources.Component1(),
 			WantTable: new(`
 			ID                                    TYPE        IDENTIFIER    STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN
 			c1a2b3d4-e5f6-7890-abcd-ef1234567890  metal-core  metal-core-1  0s       0s   v1.0.0   t1a2b3d4-e5f6-7890-abcd-ef1234567890  1d
@@ -110,8 +111,8 @@ func Test_AdminComponentCmd_List(t *testing.T) {
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.ComponentServiceListResponse{
 								Components: []*apiv2.Component{
-									component1(),
-									component2(),
+									testresources.Component1(),
+									testresources.Component2(),
 								},
 							})
 						},
@@ -150,22 +151,22 @@ func Test_AdminComponentCmd_Delete(t *testing.T) {
 	tests := []*e2e.Test[adminv2.ComponentServiceDeleteResponse, *apiv2.Component]{
 		{
 			Name:    "delete",
-			CmdArgs: []string{"admin", "component", "delete", component1().Uuid},
+			CmdArgs: []string{"admin", "component", "delete", testresources.Component1().Uuid},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.ComponentServiceDeleteRequest{
-							Uuid: component1().Uuid,
+							Uuid: testresources.Component1().Uuid,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.ComponentServiceDeleteResponse{
-								Component: component1(),
+								Component: testresources.Component1(),
 							})
 						},
 					},
 				},
 			}),
-			WantObject: component1(),
+			WantObject: testresources.Component1(),
 		},
 	}
 	for _, tt := range tests {
