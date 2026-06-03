@@ -60,7 +60,7 @@ d1ff7267-2fbb-4a63-a7c1-44f1a83381a7 me 2`),
 		{
 			Name:    "list",
 			CmdArgs: []string{"audit", "list", "--tenant", testresources.Trace3().Tenant, "--from", timestamppb.New(time.Date(2000, 12, 24, 0, 0, 0, 0, time.UTC)).AsTime().Format("2006-01-02 15:04:05"), "--to", timestamppb.New(time.Date(2001, 1, 2, 0, 0, 0, 0, time.UTC)).AsTime().Format("2006-01-02 15:04:05"), "--user", testresources.Trace3().User},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.AuditServiceListRequest{
@@ -103,7 +103,7 @@ d1ff7267-2fbb-4a63-a7c1-44f1a83381a7 me 2`),
 		{
 			Name:    "list",
 			CmdArgs: []string{"audit", "list", "--tenant", "notExisting"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.AuditServiceListRequest{

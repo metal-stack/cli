@@ -112,7 +112,7 @@ func Test_ImageCmd_Latest(t *testing.T) {
 		{
 			Name:    "latest",
 			CmdArgs: []string{"image", "latest", "--os", testresources.Image1().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ImageServiceLatestRequest{

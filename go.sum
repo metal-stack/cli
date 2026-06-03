@@ -69,17 +69,10 @@ github.com/mattn/go-isatty v0.0.21 h1:xYae+lCNBP7QuW4PUnNG61ffM4hVIfm+zUzDuSzYLG
 github.com/mattn/go-isatty v0.0.21/go.mod h1:ZXfXG4SQHsB/w3ZeOYbR0PrPwLy+n6xiMrJlRFqopa4=
 github.com/mattn/go-runewidth v0.0.20 h1:WcT52H91ZUAwy8+HUkdM3THM6gXqXuLJi9O3rjcQQaQ=
 github.com/mattn/go-runewidth v0.0.20/go.mod h1:XBkDxAl56ILZc9knddidhrOlY5R/pDhgLpndooCuJAs=
-<<<<<<< HEAD
-github.com/metal-stack/api v0.0.58 h1:7UxnZrM41BS0f4S9RvqDg0/YTvs3FveawuyBoKz9WhA=
-github.com/metal-stack/api v0.0.58/go.mod h1:hEgtKVD7UnUwUExdA7pbFvVRxNRxSGUnU+bZce46//c=
-github.com/metal-stack/metal-lib v0.24.2-0.20260324151418-0917620d251f h1:qTEfCIrCsE8YTSIhMiI2jYlDqO20K3S4pCNkB9wB3vQ=
-github.com/metal-stack/metal-lib v0.24.2-0.20260324151418-0917620d251f/go.mod h1:u1wQl98JOfzyXqY7+0qD2xFSMnxvzCykkLgW80U1IrA=
-=======
 github.com/metal-stack/api v0.1.0 h1:V3nrarxGexnE0f1/2UtGCIAtjP815p7+yqQvruD0KJQ=
 github.com/metal-stack/api v0.1.0/go.mod h1:wFU5aKfuurbBISQSIdJwBLQf4mTOBlERqWBzCafahEY=
-github.com/metal-stack/metal-lib v0.25.1 h1:z14xNl59ueQavNvMG4wcIZGqVyosNlaNFcy8hUu3SCU=
-github.com/metal-stack/metal-lib v0.25.1/go.mod h1:FWviUPM7oH1CnmCwkyLjWpd3yuzf6NnR97Xf45P2/Fk=
->>>>>>> main
+github.com/metal-stack/metal-lib v0.25.2-0.20260603093551-911f9ac795eb h1:xxuBj37RFfju4jj+0GEks3DMU+1h8T4cUQnlk1ROxH8=
+github.com/metal-stack/metal-lib v0.25.2-0.20260603093551-911f9ac795eb/go.mod h1:tnx4MM5oml10EMN6Nq6oFSbjOKB9B27WUZQUyZ4MywA=
 github.com/metal-stack/v v1.0.3 h1:Sh2oBlnxrCUD+mVpzfC8HiqL045YWkxs0gpTvkjppqs=
 github.com/metal-stack/v v1.0.3/go.mod h1:YTahEu7/ishwpYKnp/VaW/7nf8+PInogkfGwLcGPdXg=
 github.com/minio/minlz v1.1.1 h1:OGmft1V6AnI/Wme332U6bhG54nxEan+VFgkD7lat4KM=
@@ -128,48 +121,20 @@ go.yaml.in/yaml/v2 v2.4.4 h1:tuyd0P+2Ont/d6e2rl3be67goVK4R6deVxCUX5vyPaQ=
 go.yaml.in/yaml/v2 v2.4.4/go.mod h1:gMZqIpDtDqOfM0uNfy0SkpRhvUryYH0Z6wdMYcacYXQ=
 go.yaml.in/yaml/v3 v3.0.4 h1:tfq32ie2Jv2UxXFdLJdh3jXuOzWiL1fo0bu/FbuKpbc=
 go.yaml.in/yaml/v3 v3.0.4/go.mod h1:DhzuOOF2ATzADvBadXxruRBLzYTpT36CKvDb3+aBEFg=
-<<<<<<< HEAD
-golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 h1:jiDhWWeC7jfWqR9c/uplMOqJ0sbNlNWv0UkzE0vX1MA=
-golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90/go.mod h1:xE1HEv6b+1SCZ5/uscMRjUBKtIxworgEcEi+/n9NQDQ=
-golang.org/x/net v0.50.0 h1:ucWh9eiCGyDR3vtzso0WMQinm2Dnt8cFMuQa9K33J60=
-golang.org/x/net v0.50.0/go.mod h1:UgoSli3F/pBgdJBHCTc+tp3gmrU4XswgGRgtnwWTfyM=
-golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/sys v0.41.0 h1:Ivj+2Cp/ylzLiEU89QhWblYnOE9zerudt9Ftecq2C6k=
-golang.org/x/sys v0.41.0/go.mod h1:OgkHotnGiDImocRcuBABYBEXf8A9a87e/uXjp9XT3ks=
-golang.org/x/text v0.35.0 h1:JOVx6vVDFokkpaq1AEptVzLTpDe9KGpj5tR4/X+ybL8=
-golang.org/x/text v0.35.0/go.mod h1:khi/HExzZJ2pGnjenulevKNX1W67CUy0AsXcNubPGCA=
-google.golang.org/genproto/googleapis/api v0.0.0-20260316180232-0b37fe3546d5 h1:CogIeEXn4qWYzzQU0QqvYBM8yDF9cFYzDq9ojSpv0Js=
-google.golang.org/genproto/googleapis/api v0.0.0-20260316180232-0b37fe3546d5/go.mod h1:EIQZ5bFCfRQDV4MhRle7+OgjNtZ6P1PiZBgAKuxXu/Y=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20260316180232-0b37fe3546d5 h1:aJmi6DVGGIStN9Mobk/tZOOQUBbj0BPjZjjnOdoZKts=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20260316180232-0b37fe3546d5/go.mod h1:4Hqkh8ycfw05ld/3BWL7rJOSfebL2Q+DVDeRgYgxUU8=
-google.golang.org/grpc v1.79.3 h1:sybAEdRIEtvcD68Gx7dmnwjZKlyfuc61Dyo9pGXXkKE=
-google.golang.org/grpc v1.79.3/go.mod h1:KmT0Kjez+0dde/v2j9vzwoAScgEPx/Bw1CYChhHLrHQ=
-=======
-golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a h1:+3jdDGGB8NGb1Zktc737jlt3/A5f6UlwSzmvqUuufxw=
-golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a/go.mod h1:d2fgXJLVs4dYDHUk5lwMIfzRzSrWCfGZb0ZqeLa/Vcw=
 golang.org/x/exp v0.0.0-20260529124908-c761662dc8c9 h1:4d4PbuBNwaxMXkXI8yiIYjydtMU+04RHeuSxJdgKftM=
 golang.org/x/exp v0.0.0-20260529124908-c761662dc8c9/go.mod h1:d2fgXJLVs4dYDHUk5lwMIfzRzSrWCfGZb0ZqeLa/Vcw=
-golang.org/x/net v0.53.0 h1:d+qAbo5L0orcWAr0a9JweQpjXF19LMXJE8Ey7hwOdUA=
-golang.org/x/net v0.53.0/go.mod h1:JvMuJH7rrdiCfbeHoo3fCQU24Lf5JJwT9W3sJFulfgs=
 golang.org/x/net v0.55.0 h1:bcvxaJn3e1U6InsFWt1JUq1aSjnRxLzT2rtD2KfkDF8=
 golang.org/x/net v0.55.0/go.mod h1:L5U2KuzuOe1lY7Z+aWVIKK6qEeJXnXV9yzGA+WCHJww=
-golang.org/x/sys v0.43.0 h1:Rlag2XtaFTxp19wS8MXlJwTvoh8ArU6ezoyFsMyCTNI=
-golang.org/x/sys v0.43.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
 golang.org/x/sys v0.45.0 h1:dO4czNzziLiiXplLQgBCEpCvXQ3dnkn0SdaZSYdQ+FY=
 golang.org/x/sys v0.45.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
 golang.org/x/text v0.37.0 h1:Cqjiwd9eSg8e0QAkyCaQTNHFIIzWtidPahFWR83rTrc=
 golang.org/x/text v0.37.0/go.mod h1:a5sjxXGs9hsn/AJVwuElvCAo9v8QYLzvavO5z2PiM38=
-google.golang.org/genproto/googleapis/api v0.0.0-20260523011958-0a33c5d7ca68 h1:WVVw1Nl19li0fMX++FJ3ye1z9+S1N35QODDy5qpnaXw=
-google.golang.org/genproto/googleapis/api v0.0.0-20260523011958-0a33c5d7ca68/go.mod h1:1dCETSCY2YKZNXQE3h4fun3TYwF5p8jejRKZgfWAgAY=
 google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa h1:Kjn0N0tCrDgiAFW+lGO4JZ3ck44CehvJQMAwj9QF0G8=
 google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa/go.mod h1:q4lMZS6kskjT5HvCPrnnypcDPVJqT/f4nfxmkE7gryY=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20260523011958-0a33c5d7ca68 h1:PvEgGJf9C/1u5CHkInMg7UFYYUoiaQmW2LbtH0pjB78=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20260523011958-0a33c5d7ca68/go.mod h1:4Hqkh8ycfw05ld/3BWL7rJOSfebL2Q+DVDeRgYgxUU8=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa h1:mZHHdPZl0dbGHCflZgAq/Q468DWVFcU2whhB2KAo8fk=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa/go.mod h1:4Hqkh8ycfw05ld/3BWL7rJOSfebL2Q+DVDeRgYgxUU8=
 google.golang.org/grpc v1.81.1 h1:VnnIIZ88UzOOKLukQi+ImGz8O1Wdp8nAGGnvOfEIWQQ=
 google.golang.org/grpc v1.81.1/go.mod h1:xGH9GfzOyMTGIOXBJmXt+BX/V0kcdQbdcuwQ/zNw42I=
->>>>>>> main
 google.golang.org/protobuf v1.36.11 h1:fV6ZwhNocDyBLK0dj+fg8ektcVegBBuEolpbTQyBNVE=
 google.golang.org/protobuf v1.36.11/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j23XfzDpco=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

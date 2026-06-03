@@ -113,7 +113,7 @@ func Test_TokenCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete",
 			CmdArgs: []string{"token", "delete", testresources.Token1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TokenServiceRevokeRequest{
@@ -130,8 +130,8 @@ func Test_TokenCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete from file",
 			CmdArgs: append([]string{"token", "delete"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Token1()), 0755))
 					},
@@ -163,7 +163,7 @@ func Test_TokenCmd_Create(t *testing.T) {
 		{
 			Name:    "create",
 			CmdArgs: []string{"token", "create", "--description", testresources.Token1().Description, "--expires", durationpb.New(testresources.Token1().Expires.AsTime().Sub(e2e.TimeBubbleStartTime())).AsDuration().String()},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TokenServiceCreateRequest{
@@ -192,8 +192,8 @@ func Test_TokenCmd_Create(t *testing.T) {
 		{
 			Name:    "create from file",
 			CmdArgs: append([]string{"token", "create"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Token1()), 0755))
 					},
@@ -232,8 +232,8 @@ func Test_UpdateCmd_Update(t *testing.T) {
 		{
 			Name:    "update from file",
 			CmdArgs: append([]string{"token", "update"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Token2()), 0755))
 					},
@@ -273,8 +273,8 @@ func Test_TokenCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply",
 			CmdArgs: append([]string{"token", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Token1()), 0755))
 					},
@@ -307,8 +307,8 @@ func Test_TokenCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply already exists",
 			CmdArgs: append([]string{"token", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Token1()), 0755))
 					},

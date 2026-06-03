@@ -113,7 +113,7 @@ func Test_TenantCmd_Create(t *testing.T) {
 		{
 			Name:    "create",
 			CmdArgs: []string{"tenant", "create", "--name", testresources.Tenant1().Name, "--description", testresources.Tenant1().Description, "--email", testresources.Tenant1().Email},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceCreateRequest{
@@ -135,7 +135,7 @@ func Test_TenantCmd_Create(t *testing.T) {
 		{
 			Name:    "create from file",
 			CmdArgs: append([]string{"tenant", "create"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Tenant1()), 0755))
 				},
@@ -163,7 +163,7 @@ func Test_TenantCmd_Create(t *testing.T) {
 		{
 			Name:    "create many from file",
 			CmdArgs: append([]string{"tenant", "create"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshalToMultiYAML(t, testresources.Tenant1(), testresources.Tenant2()), 0755))
 				},
@@ -213,7 +213,7 @@ func Test_TenantCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete",
 			CmdArgs: []string{"tenant", "delete", testresources.Tenant1().Login},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceDeleteRequest{
@@ -232,7 +232,7 @@ func Test_TenantCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete from file",
 			CmdArgs: append([]string{"tenant", "delete"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Tenant1()), 0755))
 				},
@@ -265,7 +265,7 @@ func Test_TenantCmd_Update(t *testing.T) {
 		{
 			Name:    "update",
 			CmdArgs: []string{"tenant", "update", testresources.Tenant1().Login, "--name", "new-name", "--description", "new-desc"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceUpdateRequest{
@@ -286,7 +286,7 @@ func Test_TenantCmd_Update(t *testing.T) {
 		{
 			Name:    "update from file",
 			CmdArgs: append([]string{"tenant", "update"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Tenant1()), 0755))
 				},
@@ -322,8 +322,8 @@ func Test_TenantCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply",
 			CmdArgs: append([]string{"tenant", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Tenant1()), 0755))
 					},
@@ -352,8 +352,8 @@ func Test_TenantCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply already exists",
 			CmdArgs: append([]string{"tenant", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Tenant1()), 0755))
 					},
@@ -399,7 +399,7 @@ func Test_TenantCmd_ListMembers(t *testing.T) {
 		{
 			Name:    "list tenant members",
 			CmdArgs: []string{"tenant", "member", "list", "--tenant", testresources.Tenant1().Login},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceGetRequest{
@@ -449,7 +449,7 @@ func Test_TenantCmd_DeleteMember(t *testing.T) {
 		{
 			Name:    "delete tenant member",
 			CmdArgs: []string{"tenant", "member", "remove", testresources.Tenant1Members().Id, "--tenant", testresources.Tenant1().Login},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceRemoveMemberRequest{
@@ -475,7 +475,7 @@ func Test_TenantCmd_UpdateMember(t *testing.T) {
 		{
 			Name:    "update tenant member",
 			CmdArgs: []string{"tenant", "member", "update", testresources.Tenant1Members().Id, "--tenant", testresources.Tenant1().Login, "--role", testresources.Tenant1Members().Role.String()},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceUpdateMemberRequest{
@@ -508,7 +508,7 @@ func Test_TenantCmd_ListInvites(t *testing.T) {
 		{
 			Name:    "list invites",
 			CmdArgs: []string{"tenant", "invite", "list", "--tenant", testresources.Tenant2().Login},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceInvitesListRequest{
@@ -558,7 +558,7 @@ func Test_TenantCmd_DeleteInvite(t *testing.T) {
 		{
 			Name:    "delete invite",
 			CmdArgs: []string{"tenant", "invite", "delete", testresources.Tenant1Invite().Secret, "--tenant", testresources.Tenant1().Login},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceInviteDeleteRequest{
@@ -584,7 +584,7 @@ func Test_TenantCmd_CreateInvite(t *testing.T) {
 		{
 			Name:    "create invite",
 			CmdArgs: []string{"tenant", "invite", "generate-join-secret", "--role", testresources.Tenant1Invite().Role.String(), "--tenant", testresources.Tenant1().Login},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceInviteRequest{
@@ -616,7 +616,7 @@ func Test_TenantCmd_Join(t *testing.T) {
 		{
 			Name:    "join",
 			CmdArgs: []string{"tenant", "invite", "join", testresources.Tenant1Invite().Secret},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceInviteGetRequest{

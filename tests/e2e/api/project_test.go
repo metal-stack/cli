@@ -318,8 +318,8 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply",
 			CmdArgs: append([]string{"project", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 					},
@@ -348,8 +348,8 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply already exists",
 			CmdArgs: append([]string{"project", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 					},
@@ -393,7 +393,7 @@ func Test_ProjectCmd_ListInvites(t *testing.T) {
 		{
 			Name:    "list invites",
 			CmdArgs: []string{"project", "invite", "list", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceInvitesListRequest{},
@@ -441,7 +441,7 @@ func Test_ProjectCmd_DeleteInvite(t *testing.T) {
 		{
 			Name:    "delete",
 			CmdArgs: []string{"project", "invite", "delete", testresources.Project1Invite().Secret, "--project", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceInviteDeleteRequest{
@@ -467,7 +467,7 @@ func Test_ProjectCmd_CreateInvite(t *testing.T) {
 		{
 			Name:    "create invite",
 			CmdArgs: []string{"project", "invite", "generate-join-secret", "--role", testresources.Project1Invite().Role.String(), "--project", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceInviteRequest{
@@ -499,7 +499,7 @@ func Test_ProjectCmd_Join(t *testing.T) {
 		{
 			Name:    "join",
 			CmdArgs: []string{"project", "invite", "join", testresources.Project1Invite().Secret},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceInviteGetRequest{
@@ -540,7 +540,7 @@ func Test_ProjectCmd_ListMembers(t *testing.T) {
 		{
 			Name:    "list project members",
 			CmdArgs: []string{"project", "member", "list", "--project", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceGetRequest{
@@ -590,7 +590,7 @@ func Test_ProjectCmd_DeleteMember(t *testing.T) {
 		{
 			Name:    "delete project member",
 			CmdArgs: []string{"project", "member", "delete", testresources.Project1Members().Id, "--project", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceRemoveMemberRequest{
@@ -616,7 +616,7 @@ func Test_ProjectCmd_UpdateMember(t *testing.T) {
 		{
 			Name:    "update project member",
 			CmdArgs: []string{"project", "member", "update", testresources.Project1Members().Id, "--project", testresources.Project1().Uuid, "--role", testresources.Project1Members().Role.String()},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceUpdateMemberRequest{

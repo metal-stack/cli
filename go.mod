@@ -3,49 +3,29 @@ module github.com/metal-stack/cli
 go 1.26
 
 require (
-<<<<<<< HEAD
-	connectrpc.com/connect v1.19.1
-=======
-	buf.build/go/protoyaml v0.7.0
 	connectrpc.com/connect v1.20.0
->>>>>>> main
 	connectrpc.com/validate v0.6.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.19.0
 	github.com/google/go-cmp v0.7.0
-<<<<<<< HEAD
-	github.com/metal-stack/api v0.0.58
-	github.com/metal-stack/metal-lib v0.24.2-0.20260324151418-0917620d251f
-=======
 	github.com/google/uuid v1.6.0
 	github.com/metal-stack/api v0.1.0
-	github.com/metal-stack/metal-lib v0.25.1
->>>>>>> main
+	github.com/metal-stack/metal-lib v0.25.2-0.20260603093551-911f9ac795eb
 	github.com/metal-stack/v v1.0.3
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
-<<<<<<< HEAD
-	google.golang.org/grpc v1.79.3
-=======
 	google.golang.org/grpc v1.81.1
->>>>>>> main
 	google.golang.org/protobuf v1.36.11
 	sigs.k8s.io/yaml v1.6.0
 )
 
 require (
-<<<<<<< HEAD
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 // indirect
-	buf.build/go/protovalidate v1.1.3 // indirect
-	buf.build/go/protoyaml v0.6.0 // indirect
-	cel.dev/expr v0.25.1 // indirect
-=======
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1 // indirect
 	buf.build/go/protovalidate v1.2.0 // indirect
+	buf.build/go/protoyaml v0.7.0 // indirect
 	cel.dev/expr v0.25.2 // indirect
->>>>>>> main
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clipperhouse/displaywidth v0.10.0 // indirect

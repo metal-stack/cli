@@ -7,8 +7,9 @@ import (
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
+	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +19,7 @@ func Test_AdminImageCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete",
 			CmdArgs: []string{"admin", "image", "delete", testresources.Image1().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.ImageServiceDeleteRequest{
@@ -69,7 +70,7 @@ func Test_AdminImageCmd_Create(t *testing.T) {
 				"--classification", "supported",
 				"--description", *testresources.Image1().Description,
 				"--name", *testresources.Image1().Name},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.ImageServiceCreateRequest{
@@ -92,8 +93,8 @@ func Test_AdminImageCmd_Create(t *testing.T) {
 		{
 			Name:    "create from file",
 			CmdArgs: append([]string{"admin", "image", "create"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Image1()), 0755))
 					},
@@ -139,7 +140,7 @@ func Test_AdminImageCmd_Update(t *testing.T) {
 		{
 			Name:    "update",
 			CmdArgs: []string{"admin", "image", "update", testresources.Image1().Id, "--name", *testresources.Image1().Name},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.ImageServiceUpdateRequest{
@@ -166,8 +167,8 @@ func Test_AdminImageCmd_Update(t *testing.T) {
 		{
 			Name:    "update from file",
 			CmdArgs: append([]string{"admin", "image", "update"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Image1()), 0755))
 					},

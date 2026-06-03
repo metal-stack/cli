@@ -18,7 +18,7 @@ func Test_AdminSwitchCmd_Describe(t *testing.T) {
 	tests := []*e2e.Test[adminv2.SwitchServiceGetResponse, *apiv2.Switch]{
 		{
 			Name:    "describe",
-			CmdArgs: []string{"admin", "switch", "describe", testresources.Switch2()},
+			CmdArgs: []string{"admin", "switch", "describe", testresources.Switch2().Id},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -143,8 +143,8 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 		{
 			Name:    "update from file",
 			CmdArgs: append([]string{"admin", "switch", "update"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Switch2()), 0755))
 					},
@@ -193,7 +193,7 @@ func Test_AdminSwitchCmd_ConnectedMachines(t *testing.T) {
 		{
 			Name:    "connected machines",
 			CmdArgs: []string{"admin", "switch", "connected-machines"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceConnectedMachinesRequest{
@@ -225,7 +225,7 @@ func Test_AdminSwitchCmd_Detail(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"admin", "switch", "detail", testresources.Switch1().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceListRequest{
@@ -268,7 +268,7 @@ func Test_AdminSwitchCmd_Migrate(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"admin", "switch", "migrate", testresources.Switch1().Id, testresources.Switch2().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceMigrateRequest{
@@ -313,7 +313,7 @@ func Test_AdminSwitchCmd_Port(t *testing.T) {
 		{
 			Name:    "port up",
 			CmdArgs: []string{"admin", "switch", "port", "up", testresources.Switch1().Id, "--port", testresources.Nic1().Name},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServicePortRequest{
@@ -388,7 +388,7 @@ Desired:
 		{
 			Name:    "down",
 			CmdArgs: []string{"admin", "switch", "port", "down", testresources.Switch1().Id, "--port", testresources.Nic1().Name},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServicePortRequest{
