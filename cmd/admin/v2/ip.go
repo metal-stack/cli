@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"github.com/metal-stack/api/go/enum"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -40,7 +41,11 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("machine", "", "machine to filter [optional]")
 			cmd.Flags().String("namespace", "", "namespace to filter [optional]")
 			cmd.Flags().String("parent-prefix", "", "parent-prefix to filter [optional]")
+			cmd.Flags().String("type", "", "type to filter [optional] can be either ephemeral|static")
+			cmd.Flags().String("addressfamily", "", "addressfamily to filter [optional] can be either ipv6|ipv6")
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("network", c.Completion.NetworkListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.IpTypeCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
 		},
 		ValidArgsFn: c.Completion.IpListCompletion,
 	}
@@ -51,6 +56,25 @@ func newIPCmd(c *config.Config) *cobra.Command {
 func (c *ip) List() ([]*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
+
+	var (
+		ipType *apiv2.IPType
+		af     *apiv2.IPAddressFamily
+	)
+	if viper.IsSet("type") {
+		ipt, err := enum.GetEnum[apiv2.IPType](viper.GetString("type"))
+		if err != nil {
+			return nil, err
+		}
+		ipType = &ipt
+	}
+	if viper.IsSet("addressfamily") {
+		ipaf, err := enum.GetEnum[apiv2.IPAddressFamily](viper.GetString("addressfamily"))
+		if err != nil {
+			return nil, err
+		}
+		af = &ipaf
+	}
 
 	resp, err := c.c.Client.Adminv2().IP().List(ctx, &adminv2.IPServiceListRequest{
 		Query: &apiv2.IPQuery{
@@ -63,8 +87,8 @@ func (c *ip) List() ([]*apiv2.IP, error) {
 			ParentPrefixCidr: pointer.PointerOrNil(viper.GetString("parent-prefix")),
 			Namespace:        pointer.PointerOrNil(viper.GetString("namespace")),
 			// Labels: TODO,
-			// Type: TODO,
-			// AddressFamily: TODO,
+			Type:          ipType,
+			AddressFamily: af,
 		},
 	})
 	if err != nil {
