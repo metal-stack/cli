@@ -1,6 +1,8 @@
 package v2
 
 import (
+	"strings"
+
 	"github.com/metal-stack/api/go/enum"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -43,6 +45,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("parent-prefix", "", "parent-prefix to filter [optional]")
 			cmd.Flags().String("type", "", "type to filter [optional] can be either ephemeral|static")
 			cmd.Flags().String("addressfamily", "", "addressfamily to filter [optional] can be either ipv6|ipv6")
+			cmd.Flags().StringSlice("label", nil, "label to filter, must be in the form of key=value, can be either specified multiple times, or comma seperated [optional]")
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("network", c.Completion.NetworkListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.IpTypeCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
@@ -58,9 +61,21 @@ func (c *ip) List() ([]*apiv2.IP, error) {
 	defer cancel()
 
 	var (
+		labels *apiv2.Labels
 		ipType *apiv2.IPType
 		af     *apiv2.IPAddressFamily
 	)
+
+	if len(viper.GetStringSlice("label")) > 0 {
+		labels = &apiv2.Labels{
+			Labels: map[string]string{},
+		}
+		for _, label := range viper.GetStringSlice("label") {
+			key, value, _ := strings.Cut(label, "=")
+			labels.Labels[key] = value
+		}
+	}
+
 	if viper.IsSet("type") {
 		ipt, err := enum.GetEnum[apiv2.IPType](viper.GetString("type"))
 		if err != nil {
@@ -68,6 +83,7 @@ func (c *ip) List() ([]*apiv2.IP, error) {
 		}
 		ipType = &ipt
 	}
+
 	if viper.IsSet("addressfamily") {
 		ipaf, err := enum.GetEnum[apiv2.IPAddressFamily](viper.GetString("addressfamily"))
 		if err != nil {
@@ -86,9 +102,9 @@ func (c *ip) List() ([]*apiv2.IP, error) {
 			Machine:          pointer.PointerOrNil(viper.GetString("machine")),
 			ParentPrefixCidr: pointer.PointerOrNil(viper.GetString("parent-prefix")),
 			Namespace:        pointer.PointerOrNil(viper.GetString("namespace")),
-			// Labels: TODO,
-			Type:          ipType,
-			AddressFamily: af,
+			Labels:           labels,
+			Type:             ipType,
+			AddressFamily:    af,
 		},
 	})
 	if err != nil {
