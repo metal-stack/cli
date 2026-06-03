@@ -7,7 +7,9 @@ import (
 	"github.com/metal-stack/cli/cmd/sorters"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 type ip struct {
@@ -33,7 +35,11 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("ip", "", "ipaddress to filter [optional]")
 			cmd.Flags().String("name", "", "name to filter [optional]")
 			cmd.Flags().String("network", "", "network to filter [optional]")
-			cmd.Flags().String("description", "", "description to filter [optional]")
+			cmd.Flags().String("project", "", "project to filter [optional]")
+			cmd.Flags().String("uuid", "", "allocation uuid to filter [optional]")
+			cmd.Flags().String("machine", "", "machine to filter [optional]")
+			cmd.Flags().String("namespace", "", "namespace to filter [optional]")
+			cmd.Flags().String("parent-prefix", "", "parent-prefix to filter [optional]")
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("network", c.Completion.NetworkListCompletion))
 		},
 		ValidArgsFn: c.Completion.IpListCompletion,
@@ -47,7 +53,19 @@ func (c *ip) List() ([]*apiv2.IP, error) {
 	defer cancel()
 
 	resp, err := c.c.Client.Adminv2().IP().List(ctx, &adminv2.IPServiceListRequest{
-		Query: &apiv2.IPQuery{},
+		Query: &apiv2.IPQuery{
+			Ip:               pointer.PointerOrNil(viper.GetString("ip")),
+			Network:          pointer.PointerOrNil(viper.GetString("network")),
+			Name:             pointer.PointerOrNil(viper.GetString("name")),
+			Project:          pointer.PointerOrNil(viper.GetString("project")),
+			Uuid:             pointer.PointerOrNil(viper.GetString("uuid")),
+			Machine:          pointer.PointerOrNil(viper.GetString("machine")),
+			ParentPrefixCidr: pointer.PointerOrNil(viper.GetString("parent-prefix")),
+			Namespace:        pointer.PointerOrNil(viper.GetString("namespace")),
+			// Labels: TODO,
+			// Type: TODO,
+			// AddressFamily: TODO,
+		},
 	})
 	if err != nil {
 		return nil, err
