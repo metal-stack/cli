@@ -62,7 +62,52 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 	genericcli.Must(bmcCommandCmd.MarkFlagRequired("id"))
 	genericcli.Must(bmcCommandCmd.MarkFlagRequired("command"))
 
-	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd)
+	lockCmd := &cobra.Command{
+		Use:   "lock",
+		Short: "lock or unlock a machine, e.g. machine cannot be used",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.lockOrTaint(apiv2.MachineState_MACHINE_STATE_LOCKED)
+		},
+	}
+	lockCmd.Flags().String("id", "", "id of the machine to lock/unlock")
+	lockCmd.Flags().String("description", "", "description of why the machine was locked")
+	lockCmd.Flags().Bool("remove", false, "if set to true, machine will be unlocked")
+	genericcli.Must(lockCmd.RegisterFlagCompletionFunc("id", c.Completion.MachineListCompletion))
+	genericcli.Must(lockCmd.MarkFlagRequired("id"))
+
+	taintCmd := &cobra.Command{
+		Use:   "lock",
+		Short: "lock or unlock a machine, e.g. machine will not be automatically selected on machine create, only admins can create them",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.lockOrTaint(apiv2.MachineState_MACHINE_STATE_TAINTED)
+		},
+	}
+	taintCmd.Flags().String("id", "", "id of the machine to taint/untaint")
+	taintCmd.Flags().String("description", "", "description of why the machine was tainted")
+	taintCmd.Flags().Bool("remove", false, "if set to true, machine will be untainted")
+	genericcli.Must(taintCmd.RegisterFlagCompletionFunc("id", c.Completion.MachineListCompletion))
+	genericcli.Must(taintCmd.MarkFlagRequired("id"))
+
+	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd, lockCmd, taintCmd)
+}
+
+func (c *machine) lockOrTaint(state apiv2.MachineState) error {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	if viper.GetBool("remove") {
+		state = apiv2.MachineState_MACHINE_STATE_AVAILABLE
+	}
+
+	resp, err := c.c.Client.Adminv2().Machine().SetState(ctx, &adminv2.MachineServiceSetStateRequest{
+		Uuid:        viper.GetString("id"),
+		Description: viper.GetString("description"),
+		State:       state,
+	})
+	if err != nil {
+		return err
+	}
+	return c.c.ListPrinter.Print(resp.Machine)
 }
 
 func (c *machine) bmcCommand() error {
