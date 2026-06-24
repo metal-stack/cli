@@ -1,17 +1,15 @@
-## metalctlv2 ip describe
+## metalctlv2 network
 
-describes the ip
+manage network entities
 
-```
-metalctlv2 ip describe <id> [flags]
-```
+### Synopsis
+
+networks can be attached to a machine or firewall such that they can communicate with each other.
 
 ### Options
 
 ```
-  -h, --help               help for describe
-  -n, --namespace string   namespace of the ip
-  -p, --project string     project of the ip
+  -h, --help   help for network
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +27,13 @@ metalctlv2 ip describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
+* [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
+* [metalctlv2 network apply](metalctlv2_network_apply.md)	 - applies one or more networks from a given file
+* [metalctlv2 network create](metalctlv2_network_create.md)	 - creates the network
+* [metalctlv2 network delete](metalctlv2_network_delete.md)	 - deletes the network
+* [metalctlv2 network describe](metalctlv2_network_describe.md)	 - describes the network
+* [metalctlv2 network edit](metalctlv2_network_edit.md)	 - edit the network through an editor and update
+* [metalctlv2 network list](metalctlv2_network_list.md)	 - list all networks
+* [metalctlv2 network list-base-networks](metalctlv2_network_list-base-networks.md)	 - lists base networks that can be used for network creation
+* [metalctlv2 network update](metalctlv2_network_update.md)	 - updates the network
 

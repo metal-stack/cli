@@ -1,17 +1,15 @@
-## metalctlv2 ip describe
+## metalctlv2 size
 
-describes the ip
+manage size entities
 
-```
-metalctlv2 ip describe <id> [flags]
-```
+### Synopsis
+
+manage sizes which defines the cpu, gpu, memory and storage properties of machines
 
 ### Options
 
 ```
-  -h, --help               help for describe
-  -n, --namespace string   namespace of the ip
-  -p, --project string     project of the ip
+  -h, --help   help for size
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +27,7 @@ metalctlv2 ip describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
+* [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
+* [metalctlv2 size describe](metalctlv2_size_describe.md)	 - describes the size
+* [metalctlv2 size list](metalctlv2_size_list.md)	 - list all sizes
 

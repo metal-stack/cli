@@ -4,6 +4,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/common"
 	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
@@ -26,7 +27,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "ip",
 		Plural:          "ips",
-		Description:     "an ip address of metal-stack.io",
+		Description:     "manage ip addresses",
 		Sorter:          sorters.IPSorter(),
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
@@ -44,7 +45,10 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().BoolP("static", "", false, "make this ip static")
 			cmd.Flags().StringP("addressfamily", "", "", "addressfamily, can be either IPv4|IPv6, defaults to IPv4 (optional)")
 
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("network", c.Completion.NetworkListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.IpAddressFamilyCompletion))
+
 		},
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
@@ -58,6 +62,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		},
 		DescribeCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
+			cmd.Flags().StringP("namespace", "n", "", "namespace of the ip")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		},
@@ -85,14 +90,15 @@ func (c *ip) createFromCLI() (*apiv2.IPServiceCreateRequest, error) {
 		}
 		labels = &apiv2.Labels{Labels: labelsMap}
 	}
+
 	return &apiv2.IPServiceCreateRequest{
 		Project:       c.c.GetProject(),
 		Network:       viper.GetString("network"),
 		Name:          pointer.PointerOrNil(viper.GetString("name")),
 		Description:   pointer.PointerOrNil(viper.GetString("description")),
 		Labels:        labels,
-		Type:          new(ipStaticToType(viper.GetBool("static"))),
-		AddressFamily: addressFamilyToType(viper.GetString("addressfamily")),
+		Type:          new(common.IpStaticToType(viper.GetBool("static"))),
+		AddressFamily: common.IPAddressFamilyToType(viper.GetString("addressfamily")),
 	}, nil
 }
 
@@ -117,7 +123,7 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		req.Description = pointer.PointerOrNil(viper.GetString("description"))
 	}
 	if viper.IsSet("static") {
-		req.Type = pointer.PointerOrNil(ipStaticToType(viper.GetBool("static")))
+		req.Type = pointer.PointerOrNil(common.IpStaticToType(viper.GetBool("static")))
 	}
 	if viper.IsSet("remove-labels") || viper.IsSet("labels") {
 		labelsUpdate := &apiv2.UpdateLabels{}
@@ -184,9 +190,17 @@ func (c *ip) Get(id string) (*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	var (
+		namespace *string
+	)
+	if viper.IsSet("namespace") {
+		namespace = new(viper.GetString("namespace"))
+	}
+
 	resp, err := c.c.Client.Apiv2().IP().Get(ctx, &apiv2.IPServiceGetRequest{
-		Project: c.c.GetProject(),
-		Ip:      id,
+		Project:   c.c.GetProject(),
+		Ip:        id,
+		Namespace: namespace,
 	})
 	if err != nil {
 		return nil, err
@@ -283,24 +297,4 @@ func (c *ip) IpResponseToUpdate(r *apiv2.IP) (*apiv2.IPServiceUpdateRequest, err
 			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
 		},
 	}, nil
-}
-
-func ipStaticToType(b bool) apiv2.IPType {
-	if b {
-		return apiv2.IPType_IP_TYPE_STATIC
-	}
-	return apiv2.IPType_IP_TYPE_EPHEMERAL
-}
-
-func addressFamilyToType(af string) *apiv2.IPAddressFamily {
-	switch af {
-	case "":
-		return nil
-	case "ipv4", "IPv4":
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4.Enum()
-	case "ipv6", "IPv6":
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V6.Enum()
-	default:
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_UNSPECIFIED.Enum()
-	}
 }

@@ -1,17 +1,17 @@
-## metalctlv2 ip describe
+## metalctlv2 machine list
 
-describes the ip
+list all machines
 
 ```
-metalctlv2 ip describe <id> [flags]
+metalctlv2 machine list [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help               help for describe
-  -n, --namespace string   namespace of the ip
-  -p, --project string     project of the ip
+  -h, --help              help for list
+  -p, --project string    project from where machines should be listed
+      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: age|image|partition|project|rack|size|uuid
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +29,5 @@ metalctlv2 ip describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
+* [metalctlv2 machine](metalctlv2_machine.md)	 - manage machine entities
 

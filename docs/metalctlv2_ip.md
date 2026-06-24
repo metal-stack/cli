@@ -4,7 +4,7 @@ manage ip entities
 
 ### Synopsis
 
-an ip address of metal-stack.io
+manage ip addresses
 
 ### Options
 

@@ -1,17 +1,18 @@
-## metalctlv2 ip describe
+## metalctlv2 size list
 
-describes the ip
+list all sizes
 
 ```
-metalctlv2 ip describe <id> [flags]
+metalctlv2 size list [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help               help for describe
-  -n, --namespace string   namespace of the ip
-  -p, --project string     project of the ip
+      --description string   size description to filter for
+  -h, --help                 help for list
+      --id string            size id to filter for
+      --name string          size name to filter for
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +30,5 @@ metalctlv2 ip describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
+* [metalctlv2 size](metalctlv2_size.md)	 - manage size entities
 

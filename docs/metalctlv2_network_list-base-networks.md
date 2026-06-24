@@ -1,17 +1,26 @@
-## metalctlv2 ip describe
+## metalctlv2 network list-base-networks
 
-describes the ip
+lists base networks that can be used for network creation
 
 ```
-metalctlv2 ip describe <id> [flags]
+metalctlv2 network list-base-networks [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help               help for describe
-  -n, --namespace string   namespace of the ip
-  -p, --project string     project of the ip
+      --addressfamily string           addressfamily to filter, either ipv4 or ipv6 [optional]
+      --description string             description to filter [optional]
+      --destination-prefixes strings   destination prefixes to filter
+  -h, --help                           help for list-base-networks
+      --id string                      ID to filter [optional]
+      --labels strings                 labels to filter [optional]
+      --name string                    name to filter [optional]
+      --partition string               partition to filter [optional]
+      --prefixes strings               prefixes to filter
+      --project string                 project to filter [optional]
+  -t, --type string                    type of the network. [optional]
+      --vrf uint32                     vrf to filter [optional]
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +38,5 @@ metalctlv2 ip describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
+* [metalctlv2 network](metalctlv2_network.md)	 - manage network entities
 

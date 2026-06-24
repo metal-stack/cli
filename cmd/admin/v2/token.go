@@ -27,7 +27,7 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "token",
 		Plural:          "tokens",
-		Description:     "manage api tokens for accessing the metal-stack.io api",
+		Description:     "manage api tokens",
 		Sorter:          sorters.TokenSorter(),
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
@@ -53,13 +53,13 @@ func (c *token) List() ([]*apiv2.Token, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	req := &adminv2.TokenServiceListRequest{}
+	req := &apiv2.TokenQuery{}
 
 	if viper.IsSet("user") {
 		req.User = new(viper.GetString("user"))
 	}
 
-	resp, err := c.c.Client.Adminv2().Token().List(ctx, req)
+	resp, err := c.c.Client.Adminv2().Token().List(ctx, &adminv2.TokenServiceListRequest{Query: req})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tokens: %w", err)
 	}
