@@ -56,7 +56,9 @@ func (c *token) List() ([]*apiv2.Token, error) {
 	req := &adminv2.TokenServiceListRequest{}
 
 	if viper.IsSet("user") {
-		req.User = new(viper.GetString("user"))
+		req.Query = &apiv2.TokenQuery{
+			User: new(viper.GetString("user")),
+		}
 	}
 
 	resp, err := c.c.Client.Adminv2().Token().List(ctx, req)
