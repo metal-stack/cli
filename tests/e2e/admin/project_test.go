@@ -19,7 +19,7 @@ func Test_AdminProjectCmd_List(t *testing.T) {
 			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
-						WantRequest: &adminv2.ProjectServiceListRequest{},
+						WantRequest: &adminv2.ProjectServiceListRequest{Query: &apiv2.ProjectQuery{}},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.ProjectServiceListResponse{
 								Projects: []*apiv2.Project{
