@@ -179,7 +179,11 @@ func Test_AdminSizeCmd_Update(t *testing.T) {
 								UpdateMeta: &apiv2.UpdateMeta{
 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
 								},
-								Labels:      &apiv2.UpdateLabels{},
+								Labels: &apiv2.UpdateLabels{
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: testresources.Size1().Meta.Labels,
+									},
+								},
 								Constraints: testresources.Size1().Constraints,
 							},
 							WantResponse: func() connect.AnyResponse {

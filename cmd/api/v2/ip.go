@@ -40,7 +40,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("network", "n", "", "network from which the ip should get created")
 			cmd.Flags().StringP("name", "", "", "name of the ip")
 			cmd.Flags().StringP("description", "", "", "description of the ip")
-			cmd.Flags().StringSliceP("labels", "", nil, "labels to add to the ip")
+			cmd.Flags().StringSlice("labels", nil, "labels to add to the ip")
 			cmd.Flags().BoolP("static", "", false, "make this ip static")
 			cmd.Flags().StringP("addressfamily", "", "", "addressfamily, can be either IPv4|IPv6, defaults to IPv4 (optional)")
 
@@ -85,6 +85,7 @@ func (c *ip) createFromCLI() (*apiv2.IPServiceCreateRequest, error) {
 		}
 		labels = &apiv2.Labels{Labels: labelsMap}
 	}
+
 	return &apiv2.IPServiceCreateRequest{
 		Project:       c.c.GetProject(),
 		Network:       viper.GetString("network"),
@@ -120,10 +121,10 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		req.Type = pointer.PointerOrNil(ipStaticToType(viper.GetBool("static")))
 	}
 	if viper.IsSet("remove-labels") || viper.IsSet("labels") {
-		labelsUpdate := &apiv2.UpdateLabels{}
+		updates := &apiv2.UpdateLabelsIndividually{}
 
 		if viper.IsSet("remove-labels") {
-			labelsUpdate.Remove = viper.GetStringSlice("remove-labels")
+			updates.Remove = viper.GetStringSlice("remove-labels")
 		}
 
 		if viper.IsSet("labels") {
@@ -131,9 +132,14 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 			if err != nil {
 				return nil, err
 			}
-			labelsUpdate.Update = &apiv2.Labels{Labels: labels}
+			updates.Update = &apiv2.Labels{Labels: labels}
 		}
-		req.Labels = labelsUpdate
+
+		req.Labels = &apiv2.UpdateLabels{
+			Strategy: &apiv2.UpdateLabels_Individual{
+				Individual: updates,
+			},
+		}
 	}
 
 	return req, nil
@@ -226,60 +232,34 @@ func (c *ip) Convert(r *apiv2.IP) (string, *apiv2.IPServiceCreateRequest, *apiv2
 	return helpers.EncodeProject(r.Ip, r.Project), IpResponseToCreate(r), responseToUpdate, err
 }
 
-func IpResponseToCreate(r *apiv2.IP) *apiv2.IPServiceCreateRequest {
+func IpResponseToCreate(ip *apiv2.IP) *apiv2.IPServiceCreateRequest {
 	return &apiv2.IPServiceCreateRequest{
-		Ip:          &r.Ip,
-		Project:     r.Project,
-		Network:     r.Network,
-		Name:        &r.Name,
-		Description: &r.Description,
-		Labels:      r.Meta.Labels,
-		Type:        &r.Type,
+		Ip:          &ip.Ip,
+		Project:     ip.Project,
+		Network:     ip.Network,
+		Name:        &ip.Name,
+		Description: &ip.Description,
+		Labels:      pointer.SafeDeref(ip.Meta).Labels,
+		Type:        &ip.Type,
 	}
 }
 
-func (c *ip) IpResponseToUpdate(r *apiv2.IP) (*apiv2.IPServiceUpdateRequest, error) {
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	current, err := c.c.Client.Apiv2().IP().Get(ctx, &apiv2.IPServiceGetRequest{
-		Ip:      r.Ip,
-		Project: r.Project,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	updateLabels := &apiv2.UpdateLabels{
-		Remove: []string{},
-		Update: &apiv2.Labels{},
-	}
-
-	for key, currentValue := range current.Ip.Meta.Labels.Labels {
-		value, ok := r.Meta.Labels.Labels[key]
-
-		if !ok {
-			updateLabels.Remove = append(updateLabels.Remove, key)
-			continue
-		}
-
-		if currentValue != value {
-			if updateLabels.Update.Labels == nil {
-				updateLabels.Update.Labels = map[string]string{}
-			}
-			updateLabels.Update.Labels[key] = value
-		}
-	}
-
+func (c *ip) IpResponseToUpdate(ip *apiv2.IP) (*apiv2.IPServiceUpdateRequest, error) {
 	return &apiv2.IPServiceUpdateRequest{
-		Project:     r.Project,
-		Ip:          r.Ip,
-		Name:        &r.Name,
-		Description: &r.Description,
-		Type:        &r.Type,
-		Labels:      updateLabels,
+		Project:     ip.Project,
+		Ip:          ip.Ip,
+		Name:        &ip.Name,
+		Description: &ip.Description,
+		Type:        &ip.Type,
+		Labels: &apiv2.UpdateLabels{
+			Strategy: &apiv2.UpdateLabels_Replace{
+				Replace: &apiv2.Labels{
+					Labels: pointer.SafeDeref(pointer.SafeDeref(ip.Meta).Labels).Labels,
+				},
+			},
+		},
 		UpdateMeta: &apiv2.UpdateMeta{
-			UpdatedAt:       current.Ip.Meta.UpdatedAt,
+			UpdatedAt:       pointer.SafeDeref(ip.Meta).UpdatedAt,
 			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
 		},
 	}, nil

@@ -143,17 +143,6 @@ func Test_IPCmd_Create(t *testing.T) {
 					},
 					ClientCalls: []client.ClientCall{
 						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
 							WantRequest: &apiv2.IPServiceCreateRequest{
 								Ip:            &testresources.IP1().Ip,
 								Project:       testresources.IP1().Project,
@@ -215,17 +204,6 @@ func Test_IPCmd_Delete(t *testing.T) {
 					},
 					ClientCalls: []client.ClientCall{
 						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
 							WantRequest: &apiv2.IPServiceDeleteRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
@@ -278,7 +256,7 @@ func Test_IPCmd_Update(t *testing.T) {
 			),
 			WantObject: testresources.IP1(),
 			WantTable: new(`
-			IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE  
+			IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
 			`),
 			WantWideTable: new(`
@@ -296,23 +274,16 @@ func Test_IPCmd_Update(t *testing.T) {
 					},
 					ClientCalls: []client.ClientCall{
 						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
 							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:          testresources.IP1().Ip,
 								Project:     testresources.IP1().Project,
 								Description: &testresources.IP1().Description,
 								Labels: &apiv2.UpdateLabels{
-									Update: &apiv2.Labels{},
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: &apiv2.Labels{
+											Labels: testresources.IP1().Meta.Labels.Labels,
+										},
+									},
 								},
 								Name: &testresources.IP1().Name,
 								Type: &testresources.IP1().Type,
@@ -352,17 +323,6 @@ func Test_IPCmd_Apply(t *testing.T) {
 					},
 					ClientCalls: []client.ClientCall{
 						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
 							WantRequest: &apiv2.IPServiceCreateRequest{
 								Ip:            &testresources.IP1().Ip,
 								Project:       testresources.IP1().Project,
@@ -397,17 +357,6 @@ func Test_IPCmd_Apply(t *testing.T) {
 					},
 					ClientCalls: []client.ClientCall{
 						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
 							WantRequest: &apiv2.IPServiceCreateRequest{
 								Ip:            &testresources.IP1().Ip,
 								Project:       testresources.IP1().Project,
@@ -421,24 +370,16 @@ func Test_IPCmd_Apply(t *testing.T) {
 							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
 						},
 						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
 							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:          testresources.IP1().Ip,
 								Project:     testresources.IP1().Project,
 								Description: &testresources.IP1().Description,
 								Labels: &apiv2.UpdateLabels{
-									Update: &apiv2.Labels{},
-								},
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: &apiv2.Labels{
+											Labels: testresources.IP1().Meta.Labels.Labels,
+										},
+									}},
 								Name: &testresources.IP1().Name,
 								Type: &testresources.IP1().Type,
 								UpdateMeta: &apiv2.UpdateMeta{

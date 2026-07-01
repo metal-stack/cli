@@ -48,6 +48,7 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("expires-in", "", "expires-in duration")
 			cmd.Flags().String("description", "", "image description")
 			cmd.Flags().StringSlice("features", nil, "image features can be machine and/or firewall")
+			cmd.Flags().StringSlice("labels", nil, "labels to add to the image")
 		},
 		CreateRequestFromCLI: w.createFromCLI,
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
@@ -97,6 +98,17 @@ func (c *image) createFromCLI() (*adminv2.ImageServiceCreateRequest, error) {
 		expiresAt = timestamppb.New(time.Now().Add(viper.GetDuration("expires-in")))
 	}
 
+	var labels *apiv2.Labels = nil
+
+	labelSlice := viper.GetStringSlice("labels")
+	if len(labelSlice) > 0 {
+		labelsMap, err := genericcli.LabelsToMap(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+		labels = &apiv2.Labels{Labels: labelsMap}
+	}
+
 	return &adminv2.ImageServiceCreateRequest{
 		Image: &apiv2.Image{
 			Id:             viper.GetString("id"),
@@ -106,8 +118,8 @@ func (c *image) createFromCLI() (*adminv2.ImageServiceCreateRequest, error) {
 			Description:    pointer.PointerOrNil(viper.GetString("description")),
 			ExpiresAt:      expiresAt,
 			Features:       imageFeaturesFromString(viper.GetStringSlice("features")),
-			Meta:           &apiv2.Meta{
-				// TODO labels
+			Meta: &apiv2.Meta{
+				Labels: labels,
 			},
 		},
 	}, nil
@@ -152,6 +164,7 @@ func (c *image) Convert(r *apiv2.Image) (string, *adminv2.ImageServiceCreateRequ
 				LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
 				UpdatedAt:       r.Meta.UpdatedAt,
 			},
+			// FIXME: Labels cannot be updated?
 			Classification: r.Classification,
 			ExpiresAt:      r.ExpiresAt,
 		}, nil

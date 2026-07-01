@@ -138,6 +138,12 @@ func (c *size) Convert(r *apiv2.Size) (string, *adminv2.SizeServiceCreateRequest
 				LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
 				UpdatedAt:       r.Meta.UpdatedAt,
 			},
-			Labels: &apiv2.UpdateLabels{},
+			Labels: &apiv2.UpdateLabels{
+				Strategy: &apiv2.UpdateLabels_Replace{
+					Replace: &apiv2.Labels{
+						Labels: pointer.SafeDeref(pointer.SafeDeref(r.Meta).Labels).Labels,
+					},
+				},
+			},
 		}, nil
 }
