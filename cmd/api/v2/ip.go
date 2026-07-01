@@ -136,8 +136,8 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		}
 
 		req.Labels = &apiv2.UpdateLabels{
-			Strategy: &apiv2.UpdateLabels_Inidivual{
-				Inidivual: updates,
+			Strategy: &apiv2.UpdateLabels_Individual{
+				Individual: updates,
 			},
 		}
 	}
