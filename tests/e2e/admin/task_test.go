@@ -6,8 +6,9 @@ import (
 	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
+	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 )
 
 func Test_AdminTaskCmd_List(t *testing.T) {
@@ -15,7 +16,7 @@ func Test_AdminTaskCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"admin", "task", "list"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TaskServiceListRequest{},
@@ -55,7 +56,7 @@ func Test_AdminTaskCmd_List(t *testing.T) {
 		{
 			Name:    "list with queue filter",
 			CmdArgs: []string{"admin", "task", "list", "--queue", "high-priority"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TaskServiceListRequest{
@@ -87,7 +88,7 @@ func Test_AdminTaskCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"admin", "task", "describe", testresources.Task1().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TaskServiceGetRequest{
@@ -112,7 +113,7 @@ func Test_AdminTaskCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe with queue",
 			CmdArgs: []string{"admin", "task", "describe", testresources.Task3().Id, "--queue", "high-priority"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TaskServiceGetRequest{
@@ -158,7 +159,7 @@ func Test_AdminTaskQueuesCmd(t *testing.T) {
 		{
 			Name:    "queues",
 			CmdArgs: []string{"admin", "task", "queues"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TaskServiceQueuesRequest{},

@@ -7,8 +7,9 @@ import (
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
+	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 )
 
 func Test_AdminAuditCmd_List(t *testing.T) {
@@ -16,7 +17,7 @@ func Test_AdminAuditCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"admin", "audit", "list"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.AuditServiceListRequest{
@@ -70,7 +71,7 @@ func Test_AuditCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"admin", "audit", "describe", testresources.Trace1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.AuditServiceGetRequest{

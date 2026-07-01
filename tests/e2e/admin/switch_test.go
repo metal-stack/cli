@@ -7,8 +7,9 @@ import (
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
+	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +19,7 @@ func Test_AdminSwitchCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"admin", "switch", "describe", testresources.Switch2().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceGetRequest{
@@ -63,7 +64,7 @@ func Test_AdminSwitchCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"admin", "switch", "list"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceListRequest{
@@ -115,7 +116,7 @@ func Test_AdminSwitchCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete",
 			CmdArgs: []string{"admin", "switch", "delete", testresources.Switch2().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceDeleteRequest{
@@ -142,8 +143,8 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 		{
 			Name:    "update from file",
 			CmdArgs: append([]string{"admin", "switch", "update"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Switch2()), 0755))
 					},
@@ -192,7 +193,7 @@ func Test_AdminSwitchCmd_ConnectedMachines(t *testing.T) {
 		{
 			Name:    "connected machines",
 			CmdArgs: []string{"admin", "switch", "connected-machines"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceConnectedMachinesRequest{
@@ -224,7 +225,7 @@ func Test_AdminSwitchCmd_Detail(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"admin", "switch", "detail", testresources.Switch1().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceListRequest{
@@ -267,7 +268,7 @@ func Test_AdminSwitchCmd_Migrate(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"admin", "switch", "migrate", testresources.Switch1().Id, testresources.Switch2().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceMigrateRequest{
@@ -312,7 +313,7 @@ func Test_AdminSwitchCmd_Port(t *testing.T) {
 		{
 			Name:    "port up",
 			CmdArgs: []string{"admin", "switch", "port", "up", testresources.Switch1().Id, "--port", testresources.Nic1().Name},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServicePortRequest{
@@ -387,7 +388,7 @@ Desired:
 		{
 			Name:    "down",
 			CmdArgs: []string{"admin", "switch", "port", "down", testresources.Switch1().Id, "--port", testresources.Nic1().Name},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServicePortRequest{

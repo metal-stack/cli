@@ -8,8 +8,9 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
+	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -19,7 +20,7 @@ func Test_ProjectCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"project", "describe", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceGetRequest{
@@ -64,7 +65,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 		{
 			Name:    "create",
 			CmdArgs: []string{"project", "create", "--name", testresources.Project1().Name, "--description", testresources.Project1().Description, "--tenant", testresources.Project1().Tenant},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceCreateRequest{
@@ -86,7 +87,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 		{
 			Name:    "create from file",
 			CmdArgs: append([]string{"project", "create"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 				},
@@ -113,7 +114,7 @@ func Test_ProjectCmd_Create(t *testing.T) {
 		{
 			Name:    "create many from file",
 			CmdArgs: append([]string{"project", "create"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshalToMultiYAML(t, testresources.Project1(), testresources.Project2()), 0755))
 				},
@@ -161,7 +162,7 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete",
 			CmdArgs: []string{"project", "delete", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceDeleteRequest{
@@ -180,7 +181,7 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete from file",
 			CmdArgs: append([]string{"project", "delete"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 				},
@@ -213,7 +214,7 @@ func Test_ProjectCmd_Update(t *testing.T) {
 		{
 			Name:    "update",
 			CmdArgs: []string{"project", "update", testresources.Project1().Uuid, "--name", "new-name", "--description", "new-desc"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceUpdateRequest{
@@ -234,7 +235,7 @@ func Test_ProjectCmd_Update(t *testing.T) {
 		{
 			Name:    "update from file",
 			CmdArgs: append([]string{"project", "update"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				FsMocks: func(fs *afero.Afero) {
 					require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 				},
@@ -269,7 +270,7 @@ func Test_ProjectCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"project", "list"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceListRequest{Query: &apiv2.ProjectQuery{}},
@@ -317,8 +318,8 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply",
 			CmdArgs: append([]string{"project", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 					},
@@ -347,8 +348,8 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply already exists",
 			CmdArgs: append([]string{"project", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Project1()), 0755))
 					},
@@ -392,7 +393,7 @@ func Test_ProjectCmd_ListInvites(t *testing.T) {
 		{
 			Name:    "list invites",
 			CmdArgs: []string{"project", "invite", "list", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceInvitesListRequest{},
@@ -440,7 +441,7 @@ func Test_ProjectCmd_DeleteInvite(t *testing.T) {
 		{
 			Name:    "delete",
 			CmdArgs: []string{"project", "invite", "delete", testresources.Project1Invite().Secret, "--project", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceInviteDeleteRequest{
@@ -466,7 +467,7 @@ func Test_ProjectCmd_CreateInvite(t *testing.T) {
 		{
 			Name:    "create invite",
 			CmdArgs: []string{"project", "invite", "generate-join-secret", "--role", testresources.Project1Invite().Role.String(), "--project", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceInviteRequest{
@@ -498,7 +499,7 @@ func Test_ProjectCmd_Join(t *testing.T) {
 		{
 			Name:    "join",
 			CmdArgs: []string{"project", "invite", "join", testresources.Project1Invite().Secret},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceInviteGetRequest{
@@ -539,7 +540,7 @@ func Test_ProjectCmd_ListMembers(t *testing.T) {
 		{
 			Name:    "list project members",
 			CmdArgs: []string{"project", "member", "list", "--project", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceGetRequest{
@@ -589,7 +590,7 @@ func Test_ProjectCmd_DeleteMember(t *testing.T) {
 		{
 			Name:    "delete project member",
 			CmdArgs: []string{"project", "member", "delete", testresources.Project1Members().Id, "--project", testresources.Project1().Uuid},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceRemoveMemberRequest{
@@ -615,7 +616,7 @@ func Test_ProjectCmd_UpdateMember(t *testing.T) {
 		{
 			Name:    "update project member",
 			CmdArgs: []string{"project", "member", "update", testresources.Project1Members().Id, "--project", testresources.Project1().Uuid, "--role", testresources.Project1Members().Role.String()},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceUpdateMemberRequest{
