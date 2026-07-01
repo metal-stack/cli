@@ -113,6 +113,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Health:
 		return t.HealthTable(d, wide)
 
+	case *apiv2.Size:
+		return t.SizeTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Size:
+		return t.SizeTable(d, wide)
+
 	case []*apiv2.Switch:
 		return t.SwitchTable(d, wide)
 	case []SwitchDetail:
