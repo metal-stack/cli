@@ -1,10 +1,10 @@
 package tableprinters
 
 import (
-	"fmt"
 	"strings"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/metal-lib/pkg/genericcli"
 )
 
 func (t *TablePrinter) IPTable(data []*apiv2.IP, wide bool) ([]string, [][]string, error) {
@@ -36,9 +36,7 @@ func (t *TablePrinter) IPTable(data []*apiv2.IP, wide bool) ([]string, [][]strin
 
 		var labels []string
 		if ip.Meta != nil && ip.Meta.Labels != nil {
-			for k, v := range ip.Meta.Labels.Labels {
-				labels = append(labels, fmt.Sprintf("%s=%s", k, v))
-			}
+			labels = genericcli.MapToLabels(ip.Meta.Labels.Labels)
 		}
 
 		if wide {

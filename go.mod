@@ -9,7 +9,7 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/metal-stack/api v0.2.0
+	github.com/metal-stack/api v0.2.1
 	github.com/metal-stack/metal-lib v0.25.2
 	github.com/metal-stack/v v1.0.3
 	github.com/spf13/afero v1.15.0
