@@ -1,8 +1,6 @@
 package v2
 
 import (
-	"fmt"
-
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -42,7 +40,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("network", "n", "", "network from which the ip should get created")
 			cmd.Flags().StringP("name", "", "", "name of the ip")
 			cmd.Flags().StringP("description", "", "", "description of the ip")
-			cmd.Flags().StringSliceP("tags", "", nil, "tags to add to the ip")
+			cmd.Flags().StringSlice("labels", nil, "labels to add to the ip")
 			cmd.Flags().BoolP("static", "", false, "make this ip static")
 			cmd.Flags().StringP("addressfamily", "", "", "addressfamily, can be either IPv4|IPv6, defaults to IPv4 (optional)")
 
@@ -52,7 +50,8 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
 			cmd.Flags().String("name", "", "name of the ip")
 			cmd.Flags().String("description", "", "description of the ip")
-			cmd.Flags().StringSlice("tags", nil, "tags of the ip")
+			cmd.Flags().StringArray("labels", nil, "adds (or edits) the volume labels in the form of <key>=<value>")
+			cmd.Flags().StringArray("remove-labels", nil, "removes the volume labels with the given key")
 			cmd.Flags().Bool("static", false, "make this ip static")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
@@ -67,22 +66,35 @@ func newIPCmd(c *config.Config) *cobra.Command {
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		},
-		CreateRequestFromCLI: func() (*apiv2.IPServiceCreateRequest, error) {
-			return &apiv2.IPServiceCreateRequest{
-				Project:     c.GetProject(),
-				Network:     viper.GetString("network"),
-				Name:        pointer.PointerOrNil(viper.GetString("name")),
-				Description: pointer.PointerOrNil(viper.GetString("description")),
-				// Labels:        viper.GetStringSlice("tags"), // FIXME implement
-				Type:          new(ipStaticToType(viper.GetBool("static"))),
-				AddressFamily: addressFamilyToType(viper.GetString("addressfamily")),
-			}, nil
-		},
+		CreateRequestFromCLI: w.createFromCLI,
 		UpdateRequestFromCLI: w.updateFromCLI,
 		ValidArgsFn:          c.Completion.IpListCompletion,
 	}
 
 	return genericcli.NewCmds(cmdsConfig)
+}
+
+func (c *ip) createFromCLI() (*apiv2.IPServiceCreateRequest, error) {
+	var labels *apiv2.Labels = nil
+
+	labelSlice := viper.GetStringSlice("labels")
+	if len(labelSlice) > 0 {
+		labelsMap, err := genericcli.LabelsToMap(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+		labels = &apiv2.Labels{Labels: labelsMap}
+	}
+
+	return &apiv2.IPServiceCreateRequest{
+		Project:       c.c.GetProject(),
+		Network:       viper.GetString("network"),
+		Name:          pointer.PointerOrNil(viper.GetString("name")),
+		Description:   pointer.PointerOrNil(viper.GetString("description")),
+		Labels:        labels,
+		Type:          new(ipStaticToType(viper.GetBool("static"))),
+		AddressFamily: addressFamilyToType(viper.GetString("addressfamily")),
+	}, nil
 }
 
 func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error) {
@@ -91,33 +103,46 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		return nil, err
 	}
 
-	ipToUpdate, err := c.Get(uuid)
-	if err != nil {
-		return nil, fmt.Errorf("unable to retrieve ip: %w", err)
+	req := &apiv2.IPServiceUpdateRequest{
+		Ip:      uuid,
+		Project: c.c.GetProject(),
+		UpdateMeta: &apiv2.UpdateMeta{
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+		},
 	}
 
 	if viper.IsSet("name") {
-		ipToUpdate.Name = viper.GetString("name")
+		req.Name = pointer.PointerOrNil(viper.GetString("name"))
 	}
 	if viper.IsSet("description") {
-		ipToUpdate.Description = viper.GetString("description")
+		req.Description = pointer.PointerOrNil(viper.GetString("description"))
 	}
 	if viper.IsSet("static") {
-		ipToUpdate.Type = ipStaticToType(viper.GetBool("static"))
+		req.Type = pointer.PointerOrNil(ipStaticToType(viper.GetBool("static")))
 	}
-	// if viper.IsSet("tags") {
-	// if ipToUpdate.Meta == nil {
-	// 	ipToUpdate.Meta = &apiv2.Meta{
-	// 		Labels: &apiv2.Labels{},
-	// 	}
-	// }
-	// for _, l :=
+	if viper.IsSet("remove-labels") || viper.IsSet("labels") {
+		updates := &apiv2.UpdateLabelsIndividually{}
 
-	// ipToUpdate.Meta.Labels = viper.GetStringSlice("tags")
-	// FIXME implement
-	// }
+		if viper.IsSet("remove-labels") {
+			updates.Remove = viper.GetStringSlice("remove-labels")
+		}
 
-	return c.IpResponseToUpdate(ipToUpdate)
+		if viper.IsSet("labels") {
+			labels, err := genericcli.LabelsToMap(viper.GetStringSlice("labels"))
+			if err != nil {
+				return nil, err
+			}
+			updates.Update = &apiv2.Labels{Labels: labels}
+		}
+
+		req.Labels = &apiv2.UpdateLabels{
+			Strategy: &apiv2.UpdateLabels_Individual{
+				Individual: updates,
+			},
+		}
+	}
+
+	return req, nil
 }
 
 func (c *ip) Create(rq *apiv2.IPServiceCreateRequest) (*apiv2.IP, error) {
@@ -207,58 +232,36 @@ func (c *ip) Convert(r *apiv2.IP) (string, *apiv2.IPServiceCreateRequest, *apiv2
 	return helpers.EncodeProject(r.Ip, r.Project), IpResponseToCreate(r), responseToUpdate, err
 }
 
-func IpResponseToCreate(r *apiv2.IP) *apiv2.IPServiceCreateRequest {
+func IpResponseToCreate(ip *apiv2.IP) *apiv2.IPServiceCreateRequest {
 	return &apiv2.IPServiceCreateRequest{
-		Ip:          &r.Ip,
-		Project:     r.Project,
-		Network:     r.Network,
-		Name:        &r.Name,
-		Description: &r.Description,
-		Labels:      r.Meta.Labels,
-		Type:        &r.Type,
+		Ip:          &ip.Ip,
+		Project:     ip.Project,
+		Network:     ip.Network,
+		Name:        &ip.Name,
+		Description: &ip.Description,
+		Labels:      pointer.SafeDeref(ip.Meta).Labels,
+		Type:        &ip.Type,
 	}
 }
 
-func (c *ip) IpResponseToUpdate(desired *apiv2.IP) (*apiv2.IPServiceUpdateRequest, error) {
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	current, err := c.c.Client.Apiv2().IP().Get(ctx, &apiv2.IPServiceGetRequest{
-		Ip:      desired.Ip,
-		Project: desired.Project,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	updateLabels := &apiv2.UpdateLabels{
-		Remove: []string{},
-		Update: &apiv2.Labels{},
-	}
-
-	for key, currentValue := range current.Ip.Meta.Labels.Labels {
-		value, ok := desired.Meta.Labels.Labels[key]
-
-		if !ok {
-			updateLabels.Remove = append(updateLabels.Remove, key)
-			continue
-		}
-
-		if currentValue != value {
-			if updateLabels.Update.Labels == nil {
-				updateLabels.Update.Labels = map[string]string{}
-			}
-			updateLabels.Update.Labels[key] = value
-		}
-	}
-
+func (c *ip) IpResponseToUpdate(ip *apiv2.IP) (*apiv2.IPServiceUpdateRequest, error) {
 	return &apiv2.IPServiceUpdateRequest{
-		Project:     desired.Project,
-		Ip:          desired.Ip,
-		Name:        &desired.Name,
-		Description: &desired.Description,
-		Type:        &desired.Type,
-		Labels:      updateLabels,
+		Project:     ip.Project,
+		Ip:          ip.Ip,
+		Name:        &ip.Name,
+		Description: &ip.Description,
+		Type:        &ip.Type,
+		Labels: &apiv2.UpdateLabels{
+			Strategy: &apiv2.UpdateLabels_Replace{
+				Replace: &apiv2.Labels{
+					Labels: pointer.SafeDeref(pointer.SafeDeref(ip.Meta).Labels).Labels,
+				},
+			},
+		},
+		UpdateMeta: &apiv2.UpdateMeta{
+			UpdatedAt:       pointer.SafeDeref(ip.Meta).UpdatedAt,
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+		},
 	}, nil
 }
 

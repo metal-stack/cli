@@ -8,8 +8,9 @@ import (
 
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
+	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 )
 
 func Test_AdminPartitionCmd_List(t *testing.T) {
@@ -17,7 +18,7 @@ func Test_AdminPartitionCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"admin", "partition", "list"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.PartitionServiceListRequest{
@@ -67,7 +68,7 @@ func Test_AdminPartitionCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"admin", "partition", "describe", testresources.Partition1().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.PartitionServiceGetRequest{
@@ -95,7 +96,7 @@ func Test_AdminPartitionCmd_Capacity(t *testing.T) {
 		{
 			Name:    "capacity",
 			CmdArgs: []string{"admin", "partition", "capacity"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.PartitionServiceCapacityRequest{},
@@ -146,7 +147,7 @@ partition-1 size-1
 		{
 			Name:    "capacity with filters",
 			CmdArgs: []string{"admin", "partition", "capacity", "--id", "partition-1", "--size", "size-1", "--project", "project-123"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.PartitionServiceCapacityRequest{

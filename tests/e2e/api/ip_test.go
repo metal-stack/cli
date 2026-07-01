@@ -7,8 +7,9 @@ import (
 	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
+	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +19,7 @@ func Test_IPCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"ip", "list", "--project", testresources.IP1().Project},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceListRequest{
@@ -68,7 +69,7 @@ func Test_IPCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"ip", "describe", "--project", testresources.IP1().Project, testresources.IP1().Ip},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceGetRequest{
@@ -114,7 +115,7 @@ func Test_IPCmd_Create(t *testing.T) {
 		{
 			Name:    "create",
 			CmdArgs: []string{"ip", "create", "--project", testresources.IP1().Project, "--network", testresources.IP1().Network, "--static=true"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceCreateRequest{
@@ -135,23 +136,12 @@ func Test_IPCmd_Create(t *testing.T) {
 		{
 			Name:    "create from file",
 			CmdArgs: append([]string{"ip", "create"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
 					ClientCalls: []client.ClientCall{
-						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
 						{
 							WantRequest: &apiv2.IPServiceCreateRequest{
 								Ip:            &testresources.IP1().Ip,
@@ -187,7 +177,7 @@ func Test_IPCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete",
 			CmdArgs: []string{"ip", "delete", "--project", testresources.IP1().Project, testresources.IP1().Ip},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.IPServiceDeleteRequest{
@@ -207,23 +197,12 @@ func Test_IPCmd_Delete(t *testing.T) {
 		{
 			Name:    "delete from file",
 			CmdArgs: append([]string{"ip", "delete"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
 					ClientCalls: []client.ClientCall{
-						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
 						{
 							WantRequest: &apiv2.IPServiceDeleteRequest{
 								Ip:      testresources.IP1().Ip,
@@ -250,48 +229,21 @@ func Test_IPCmd_Delete(t *testing.T) {
 }
 
 func Test_IPCmd_Update(t *testing.T) {
-	tests := []*e2e.Test[apiv2.IPServiceDeleteResponse, *apiv2.IP]{
+	tests := []*e2e.Test[apiv2.IPServiceUpdateResponse, *apiv2.IP]{
 		{
 			Name:    "update",
 			CmdArgs: []string{"ip", "update", "--project", testresources.IP1().Project, testresources.IP1().Ip, "--name", "foo"},
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					ClientCalls: []client.ClientCall{
-						// TODO: the client gets the IP two times?
-						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
 						{
 							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:      testresources.IP1().Ip,
 								Project: testresources.IP1().Project,
 								Name:    new("foo"),
-
-								// TODO: these fields do not need to be sent?
-								Description: &testresources.IP1().Description,
-								Labels: &apiv2.UpdateLabels{
-									Update: &apiv2.Labels{},
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
-								Type: &testresources.IP1().Type,
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.IPServiceUpdateResponse{
@@ -303,37 +255,41 @@ func Test_IPCmd_Update(t *testing.T) {
 				},
 			),
 			WantObject: testresources.IP1(),
+			WantTable: new(`
+			IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a
+			`),
+			WantWideTable: new(`
+			IP       PROJECT                               ID                                    TYPE    NAME  DESCRIPTION    LABELS
+			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a     a description  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+			`),
 		},
 		{
 			Name:    "update from file",
 			CmdArgs: append([]string{"ip", "update"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
 					ClientCalls: []client.ClientCall{
-						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
 						{
 							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:          testresources.IP1().Ip,
 								Project:     testresources.IP1().Project,
 								Description: &testresources.IP1().Description,
 								Labels: &apiv2.UpdateLabels{
-									Update: &apiv2.Labels{},
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: &apiv2.Labels{
+											Labels: testresources.IP1().Meta.Labels.Labels,
+										},
+									},
 								},
 								Name: &testresources.IP1().Name,
 								Type: &testresources.IP1().Type,
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.IPServiceUpdateResponse{
@@ -356,27 +312,16 @@ func Test_IPCmd_Update(t *testing.T) {
 }
 
 func Test_IPCmd_Apply(t *testing.T) {
-	tests := []*e2e.Test[apiv2.IPServiceDeleteResponse, *apiv2.IP]{
+	tests := []*e2e.Test[apiv2.IPServiceUpdateResponse, *apiv2.IP]{
 		{
 			Name:    "apply",
 			CmdArgs: append([]string{"ip", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
 					ClientCalls: []client.ClientCall{
-						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
 						{
 							WantRequest: &apiv2.IPServiceCreateRequest{
 								Ip:            &testresources.IP1().Ip,
@@ -405,23 +350,12 @@ func Test_IPCmd_Apply(t *testing.T) {
 		{
 			Name:    "apply already exists",
 			CmdArgs: append([]string{"ip", "apply"}, e2e.AppendFromFileCommonArgs()...),
-			NewRootCmd: e2e.NewRootCmd(t,
-				&e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.IP1()), 0755))
 					},
 					ClientCalls: []client.ClientCall{
-						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
 						{
 							WantRequest: &apiv2.IPServiceCreateRequest{
 								Ip:            &testresources.IP1().Ip,
@@ -436,26 +370,21 @@ func Test_IPCmd_Apply(t *testing.T) {
 							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
 						},
 						{
-							WantRequest: &apiv2.IPServiceGetRequest{
-								Ip:      testresources.IP1().Ip,
-								Project: testresources.IP1().Project,
-							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.IPServiceGetResponse{
-									Ip: testresources.IP1(),
-								})
-							},
-						},
-						{
 							WantRequest: &apiv2.IPServiceUpdateRequest{
 								Ip:          testresources.IP1().Ip,
 								Project:     testresources.IP1().Project,
 								Description: &testresources.IP1().Description,
 								Labels: &apiv2.UpdateLabels{
-									Update: &apiv2.Labels{},
-								},
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: &apiv2.Labels{
+											Labels: testresources.IP1().Meta.Labels.Labels,
+										},
+									}},
 								Name: &testresources.IP1().Name,
 								Type: &testresources.IP1().Type,
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.IPServiceUpdateResponse{

@@ -34,7 +34,7 @@ func ToPhase(phase string) *apiv2.AuditPhase {
 	return new(apiv2.AuditPhase(p))
 }
 
-func TryPrettifyBody(trace *apiv2.AuditTrace) *apiv2.AuditTrace {
+func TryPrettifyBody(trace *apiv2.AuditTrace) {
 	if trace.Body != nil {
 		trimmed := strings.Trim(*trace.Body, `"`)
 		body := map[string]any{}
@@ -44,6 +44,4 @@ func TryPrettifyBody(trace *apiv2.AuditTrace) *apiv2.AuditTrace {
 			}
 		}
 	}
-
-	return trace
 }

@@ -6,8 +6,9 @@ import (
 	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	"github.com/metal-stack/cli/testing/e2e"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
+	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 )
 
 func Test_ImageCmd_List(t *testing.T) {
@@ -15,7 +16,7 @@ func Test_ImageCmd_List(t *testing.T) {
 		{
 			Name:    "list",
 			CmdArgs: []string{"image", "list"},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ImageServiceListRequest{
@@ -66,7 +67,7 @@ func Test_ImageCmd_Describe(t *testing.T) {
 		{
 			Name:    "describe",
 			CmdArgs: []string{"image", "describe", testresources.Image1().Id},
-			NewRootCmd: e2e.NewRootCmd(t, &e2e.TestConfig{
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ImageServiceGetRequest{
@@ -74,6 +75,51 @@ func Test_ImageCmd_Describe(t *testing.T) {
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ImageServiceGetResponse{
+								Image: testresources.Image1(),
+							})
+						},
+					},
+				},
+			}),
+			WantObject:      testresources.Image1(),
+			WantProtoObject: testresources.Image1(),
+			WantTable: new(`
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
+			`),
+			WantWideTable: new(`
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
+			`),
+			Template: new("{{ .id }} {{ .name }}"),
+			WantTemplate: new(`
+			ubuntu-24.04 Ubuntu 24.04
+			`),
+			WantMarkdown: new(`
+            | ID           | NAME         | DESCRIPTION      | FEATURES | EXPIRATION | STATUS    |
+            |--------------|--------------|------------------|----------|------------|-----------|
+            | ubuntu-24.04 | Ubuntu 24.04 | Ubuntu 24.04 LTS | machine  |            | supported |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_ImageCmd_Latest(t *testing.T) {
+	tests := []*e2e.Test[apiv2.ImageServiceLatestResponse, *apiv2.Image]{
+		{
+			Name:    "latest",
+			CmdArgs: []string{"image", "latest", "--os", testresources.Image1().Id},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &apiv2.ImageServiceLatestRequest{
+							Os: testresources.Image1().Id,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.ImageServiceLatestResponse{
 								Image: testresources.Image1(),
 							})
 						},

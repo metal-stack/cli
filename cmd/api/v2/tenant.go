@@ -8,6 +8,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -184,8 +185,10 @@ func (c *tenant) List() ([]*apiv2.Tenant, error) {
 	defer cancel()
 
 	req := &apiv2.TenantServiceListRequest{
-		Name: pointer.PointerOrNil(viper.GetString("name")),
-		Id:   pointer.PointerOrNil(viper.GetString("tenant")),
+		Query: &apiv2.TenantQuery{
+			Name:  pointer.PointerOrNil(viper.GetString("name")),
+			Login: pointer.PointerOrNil(viper.GetString("tenant")),
+		},
 	}
 	resp, err := c.c.Client.Apiv2().Tenant().List(ctx, req)
 	if err != nil {
@@ -201,7 +204,11 @@ func (c *tenant) Create(rq *apiv2.TenantServiceCreateRequest) (*apiv2.Tenant, er
 
 	resp, err := c.c.Client.Apiv2().Tenant().Create(ctx, rq)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create tenant: %w", err)
+		if helpers.IsAlreadyExists(err) {
+			return nil, genericcli.AlreadyExistsError()
+		}
+
+		return nil, err
 	}
 
 	return resp.Tenant, nil
@@ -230,10 +237,11 @@ func (c *tenant) Convert(r *apiv2.Tenant) (string, *apiv2.TenantServiceCreateReq
 			AvatarUrl:   &r.AvatarUrl,
 		},
 		&apiv2.TenantServiceUpdateRequest{
-			Login:     r.Login,
-			Name:      pointer.PointerOrNil(r.Name),
-			Email:     pointer.PointerOrNil(r.Email),
-			AvatarUrl: pointer.PointerOrNil(r.AvatarUrl),
+			Login:       r.Login,
+			Name:        pointer.PointerOrNil(r.Name),
+			Email:       pointer.PointerOrNil(r.Email),
+			Description: pointer.PointerOrNil(r.Description),
+			AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
 		},
 		nil
 }

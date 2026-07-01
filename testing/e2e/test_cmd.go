@@ -1,4 +1,4 @@
-package e2e
+package e2erootcmd
 
 import (
 	"bytes"
@@ -12,8 +12,10 @@ import (
 	"github.com/metal-stack/cli/cmd"
 	"github.com/metal-stack/cli/cmd/completion"
 	"github.com/metal-stack/cli/cmd/config"
+	e2e_test "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,7 +25,7 @@ type TestConfig struct {
 	ClientCalls []client.ClientCall
 }
 
-func NewRootCmd(t *testing.T, c *TestConfig) NewRootCmdFunc {
+func NewRootCmd(t *testing.T, c *TestConfig) e2e_test.NewRootCmdFunc {
 	return func() (*cobra.Command, *bytes.Buffer) {
 		interceptors := []connect.Interceptor{
 			client.NewTestInterceptor(t, c.ClientCalls),
@@ -51,6 +53,8 @@ func NewRootCmd(t *testing.T, c *TestConfig) NewRootCmdFunc {
 		}
 
 		var out bytes.Buffer
+
+		viper.Reset()
 
 		return cmd.NewRootCmd(&config.Config{
 			Fs:        fs,

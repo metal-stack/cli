@@ -30,6 +30,7 @@ cli for managing entities in metal-stack
 * [metalctlv2 markdown](metalctlv2_markdown.md)	 - create markdown documentation
 * [metalctlv2 partition](metalctlv2_partition.md)	 - manage partition entities
 * [metalctlv2 project](metalctlv2_project.md)	 - manage project entities
+* [metalctlv2 size](metalctlv2_size.md)	 - manage size entities
 * [metalctlv2 tenant](metalctlv2_tenant.md)	 - manage tenant entities
 * [metalctlv2 token](metalctlv2_token.md)	 - manage token entities
 * [metalctlv2 user](metalctlv2_user.md)	 - manage user entities
