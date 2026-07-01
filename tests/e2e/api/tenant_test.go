@@ -68,7 +68,7 @@ func Test_TenantCmd_List(t *testing.T) {
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
-						WantRequest: &apiv2.TenantServiceListRequest{},
+						WantRequest: &apiv2.TenantServiceListRequest{Query: &apiv2.TenantQuery{}},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceListResponse{
 								Tenants: []*apiv2.Tenant{

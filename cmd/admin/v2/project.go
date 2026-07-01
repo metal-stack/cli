@@ -49,7 +49,9 @@ func (c *project) List() ([]*apiv2.Project, error) {
 	defer cancel()
 
 	req := &adminv2.ProjectServiceListRequest{
-		Tenant: pointer.PointerOrNil(viper.GetString("tenant")),
+		Query: &apiv2.ProjectQuery{
+			Tenant: pointer.PointerOrNil(viper.GetString("tenant")),
+		},
 	}
 
 	resp, err := c.c.Client.Adminv2().Project().List(ctx, req)
