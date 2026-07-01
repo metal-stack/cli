@@ -128,10 +128,9 @@ func (c *image) Delete(id string) (*apiv2.Image, error) {
 }
 func (c *image) List() ([]*apiv2.Image, error) {
 	panic("unimplemented")
-
 }
-func (c *image) Convert(r *apiv2.Image) (string, *adminv2.ImageServiceCreateRequest, *adminv2.ImageServiceUpdateRequest, error) {
 
+func (c *image) Convert(r *apiv2.Image) (string, *adminv2.ImageServiceCreateRequest, *adminv2.ImageServiceUpdateRequest, error) {
 	return r.Id, &adminv2.ImageServiceCreateRequest{
 			Image: &apiv2.Image{
 				Id:             r.Id,
