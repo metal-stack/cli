@@ -121,7 +121,7 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		req.Type = pointer.PointerOrNil(ipStaticToType(viper.GetBool("static")))
 	}
 	if viper.IsSet("remove-labels") || viper.IsSet("labels") {
-		updates := &apiv2.UpdateLabelsIndividually{}
+		updates := &apiv2.LabelsPatch{}
 
 		if viper.IsSet("remove-labels") {
 			updates.Remove = viper.GetStringSlice("remove-labels")
@@ -136,8 +136,8 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		}
 
 		req.Labels = &apiv2.UpdateLabels{
-			Strategy: &apiv2.UpdateLabels_Individual{
-				Individual: updates,
+			Strategy: &apiv2.UpdateLabels_Patch{
+				Patch: updates,
 			},
 		}
 	}
