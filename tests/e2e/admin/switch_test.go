@@ -33,7 +33,6 @@ func Test_AdminSwitchCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Switch2(),
 			WantProtoObject: testresources.Switch2(),
 			WantDefault: new(`
 description: leaf switch 2
@@ -130,7 +129,7 @@ func Test_AdminSwitchCmd_Delete(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Switch2(),
+			WantProtoObject: testresources.Switch2(),
 		},
 	}
 	for _, tt := range tests {
@@ -167,11 +166,11 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-            ID      PARTITION  RACK    OS  STATUS  LAST SYNC  
+            ID      PARTITION  RACK    OS  STATUS  LAST SYNC
             leaf02  fra-equ01  rack-1  🦔  ●
 					`),
 			WantWideTable: new(`
-            ID      PARTITION  RACK    OS             METALCORE         IP        MODE         LAST SYNC  SYNC DURATION  LAST ERROR  
+            ID      PARTITION  RACK    OS             METALCORE         IP        MODE         LAST SYNC  SYNC DURATION  LAST ERROR
             leaf02  fra-equ01  rack-1  SONiC (4.2.0)  v0.9.1 (abc1234)  10.0.0.2  operational             200ms
 					`),
 			Template:     new("{{ .id }} {{ .os.metal_core_version }}"),
@@ -209,8 +208,8 @@ func Test_AdminSwitchCmd_ConnectedMachines(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID      NIC NAME        IDENTIFIER           PARTITION  RACK    SIZE      PRODUCT SERIAL  CHASSIS SERIAL  
-            leaf01                                       fra-equ01  rack-1                                            
+            ID      NIC NAME        IDENTIFIER           PARTITION  RACK    SIZE      PRODUCT SERIAL  CHASSIS SERIAL
+            leaf01                                       fra-equ01  rack-1
             └─╴id1  Ethernet0 (up)  oid:0x1000000000001  fra-equ01  rack-1  m1-small  ps-1            cs-1
 			`),
 		},
@@ -244,8 +243,8 @@ func Test_AdminSwitchCmd_Detail(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            PARTITION  RACK    SWITCH  PORT       MACHINE  VNI - FILTER  CIDR - FILTER     
-            fra-equ01  rack-1  leaf01  Ethernet0  id1      10001         10.0.0.0/24       
+            PARTITION  RACK    SWITCH  PORT       MACHINE  VNI - FILTER  CIDR - FILTER
+            fra-equ01  rack-1  leaf01  Ethernet0  id1      10001         10.0.0.0/24
                                                            10002         192.168.100.0/24
 			`),
 			Template:     new("{{ .id }} {{ .partition }} {{ .rack }}"),
