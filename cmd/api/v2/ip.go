@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"github.com/metal-stack/api/go/errorutil"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -151,7 +152,7 @@ func (c *ip) Create(rq *apiv2.IPServiceCreateRequest) (*apiv2.IP, error) {
 
 	resp, err := c.c.Client.Apiv2().IP().Create(ctx, rq)
 	if err != nil {
-		if helpers.IsAlreadyExists(err) {
+		if errorutil.IsConflict(err) {
 			return nil, genericcli.AlreadyExistsError()
 		}
 

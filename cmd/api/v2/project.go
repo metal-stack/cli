@@ -5,10 +5,10 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
+	"github.com/metal-stack/api/go/errorutil"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
-	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -206,7 +206,7 @@ func (c *project) Create(rq *apiv2.ProjectServiceCreateRequest) (*apiv2.Project,
 
 	resp, err := c.c.Client.Apiv2().Project().Create(ctx, rq)
 	if err != nil {
-		if helpers.IsAlreadyExists(err) {
+		if errorutil.IsConflict(err) {
 			return nil, genericcli.AlreadyExistsError()
 		}
 
