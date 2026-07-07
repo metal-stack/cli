@@ -7,6 +7,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -43,10 +44,6 @@ func newSizeCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("name", "", "", "size name to update")
 			cmd.Flags().StringP("description", "", "", "size description to update")
 		},
-		CreateCmdMutateFn: func(cmd *cobra.Command) {
-
-		},
-		// TODO: create from CLI might be nice to have?
 	}
 
 	return genericcli.NewCmds(cmdsConfig)
@@ -72,6 +69,10 @@ func (c *size) Create(rq *adminv2.SizeServiceCreateRequest) (*apiv2.Size, error)
 
 	resp, err := c.c.Client.Adminv2().Size().Create(ctx, rq)
 	if err != nil {
+		if helpers.IsAlreadyExists(err) {
+			return nil, genericcli.AlreadyExistsError()
+		}
+
 		return nil, fmt.Errorf("failed to create size: %w", err)
 	}
 
@@ -121,7 +122,9 @@ func (c *size) Update(rq *adminv2.SizeServiceUpdateRequest) (*apiv2.Size, error)
 }
 
 func (c *size) Convert(r *apiv2.Size) (string, *adminv2.SizeServiceCreateRequest, *adminv2.SizeServiceUpdateRequest, error) {
-	return r.Id, &adminv2.SizeServiceCreateRequest{
+
+	return r.Id,
+		&adminv2.SizeServiceCreateRequest{
 			Size: &apiv2.Size{
 				Id:          r.Id,
 				Name:        r.Name,
@@ -134,10 +137,7 @@ func (c *size) Convert(r *apiv2.Size) (string, *adminv2.SizeServiceCreateRequest
 			Name:        r.Name,
 			Description: r.Description,
 			Constraints: r.Constraints,
-			UpdateMeta: &apiv2.UpdateMeta{
-				LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
-				UpdatedAt:       r.Meta.UpdatedAt,
-			},
+			UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
 			Labels: &apiv2.UpdateLabels{
 				Strategy: &apiv2.UpdateLabels_Replace{
 					Replace: &apiv2.Labels{

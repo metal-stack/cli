@@ -7,6 +7,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -87,6 +88,10 @@ func (c *tenant) Create(rq *adminv2.TenantServiceCreateRequest) (*apiv2.Tenant, 
 
 	resp, err := c.c.Client.Adminv2().Tenant().Create(ctx, rq)
 	if err != nil {
+		if helpers.IsAlreadyExists(err) {
+			return nil, genericcli.AlreadyExistsError()
+		}
+
 		return nil, fmt.Errorf("failed to create tenant: %w", err)
 	}
 

@@ -35,22 +35,22 @@ func Test_AdminSwitchCmd_Describe(t *testing.T) {
 			}),
 			WantProtoObject: testresources.Switch2(),
 			WantDefault: new(`
-description: leaf switch 2
 id: leaf02
-lastSync:
-  duration: 0.200s
-  time: "2000-01-01T00:00:00Z"
+meta:
+    createdAt: "2000-01-01T00:00:00Z"
+description: leaf switch 2
+rack: rack-1
+partition: fra-equ01
 managementIp: 10.0.0.2
 managementUser: admin
-meta:
-  createdAt: "2000-01-01T00:00:00Z"
 os:
-  metalCoreVersion: v0.9.1 (abc1234), tags/v0.9.1
-  vendor: SWITCH_OS_VENDOR_SONIC
-  version: 4.2.0
-partition: fra-equ01
-rack: rack-1
-			`),
+    vendor: SWITCH_OS_VENDOR_SONIC
+    version: 4.2.0
+    metalCoreVersion: v0.9.1 (abc1234), tags/v0.9.1
+lastSync:
+    time: "2000-01-01T00:00:00Z"
+    duration: 0.200s
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -83,26 +83,26 @@ func Test_AdminSwitchCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			ID      PARTITION  RACK    OS  STATUS  LAST SYNC
-			leaf01  fra-equ01  rack-1  🦔  ●
-			leaf02  fra-equ01  rack-1  🦔  ●
-			`),
+            ID      PARTITION  RACK    OS  STATUS  LAST SYNC
+            leaf01  fra-equ01  rack-1  🦔  ●
+            leaf02  fra-equ01  rack-1  🦔  ●
+            `),
 			WantWideTable: new(`
-			ID      PARTITION  RACK    OS             METALCORE         IP        MODE         LAST SYNC  SYNC DURATION  LAST ERROR
-			leaf01  fra-equ01  rack-1  SONiC (4.2.0)  v0.9.1 (abc1234)  10.0.0.1  operational             100ms
-			leaf02  fra-equ01  rack-1  SONiC (4.2.0)  v0.9.1 (abc1234)  10.0.0.2  operational             200ms
-			`),
+            ID      PARTITION  RACK    OS             METALCORE         IP        MODE         LAST SYNC  SYNC DURATION  LAST ERROR
+            leaf01  fra-equ01  rack-1  SONiC (4.2.0)  v0.9.1 (abc1234)  10.0.0.1  operational             100ms
+            leaf02  fra-equ01  rack-1  SONiC (4.2.0)  v0.9.1 (abc1234)  10.0.0.2  operational             200ms
+            `),
 			Template: new("{{ .id }} {{ .partition }}"),
 			WantTemplate: new(`
 leaf01 fra-equ01
 leaf02 fra-equ01
-			`),
+            `),
 			WantMarkdown: new(`
-			| ID     | PARTITION | RACK   | OS | STATUS | LAST SYNC |
-			|--------|-----------|--------|----|--------|-----------|
-			| leaf01 | fra-equ01 | rack-1 | 🦔 | ●      |           |
-			| leaf02 | fra-equ01 | rack-1 | 🦔 | ●      |           |
-			`),
+            | ID     | PARTITION | RACK   | OS | STATUS | LAST SYNC |
+            |--------|-----------|--------|----|--------|-----------|
+            | leaf01 | fra-equ01 | rack-1 | 🦔 | ●      |           |
+            | leaf02 | fra-equ01 | rack-1 | 🦔 | ●      |           |
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -168,18 +168,18 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 			WantTable: new(`
             ID      PARTITION  RACK    OS  STATUS  LAST SYNC
             leaf02  fra-equ01  rack-1  🦔  ●
-					`),
+                    `),
 			WantWideTable: new(`
             ID      PARTITION  RACK    OS             METALCORE         IP        MODE         LAST SYNC  SYNC DURATION  LAST ERROR
             leaf02  fra-equ01  rack-1  SONiC (4.2.0)  v0.9.1 (abc1234)  10.0.0.2  operational             200ms
-					`),
+                    `),
 			Template:     new("{{ .id }} {{ .os.metal_core_version }}"),
 			WantTemplate: new(`leaf02 v0.9.1 (abc1234), tags/v0.9.1`),
 			WantMarkdown: new(`
             | ID     | PARTITION | RACK   | OS | STATUS | LAST SYNC |
             |--------|-----------|--------|----|--------|-----------|
             | leaf02 | fra-equ01 | rack-1 | 🦔 | ●      |           |
-					`),
+                    `),
 		},
 	}
 	for _, tt := range tests {
@@ -211,7 +211,7 @@ func Test_AdminSwitchCmd_ConnectedMachines(t *testing.T) {
             ID      NIC NAME        IDENTIFIER           PARTITION  RACK    SIZE      PRODUCT SERIAL  CHASSIS SERIAL
             leaf01                                       fra-equ01  rack-1
             └─╴id1  Ethernet0 (up)  oid:0x1000000000001  fra-equ01  rack-1  m1-small  ps-1            cs-1
-			`),
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -246,7 +246,7 @@ func Test_AdminSwitchCmd_Detail(t *testing.T) {
             PARTITION  RACK    SWITCH  PORT       MACHINE  VNI - FILTER  CIDR - FILTER
             fra-equ01  rack-1  leaf01  Ethernet0  id1      10001         10.0.0.0/24
                                                            10002         192.168.100.0/24
-			`),
+            `),
 			Template:     new("{{ .id }} {{ .partition }} {{ .rack }}"),
 			WantTemplate: new(`leaf01 fra-equ01 rack-1`),
 			WantMarkdown: new(`
@@ -254,7 +254,7 @@ func Test_AdminSwitchCmd_Detail(t *testing.T) {
             |-----------|--------|--------|-----------|---------|--------------|------------------|
             | fra-equ01 | rack-1 | leaf01 | Ethernet0 | id1     | 10001        | 10.0.0.0/24      |
             |           |        |        |           |         | 10002        | 192.168.100.0/24 |
-			`),
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -284,22 +284,22 @@ func Test_AdminSwitchCmd_Migrate(t *testing.T) {
 			}),
 			WantDefault: new(`
 switch:
-  description: leaf switch 2
-  id: leaf02
-  lastSync:
-    duration: 0.200s
-    time: "2000-01-01T00:00:00Z"
-  managementIp: 10.0.0.2
-  managementUser: admin
-  meta:
-    createdAt: "2000-01-01T00:00:00Z"
-  os:
-    metalCoreVersion: v0.9.1 (abc1234), tags/v0.9.1
-    vendor: SWITCH_OS_VENDOR_SONIC
-    version: 4.2.0
-  partition: fra-equ01
-  rack: rack-1
-			`),
+    id: leaf02
+    meta:
+        createdAt: "2000-01-01T00:00:00Z"
+    description: leaf switch 2
+    rack: rack-1
+    partition: fra-equ01
+    managementIp: 10.0.0.2
+    managementUser: admin
+    os:
+        vendor: SWITCH_OS_VENDOR_SONIC
+        version: 4.2.0
+        metalCoreVersion: v0.9.1 (abc1234), tags/v0.9.1
+    lastSync:
+        time: "2000-01-01T00:00:00Z"
+        duration: 0.200s
+`),
 		},
 	}
 	for _, tt := range tests {
@@ -457,7 +457,7 @@ Desired:
     actual: 1
     desired: 1
   vrf: default
-			`),
+            `),
 		},
 	}
 	for _, tt := range tests {
