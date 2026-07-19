@@ -113,6 +113,56 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Health:
 		return t.HealthTable(d, wide)
 
+	case *apiv2.Machine:
+		return t.MachineTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Machine:
+		return t.MachineTable(d, wide)
+
+	case *apiv2.Network:
+		return t.NetworkTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Network:
+		return t.NetworkTable(d, wide)
+
+	case *apiv2.Partition:
+		return t.PartitionTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Partition:
+		return t.PartitionTable(d, wide)
+
+	case *apiv2.SizeImageConstraint:
+		return t.SizeImageConstraintTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.SizeImageConstraint:
+		return t.SizeImageConstraintTable(d, wide)
+
+	case *apiv2.SizeReservation:
+		return t.SizeReservationTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.SizeReservation:
+		return t.SizeReservationTable(d, wide)
+
+	case *apiv2.FilesystemLayout:
+		return t.FilesystemLayoutTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.FilesystemLayout:
+		return t.FilesystemLayoutTable(d, wide)
+
+	case *apiv2.VPNNode:
+		return t.VPNNodeTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.VPNNode:
+		return t.VPNNodeTable(d, wide)
+
+	case *apiv2.ImageUsage:
+		return t.ImageUsageTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.ImageUsage:
+		return t.ImageUsageTable(d, wide)
+
+	case *adminv2.VPNServiceAuthKeyResponse:
+		return t.VPNServiceAuthKeyResponseTable(pointer.WrapInSlice(d), wide)
+	case []*adminv2.VPNServiceAuthKeyResponse:
+		return t.VPNServiceAuthKeyResponseTable(d, wide)
+
+	case *adminv2.PartitionCapacity:
+		return t.PartitionCapacityTable(pointer.WrapInSlice(d), wide)
+	case []*adminv2.PartitionCapacity:
+		return t.PartitionCapacityTable(d, wide)
+
 	case *apiv2.Size:
 		return t.SizeTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Size:
