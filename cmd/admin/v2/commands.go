@@ -14,6 +14,15 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 		Hidden:       true,
 	}
 
+	adminCmd.AddCommand(newAdminFilesystemLayoutCmd(c))
+	adminCmd.AddCommand(newAdminImageUsageCmd(c))
+	adminCmd.AddCommand(newAdminMachineCmd(c))
+	adminCmd.AddCommand(newAdminNetworkCmd(c))
+	adminCmd.AddCommand(newAdminPartitionCmd(c))
+	adminCmd.AddCommand(newAdminSizeImageConstraintCmd(c))
+	adminCmd.AddCommand(newAdminSizeReservationCmd(c))
+	adminCmd.AddCommand(newAdminTokenCreateCmd(c))
+	adminCmd.AddCommand(newAdminVPNCmd(c))
 	adminCmd.AddCommand(newAuditCmd(c))
 	adminCmd.AddCommand(newComponentCmd(c))
 	adminCmd.AddCommand(newImageCmd(c))
