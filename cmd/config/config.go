@@ -101,14 +101,14 @@ func (c *Config) GetTenant() (string, error) {
 }
 
 func (c *Config) GetToken() string {
-	if viper.IsSet("api-token") {
+	if viper.GetString("api-token") != "" {
 		return viper.GetString("api-token")
 	}
 	return c.Context.Token
 }
 
 func (c *Config) GetApiURL() string {
-	if viper.IsSet("api-url") {
+	if viper.GetString("api-url") != "" {
 		return viper.GetString("api-url")
 	}
 	if c.Context.ApiURL != nil {
@@ -120,7 +120,7 @@ func (c *Config) GetApiURL() string {
 }
 
 func (c *Config) GetProvider() string {
-	if viper.IsSet("provider") {
+	if viper.GetString("provider") != "" {
 		return viper.GetString("provider")
 	}
 	return c.Context.Provider

@@ -103,7 +103,6 @@ func Test_AdminTaskCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Task1(),
 			WantProtoObject: testresources.Task1(),
 			Template:        new("{{ .id }} {{ .type }}"),
 			WantTemplate: new(`
@@ -128,7 +127,6 @@ func Test_AdminTaskCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Task3(),
 			WantProtoObject: testresources.Task3(),
 			Template:        new("{{ .id }} {{ .queue }} {{ .type }}"),
 			WantTemplate: new(`

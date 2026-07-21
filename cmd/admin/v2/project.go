@@ -34,6 +34,7 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("tenant", "", "lists only projects with the given tenant")
+			cmd.Flags().StringSlice("labels", nil, "lists only projects with the given labels")
 		},
 	}
 
@@ -52,6 +53,17 @@ func (c *project) List() ([]*apiv2.Project, error) {
 		Query: &apiv2.ProjectQuery{
 			Tenant: pointer.PointerOrNil(viper.GetString("tenant")),
 		},
+	}
+
+	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
+		labels, err := genericcli.LabelsToMap(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Query.Labels = &apiv2.Labels{
+			Labels: labels,
+		}
 	}
 
 	resp, err := c.c.Client.Adminv2().Project().List(ctx, req)

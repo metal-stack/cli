@@ -81,7 +81,6 @@ func Test_ImageCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Image1(),
 			WantProtoObject: testresources.Image1(),
 			WantTable: new(`
 			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
@@ -126,7 +125,6 @@ func Test_ImageCmd_Latest(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Image1(),
 			WantProtoObject: testresources.Image1(),
 			WantTable: new(`
 			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS

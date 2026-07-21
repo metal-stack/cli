@@ -31,7 +31,6 @@ func Test_AdminComponentCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Component1(),
 			WantProtoObject: testresources.Component1(),
 			WantTable: new(`
 			ID                                    TYPE        IDENTIFIER    STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN
@@ -126,7 +125,7 @@ func Test_AdminComponentCmd_Delete(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Component1(),
+			WantProtoObject: testresources.Component1(),
 		},
 	}
 	for _, tt := range tests {

@@ -5,10 +5,10 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
+	"github.com/metal-stack/api/go/errorutil"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
-	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -36,7 +36,8 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "lists only projects with the given name")
-			cmd.Flags().String("tenant", "", "lists only project with the given tenant")
+			cmd.Flags().String("tenant", "", "lists only projects with the given tenant")
+			cmd.Flags().StringSlice("labels", nil, "lists only projects with the given labels")
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "the name of the project to create")
@@ -192,6 +193,17 @@ func (c *project) List() ([]*apiv2.Project, error) {
 		},
 	}
 
+	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
+		labels, err := genericcli.LabelsToMap(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Query.Labels = &apiv2.Labels{
+			Labels: labels,
+		}
+	}
+
 	resp, err := c.c.Client.Apiv2().Project().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list projects: %w", err)
@@ -206,7 +218,7 @@ func (c *project) Create(rq *apiv2.ProjectServiceCreateRequest) (*apiv2.Project,
 
 	resp, err := c.c.Client.Apiv2().Project().Create(ctx, rq)
 	if err != nil {
-		if helpers.IsAlreadyExists(err) {
+		if errorutil.IsConflict(err) {
 			return nil, genericcli.AlreadyExistsError()
 		}
 

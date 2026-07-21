@@ -57,7 +57,7 @@ func NewRootCmd(c *config.Config) *cobra.Command {
 		},
 	}
 	rootCmd.PersistentFlags().StringP("config", "c", "", "alternative config file path, (default is ~/.metal-stack/config.yaml)")
-	rootCmd.PersistentFlags().StringP("output-format", "o", "table", "output format (table|wide|markdown|json|yaml|template|jsonraw|yamlraw), wide is a table with more columns, jsonraw and yamlraw do not translate proto enums into string types but leave the original int32 values intact (for apply, create, update, delete commands from file the raw output formatters must be used).")
+	rootCmd.PersistentFlags().StringP("output-format", "o", "table", "output format (table|wide|markdown|json|yaml|template), wide is a table with more columns.")
 
 	genericcli.Must(rootCmd.RegisterFlagCompletionFunc("output-format", cobra.FixedCompletions([]string{"table", "wide", "markdown", "json", "yaml", "template"}, cobra.ShellCompDirectiveNoFileComp)))
 
@@ -66,7 +66,7 @@ func NewRootCmd(c *config.Config) *cobra.Command {
 	rootCmd.PersistentFlags().Bool("debug", false, "debug output")
 	rootCmd.PersistentFlags().Duration("timeout", 0, "request timeout used for api requests")
 
-	rootCmd.PersistentFlags().String("api-url", "https://api.metal-stack.io", "the url to the metal-stack.io api")
+	rootCmd.PersistentFlags().String("api-url", "", "the url to the metal-stack.io api")
 	rootCmd.PersistentFlags().String("api-token", "", "the token used for api requests")
 
 	genericcli.Must(viper.BindPFlags(rootCmd.PersistentFlags()))
@@ -127,6 +127,7 @@ func newApiClient(apiURL, token string) (client.Client, error) {
 	if viper.GetBool("debug") {
 		logLevel = slog.LevelDebug
 	}
+
 	dialConfig := &client.DialConfig{
 		BaseURL:   apiURL,
 		Token:     token,
