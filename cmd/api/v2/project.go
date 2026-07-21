@@ -36,7 +36,8 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "lists only projects with the given name")
-			cmd.Flags().String("tenant", "", "lists only project with the given tenant")
+			cmd.Flags().String("tenant", "", "lists only projects with the given tenant")
+			cmd.Flags().StringSlice("labels", nil, "lists only projects with the given labels")
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "the name of the project to create")
@@ -190,6 +191,17 @@ func (c *project) List() ([]*apiv2.Project, error) {
 			Name:   pointer.PointerOrNil(viper.GetString("name")),
 			Tenant: pointer.PointerOrNil(viper.GetString("tenant")),
 		},
+	}
+
+	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
+		labels, err := genericcli.LabelsToMap(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Query.Labels = &apiv2.Labels{
+			Labels: labels,
+		}
 	}
 
 	resp, err := c.c.Client.Apiv2().Project().List(ctx, req)

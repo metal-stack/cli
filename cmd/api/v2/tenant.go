@@ -36,7 +36,8 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "lists only tenants with the given name")
-			cmd.Flags().String("id", "", "lists only tenant with the given tenant id")
+			cmd.Flags().String("id", "", "lists only tenants with the given tenant id")
+			cmd.Flags().StringSlice("labels", nil, "lists only tenants with the given labels")
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "the name of the tenant to create")
@@ -190,6 +191,18 @@ func (c *tenant) List() ([]*apiv2.Tenant, error) {
 			Login: pointer.PointerOrNil(viper.GetString("tenant")),
 		},
 	}
+
+	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
+		labels, err := genericcli.LabelsToMap(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Query.Labels = &apiv2.Labels{
+			Labels: labels,
+		}
+	}
+
 	resp, err := c.c.Client.Apiv2().Tenant().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tenants: %w", err)

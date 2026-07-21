@@ -10,16 +10,17 @@ metalctlv2 project list [flags]
 
 ```
   -h, --help              help for list
+      --labels strings    lists only projects with the given labels
       --name string       lists only projects with the given name
       --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: id|name|tenant
-      --tenant string     lists only project with the given tenant
+      --tenant string     lists only projects with the given tenant
 ```
 
 ### Options inherited from parent commands
 
 ```
       --api-token string       the token used for api requests
-      --api-url string         the url to the metal-stack.io api (default "https://api.metal-stack.io")
+      --api-url string         the url to the metal-stack.io api
   -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
       --debug                  debug output
       --force-color            force colored output even without tty

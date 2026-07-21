@@ -16,7 +16,7 @@ manage api tokens for accessing the metal-stack.io api
 
 ```
       --api-token string       the token used for api requests
-      --api-url string         the url to the metal-stack.io api (default "https://api.metal-stack.io")
+      --api-url string         the url to the metal-stack.io api
   -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
       --debug                  debug output
       --force-color            force colored output even without tty
