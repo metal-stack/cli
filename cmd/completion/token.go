@@ -32,6 +32,9 @@ func (c *Completion) TokenProjectRolesCompletion(cmd *cobra.Command, args []stri
 	var roles []string
 
 	for project, role := range methods.ProjectRoles {
+		if strings.HasSuffix(role.String(), "UNSPECIFIED") {
+			continue
+		}
 		roles = append(roles, project+"="+role.String())
 	}
 
@@ -47,6 +50,9 @@ func (c *Completion) TokenTenantRolesCompletion(cmd *cobra.Command, args []strin
 	var roles []string
 
 	for tenant, role := range methods.TenantRoles {
+		if strings.HasSuffix(role.String(), "UNSPECIFIED") {
+			continue
+		}
 		roles = append(roles, tenant+"="+role.String())
 	}
 
@@ -62,6 +68,9 @@ func (c *Completion) TokenMachineRolesCompletion(cmd *cobra.Command, args []stri
 	var roles []string
 
 	for machine, role := range methods.MachineRoles {
+		if strings.HasSuffix(role.String(), "UNSPECIFIED") {
+			continue
+		}
 		roles = append(roles, machine+"="+role.String())
 	}
 
@@ -72,6 +81,9 @@ func (c *Completion) TokenAdminRoleCompletion(cmd *cobra.Command, args []string,
 	var roles []string
 
 	for _, role := range apiv2.AdminRole_name {
+		if strings.HasSuffix(role, "UNSPECIFIED") {
+			continue
+		}
 		roles = append(roles, role)
 	}
 
@@ -82,6 +94,9 @@ func (c *Completion) TokenInfraRoleCompletion(cmd *cobra.Command, args []string,
 	var roles []string
 
 	for _, role := range apiv2.InfraRole_name {
+		if strings.HasSuffix(role, "UNSPECIFIED") {
+			continue
+		}
 		roles = append(roles, role)
 	}
 
