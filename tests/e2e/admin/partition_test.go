@@ -82,7 +82,6 @@ func Test_AdminPartitionCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Partition1(),
 			WantProtoObject: testresources.Partition1(),
 		},
 	}
