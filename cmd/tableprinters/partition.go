@@ -116,18 +116,6 @@ func (t *TablePrinter) PartitionCapacityTable(data []*adminv2.PartitionCapacity,
 		}...)
 	}
 
-	// if t.markdown {
-	// 	// for markdown we already have enough dividers, remove them
-	// 	removeDivider := func(e string) bool {
-	// 		return e == "|"
-	// 	}
-	// 	header = slices.DeleteFunc(header, removeDivider)
-	// 	footerRow = slices.DeleteFunc(footerRow, removeDivider)
-	// 	for i, row := range rows {
-	// 		rows[i] = slices.DeleteFunc(row, removeDivider)
-	// 	}
-	// }
-
 	rows = append(rows, footerRow)
 
 	return header, rows, nil
