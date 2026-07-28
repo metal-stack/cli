@@ -216,3 +216,43 @@ func Test_AdminImageCmd_Update(t *testing.T) {
 		tt.TestCmd(t)
 	}
 }
+
+func Test_AdminImageCmd_Usage(t *testing.T) {
+	tests := []*e2e.Test[adminv2.ImageServiceCreateResponse, *apiv2.Image]{
+		{
+			Name:    "usage",
+			CmdArgs: []string{"admin", "image", "usage"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.ImageServiceUsageRequest{
+							Query: &apiv2.ImageQuery{},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ImageServiceUsageResponse{
+								ImageUsage: []*apiv2.ImageUsage{
+									{
+										Image:  testresources.Image1(),
+										UsedBy: []string{"machine-a", "machine-b"},
+									},
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS     USAGE COUNT
+            ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported  2
+			`),
+			WantWideTable: new(`
+            ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS     USAGE
+            ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported  machine-a
+                                                                                           machine-b
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}

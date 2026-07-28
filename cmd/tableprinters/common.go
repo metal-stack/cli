@@ -69,6 +69,10 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.ImageTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Image:
 		return t.ImageTable(d, wide)
+	case *apiv2.ImageUsage:
+		return t.ImageUsageTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.ImageUsage:
+		return t.ImageUsageTable(d, wide)
 
 	case *apiv2.Project:
 		return t.ProjectTable(pointer.WrapInSlice(d), wide)

@@ -47,6 +47,7 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 
 func (t *token) Get(id string) (*apiv2.Token, error) {
 	panic("unimplemented")
+
 }
 
 func (c *token) List() ([]*apiv2.Token, error) {

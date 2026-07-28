@@ -22,27 +22,30 @@ type image struct {
 }
 
 func newImageCmd(c *config.Config) *cobra.Command {
-	w := &image{
-		c: c,
-	}
-	gcli := genericcli.NewGenericCLI(w).WithFS(c.Fs)
+	var (
+		w = &image{
+			c: c,
+		}
 
-	cmdsConfig := &genericcli.CmdsConfig[*adminv2.ImageServiceCreateRequest, *adminv2.ImageServiceUpdateRequest, *apiv2.Image]{
-		BinaryName:      config.BinaryName,
-		GenericCLI:      gcli,
-		Singular:        "image",
-		Plural:          "images",
-		Description:     "manage images which are used to be installed on machines and firewalls",
-		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
-		ListPrinter:     func() printers.Printer { return c.ListPrinter },
-		ListCmdMutateFn: func(cmd *cobra.Command) {
+		queryFlags = func(cmd *cobra.Command) {
 			cmd.Flags().StringP("id", "", "", "image id to filter for")
 			cmd.Flags().StringP("os", "", "", "image os to filter for")
 			cmd.Flags().StringP("version", "", "", "image version to filter for")
 			cmd.Flags().StringP("name", "", "", "image name to filter for")
 			cmd.Flags().StringP("description", "", "", "image description to filter for")
 			cmd.Flags().StringP("feature", "", "", "image feature to filter for, can be either machine|firewall")
-		},
+		}
+	)
+
+	cmdsConfig := &genericcli.CmdsConfig[*adminv2.ImageServiceCreateRequest, *adminv2.ImageServiceUpdateRequest, *apiv2.Image]{
+		BinaryName:      config.BinaryName,
+		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
+		Singular:        "image",
+		Plural:          "images",
+		Description:     "manage images which are used to be installed on machines and firewalls",
+		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
+		ListPrinter:     func() printers.Printer { return c.ListPrinter },
+		ListCmdMutateFn: queryFlags,
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("id", "", "image id")
 			cmd.Flags().String("url", "", "image url")
@@ -69,7 +72,17 @@ func newImageCmd(c *config.Config) *cobra.Command {
 		UpdateRequestFromCLI: w.updateFromCLI,
 	}
 
-	return genericcli.NewCmds(cmdsConfig)
+	usageCmd := &cobra.Command{
+		Use:   "usage",
+		Short: "show partition capacity",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.usage()
+		},
+	}
+
+	queryFlags(usageCmd)
+
+	return genericcli.NewCmds(cmdsConfig, usageCmd)
 }
 
 func (c *image) Get(id string) (*apiv2.Image, error) {
@@ -147,16 +160,14 @@ func (c *image) List() ([]*apiv2.Image, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	req := &apiv2.ImageServiceListRequest{Query: &apiv2.ImageQuery{
+	resp, err := c.c.Client.Apiv2().Image().List(ctx, &apiv2.ImageServiceListRequest{Query: &apiv2.ImageQuery{
 		Id:          pointer.PointerOrNil(viper.GetString("id")),
 		Os:          pointer.PointerOrNil(viper.GetString("os")),
 		Version:     pointer.PointerOrNil(viper.GetString("version")),
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
 		Feature:     helpers.ImageFeatureFromString(viper.GetString("feature")),
-	}}
-
-	resp, err := c.c.Client.Apiv2().Image().List(ctx, req)
+	}})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get images: %w", err)
 	}
@@ -232,4 +243,25 @@ func (c *image) updateFromCLI(args []string) (*adminv2.ImageServiceUpdateRequest
 	}
 
 	return req, nil
+}
+
+func (c *image) usage() error {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Adminv2().Image().Usage(ctx, &adminv2.ImageServiceUsageRequest{
+		Query: &apiv2.ImageQuery{
+			Id:          pointer.PointerOrNil(viper.GetString("id")),
+			Os:          pointer.PointerOrNil(viper.GetString("os")),
+			Version:     pointer.PointerOrNil(viper.GetString("version")),
+			Name:        pointer.PointerOrNil(viper.GetString("name")),
+			Description: pointer.PointerOrNil(viper.GetString("description")),
+			Feature:     helpers.ImageFeatureFromString(viper.GetString("feature")),
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to get images: %w", err)
+	}
+
+	return c.c.ListPrinter.Print(resp.ImageUsage)
 }

@@ -1,6 +1,8 @@
 package tableprinters
 
 import (
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -39,6 +41,54 @@ func (t *TablePrinter) ImageTable(data []*apiv2.Image, wide bool) ([]string, [][
 		}
 
 		rows = append(rows, []string{image.Id, pointer.SafeDeref(image.Name), pointer.SafeDeref(image.Description), strings.Join(features, ","), expiresIn, *classification})
+	}
+
+	t.t.DisableAutoWrap(false)
+
+	return header, rows, nil
+}
+
+func (t *TablePrinter) ImageUsageTable(data []*apiv2.ImageUsage, wide bool) ([]string, [][]string, error) {
+	var (
+		rows   [][]string
+		header = []string{"ID", "Name", "Description", "Features", "Expiration", "Status", "Usage Count"}
+	)
+
+	if wide {
+		header = []string{"ID", "Name", "Description", "Features", "Expiration", "Status", "Usage"}
+	}
+
+	for _, usage := range data {
+		var (
+			image    = usage.Image
+			features []string
+		)
+
+		for _, f := range image.Features {
+			feature, err := enum.GetStringValue(f)
+			if err != nil {
+				return nil, nil, err
+			}
+			features = append(features, *feature)
+		}
+
+		classification, err := enum.GetStringValue(image.Classification)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		var expiresIn string
+		if image.ExpiresAt != nil {
+			expiresIn = humanizeDuration(time.Until(image.ExpiresAt.AsTime()))
+		}
+
+		u := strconv.Itoa(len(usage.UsedBy))
+		if wide {
+			sort.Strings(usage.UsedBy)
+			u = strings.Join(usage.UsedBy, "\n")
+		}
+
+		rows = append(rows, []string{image.Id, pointer.SafeDeref(image.Name), pointer.SafeDeref(image.Description), strings.Join(features, ","), expiresIn, *classification, u})
 	}
 
 	t.t.DisableAutoWrap(false)
