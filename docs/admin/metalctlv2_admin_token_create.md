@@ -1,30 +1,39 @@
-## metalctlv2 admin image apply
+## metalctlv2 admin token create
 
-applies one or more images from a given file
+creates the token
 
 ```
-metalctlv2 admin image apply [flags]
+metalctlv2 admin token create [flags]
 ```
 
 ### Options
 
 ```
+      --admin-role string       the admin role to associate with the api token
       --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
+      --description string      a short description for the intention to use this token for
+      --expires duration        the duration how long the api token is valid (default 8h0m0s)
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 image describe image-1 -o yaml > image.yaml
-                                $ vi image.yaml
+                                $ metalctlv2 token describe token-1 -o yaml > token.yaml
+                                $ vi token.yaml
                                 $ # either via stdin
-                                $ cat image.yaml | metalctlv2 image apply -f -
+                                $ cat token.yaml | metalctlv2 token create -f -
                                 $ # or via file
-                                $ metalctlv2 image apply -f image.yaml
+                                $ metalctlv2 token create -f token.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for apply
+  -h, --help                    help for create
+      --infra-role string       the infra role to associate with the api token
+      --machine-roles strings   the machine roles to associate with the api token in the form <subject>=<role>
+      --permissions strings     the permissions to associate with the api token in the form [<subject>=]<methods-colon-separated>
+      --project-roles strings   the project roles to associate with the api token in the form <subject>=<role>
       --skip-security-prompts   skips security prompt for bulk operations
+      --tenant-roles strings    the tenant roles to associate with the api token in the form <subject>=<role>
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
+      --user string             user for which this token should be created
 ```
 
 ### Options inherited from parent commands
@@ -42,5 +51,5 @@ metalctlv2 admin image apply [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin image](metalctlv2_admin_image.md)	 - manage image entities
+* [metalctlv2 admin token](metalctlv2_admin_token.md)	 - manage token entities
 

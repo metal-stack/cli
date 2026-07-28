@@ -1,15 +1,15 @@
-## metalctlv2 admin image describe
+## metalctlv2 admin token edit
 
-describes the image
+edit the token through an editor and update
 
 ```
-metalctlv2 admin image describe <id> [flags]
+metalctlv2 admin token edit <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for describe
+  -h, --help   help for edit
 ```
 
 ### Options inherited from parent commands
@@ -27,5 +27,5 @@ metalctlv2 admin image describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin image](metalctlv2_admin_image.md)	 - manage image entities
+* [metalctlv2 admin token](metalctlv2_admin_token.md)	 - manage token entities
 

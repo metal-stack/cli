@@ -1,31 +1,28 @@
-## metalctlv2 admin size update
+## metalctlv2 admin token update
 
-updates the size
+updates the token
 
 ```
-metalctlv2 admin size update [flags]
+metalctlv2 admin token update [flags]
 ```
 
 ### Options
 
 ```
       --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
-      --description string      size description to update
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 size describe size-1 -o yaml > size.yaml
-                                $ vi size.yaml
+                                $ metalctlv2 token describe token-1 -o yaml > token.yaml
+                                $ vi token.yaml
                                 $ # either via stdin
-                                $ cat size.yaml | metalctlv2 size update -f -
+                                $ cat token.yaml | metalctlv2 token update -f -
                                 $ # or via file
-                                $ metalctlv2 size update -f size.yaml
+                                $ metalctlv2 token update -f token.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
   -h, --help                    help for update
-      --id string               size id to update
-      --name string             size name to update
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -45,5 +42,5 @@ metalctlv2 admin size update [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin size](metalctlv2_admin_size.md)	 - manage size entities
+* [metalctlv2 admin token](metalctlv2_admin_token.md)	 - manage token entities
 
