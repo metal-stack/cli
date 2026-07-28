@@ -15,14 +15,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-type (
-	tenant struct {
-		c *config.Config
-	}
-	tenantMember struct {
-		c *config.Config
-	}
-)
+type tenant struct {
+	c *config.Config
+}
 
 func newTenantCmd(c *config.Config) *cobra.Command {
 	w := &tenant{
@@ -62,7 +57,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		ValidArgsFn: w.c.Completion.AdminTenantListCompletion,
 	}
 
-	return genericcli.NewCmds(cmdsConfig, newAddMemberCmd(c), newTenantMembersCmd(c))
+	return genericcli.NewCmds(cmdsConfig, newAddMemberCmd(c))
 }
 
 func (c *tenant) Get(id string) (*apiv2.Tenant, error) {
@@ -171,92 +166,4 @@ func newAddMemberCmd(c *config.Config) *cobra.Command {
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRoleCompletion))
 
 	return cmd
-}
-
-func newTenantMembersCmd(c *config.Config) *cobra.Command {
-	wm := &tenantMember{
-		c: c,
-	}
-
-	cmdsConfig := &genericcli.CmdsConfig[*adminv2.TenantServiceAddMemberRequest, any, *adminv2.TenantServiceAddMemberResponse]{
-		BinaryName:      config.BinaryName,
-		GenericCLI:      genericcli.NewGenericCLI(wm).WithFS(c.Fs),
-		Singular:        "member",
-		Plural:          "members",
-		Description:     "manage tenant-members",
-		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
-		ListPrinter:     func() printers.Printer { return c.ListPrinter },
-		OnlyCmds:        genericcli.OnlyCmds(genericcli.ApplyCmd),
-	}
-
-	return genericcli.NewCmds(cmdsConfig)
-}
-
-func (c *tenantMember) Get(id string) (*adminv2.TenantServiceAddMemberResponse, error) {
-	panic("unimplemented")
-}
-
-func (c *tenantMember) List() ([]*adminv2.TenantServiceAddMemberResponse, error) {
-	// ctx, cancel := c.c.NewRequestContext()
-	// defer cancel()
-
-	// req := &adminv2.TenantServiceListRequest{
-	// 	Query: &apiv2.TenantQuery{
-	// 		Name:  pointer.PointerOrNil(viper.GetString("name")),
-	// 		Login: pointer.PointerOrNil(viper.GetString("tenant")),
-	// 	},
-	// }
-
-	// resp, err := c.c.Client.Adminv2().Tenant().List(ctx, req)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to list tenants: %w", err)
-	// }
-
-	panic("unimplemented")
-}
-
-func (c *tenantMember) Create(rq *adminv2.TenantServiceAddMemberRequest) (*adminv2.TenantServiceAddMemberResponse, error) {
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	resp, err := c.c.Client.Adminv2().Tenant().AddMember(ctx, rq)
-	if err != nil {
-		if errorutil.IsConflict(err) {
-			return nil, genericcli.AlreadyExistsError()
-		}
-
-		return nil, fmt.Errorf("failed to create tenant member: %w", err)
-	}
-
-	return resp, nil
-}
-
-func (c *tenantMember) Delete(id string) (*adminv2.TenantServiceAddMemberResponse, error) {
-	tenant, err := c.c.GetTenant()
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	_, err = c.c.Client.Adminv2().Tenant().RemoveMember(ctx, &adminv2.TenantServiceRemoveMemberRequest{
-		Tenant: tenant,
-		Member: id,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to remove tenant member: %w", err)
-	}
-
-	return &adminv2.TenantServiceAddMemberResponse{}, nil
-}
-
-func (c *tenantMember) Convert(r *adminv2.TenantServiceAddMemberResponse) (string, *adminv2.TenantServiceAddMemberRequest, any, error) {
-	// FIXME: from the response object we are unable to derive the add requests
-	return "", &adminv2.TenantServiceAddMemberRequest{}, nil, nil
-}
-
-func (c *tenantMember) Update(rq any) (*adminv2.TenantServiceAddMemberResponse, error) {
-	// TODO: api does not provide an update endpoint :(
-	return nil, nil
 }
