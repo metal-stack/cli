@@ -35,4 +35,5 @@ manage images which are used to be installed on machines and firewalls
 * [metalctlv2 admin image edit](metalctlv2_admin_image_edit.md)	 - edit the image through an editor and update
 * [metalctlv2 admin image list](metalctlv2_admin_image_list.md)	 - list all images
 * [metalctlv2 admin image update](metalctlv2_admin_image_update.md)	 - updates the image
+* [metalctlv2 admin image usage](metalctlv2_admin_image_usage.md)	 - show partition capacity
 
