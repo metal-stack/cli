@@ -123,7 +123,6 @@ func (c *size) Update(rq *adminv2.SizeServiceUpdateRequest) (*apiv2.Size, error)
 }
 
 func (c *size) Convert(r *apiv2.Size) (string, *adminv2.SizeServiceCreateRequest, *adminv2.SizeServiceUpdateRequest, error) {
-
 	return r.Id,
 		&adminv2.SizeServiceCreateRequest{
 			Size: &apiv2.Size{

@@ -155,16 +155,12 @@ func (c *image) Convert(r *apiv2.Image) (string, *adminv2.ImageServiceCreateRequ
 				ExpiresAt:      r.ExpiresAt,
 			},
 		}, &adminv2.ImageServiceUpdateRequest{
-			Id:          r.Id,
-			Url:         &r.Url,
-			Name:        r.Name,
-			Description: r.Description,
-			Features:    r.Features,
-			UpdateMeta: &apiv2.UpdateMeta{
-				LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
-				UpdatedAt:       r.Meta.UpdatedAt,
-			},
-			// FIXME: Labels cannot be updated?
+			Id:             r.Id,
+			Url:            &r.Url,
+			Name:           r.Name,
+			Description:    r.Description,
+			Features:       r.Features,
+			UpdateMeta:     helpers.UpdateMetaFromMeta(r.Meta),
 			Classification: r.Classification,
 			ExpiresAt:      r.ExpiresAt,
 		}, nil
