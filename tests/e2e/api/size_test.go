@@ -33,10 +33,6 @@ func Test_SizeCmd_List(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: []*apiv2.Size{
-				testresources.Size2(),
-				testresources.Size1(),
-			},
 			WantTable: new(`
             ID             NAME           DESCRIPTION                CPU RANGE  MEMORY RANGE     STORAGE RANGE    GPU RANGE
             g1-medium-x86  g1-medium-x86  A medium sized GPU server  32 - 32    275 GB - 275 GB  1.8 TB - 1.8 TB  AD102GL [RTX 6000 Ada Generation]: 1 - 1
@@ -84,7 +80,7 @@ func Test_SizeCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Size1(),
+			WantProtoObject: testresources.Size1(),
 			WantTable: new(`
             ID             NAME           DESCRIPTION                CPU RANGE  MEMORY RANGE     STORAGE RANGE    GPU RANGE
             v1-medium-x86  v1-medium-x86  Virtual size for mini-lab  4 - 4      500 MB - 4.0 GB  1.0 GB - 100 GB

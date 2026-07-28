@@ -54,7 +54,6 @@ func Test_HealthCmd(t *testing.T) {
             |---|------|--------------|
             | ✔ | ipam | i am healthy |
 			`),
-			WantObject:      health1(),
 			WantProtoObject: health1(),
 			Template:        new("{{ range $s := .services }}{{ $s.message }} {{ end }}"),
 			WantTemplate: new(`

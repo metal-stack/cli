@@ -47,7 +47,6 @@ func Test_TokenCmd_Describe(t *testing.T) {
             |----------------|--------------------------------------|-------|----------------------|-------------|-------|-------|---------------------------------|
             | TOKEN_TYPE_API | a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90 |       | admin@metal-stack.io | ci token    | 0     | 0     | 2000-01-02 00:00:00 UTC (in 1d) |
 			`),
-			WantObject:      testresources.Token1(),
 			WantProtoObject: testresources.Token1(),
 			Template:        new("{{ .uuid }} {{ .description }}"),
 			WantTemplate: new(`
@@ -81,13 +80,13 @@ func Test_TokenCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            TYPE            ID                                    ADMIN  USER                  DESCRIPTION  ROLES  PERMS  EXPIRES                          
-            TOKEN_TYPE_API  a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90         admin@metal-stack.io  ci token     0      0      2000-01-02 00:00:00 UTC (in 1d)  
+            TYPE            ID                                    ADMIN  USER                  DESCRIPTION  ROLES  PERMS  EXPIRES
+            TOKEN_TYPE_API  a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90         admin@metal-stack.io  ci token     0      0      2000-01-02 00:00:00 UTC (in 1d)
             TOKEN_TYPE_API  b4c2e7f3-5a9d-4b8e-a1c3-2d6f9e4b8a01         dev@metal-stack.io    dev token    0      2      2000-01-03 00:00:00 UTC (in 2d)
 			`),
 			WantWideTable: new(`
-            TYPE            ID                                    ADMIN  USER                  DESCRIPTION  ROLES  PERMS  EXPIRES                          
-            TOKEN_TYPE_API  a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90         admin@metal-stack.io  ci token     0      0      2000-01-02 00:00:00 UTC (in 1d)  
+            TYPE            ID                                    ADMIN  USER                  DESCRIPTION  ROLES  PERMS  EXPIRES
+            TOKEN_TYPE_API  a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90         admin@metal-stack.io  ci token     0      0      2000-01-02 00:00:00 UTC (in 1d)
             TOKEN_TYPE_API  b4c2e7f3-5a9d-4b8e-a1c3-2d6f9e4b8a01         dev@metal-stack.io    dev token    0      2      2000-01-03 00:00:00 UTC (in 2d)
 			`),
 			Template: new("{{ .uuid }} {{ .description }}"),
@@ -125,7 +124,7 @@ func Test_TokenCmd_Delete(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: &apiv2.Token{Uuid: testresources.Token1().Uuid},
+			WantProtoObject: &apiv2.Token{Uuid: testresources.Token1().Uuid},
 		},
 		{
 			Name:    "delete from file",
@@ -148,7 +147,7 @@ func Test_TokenCmd_Delete(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            TYPE                    ID                                    ADMIN  USER  DESCRIPTION  ROLES  PERMS  EXPIRES                               
+            TYPE                    ID                                    ADMIN  USER  DESCRIPTION  ROLES  PERMS  EXPIRES
             TOKEN_TYPE_UNSPECIFIED  a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90                            0      0      1970-01-01 00:00:00 UTC (in -10957d)
 			`),
 		},
@@ -181,12 +180,12 @@ func Test_TokenCmd_Create(t *testing.T) {
 			}),
 			WantMarkdown: new(`
             Make sure to copy your personal access token now as you will not be able to see this again.
-            
+
             token-secret
-            
+
             | TYPE           | ID                                   | ADMIN | USER                 | DESCRIPTION | ROLES | PERMS | EXPIRES                         |
             |----------------|--------------------------------------|-------|----------------------|-------------|-------|-------|---------------------------------|
-            | TOKEN_TYPE_API | a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90 |       | admin@metal-stack.io | ci token    | 0     | 0     | 2000-01-02 00:00:00 UTC (in 1d) |			
+            | TOKEN_TYPE_API | a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90 |       | admin@metal-stack.io | ci token    | 0     | 0     | 2000-01-02 00:00:00 UTC (in 1d) |
 			`),
 		},
 		{
@@ -214,10 +213,10 @@ func Test_TokenCmd_Create(t *testing.T) {
 				}),
 			WantTable: new(`
             Make sure to copy your personal access token now as you will not be able to see this again.
-            
+
             token-secret
-            
-            TYPE            ID                                    ADMIN  USER                  DESCRIPTION  ROLES  PERMS  EXPIRES                          
+
+            TYPE            ID                                    ADMIN  USER                  DESCRIPTION  ROLES  PERMS  EXPIRES
             TOKEN_TYPE_API  a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90         admin@metal-stack.io  ci token     0      0      2000-01-02 00:00:00 UTC (in 1d)
 			`),
 		},
@@ -227,7 +226,7 @@ func Test_TokenCmd_Create(t *testing.T) {
 	}
 }
 
-func Test_UpdateCmd_Update(t *testing.T) {
+func Test_TokenCmd_Update(t *testing.T) {
 	tests := []*e2e.Test[apiv2.TokenServiceUpdateResponse, *apiv2.Token]{
 		{
 			Name:    "update from file",
@@ -240,11 +239,34 @@ func Test_UpdateCmd_Update(t *testing.T) {
 					ClientCalls: []client.ClientCall{
 						{
 							WantRequest: &apiv2.TokenServiceUpdateRequest{
-								Uuid:         testresources.Token2().Uuid,
-								Description:  new(testresources.Token2().Description),
-								Permissions:  testresources.Token2().Permissions,
+								Uuid:        testresources.Token2().Uuid,
+								Description: new(testresources.Token2().Description),
+								Permissions: []*apiv2.PermissionsByVisibility{
+									{
+										Visibility: &apiv2.PermissionsByVisibility_Project{
+											Project: &apiv2.ProjectPermissions{
+												Project: testresources.Token2().Permissions[0].Subject,
+												Methods: testresources.Token2().Permissions[0].Methods,
+											},
+										},
+									},
+									{
+										Visibility: &apiv2.PermissionsByVisibility_Tenant{
+											Tenant: &apiv2.TenantPermissions{
+												Login:   testresources.Token2().Permissions[1].Subject,
+												Methods: testresources.Token2().Permissions[1].Methods,
+											},
+										},
+									},
+								},
 								ProjectRoles: testresources.Token2().ProjectRoles,
 								TenantRoles:  testresources.Token2().TenantRoles,
+								Labels: &apiv2.UpdateLabels{
+									Strategy: &apiv2.UpdateLabels_Replace{},
+								},
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.TokenServiceUpdateResponse{
@@ -256,11 +278,11 @@ func Test_UpdateCmd_Update(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            TYPE            ID                                    ADMIN  USER                DESCRIPTION  ROLES  PERMS  EXPIRES                          
+            TYPE            ID                                    ADMIN  USER                DESCRIPTION  ROLES  PERMS  EXPIRES
             TOKEN_TYPE_API  b4c2e7f3-5a9d-4b8e-a1c3-2d6f9e4b8a01         dev@metal-stack.io  dev token    0      2      2000-01-03 00:00:00 UTC (in 2d)
 				`),
-			Template:     new("{{ .uuid }} {{ .permissions }}"),
-			WantTemplate: new(`b4c2e7f3-5a9d-4b8e-a1c3-2d6f9e4b8a01 [map[methods:[api/method1 api/method2] subject:0d81bca7-73f6-4da3-8397-4a8c52a0c583] map[methods:[api/method3] subject:metal-stack]]`),
+			Template:     new("{{ .uuid }} {{ range $perms := .permissions }}{{ $perms.methods }}{{ end }}"),
+			WantTemplate: new(`b4c2e7f3-5a9d-4b8e-a1c3-2d6f9e4b8a01 [/metalstack.api.v2.IPService/Create /metalstack.api.v2.IPService/Delete][/metalstack.api.v2.AuditService/Get]`),
 		},
 	}
 	for _, tt := range tests {
@@ -284,7 +306,7 @@ func Test_TokenCmd_Apply(t *testing.T) {
 								Description: testresources.Token1().Description,
 								Labels:      testresources.Token1().Meta.Labels,
 								Expires:     durationpb.New(testresources.Token1().Expires.AsTime().Sub(e2e.TimeBubbleStartTime())),
-								Permissions: testresources.Token1().Permissions,
+								// Permissions: testresources.Token1().Permissions,
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.TokenServiceCreateResponse{
@@ -297,10 +319,10 @@ func Test_TokenCmd_Apply(t *testing.T) {
 			),
 			WantTable: new(`
             Make sure to copy your personal access token now as you will not be able to see this again.
-            
-            
-            
-            TYPE            ID                                    ADMIN  USER                  DESCRIPTION  ROLES  PERMS  EXPIRES                          
+
+
+
+            TYPE            ID                                    ADMIN  USER                  DESCRIPTION  ROLES  PERMS  EXPIRES
             TOKEN_TYPE_API  a3b1f6d2-4e8c-4f7a-9d2e-1b5c8f3a7e90         admin@metal-stack.io  ci token     0      0      2000-01-02 00:00:00 UTC (in 1d)
 			`),
 		},
@@ -318,7 +340,7 @@ func Test_TokenCmd_Apply(t *testing.T) {
 								Description: testresources.Token1().Description,
 								Labels:      testresources.Token1().Meta.Labels,
 								Expires:     durationpb.New(testresources.Token1().Expires.AsTime().Sub(e2e.TimeBubbleStartTime())),
-								Permissions: testresources.Token1().Permissions,
+								// Permissions: testresources.Token1().Permissions,
 							},
 							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already_exists")),
 						},

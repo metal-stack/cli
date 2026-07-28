@@ -33,7 +33,6 @@ func Test_AdminImageCmd_Delete(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Image1(),
 			WantProtoObject: testresources.Image1(),
 			WantTable: new(`
 			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
@@ -84,9 +83,9 @@ func Test_AdminImageCmd_Create(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Image1(),
+			WantProtoObject: testresources.Image1(),
 			WantTable: new(`
-			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS     
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
             ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
 			`),
 		},
@@ -158,9 +157,9 @@ func Test_AdminImageCmd_Update(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Image1(),
+			WantProtoObject: testresources.Image1(),
 			WantTable: new(`
-			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS     
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
             ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
 			`),
 		},

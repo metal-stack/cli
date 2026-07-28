@@ -5,9 +5,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/metal-stack/api/go/errorutil"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -86,6 +88,10 @@ func (c *image) Create(rq *adminv2.ImageServiceCreateRequest) (*apiv2.Image, err
 
 	resp, err := c.c.Client.Adminv2().Image().Create(ctx, rq)
 	if err != nil {
+		if errorutil.IsConflict(err) {
+			return nil, genericcli.AlreadyExistsError()
+		}
+
 		return nil, fmt.Errorf("failed to create image: %w", err)
 	}
 
@@ -98,15 +104,9 @@ func (c *image) createFromCLI() (*adminv2.ImageServiceCreateRequest, error) {
 		expiresAt = timestamppb.New(time.Now().Add(viper.GetDuration("expires-in")))
 	}
 
-	var labels *apiv2.Labels = nil
-
-	labelSlice := viper.GetStringSlice("labels")
-	if len(labelSlice) > 0 {
-		labelsMap, err := genericcli.LabelsToMap(labelSlice)
-		if err != nil {
-			return nil, err
-		}
-		labels = &apiv2.Labels{Labels: labelsMap}
+	labels, err := helpers.LabelsFromSlice(viper.GetStringSlice("labels"))
+	if err != nil {
+		return nil, err
 	}
 
 	return &adminv2.ImageServiceCreateRequest{

@@ -3,10 +3,12 @@ package v2
 import (
 	"fmt"
 
+	"github.com/metal-stack/api/go/errorutil"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -36,6 +38,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("name", "", "lists only tenants with the given name")
 			cmd.Flags().String("id", "", "lists only tenant with the given tenant id")
 			cmd.Flags().String("email", "", "lists only tenant with the given email address")
+			cmd.Flags().StringSlice("labels", nil, "lists only tenant with the given labels")
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "the name of the tenant to create")
@@ -55,7 +58,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		ValidArgsFn: w.c.Completion.AdminTenantListCompletion,
 	}
 
-	return genericcli.NewCmds(cmdsConfig)
+	return genericcli.NewCmds(cmdsConfig, newAddMemberCmd(c))
 }
 
 func (c *tenant) Get(id string) (*apiv2.Tenant, error) {
@@ -73,6 +76,15 @@ func (c *tenant) List() ([]*apiv2.Tenant, error) {
 		},
 	}
 
+	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
+		var err error
+
+		req.Query.Labels, err = helpers.LabelsFromSlice(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	resp, err := c.c.Client.Adminv2().Tenant().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tenants: %w", err)
@@ -87,6 +99,10 @@ func (c *tenant) Create(rq *adminv2.TenantServiceCreateRequest) (*apiv2.Tenant, 
 
 	resp, err := c.c.Client.Adminv2().Tenant().Create(ctx, rq)
 	if err != nil {
+		if errorutil.IsConflict(err) {
+			return nil, genericcli.AlreadyExistsError()
+		}
+
 		return nil, fmt.Errorf("failed to create tenant: %w", err)
 	}
 
@@ -103,4 +119,50 @@ func (c *tenant) Convert(r *apiv2.Tenant) (string, *adminv2.TenantServiceCreateR
 
 func (c *tenant) Update(rq any) (*apiv2.Tenant, error) {
 	panic("unimplemented")
+}
+
+func newAddMemberCmd(c *config.Config) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add-member",
+		Short: "Add a new member to a tenant",
+		Long:  `Add a new member to an existing tenant by specifying the tenant ID, member's ID, and role.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx, cancel := c.NewRequestContext()
+			defer cancel()
+
+			var (
+				tenantId   = viper.GetString("tenant-id")
+				memberId   = viper.GetString("member-id")
+				memberRole = viper.GetString("role")
+			)
+
+			if tenantId == "" || memberId == "" || memberRole == "" {
+				return fmt.Errorf("tenant ID, member ID, and role must all be specified")
+			}
+
+			_, err := c.Client.Adminv2().Tenant().AddMember(ctx, &adminv2.TenantServiceAddMemberRequest{
+				Role:   apiv2.TenantRole(apiv2.TenantRole_value[memberRole]),
+				Tenant: tenantId,
+				Member: memberId,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to add member to tenant: %w", err)
+			}
+
+			return nil
+		},
+	}
+
+	cmd.Flags().String("tenant-id", "", "ID of the tenant where the member is added")
+	cmd.Flags().String("member-id", "", "ID of the member to be added")
+	cmd.Flags().String("role", "", "Role of the member within the tenant")
+	genericcli.Must(cmd.MarkFlagRequired("tenant-id"))
+	genericcli.Must(cmd.MarkFlagRequired("member-id"))
+	genericcli.Must(cmd.MarkFlagRequired("role"))
+
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-id", c.Completion.AdminTenantListCompletion))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("member-id", c.Completion.AdminTenantListCompletion))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRoleCompletion))
+
+	return cmd
 }

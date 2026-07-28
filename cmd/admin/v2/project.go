@@ -7,6 +7,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -34,6 +35,7 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("tenant", "", "lists only projects with the given tenant")
+			cmd.Flags().StringSlice("labels", nil, "lists only projects with the given labels")
 		},
 	}
 
@@ -52,6 +54,15 @@ func (c *project) List() ([]*apiv2.Project, error) {
 		Query: &apiv2.ProjectQuery{
 			Tenant: pointer.PointerOrNil(viper.GetString("tenant")),
 		},
+	}
+
+	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
+		var err error
+
+		req.Query.Labels, err = helpers.LabelsFromSlice(labelSlice)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	resp, err := c.c.Client.Adminv2().Project().List(ctx, req)

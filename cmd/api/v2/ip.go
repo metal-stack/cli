@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"github.com/metal-stack/api/go/errorutil"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -75,15 +76,9 @@ func newIPCmd(c *config.Config) *cobra.Command {
 }
 
 func (c *ip) createFromCLI() (*apiv2.IPServiceCreateRequest, error) {
-	var labels *apiv2.Labels = nil
-
-	labelSlice := viper.GetStringSlice("labels")
-	if len(labelSlice) > 0 {
-		labelsMap, err := genericcli.LabelsToMap(labelSlice)
-		if err != nil {
-			return nil, err
-		}
-		labels = &apiv2.Labels{Labels: labelsMap}
+	labels, err := helpers.LabelsFromSlice(viper.GetStringSlice("labels"))
+	if err != nil {
+		return nil, err
 	}
 
 	return &apiv2.IPServiceCreateRequest{
@@ -121,7 +116,7 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		req.Type = pointer.PointerOrNil(ipStaticToType(viper.GetBool("static")))
 	}
 	if viper.IsSet("remove-labels") || viper.IsSet("labels") {
-		updates := &apiv2.UpdateLabelsIndividually{}
+		updates := &apiv2.LabelsPatch{}
 
 		if viper.IsSet("remove-labels") {
 			updates.Remove = viper.GetStringSlice("remove-labels")
@@ -136,8 +131,8 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		}
 
 		req.Labels = &apiv2.UpdateLabels{
-			Strategy: &apiv2.UpdateLabels_Individual{
-				Individual: updates,
+			Strategy: &apiv2.UpdateLabels_Patch{
+				Patch: updates,
 			},
 		}
 	}
@@ -151,7 +146,7 @@ func (c *ip) Create(rq *apiv2.IPServiceCreateRequest) (*apiv2.IP, error) {
 
 	resp, err := c.c.Client.Apiv2().IP().Create(ctx, rq)
 	if err != nil {
-		if helpers.IsAlreadyExists(err) {
+		if errorutil.IsConflict(err) {
 			return nil, genericcli.AlreadyExistsError()
 		}
 

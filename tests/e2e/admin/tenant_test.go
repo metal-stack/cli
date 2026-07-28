@@ -58,7 +58,6 @@ func Test_AdminTenantCmd_Create(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      adminTenant1(),
 			WantProtoObject: adminTenant1(),
 		},
 	}

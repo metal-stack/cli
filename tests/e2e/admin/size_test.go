@@ -33,7 +33,6 @@ func Test_AdminSizeCmd_Delete(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Size1(),
 			WantProtoObject: testresources.Size1(),
 			WantTable: new(`
             ID             NAME           DESCRIPTION                CPU RANGE  MEMORY RANGE     STORAGE RANGE    GPU RANGE
@@ -81,10 +80,6 @@ func Test_AdminSizeCmd_List(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: []*apiv2.Size{
-				testresources.Size2(),
-				testresources.Size1(),
-			},
 			WantTable: new(`
             ID             NAME           DESCRIPTION                CPU RANGE  MEMORY RANGE     STORAGE RANGE    GPU RANGE
             g1-medium-x86  g1-medium-x86  A medium sized GPU server  32 - 32    275 GB - 275 GB  1.8 TB - 1.8 TB  AD102GL [RTX 6000 Ada Generation]: 1 - 1
@@ -177,7 +172,7 @@ func Test_AdminSizeCmd_Update(t *testing.T) {
 								Name:        testresources.Size1().Name,
 								Description: testresources.Size1().Description,
 								UpdateMeta: &apiv2.UpdateMeta{
-									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 								Labels: &apiv2.UpdateLabels{
 									Strategy: &apiv2.UpdateLabels_Replace{

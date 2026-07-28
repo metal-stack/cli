@@ -38,13 +38,13 @@ func Test_AuditCmd_List(t *testing.T) {
 			},
 			),
 			WantTable: new(`
-            TIME                 REQUEST ID                            USER  PROJECT                               METHOD          PHASE                 CODE           
-            2000-01-01 00:00:00  d1ff7267-2fbb-4a63-a7c1-44f1a83381a7  me    0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.Create/  AUDIT_PHASE_REQUEST                  
+            TIME                 REQUEST ID                            USER  PROJECT                               METHOD          PHASE                 CODE
+            2000-01-01 00:00:00  d1ff7267-2fbb-4a63-a7c1-44f1a83381a7  me    0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.Create/  AUDIT_PHASE_REQUEST
             2000-01-01 00:00:00  d1ff7267-2fbb-4a63-a7c1-44f1a83381a7  me    0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.List/    AUDIT_PHASE_RESPONSE  AlreadyExists
 			`),
 			WantWideTable: new(`
-            TIME                 REQUEST ID                            USER  PROJECT                               METHOD          PHASE                 SOURCE IP  CODE           BODY          
-            2000-01-01 00:00:00  d1ff7267-2fbb-4a63-a7c1-44f1a83381a7  me    0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.Create/  AUDIT_PHASE_REQUEST   1.2.3.4                   request body  
+            TIME                 REQUEST ID                            USER  PROJECT                               METHOD          PHASE                 SOURCE IP  CODE           BODY
+            2000-01-01 00:00:00  d1ff7267-2fbb-4a63-a7c1-44f1a83381a7  me    0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.Create/  AUDIT_PHASE_REQUEST   1.2.3.4                   request body
             2000-01-01 00:00:00  d1ff7267-2fbb-4a63-a7c1-44f1a83381a7  me    0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.List/    AUDIT_PHASE_RESPONSE  1.2.3.4    AlreadyExists  result body
 			`),
 			Template: new("{{ .uuid }} {{ .user }} {{ .phase }}"),
@@ -83,11 +83,11 @@ d1ff7267-2fbb-4a63-a7c1-44f1a83381a7 me 2`),
 			},
 			),
 			WantTable: new(`
-            TIME                 REQUEST ID                            USER   PROJECT                               METHOD        PHASE                CODE  
+            TIME                 REQUEST ID                            USER   PROJECT                               METHOD        PHASE                CODE
             2001-01-01 00:00:00  5091c4e9-e8db-483c-ab6b-fe14f82570a7  Larry  0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.List/  AUDIT_PHASE_REQUEST
 			`),
 			WantWideTable: new(`
-            TIME                 REQUEST ID                            USER   PROJECT                               METHOD        PHASE                SOURCE IP  CODE  BODY         
+            TIME                 REQUEST ID                            USER   PROJECT                               METHOD        PHASE                SOURCE IP  CODE  BODY
             2001-01-01 00:00:00  5091c4e9-e8db-483c-ab6b-fe14f82570a7  Larry  0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.List/  AUDIT_PHASE_REQUEST  1.2.3.4          result body
 			`),
 			Template: new("{{ .uuid }} {{ .user }} {{ .phase }}"),
@@ -157,14 +157,13 @@ func Test_AuditCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Trace1(),
 			WantProtoObject: testresources.Trace1(),
 			WantTable: new(`
-            TIME                 REQUEST ID                            USER  PROJECT                               METHOD          PHASE                CODE  
+            TIME                 REQUEST ID                            USER  PROJECT                               METHOD          PHASE                CODE
             2000-01-01 00:00:00  d1ff7267-2fbb-4a63-a7c1-44f1a83381a7  me    0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.Create/  AUDIT_PHASE_REQUEST
 			`),
 			WantWideTable: new(`
-            TIME                 REQUEST ID                            USER  PROJECT                               METHOD          PHASE                SOURCE IP  CODE  BODY          
+            TIME                 REQUEST ID                            USER  PROJECT                               METHOD          PHASE                SOURCE IP  CODE  BODY
             2000-01-01 00:00:00  d1ff7267-2fbb-4a63-a7c1-44f1a83381a7  me    0d81bca7-73f6-4da3-8397-4a8c52a0c583  /apiv2.Create/  AUDIT_PHASE_REQUEST  1.2.3.4          request body
 			`),
 			Template: new("{{ .uuid }} {{ .user }} {{ .phase }}"),

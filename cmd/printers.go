@@ -15,13 +15,9 @@ func newPrinterFromCLI(out io.Writer) (printers.Printer, error) {
 
 	switch format := viper.GetString("output-format"); format {
 	case "yaml":
-		printer = printers.NewProtoYAMLPrinter().WithFallback(true).WithOut(out)
+		printer = printers.NewProtoYAMLPrinter().WithFallback(false).WithOut(out)
 	case "json":
-		printer = printers.NewProtoJSONPrinter().WithFallback(true).WithOut(out)
-	case "yamlraw":
-		printer = printers.NewYAMLPrinter().WithOut(out)
-	case "jsonraw":
-		printer = printers.NewJSONPrinter().WithOut(out)
+		printer = printers.NewProtoJSONPrinter().WithFallback(false).WithOut(out)
 	case "table", "wide", "markdown":
 		tp := tableprinters.New()
 		cfg := &printers.TablePrinterConfig{

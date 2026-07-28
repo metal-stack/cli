@@ -34,7 +34,6 @@ func Test_ProjectCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Project1(),
 			WantProtoObject: testresources.Project1(),
 			WantTable: new(`
             ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
@@ -81,7 +80,6 @@ func Test_ProjectCmd_Create(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Project1(),
 			WantProtoObject: testresources.Project1(),
 		},
 		{
@@ -176,7 +174,7 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Project1(),
+			WantProtoObject: testresources.Project1(),
 		},
 		{
 			Name:    "delete from file",
@@ -230,7 +228,7 @@ func Test_ProjectCmd_Update(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Project1(),
+			WantProtoObject: testresources.Project1(),
 		},
 		{
 			Name:    "update from file",
@@ -341,7 +339,7 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE            
+            ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
             0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2000-01-01 00:00:00 UTC
 			`),
 		},
@@ -378,7 +376,7 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE            
+            ID                                    TENANT       NAME       DESCRIPTION    CREATION DATE
             0d81bca7-73f6-4da3-8397-4a8c52a0c583  metal-stack  project-a  first project  2000-01-01 00:00:00 UTC
 			`),
 		},
@@ -409,13 +407,13 @@ func Test_ProjectCmd_ListInvites(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            SECRET  PROJECT                               ROLE                 EXPIRES IN       
-            secret  0d81bca7-73f6-4da3-8397-4a8c52a0c583  PROJECT_ROLE_EDITOR  2 days from now  
+            SECRET  PROJECT                               ROLE                 EXPIRES IN
+            secret  0d81bca7-73f6-4da3-8397-4a8c52a0c583  PROJECT_ROLE_EDITOR  2 days from now
             secret  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  PROJECT_ROLE_EDITOR  2 days from now
 			`),
 			WantWideTable: new(`
-            SECRET  PROJECT                               ROLE                 EXPIRES IN       
-            secret  0d81bca7-73f6-4da3-8397-4a8c52a0c583  PROJECT_ROLE_EDITOR  2 days from now  
+            SECRET  PROJECT                               ROLE                 EXPIRES IN
+            secret  0d81bca7-73f6-4da3-8397-4a8c52a0c583  PROJECT_ROLE_EDITOR  2 days from now
             secret  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  PROJECT_ROLE_EDITOR  2 days from now
 			`),
 			Template: new("{{ .project }} {{ .role }}"),
@@ -558,13 +556,13 @@ func Test_ProjectCmd_ListMembers(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID                                    ROLE                 INHERITED  SINCE  
-            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  PROJECT_ROLE_OWNER   false      now    
-            40c0da4b-9eb9-4371-91aa-1ae62193fa54  PROJECT_ROLE_EDITOR  true       now    
+            ID                                    ROLE                 INHERITED  SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  PROJECT_ROLE_OWNER   false      now
+            40c0da4b-9eb9-4371-91aa-1ae62193fa54  PROJECT_ROLE_EDITOR  true       now
 			`),
 			WantWideTable: new(`
-            ID                                    ROLE                 INHERITED  SINCE  
-            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  PROJECT_ROLE_OWNER   false      now    
+            ID                                    ROLE                 INHERITED  SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  PROJECT_ROLE_OWNER   false      now
             40c0da4b-9eb9-4371-91aa-1ae62193fa54  PROJECT_ROLE_EDITOR  true       now
 			`),
 			Template: new("{{ .id }} {{ .role }}"),
@@ -632,9 +630,9 @@ func Test_ProjectCmd_UpdateMember(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Project1Members(),
+			WantProtoObject: testresources.Project1Members(),
 			WantTable: new(`
-			ID                                    ROLE                INHERITED  SINCE  
+			ID                                    ROLE                INHERITED  SINCE
             16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  PROJECT_ROLE_OWNER  false      now
 			`),
 		},
