@@ -47,7 +47,6 @@ func Test_TenantCmd_Describe(t *testing.T) {
             |-------------|-------------|---------------------|------------|
             | metal-stack | Metal Stack | info@metal-stack.io | now        |
 			`),
-			WantObject:      testresources.Tenant1(),
 			WantProtoObject: testresources.Tenant1(),
 			Template:        new("{{ .login }} {{ .name }}"),
 			WantTemplate: new(`
@@ -129,7 +128,6 @@ func Test_TenantCmd_Create(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.Tenant1(),
 			WantProtoObject: testresources.Tenant1(),
 		},
 		{
@@ -156,7 +154,7 @@ func Test_TenantCmd_Create(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID           NAME         EMAIL                REGISTERED  
+            ID           NAME         EMAIL                REGISTERED
             metal-stack  Metal Stack  info@metal-stack.io  now
 					`),
 		},
@@ -197,8 +195,8 @@ func Test_TenantCmd_Create(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID           NAME         EMAIL                REGISTERED  
-            metal-stack  Metal Stack  info@metal-stack.io  now         
+            ID           NAME         EMAIL                REGISTERED
+            metal-stack  Metal Stack  info@metal-stack.io  now
             acme-corp    ACME Corp    admin@acme.io        now
 					`),
 		},
@@ -227,7 +225,7 @@ func Test_TenantCmd_Delete(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Tenant1(),
+			WantProtoObject: testresources.Tenant1(),
 		},
 		{
 			Name:    "delete from file",
@@ -250,7 +248,7 @@ func Test_TenantCmd_Delete(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID           NAME         EMAIL                REGISTERED  
+            ID           NAME         EMAIL                REGISTERED
             metal-stack  Metal Stack  info@metal-stack.io  now
 			`),
 		},
@@ -307,7 +305,7 @@ func Test_TenantCmd_Update(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID           NAME         EMAIL                REGISTERED  
+            ID           NAME         EMAIL                REGISTERED
             metal-stack  Metal Stack  info@metal-stack.io  now
 			`),
 		},
@@ -345,7 +343,7 @@ func Test_TenantCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            ID           NAME         EMAIL                REGISTERED  
+            ID           NAME         EMAIL                REGISTERED
             metal-stack  Metal Stack  info@metal-stack.io  now
 			`),
 		},
@@ -384,7 +382,7 @@ func Test_TenantCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            ID           NAME         EMAIL                REGISTERED  
+            ID           NAME         EMAIL                REGISTERED
             metal-stack  Metal Stack  info@metal-stack.io  now
 			`),
 		},
@@ -417,13 +415,13 @@ func Test_TenantCmd_ListMembers(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID                                    ROLE                SINCE  
-            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER   now    
+            ID                                    ROLE                SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER   now
             40c0da4b-9eb9-4371-91aa-1ae62193fa54  TENANT_ROLE_EDITOR  now
 			`),
 			WantWideTable: new(`
-            ID                                    ROLE                SINCE  
-            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER   now    
+            ID                                    ROLE                SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER   now
             40c0da4b-9eb9-4371-91aa-1ae62193fa54  TENANT_ROLE_EDITOR  now
 			`),
 			Template: new("{{ .id }} {{ .role }} {{ .projects }}"),
@@ -491,9 +489,9 @@ func Test_TenantCmd_UpdateMember(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.Tenant1Members(),
+			WantProtoObject: testresources.Tenant1Members(),
 			WantTable: new(`
-            ID                                    ROLE               SINCE  
+            ID                                    ROLE               SINCE
             16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER  now
 			`),
 		},
@@ -526,13 +524,13 @@ func Test_TenantCmd_ListInvites(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            SECRET  TENANT       INVITED BY   ROLE                EXPIRES IN       
-            secret  acme-corp    acme-corp    TENANT_ROLE_EDITOR  2 days from now  
+            SECRET  TENANT       INVITED BY   ROLE                EXPIRES IN
+            secret  acme-corp    acme-corp    TENANT_ROLE_EDITOR  2 days from now
             secret  metal-stack  metal-stack  TENANT_ROLE_VIEWER  2 days from now
 			`),
 			WantWideTable: new(`
-            SECRET  TENANT       INVITED BY   ROLE                EXPIRES IN       
-            secret  acme-corp    acme-corp    TENANT_ROLE_EDITOR  2 days from now  
+            SECRET  TENANT       INVITED BY   ROLE                EXPIRES IN
+            secret  acme-corp    acme-corp    TENANT_ROLE_EDITOR  2 days from now
             secret  metal-stack  metal-stack  TENANT_ROLE_VIEWER  2 days from now
 			`),
 			Template: new("{{ .tenant }} {{ .role }}"),

@@ -84,7 +84,6 @@ func Test_IPCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.IP1(),
 			WantProtoObject: testresources.IP1(),
 			WantTable: new(`
 			IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
@@ -131,7 +130,7 @@ func Test_IPCmd_Create(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.IP1(),
+			WantProtoObject: testresources.IP1(),
 		},
 		{
 			Name:    "create from file",
@@ -192,7 +191,7 @@ func Test_IPCmd_Delete(t *testing.T) {
 					},
 				},
 			}),
-			WantObject: testresources.IP1(),
+			WantProtoObject: testresources.IP1(),
 		},
 		{
 			Name:    "delete from file",
@@ -254,7 +253,7 @@ func Test_IPCmd_Update(t *testing.T) {
 					},
 				},
 			),
-			WantObject: testresources.IP1(),
+			WantProtoObject: testresources.IP1(),
 			WantTable: new(`
 			IP       PROJECT                               ID                                    TYPE    NAME  ATTACHED SERVICE
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a

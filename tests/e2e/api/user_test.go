@@ -28,14 +28,13 @@ func Test_UserCmd_Describe(t *testing.T) {
 					},
 				},
 			}),
-			WantObject:      testresources.User(),
 			WantProtoObject: testresources.User(),
 			WantTable: new(`
-            LOGIN                                NAME   EMAIL                 
+            LOGIN                                NAME   EMAIL
             larry@metal-stack.io@openid-connect  Larry  larry@metal-stack.io
 			`),
 			WantWideTable: new(`
-            LOGIN                                NAME   EMAIL                 TENANTS                 PROJECTS              
+            LOGIN                                NAME   EMAIL                 TENANTS                 PROJECTS
             larry@metal-stack.io@openid-connect  Larry  larry@metal-stack.io  Metal Stack, ACME Corp  project-a, project-b
 			`),
 			WantMarkdown: new(`

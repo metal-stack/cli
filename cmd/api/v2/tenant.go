@@ -5,6 +5,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
+	"github.com/metal-stack/api/go/errorutil"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
@@ -36,7 +37,8 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "lists only tenants with the given name")
-			cmd.Flags().String("id", "", "lists only tenant with the given tenant id")
+			cmd.Flags().String("id", "", "lists only tenants with the given tenant id")
+			cmd.Flags().StringSlice("labels", nil, "lists only tenants with the given labels")
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "the name of the tenant to create")
@@ -190,6 +192,16 @@ func (c *tenant) List() ([]*apiv2.Tenant, error) {
 			Login: pointer.PointerOrNil(viper.GetString("tenant")),
 		},
 	}
+
+	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
+		var err error
+
+		req.Query.Labels, err = helpers.LabelsFromSlice(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	resp, err := c.c.Client.Apiv2().Tenant().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tenants: %w", err)
@@ -204,7 +216,7 @@ func (c *tenant) Create(rq *apiv2.TenantServiceCreateRequest) (*apiv2.Tenant, er
 
 	resp, err := c.c.Client.Apiv2().Tenant().Create(ctx, rq)
 	if err != nil {
-		if helpers.IsAlreadyExists(err) {
+		if errorutil.IsConflict(err) {
 			return nil, genericcli.AlreadyExistsError()
 		}
 
