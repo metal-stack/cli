@@ -246,17 +246,8 @@ func (c *ip) IpResponseToUpdate(ip *apiv2.IP) (*apiv2.IPServiceUpdateRequest, er
 		Name:        &ip.Name,
 		Description: &ip.Description,
 		Type:        &ip.Type,
-		Labels: &apiv2.UpdateLabels{
-			Strategy: &apiv2.UpdateLabels_Replace{
-				Replace: &apiv2.Labels{
-					Labels: pointer.SafeDeref(pointer.SafeDeref(ip.Meta).Labels).Labels,
-				},
-			},
-		},
-		UpdateMeta: &apiv2.UpdateMeta{
-			UpdatedAt:       pointer.SafeDeref(ip.Meta).UpdatedAt,
-			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
-		},
+		UpdateMeta:  helpers.UpdateMetaFromMeta(ip.Meta),
+		Labels:      helpers.UpdateLabelsFromMeta(ip.Meta),
 	}, nil
 }
 

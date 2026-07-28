@@ -2,10 +2,10 @@ package v2
 
 import (
 	"fmt"
-	"strings"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -80,7 +80,7 @@ func (c *image) List() ([]*apiv2.Image, error) {
 		Version:     pointer.PointerOrNil(viper.GetString("version")),
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
-		Feature:     imageFeatureFromString(viper.GetString("feature")),
+		Feature:     helpers.ImageFeatureFromString(viper.GetString("feature")),
 	}}
 
 	resp, err := c.c.Client.Apiv2().Image().List(ctx, req)
@@ -103,20 +103,6 @@ func (c *image) latest() error {
 	}
 
 	return c.c.ListPrinter.Print(resp.Image)
-}
-
-func imageFeatureFromString(feature string) *apiv2.ImageFeature {
-	if feature == "" {
-		return nil
-	}
-
-	switch strings.ToLower(feature) {
-	case "machine":
-		return apiv2.ImageFeature_IMAGE_FEATURE_MACHINE.Enum()
-	case "firewall":
-		return apiv2.ImageFeature_IMAGE_FEATURE_FIREWALL.Enum()
-	}
-	return apiv2.ImageFeature_IMAGE_FEATURE_UNSPECIFIED.Enum()
 }
 
 func (c *image) Create(rq any) (*apiv2.Image, error) {

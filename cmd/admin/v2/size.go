@@ -40,11 +40,6 @@ func newSizeCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("name", "", "", "size name to filter for")
 			cmd.Flags().StringP("description", "", "", "size description to filter for")
 		},
-		UpdateCmdMutateFn: func(cmd *cobra.Command) {
-			cmd.Flags().StringP("id", "", "", "size id to update")
-			cmd.Flags().StringP("name", "", "", "size name to update")
-			cmd.Flags().StringP("description", "", "", "size description to update")
-		},
 	}
 
 	return genericcli.NewCmds(cmdsConfig)
@@ -133,17 +128,11 @@ func (c *size) Convert(r *apiv2.Size) (string, *adminv2.SizeServiceCreateRequest
 				Constraints: r.Constraints,
 			},
 		}, &adminv2.SizeServiceUpdateRequest{
+			UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
+			Labels:      helpers.UpdateLabelsFromMeta(r.Meta),
 			Id:          r.Id,
 			Name:        r.Name,
 			Description: r.Description,
 			Constraints: r.Constraints,
-			UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
-			Labels: &apiv2.UpdateLabels{
-				Strategy: &apiv2.UpdateLabels_Replace{
-					Replace: &apiv2.Labels{
-						Labels: pointer.SafeDeref(pointer.SafeDeref(r.Meta).Labels).Labels,
-					},
-				},
-			},
 		}, nil
 }

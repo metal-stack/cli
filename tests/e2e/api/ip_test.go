@@ -287,7 +287,7 @@ func Test_IPCmd_Update(t *testing.T) {
 								Name: &testresources.IP1().Name,
 								Type: &testresources.IP1().Type,
 								UpdateMeta: &apiv2.UpdateMeta{
-									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
 							WantResponse: func() connect.AnyResponse {
@@ -382,7 +382,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 								Name: &testresources.IP1().Name,
 								Type: &testresources.IP1().Type,
 								UpdateMeta: &apiv2.UpdateMeta{
-									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
 							WantResponse: func() connect.AnyResponse {

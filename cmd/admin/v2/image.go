@@ -2,7 +2,6 @@ package v2
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/metal-stack/api/go/errorutil"
@@ -36,11 +35,13 @@ func newImageCmd(c *config.Config) *cobra.Command {
 		Description:     "manage images which are used to be installed on machines and firewalls",
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
-		OnlyCmds:        genericcli.OnlyCmds(genericcli.CreateCmd, genericcli.UpdateCmd, genericcli.DeleteCmd, genericcli.EditCmd),
-		DescribeCmdMutateFn: func(cmd *cobra.Command) {
-			cmd.RunE = func(cmd *cobra.Command, args []string) error {
-				return gcli.DescribeAndPrint("", w.c.DescribePrinter)
-			}
+		ListCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().StringP("id", "", "", "image id to filter for")
+			cmd.Flags().StringP("os", "", "", "image os to filter for")
+			cmd.Flags().StringP("version", "", "", "image version to filter for")
+			cmd.Flags().StringP("name", "", "", "image name to filter for")
+			cmd.Flags().StringP("description", "", "", "image description to filter for")
+			cmd.Flags().StringP("feature", "", "", "image feature to filter for, can be either machine|firewall")
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("id", "", "image id")
@@ -61,6 +62,9 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("expires-in", "", "expires-in duration")
 			cmd.Flags().String("description", "", "image description")
 			cmd.Flags().StringSlice("features", nil, "image features can be machine and/or firewall")
+			cmd.Flags().StringSlice("labels", nil, "labels to replace for the image")
+			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the image")
+			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the image")
 		},
 		UpdateRequestFromCLI: w.updateFromCLI,
 	}
@@ -113,11 +117,11 @@ func (c *image) createFromCLI() (*adminv2.ImageServiceCreateRequest, error) {
 		Image: &apiv2.Image{
 			Id:             viper.GetString("id"),
 			Url:            viper.GetString("url"),
-			Classification: imageClassificationFromString(viper.GetString("classification")),
+			Classification: helpers.ImageClassificationFromString(viper.GetString("classification")),
 			Name:           pointer.PointerOrNil(viper.GetString("name")),
 			Description:    pointer.PointerOrNil(viper.GetString("description")),
 			ExpiresAt:      expiresAt,
-			Features:       imageFeaturesFromString(viper.GetStringSlice("features")),
+			Features:       helpers.ImageFeaturesFromString(viper.GetStringSlice("features")),
 			Meta: &apiv2.Meta{
 				Labels: labels,
 			},
@@ -138,8 +142,26 @@ func (c *image) Delete(id string) (*apiv2.Image, error) {
 
 	return resp.Image, nil
 }
+
 func (c *image) List() ([]*apiv2.Image, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	req := &apiv2.ImageServiceListRequest{Query: &apiv2.ImageQuery{
+		Id:          pointer.PointerOrNil(viper.GetString("id")),
+		Os:          pointer.PointerOrNil(viper.GetString("os")),
+		Version:     pointer.PointerOrNil(viper.GetString("version")),
+		Name:        pointer.PointerOrNil(viper.GetString("name")),
+		Description: pointer.PointerOrNil(viper.GetString("description")),
+		Feature:     helpers.ImageFeatureFromString(viper.GetString("feature")),
+	}}
+
+	resp, err := c.c.Client.Apiv2().Image().List(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get images: %w", err)
+	}
+
+	return resp.Images, nil
 }
 
 func (c *image) Convert(r *apiv2.Image) (string, *adminv2.ImageServiceCreateRequest, *adminv2.ImageServiceUpdateRequest, error) {
@@ -155,16 +177,16 @@ func (c *image) Convert(r *apiv2.Image) (string, *adminv2.ImageServiceCreateRequ
 				ExpiresAt:      r.ExpiresAt,
 			},
 		}, &adminv2.ImageServiceUpdateRequest{
+			UpdateMeta:     helpers.UpdateMetaFromMeta(r.Meta),
+			Labels:         helpers.UpdateLabelsFromMeta(r.Meta),
 			Id:             r.Id,
 			Url:            &r.Url,
 			Name:           r.Name,
 			Description:    r.Description,
 			Features:       r.Features,
-			UpdateMeta:     helpers.UpdateMetaFromMeta(r.Meta),
 			Classification: r.Classification,
 			ExpiresAt:      r.ExpiresAt,
 		}, nil
-
 }
 
 func (c *image) Update(rq *adminv2.ImageServiceUpdateRequest) (*apiv2.Image, error) {
@@ -185,6 +207,11 @@ func (c *image) updateFromCLI(args []string) (*adminv2.ImageServiceUpdateRequest
 		return nil, err
 	}
 
+	updateLabels, err := helpers.UpdateLabelsFromCLI()
+	if err != nil {
+		return nil, err
+	}
+
 	req := &adminv2.ImageServiceUpdateRequest{
 		Id:          id,
 		Url:         pointer.PointerOrNil(viper.GetString("url")),
@@ -193,47 +220,16 @@ func (c *image) updateFromCLI(args []string) (*adminv2.ImageServiceUpdateRequest
 		UpdateMeta: &apiv2.UpdateMeta{
 			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 		},
+		Features: helpers.ImageFeaturesFromString(viper.GetStringSlice("features")),
+		Labels:   updateLabels,
 	}
 
 	if viper.IsSet("expires-in") {
 		req.ExpiresAt = timestamppb.New(time.Now().Add(viper.GetDuration("expires-in")))
 	}
-	if viper.IsSet("features") {
-		req.Features = imageFeaturesFromString(viper.GetStringSlice("features"))
-	}
 	if viper.IsSet("classification") {
-		req.Classification = imageClassificationFromString(viper.GetString("classification"))
+		req.Classification = helpers.ImageClassificationFromString(viper.GetString("classification"))
 	}
 
 	return req, nil
-}
-
-func imageFeaturesFromString(features []string) []apiv2.ImageFeature {
-	if len(features) == 0 {
-		return nil
-	}
-
-	var result []apiv2.ImageFeature
-	for _, f := range features {
-		switch strings.ToLower(f) {
-		case "machine":
-			result = append(result, apiv2.ImageFeature_IMAGE_FEATURE_MACHINE)
-		case "firewall":
-			result = append(result, apiv2.ImageFeature_IMAGE_FEATURE_FIREWALL)
-		}
-	}
-	return result
-}
-
-func imageClassificationFromString(classification string) apiv2.ImageClassification {
-	switch strings.ToLower(strings.TrimSpace(classification)) {
-	case "preview":
-		return apiv2.ImageClassification_IMAGE_CLASSIFICATION_PREVIEW
-	case "supported":
-		return apiv2.ImageClassification_IMAGE_CLASSIFICATION_SUPPORTED
-	case "deprecated":
-		return apiv2.ImageClassification_IMAGE_CLASSIFICATION_DEPRECATED
-	}
-
-	return apiv2.ImageClassification_IMAGE_CLASSIFICATION_UNSPECIFIED
 }

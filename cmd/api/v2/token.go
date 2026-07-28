@@ -225,14 +225,8 @@ func (c *token) Convert(r *apiv2.Token) (string, *apiv2.TokenServiceCreateReques
 			ProjectRoles: r.ProjectRoles,
 			TenantRoles:  r.TenantRoles,
 			AdminRole:    r.AdminRole,
-			Labels: &apiv2.UpdateLabels{
-				Strategy: &apiv2.UpdateLabels_Replace{
-					Replace: &apiv2.Labels{
-						Labels: pointer.SafeDeref(pointer.SafeDeref(r.Meta).Labels).Labels,
-					},
-				},
-			},
-			UpdateMeta: helpers.UpdateMetaFromMeta(r.Meta),
+			Labels:       helpers.UpdateLabelsFromMeta(r.Meta),
+			UpdateMeta:   helpers.UpdateMetaFromMeta(r.Meta),
 		}, nil
 }
 
