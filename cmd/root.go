@@ -75,7 +75,21 @@ func NewRootCmd(c *config.Config) *cobra.Command {
 		Use:   "markdown",
 		Short: "create markdown documentation",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return doc.GenMarkdownTree(rootCmd, "./docs")
+			err := os.MkdirAll("./docs", 0755)
+			if err != nil {
+				return err
+			}
+			err = doc.GenMarkdownTree(rootCmd, "./docs")
+			if err != nil {
+				return err
+			}
+
+			err = genAdminDocs(rootCmd)
+			if err != nil {
+				return err
+			}
+
+			return nil
 		},
 		DisableAutoGenTag: true,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -143,4 +157,22 @@ func recursiveAutoGenDisable(cmd *cobra.Command) {
 	for _, child := range cmd.Commands() {
 		recursiveAutoGenDisable(child)
 	}
+}
+
+func genAdminDocs(rootCmd *cobra.Command) error {
+	adminCmd, _, err := rootCmd.Find([]string{"admin"})
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll("./docs/admin", 0755)
+	if err != nil {
+		return err
+	}
+
+	hidden := adminCmd.Hidden
+	adminCmd.Hidden = false
+	defer func() { adminCmd.Hidden = hidden }()
+
+	return doc.GenMarkdownTree(adminCmd, "./docs/admin")
 }
