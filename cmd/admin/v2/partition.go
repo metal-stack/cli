@@ -2,6 +2,7 @@ package v2
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
@@ -108,6 +109,12 @@ func (c *partition) capacity() error {
 	})
 	if err != nil {
 		return fmt.Errorf("failed to get partition capacity: %w", err)
+	}
+
+	for _, cap := range resp.PartitionCapacity {
+		sort.SliceStable(cap.MachineSizeCapacities, func(i, j int) bool {
+			return cap.MachineSizeCapacities[i].Size < cap.MachineSizeCapacities[j].Size
+		})
 	}
 
 	err = sorters.PartitionCapacitySorter().SortBy(resp.PartitionCapacity)

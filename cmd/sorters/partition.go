@@ -22,9 +22,5 @@ func PartitionCapacitySorter() *multisort.Sorter[*adminv2.PartitionCapacity] {
 		"id": func(a, b *adminv2.PartitionCapacity, descending bool) multisort.CompareResult {
 			return multisort.Compare(a.Partition, b.Partition, descending)
 		},
-		"size": func(a, b *adminv2.PartitionCapacity, descending bool) multisort.CompareResult {
-			// FIXME implement
-			return multisort.Compare(a.Partition, b.Partition, descending)
-		},
-	}, multisort.Keys{{ID: "id"}, {ID: "size"}})
+	}, multisort.Keys{{ID: "id"}})
 }
