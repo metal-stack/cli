@@ -26,7 +26,7 @@ metalctlv2 token create [flags]
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
   -h, --help                    help for create
-      --permissions strings     the permissions to associate with the api token in the form <project>=<methods-colon-separated>
+      --permissions strings     the permissions to associate with the api token in the form [<subject>=]<methods-colon-separated>
       --project-roles strings   the project roles to associate with the api token in the form <subject>=<role>
       --skip-security-prompts   skips security prompt for bulk operations
       --tenant-roles strings    the tenant roles to associate with the api token in the form <subject>=<role>

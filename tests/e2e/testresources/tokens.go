@@ -4,6 +4,7 @@ import (
 	"time"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/api/go/metalstack/api/v2/apiv2connect"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -32,13 +33,13 @@ var (
 			Expires:     timestamppb.New(e2e.TimeBubbleStartTime().Add(48 * time.Hour)),
 			IssuedAt:    timestamppb.New(e2e.TimeBubbleStartTime()),
 			Permissions: []*apiv2.MethodPermission{
-				&apiv2.MethodPermission{
+				{
 					Subject: Project1().Uuid,
-					Methods: []string{"api/method1", "api/method2"},
+					Methods: []string{apiv2connect.IPServiceCreateProcedure, apiv2connect.IPServiceDeleteProcedure},
 				},
-				&apiv2.MethodPermission{
+				{
 					Subject: Tenant1().Login,
-					Methods: []string{"api/method3"},
+					Methods: []string{apiv2connect.AuditServiceGetProcedure},
 				},
 			},
 			Meta: &apiv2.Meta{

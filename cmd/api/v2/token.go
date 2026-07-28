@@ -2,10 +2,12 @@ package v2
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/metal-stack/api/go/permissions"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
@@ -35,17 +37,105 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		CreateRequestFromCLI: func() (*apiv2.TokenServiceCreateRequest, error) {
-			var permissions []*apiv2.MethodPermission
-			for _, r := range viper.GetStringSlice("permissions") {
-				project, semicolonSeparatedMethods, ok := strings.Cut(r, "=")
+			var perms []*apiv2.PermissionsByVisibility
+
+			for _, m := range viper.GetStringSlice("permissions") {
+				subject, colonSeparatedMethods, ok := strings.Cut(m, "=")
 				if !ok {
-					return nil, fmt.Errorf("permissions must be provided in the form <project>=<methods-colon-separated>")
+					colonSeparatedMethods = subject
 				}
 
-				permissions = append(permissions, &apiv2.MethodPermission{
-					Subject: project,
-					Methods: strings.Split(semicolonSeparatedMethods, ":"),
-				})
+				for method := range strings.SplitSeq(colonSeparatedMethods, ":") {
+					if _, ok := permissions.GetServicePermissions().Visibility.Admin[method]; ok {
+
+						perms = append(perms, &apiv2.PermissionsByVisibility{
+							Visibility: &apiv2.PermissionsByVisibility_Admin{
+								Admin: &apiv2.AdminPermissions{
+									Methods: []string{method},
+								},
+							},
+						})
+
+						continue
+					}
+
+					if _, ok := permissions.GetServicePermissions().Visibility.Infra[method]; ok {
+						perms = append(perms, &apiv2.PermissionsByVisibility{
+							Visibility: &apiv2.PermissionsByVisibility_Infra{
+								Infra: &apiv2.InfraPermissions{
+									Methods: []string{method},
+								},
+							},
+						})
+
+						continue
+					}
+
+					if _, ok := permissions.GetServicePermissions().Visibility.Machine[method]; ok {
+						perms = append(perms, &apiv2.PermissionsByVisibility{
+							Visibility: &apiv2.PermissionsByVisibility_Machine{
+								Machine: &apiv2.MachinePermissions{
+									Uuid:    subject,
+									Methods: []string{method},
+								},
+							},
+						})
+
+						continue
+					}
+
+					if _, ok := permissions.GetServicePermissions().Visibility.Project[method]; ok {
+						perms = append(perms, &apiv2.PermissionsByVisibility{
+							Visibility: &apiv2.PermissionsByVisibility_Project{
+								Project: &apiv2.ProjectPermissions{
+									Project: subject,
+									Methods: []string{method},
+								},
+							},
+						})
+
+						continue
+					}
+
+					if _, ok := permissions.GetServicePermissions().Visibility.Public[method]; ok {
+						perms = append(perms, &apiv2.PermissionsByVisibility{
+							Visibility: &apiv2.PermissionsByVisibility_Public{
+								Public: &apiv2.PublicPermissions{
+									Methods: []string{method},
+								},
+							},
+						})
+
+						continue
+					}
+
+					if _, ok := permissions.GetServicePermissions().Visibility.Self[method]; ok {
+						perms = append(perms, &apiv2.PermissionsByVisibility{
+							Visibility: &apiv2.PermissionsByVisibility_Self{
+								Self: &apiv2.SelfPermissions{
+									Methods: []string{method},
+								},
+							},
+						})
+
+						continue
+					}
+
+					if _, ok := permissions.GetServicePermissions().Visibility.Tenant[method]; ok {
+						perms = append(perms, &apiv2.PermissionsByVisibility{
+							Visibility: &apiv2.PermissionsByVisibility_Tenant{
+								Tenant: &apiv2.TenantPermissions{
+									Login:   subject,
+									Methods: []string{method},
+								},
+							},
+						})
+
+						continue
+					}
+
+					return nil, fmt.Errorf("your requested method is not part of the api: %s", method)
+				}
 			}
 
 			projectRoles := map[string]apiv2.ProjectRole{}
@@ -89,9 +179,8 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 			}
 
 			return &apiv2.TokenServiceCreateRequest{
-				// TODO: api should have an endpoint to list possible permissions and roles
 				Description:  viper.GetString("description"),
-				Permissions:  permissions,
+				Permissions:  perms,
 				ProjectRoles: projectRoles,
 				TenantRoles:  tenantRoles,
 				AdminRole:    adminRole,
@@ -100,7 +189,7 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("description", "", "a short description for the intention to use this token for")
-			cmd.Flags().StringSlice("permissions", nil, "the permissions to associate with the api token in the form <project>=<methods-colon-separated>")
+			cmd.Flags().StringSlice("permissions", nil, "the permissions to associate with the api token in the form [<subject>=]<methods-colon-separated>")
 			cmd.Flags().StringSlice("project-roles", nil, "the project roles to associate with the api token in the form <subject>=<role>")
 			cmd.Flags().StringSlice("tenant-roles", nil, "the tenant roles to associate with the api token in the form <subject>=<role>")
 			cmd.Flags().String("admin-role", "", "the admin role to associate with the api token")
@@ -199,18 +288,195 @@ func (c *token) Update(rq *apiv2.TokenServiceUpdateRequest) (*apiv2.Token, error
 }
 
 func (c *token) Convert(r *apiv2.Token) (string, *apiv2.TokenServiceCreateRequest, *apiv2.TokenServiceUpdateRequest, error) {
+	var perms []*apiv2.PermissionsByVisibility
+
+	for _, perm := range r.Permissions {
+		for _, method := range perm.Methods {
+			if _, ok := permissions.GetServicePermissions().Visibility.Admin[method]; ok {
+				idx := slices.IndexFunc(perms, func(p *apiv2.PermissionsByVisibility) bool {
+					return p.GetAdmin() != nil
+				})
+
+				if idx < 0 {
+					perms = append(perms, &apiv2.PermissionsByVisibility{
+						Visibility: &apiv2.PermissionsByVisibility_Admin{
+							Admin: &apiv2.AdminPermissions{
+								Methods: []string{method},
+							},
+						},
+					})
+
+					continue
+				}
+
+				perms[idx].GetAdmin().Methods = append(perms[idx].GetAdmin().Methods, method)
+
+				continue
+			}
+
+			if _, ok := permissions.GetServicePermissions().Visibility.Infra[method]; ok {
+				idx := slices.IndexFunc(perms, func(p *apiv2.PermissionsByVisibility) bool {
+					return p.GetInfra() != nil
+				})
+
+				if idx < 0 {
+					perms = append(perms, &apiv2.PermissionsByVisibility{
+						Visibility: &apiv2.PermissionsByVisibility_Infra{
+							Infra: &apiv2.InfraPermissions{
+								Methods: []string{method},
+							},
+						},
+					})
+
+					continue
+				}
+
+				perms[idx].GetInfra().Methods = append(perms[idx].GetInfra().Methods, method)
+
+				continue
+			}
+
+			if _, ok := permissions.GetServicePermissions().Visibility.Machine[method]; ok {
+				idx := slices.IndexFunc(perms, func(p *apiv2.PermissionsByVisibility) bool {
+					return p.GetMachine() != nil
+				})
+
+				if idx < 0 {
+					perms = append(perms, &apiv2.PermissionsByVisibility{
+						Visibility: &apiv2.PermissionsByVisibility_Machine{
+							Machine: &apiv2.MachinePermissions{
+								Uuid:    perm.Subject,
+								Methods: []string{method},
+							},
+						},
+					})
+
+					continue
+				}
+
+				perms[idx].GetMachine().Methods = append(perms[idx].GetMachine().Methods, method)
+
+				continue
+			}
+
+			if _, ok := permissions.GetServicePermissions().Visibility.Project[method]; ok {
+				idx := slices.IndexFunc(perms, func(p *apiv2.PermissionsByVisibility) bool {
+					return p.GetProject() != nil
+				})
+
+				if idx < 0 {
+					perms = append(perms, &apiv2.PermissionsByVisibility{
+						Visibility: &apiv2.PermissionsByVisibility_Project{
+							Project: &apiv2.ProjectPermissions{
+								Project: perm.Subject,
+								Methods: []string{method},
+							},
+						},
+					})
+
+					continue
+				}
+
+				perms[idx].GetProject().Methods = append(perms[idx].GetProject().Methods, method)
+
+				continue
+			}
+
+			if _, ok := permissions.GetServicePermissions().Visibility.Public[method]; ok {
+				idx := slices.IndexFunc(perms, func(p *apiv2.PermissionsByVisibility) bool {
+					return p.GetPublic() != nil
+				})
+
+				if idx < 0 {
+					perms = append(perms, &apiv2.PermissionsByVisibility{
+						Visibility: &apiv2.PermissionsByVisibility_Public{
+							Public: &apiv2.PublicPermissions{
+								Methods: []string{method},
+							},
+						},
+					})
+
+					continue
+				}
+
+				perms[idx].GetPublic().Methods = append(perms[idx].GetPublic().Methods, method)
+
+				continue
+			}
+
+			if _, ok := permissions.GetServicePermissions().Visibility.Self[method]; ok {
+				idx := slices.IndexFunc(perms, func(p *apiv2.PermissionsByVisibility) bool {
+					return p.GetSelf() != nil
+				})
+
+				if idx < 0 {
+					perms = append(perms, &apiv2.PermissionsByVisibility{
+						Visibility: &apiv2.PermissionsByVisibility_Self{
+							Self: &apiv2.SelfPermissions{
+								Methods: []string{method},
+							},
+						},
+					})
+
+					continue
+				}
+
+				perms[idx].GetSelf().Methods = append(perms[idx].GetSelf().Methods, method)
+
+				continue
+			}
+
+			if _, ok := permissions.GetServicePermissions().Visibility.Tenant[method]; ok {
+				idx := slices.IndexFunc(perms, func(p *apiv2.PermissionsByVisibility) bool {
+					return p.GetTenant() != nil
+				})
+
+				if idx < 0 {
+					perms = append(perms, &apiv2.PermissionsByVisibility{
+						Visibility: &apiv2.PermissionsByVisibility_Tenant{
+							Tenant: &apiv2.TenantPermissions{
+								Login:   perm.Subject,
+								Methods: []string{method},
+							},
+						},
+					})
+
+					continue
+				}
+
+				perms[idx].GetTenant().Methods = append(perms[idx].GetTenant().Methods, method)
+
+				continue
+			}
+
+			return "", nil, nil, fmt.Errorf("method is not part of the api: %s", method)
+		}
+	}
+
 	return r.Uuid, &apiv2.TokenServiceCreateRequest{
 			Description:  r.GetDescription(),
-			Permissions:  r.GetPermissions(),
+			Permissions:  perms,
 			ProjectRoles: r.GetProjectRoles(),
 			TenantRoles:  r.GetTenantRoles(),
 			Expires:      durationpb.New(time.Until(r.GetExpires().AsTime())),
+			Labels:       pointer.SafeDeref(r.Meta).Labels,
 		}, &apiv2.TokenServiceUpdateRequest{
 			Uuid:         r.Uuid,
 			Description:  pointer.PointerOrNil(r.Description),
-			Permissions:  r.Permissions,
+			Permissions:  perms,
 			ProjectRoles: r.ProjectRoles,
 			TenantRoles:  r.TenantRoles,
 			AdminRole:    r.AdminRole,
+			Labels: &apiv2.UpdateLabels{
+				Strategy: &apiv2.UpdateLabels_Replace{
+					Replace: &apiv2.Labels{
+						Labels: pointer.SafeDeref(pointer.SafeDeref(r.Meta).Labels).Labels,
+					},
+				},
+			},
+			UpdateMeta: &apiv2.UpdateMeta{
+				UpdatedAt:       pointer.SafeDeref(r.Meta).UpdatedAt,
+				LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+			},
 		}, nil
 }
