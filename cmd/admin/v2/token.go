@@ -133,7 +133,19 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 }
 
 func (t *token) Get(id string) (*apiv2.Token, error) {
-	panic("unimplemented")
+	ctx, cancel := t.c.NewRequestContext()
+	defer cancel()
+
+	req := &apiv2.TokenServiceGetRequest{
+		Uuid: id,
+	}
+
+	resp, err := t.c.Client.Apiv2().Token().Get(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get token: %w", err)
+	}
+
+	return resp.GetToken(), nil
 }
 
 func (t *token) List() ([]*apiv2.Token, error) {
