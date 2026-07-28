@@ -2,15 +2,20 @@ package v2
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 type token struct {
@@ -22,7 +27,7 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 		c: c,
 	}
 
-	cmdsConfig := &genericcli.CmdsConfig[any, any, *apiv2.Token]{
+	cmdsConfig := &genericcli.CmdsConfig[*adminv2.TokenServiceCreateRequest, *apiv2.TokenServiceUpdateRequest, *apiv2.Token]{
 		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "token",
@@ -39,7 +44,98 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 
 			cmd.Aliases = append(cmd.Aliases, "revoke")
 		},
-		OnlyCmds:    genericcli.OnlyCmds(genericcli.ListCmd, genericcli.DeleteCmd),
+		CreateRequestFromCLI: func() (*adminv2.TokenServiceCreateRequest, error) {
+			var methodPermissions []*apiv2.MethodPermission
+			for _, m := range viper.GetStringSlice("permissions") {
+				subject, colonSeparatedMethods, ok := strings.Cut(m, "=")
+				if !ok {
+					colonSeparatedMethods = subject
+				}
+
+				methodPermissions = append(methodPermissions, &apiv2.MethodPermission{
+					Subject: subject,
+					Methods: strings.Split(colonSeparatedMethods, ":"),
+				})
+			}
+
+			perms, err := helpers.ToPermissionsByVisibility(methodPermissions)
+			if err != nil {
+				return nil, err
+			}
+
+			projectRoles := map[string]apiv2.ProjectRole{}
+			for _, r := range viper.GetStringSlice("project-roles") {
+				projectID, roleString, ok := strings.Cut(r, "=")
+				if !ok {
+					return nil, fmt.Errorf("project roles must be provided in the form <project-id>=<role>")
+				}
+
+				role, ok := apiv2.ProjectRole_value[roleString]
+				if !ok {
+					return nil, fmt.Errorf("unknown role: %s", roleString)
+				}
+
+				projectRoles[projectID] = apiv2.ProjectRole(role)
+			}
+
+			tenantRoles := map[string]apiv2.TenantRole{}
+			for _, r := range viper.GetStringSlice("tenant-roles") {
+				tenantID, roleString, ok := strings.Cut(r, "=")
+				if !ok {
+					return nil, fmt.Errorf("tenant roles must be provided in the form <tenant-id>=<role>")
+				}
+
+				role, ok := apiv2.TenantRole_value[roleString]
+				if !ok {
+					return nil, fmt.Errorf("unknown role: %s", roleString)
+				}
+
+				tenantRoles[tenantID] = apiv2.TenantRole(role)
+			}
+
+			var adminRole *apiv2.AdminRole
+			if roleString := viper.GetString("admin-role"); roleString != "" {
+				role, ok := apiv2.AdminRole_value[roleString]
+				if !ok {
+					return nil, fmt.Errorf("unknown role: %s", roleString)
+				}
+
+				adminRole = new(apiv2.AdminRole(role))
+			}
+
+			var user *string
+			if userString := viper.GetString("user"); userString != "" {
+				user = new(userString)
+			}
+
+			return &adminv2.TokenServiceCreateRequest{
+				User: user,
+				TokenCreateRequest: &apiv2.TokenServiceCreateRequest{
+					Description:  viper.GetString("description"),
+					Permissions:  perms,
+					ProjectRoles: projectRoles,
+					TenantRoles:  tenantRoles,
+					AdminRole:    adminRole,
+					Expires:      durationpb.New(viper.GetDuration("expires")),
+				},
+			}, nil
+		},
+		CreateCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("user", "", "user for which this token should be created")
+			cmd.Flags().String("description", "", "a short description for the intention to use this token for")
+			cmd.Flags().StringSlice("permissions", nil, "the permissions to associate with the api token in the form [<subject>=]<methods-colon-separated>")
+			cmd.Flags().StringSlice("project-roles", nil, "the project roles to associate with the api token in the form <subject>=<role>")
+			cmd.Flags().StringSlice("tenant-roles", nil, "the tenant roles to associate with the api token in the form <subject>=<role>")
+			cmd.Flags().String("admin-role", "", "the admin role to associate with the api token")
+			cmd.Flags().Duration("expires", 8*time.Hour, "the duration how long the api token is valid")
+
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("permissions", c.Completion.TokenPermissionsCompletionfunc))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project-roles", c.Completion.TokenProjectRolesCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-roles", c.Completion.TokenTenantRolesCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("admin-role", c.Completion.TokenAdminRoleCompletion))
+		},
+
+		// OnlyCmds:    genericcli.OnlyCmds(genericcli.ListCmd, genericcli.DeleteCmd),
 		ValidArgsFn: w.c.Completion.TokenListCompletion,
 	}
 	return genericcli.NewCmds(cmdsConfig)
@@ -49,8 +145,8 @@ func (t *token) Get(id string) (*apiv2.Token, error) {
 	panic("unimplemented")
 }
 
-func (c *token) List() ([]*apiv2.Token, error) {
-	ctx, cancel := c.c.NewRequestContext()
+func (t *token) List() ([]*apiv2.Token, error) {
+	ctx, cancel := t.c.NewRequestContext()
 	defer cancel()
 
 	req := &adminv2.TokenServiceListRequest{}
@@ -61,7 +157,7 @@ func (c *token) List() ([]*apiv2.Token, error) {
 		}
 	}
 
-	resp, err := c.c.Client.Adminv2().Token().List(ctx, req)
+	resp, err := t.c.Client.Adminv2().Token().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tokens: %w", err)
 	}
@@ -69,12 +165,27 @@ func (c *token) List() ([]*apiv2.Token, error) {
 	return resp.GetTokens(), nil
 }
 
-func (t *token) Create(rq any) (*apiv2.Token, error) {
-	panic("unimplemented")
+func (t *token) Create(rq *adminv2.TokenServiceCreateRequest) (*apiv2.Token, error) {
+	ctx, cancel := t.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := t.c.Client.Adminv2().Token().Create(ctx, rq)
+	if err != nil {
+		return nil, err
+	}
+
+	_, _ = fmt.Fprintf(t.c.Out, "Make sure to copy your personal access token now as you will not be able to see this again.\n")
+	_, _ = fmt.Fprintln(t.c.Out)
+	_, _ = fmt.Fprintln(t.c.Out, resp.GetSecret())
+	_, _ = fmt.Fprintln(t.c.Out)
+
+	// TODO: allow printer in metal-lib to be silenced
+
+	return resp.GetToken(), nil
 }
 
-func (c *token) Delete(id string) (*apiv2.Token, error) {
-	ctx, cancel := c.c.NewRequestContext()
+func (t *token) Delete(id string) (*apiv2.Token, error) {
+	ctx, cancel := t.c.NewRequestContext()
 	defer cancel()
 
 	if !viper.IsSet("user") {
@@ -86,7 +197,7 @@ func (c *token) Delete(id string) (*apiv2.Token, error) {
 		User: viper.GetString("user"),
 	}
 
-	_, err := c.c.Client.Adminv2().Token().Revoke(ctx, req)
+	_, err := t.c.Client.Adminv2().Token().Revoke(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to revoke token: %w", err)
 	}
@@ -96,10 +207,40 @@ func (c *token) Delete(id string) (*apiv2.Token, error) {
 	}, nil
 }
 
-func (t *token) Convert(r *apiv2.Token) (string, any, any, error) {
-	panic("unimplemented")
+func (t *token) Convert(r *apiv2.Token) (string, *adminv2.TokenServiceCreateRequest, *apiv2.TokenServiceUpdateRequest, error) {
+	perms, err := helpers.ToPermissionsByVisibility(r.Permissions)
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	return r.Uuid, &adminv2.TokenServiceCreateRequest{
+			User: new(""),
+			TokenCreateRequest: &apiv2.TokenServiceCreateRequest{
+				Description:  r.GetDescription(),
+				Permissions:  perms,
+				ProjectRoles: r.GetProjectRoles(),
+				TenantRoles:  r.GetTenantRoles(),
+				Expires:      durationpb.New(time.Until(r.GetExpires().AsTime())),
+				Labels:       pointer.SafeDeref(r.Meta).Labels,
+			},
+		}, &apiv2.TokenServiceUpdateRequest{
+			Uuid:         r.Uuid,
+			Description:  pointer.PointerOrNil(r.Description),
+			Permissions:  perms,
+			ProjectRoles: r.ProjectRoles,
+			TenantRoles:  r.TenantRoles,
+			AdminRole:    r.AdminRole,
+			Labels: &apiv2.UpdateLabels{
+				Strategy: &apiv2.UpdateLabels_Replace{
+					Replace: &apiv2.Labels{
+						Labels: pointer.SafeDeref(pointer.SafeDeref(r.Meta).Labels).Labels,
+					},
+				},
+			},
+			UpdateMeta: helpers.UpdateMetaFromMeta(r.Meta),
+		}, nil
 }
 
-func (t *token) Update(rq any) (*apiv2.Token, error) {
+func (t *token) Update(rq *apiv2.TokenServiceUpdateRequest) (*apiv2.Token, error) {
 	panic("unimplemented")
 }

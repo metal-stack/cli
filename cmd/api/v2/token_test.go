@@ -10,6 +10,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/api/go/metalstack/api/v2/apiv2connect"
 	"github.com/metal-stack/api/go/metalstack/infra/v2/infrav2connect"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
@@ -144,7 +145,7 @@ func Test_toPermissionsByVisibility(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr := toPermissionsByVisibility(tt.perms)
+			got, gotErr := helpers.ToPermissionsByVisibility(tt.perms)
 			if diff := cmp.Diff(gotErr, tt.wantErr, errorutil.ErrorStringComparer()); diff != "" {
 				t.Errorf("diff = %s", diff)
 				return
