@@ -10,6 +10,7 @@ import (
 	"github.com/metal-stack/api/go/permissions"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -231,10 +232,7 @@ func (c *token) Convert(r *apiv2.Token) (string, *apiv2.TokenServiceCreateReques
 					},
 				},
 			},
-			UpdateMeta: &apiv2.UpdateMeta{
-				UpdatedAt:       pointer.SafeDeref(r.Meta).UpdatedAt,
-				LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
-			},
+			UpdateMeta: helpers.UpdateMetaFromMeta(r.Meta),
 		}, nil
 }
 
