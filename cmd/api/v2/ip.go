@@ -78,13 +78,9 @@ func newIPCmd(c *config.Config) *cobra.Command {
 func (c *ip) createFromCLI() (*apiv2.IPServiceCreateRequest, error) {
 	var labels *apiv2.Labels = nil
 
-	labelSlice := viper.GetStringSlice("labels")
-	if len(labelSlice) > 0 {
-		labelsMap, err := genericcli.LabelsToMap(labelSlice)
-		if err != nil {
-			return nil, err
-		}
-		labels = &apiv2.Labels{Labels: labelsMap}
+	labels, err := helpers.LabelsFromSlice(viper.GetStringSlice("labels"))
+	if err != nil {
+		return nil, err
 	}
 
 	return &apiv2.IPServiceCreateRequest{

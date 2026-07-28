@@ -8,6 +8,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -76,13 +77,11 @@ func (c *tenant) List() ([]*apiv2.Tenant, error) {
 	}
 
 	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
-		labels, err := genericcli.LabelsToMap(labelSlice)
+		var err error
+
+		req.Query.Labels, err = helpers.LabelsFromSlice(labelSlice)
 		if err != nil {
 			return nil, err
-		}
-
-		req.Query.Labels = &apiv2.Labels{
-			Labels: labels,
 		}
 	}
 
