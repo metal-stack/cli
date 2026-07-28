@@ -265,7 +265,7 @@ func Test_TokenCmd_Update(t *testing.T) {
 									Strategy: &apiv2.UpdateLabels_Replace{},
 								},
 								UpdateMeta: &apiv2.UpdateMeta{
-									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
 							WantResponse: func() connect.AnyResponse {
