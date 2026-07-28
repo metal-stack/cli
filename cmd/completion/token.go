@@ -53,10 +53,35 @@ func (c *Completion) TokenTenantRolesCompletion(cmd *cobra.Command, args []strin
 	return roles, cobra.ShellCompDirectiveNoFileComp
 }
 
+func (c *Completion) TokenMachineRolesCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	methods, err := c.Client.Apiv2().Method().TokenScopedList(c.Ctx, &apiv2.MethodServiceTokenScopedListRequest{})
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	var roles []string
+
+	for machine, role := range methods.MachineRoles {
+		roles = append(roles, machine+"="+role.String())
+	}
+
+	return roles, cobra.ShellCompDirectiveNoFileComp
+}
+
 func (c *Completion) TokenAdminRoleCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var roles []string
 
 	for _, role := range apiv2.AdminRole_name {
+		roles = append(roles, role)
+	}
+
+	return roles, cobra.ShellCompDirectiveNoFileComp
+}
+
+func (c *Completion) TokenInfraRoleCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	var roles []string
+
+	for _, role := range apiv2.InfraRole_name {
 		roles = append(roles, role)
 	}
 

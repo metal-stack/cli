@@ -3,6 +3,7 @@ package helpers
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/api/go/permissions"
@@ -175,4 +176,82 @@ func ToPermissionsByVisibility(perms []*apiv2.MethodPermission) ([]*apiv2.Permis
 	}
 
 	return res, nil
+}
+
+func ToProjectRoles(projectRolesSlice []string) (map[string]apiv2.ProjectRole, error) {
+	projectRoles := map[string]apiv2.ProjectRole{}
+	for _, r := range projectRolesSlice {
+		projectID, roleString, ok := strings.Cut(r, "=")
+		if !ok {
+			return nil, fmt.Errorf("project roles must be provided in the form <project-id>=<role>")
+		}
+
+		role, ok := apiv2.ProjectRole_value[roleString]
+		if !ok {
+			return nil, fmt.Errorf("unknown role: %s", roleString)
+		}
+
+		projectRoles[projectID] = apiv2.ProjectRole(role)
+	}
+	return projectRoles, nil
+}
+
+func ToTenantRoles(tenantRolesSlice []string) (map[string]apiv2.TenantRole, error) {
+	tenantRoles := map[string]apiv2.TenantRole{}
+	for _, r := range tenantRolesSlice {
+		tenantID, roleString, ok := strings.Cut(r, "=")
+		if !ok {
+			return nil, fmt.Errorf("tenant roles must be provided in the form <tenant-id>=<role>")
+		}
+
+		role, ok := apiv2.TenantRole_value[roleString]
+		if !ok {
+			return nil, fmt.Errorf("unknown role: %s", roleString)
+		}
+
+		tenantRoles[tenantID] = apiv2.TenantRole(role)
+	}
+	return tenantRoles, nil
+}
+
+func ToMachineRoles(machineRolesSlice []string) (map[string]apiv2.MachineRole, error) {
+	machineRoles := map[string]apiv2.MachineRole{}
+	for _, r := range machineRolesSlice {
+		machineID, roleString, ok := strings.Cut(r, "=")
+		if !ok {
+			return nil, fmt.Errorf("machine roles must be provided in the form <machine-id>=<role>")
+		}
+
+		role, ok := apiv2.MachineRole_value[roleString]
+		if !ok {
+			return nil, fmt.Errorf("unknown role: %s", roleString)
+		}
+
+		machineRoles[machineID] = apiv2.MachineRole(role)
+	}
+	return machineRoles, nil
+}
+
+func ToAdminRole(roleString string) (*apiv2.AdminRole, error) {
+	if roleString == "" {
+		return nil, nil
+	}
+
+	role, ok := apiv2.AdminRole_value[roleString]
+	if !ok {
+		return nil, fmt.Errorf("unknown role: %s", roleString)
+	}
+	return new(apiv2.AdminRole(role)), nil
+}
+
+func ToInfraRole(roleString string) (*apiv2.InfraRole, error) {
+	if roleString == "" {
+		return nil, nil
+	}
+
+	role, ok := apiv2.InfraRole_value[roleString]
+	if !ok {
+		return nil, fmt.Errorf("unknown role: %s", roleString)
+	}
+	return new(apiv2.InfraRole(role)), nil
 }

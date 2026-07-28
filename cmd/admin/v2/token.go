@@ -63,44 +63,29 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 				return nil, err
 			}
 
-			projectRoles := map[string]apiv2.ProjectRole{}
-			for _, r := range viper.GetStringSlice("project-roles") {
-				projectID, roleString, ok := strings.Cut(r, "=")
-				if !ok {
-					return nil, fmt.Errorf("project roles must be provided in the form <project-id>=<role>")
-				}
-
-				role, ok := apiv2.ProjectRole_value[roleString]
-				if !ok {
-					return nil, fmt.Errorf("unknown role: %s", roleString)
-				}
-
-				projectRoles[projectID] = apiv2.ProjectRole(role)
+			projectRoles, err := helpers.ToProjectRoles(viper.GetStringSlice("project-roles"))
+			if err != nil {
+				return nil, err
 			}
 
-			tenantRoles := map[string]apiv2.TenantRole{}
-			for _, r := range viper.GetStringSlice("tenant-roles") {
-				tenantID, roleString, ok := strings.Cut(r, "=")
-				if !ok {
-					return nil, fmt.Errorf("tenant roles must be provided in the form <tenant-id>=<role>")
-				}
-
-				role, ok := apiv2.TenantRole_value[roleString]
-				if !ok {
-					return nil, fmt.Errorf("unknown role: %s", roleString)
-				}
-
-				tenantRoles[tenantID] = apiv2.TenantRole(role)
+			tenantRoles, err := helpers.ToTenantRoles(viper.GetStringSlice("tenant-roles"))
+			if err != nil {
+				return nil, err
 			}
 
-			var adminRole *apiv2.AdminRole
-			if roleString := viper.GetString("admin-role"); roleString != "" {
-				role, ok := apiv2.AdminRole_value[roleString]
-				if !ok {
-					return nil, fmt.Errorf("unknown role: %s", roleString)
-				}
+			machineRoles, err := helpers.ToMachineRoles(viper.GetStringSlice("machine-roles"))
+			if err != nil {
+				return nil, err
+			}
 
-				adminRole = new(apiv2.AdminRole(role))
+			adminRole, err := helpers.ToAdminRole(viper.GetString("admin-role"))
+			if err != nil {
+				return nil, err
+			}
+
+			infraRole, err := helpers.ToInfraRole(viper.GetString("infra-role"))
+			if err != nil {
+				return nil, err
 			}
 
 			var user *string
@@ -115,7 +100,9 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 					Permissions:  perms,
 					ProjectRoles: projectRoles,
 					TenantRoles:  tenantRoles,
+					MachineRoles: machineRoles,
 					AdminRole:    adminRole,
+					InfraRole:    infraRole,
 					Expires:      durationpb.New(viper.GetDuration("expires")),
 				},
 			}, nil
@@ -126,13 +113,17 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("permissions", nil, "the permissions to associate with the api token in the form [<subject>=]<methods-colon-separated>")
 			cmd.Flags().StringSlice("project-roles", nil, "the project roles to associate with the api token in the form <subject>=<role>")
 			cmd.Flags().StringSlice("tenant-roles", nil, "the tenant roles to associate with the api token in the form <subject>=<role>")
+			cmd.Flags().StringSlice("machine-roles", nil, "the machine roles to associate with the api token in the form <subject>=<role>")
 			cmd.Flags().String("admin-role", "", "the admin role to associate with the api token")
+			cmd.Flags().String("infra-role", "", "the infra role to associate with the api token")
 			cmd.Flags().Duration("expires", 8*time.Hour, "the duration how long the api token is valid")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("permissions", c.Completion.TokenPermissionsCompletionfunc))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project-roles", c.Completion.TokenProjectRolesCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-roles", c.Completion.TokenTenantRolesCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("admin-role", c.Completion.TokenAdminRoleCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("infra-role", c.Completion.TokenInfraRoleCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("machine-roles", c.Completion.TokenMachineRolesCompletion))
 		},
 
 		// OnlyCmds:    genericcli.OnlyCmds(genericcli.ListCmd, genericcli.DeleteCmd),
@@ -214,7 +205,7 @@ func (t *token) Convert(r *apiv2.Token) (string, *adminv2.TokenServiceCreateRequ
 	}
 
 	return r.Uuid, &adminv2.TokenServiceCreateRequest{
-			User: new(""),
+			User: &r.User,
 			TokenCreateRequest: &apiv2.TokenServiceCreateRequest{
 				Description:  r.GetDescription(),
 				Permissions:  perms,
@@ -242,5 +233,6 @@ func (t *token) Convert(r *apiv2.Token) (string, *adminv2.TokenServiceCreateRequ
 }
 
 func (t *token) Update(rq *apiv2.TokenServiceUpdateRequest) (*apiv2.Token, error) {
+	// TODO
 	panic("unimplemented")
 }

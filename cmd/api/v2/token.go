@@ -54,44 +54,19 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 				return nil, err
 			}
 
-			projectRoles := map[string]apiv2.ProjectRole{}
-			for _, r := range viper.GetStringSlice("project-roles") {
-				projectID, roleString, ok := strings.Cut(r, "=")
-				if !ok {
-					return nil, fmt.Errorf("project roles must be provided in the form <project-id>=<role>")
-				}
-
-				role, ok := apiv2.ProjectRole_value[roleString]
-				if !ok {
-					return nil, fmt.Errorf("unknown role: %s", roleString)
-				}
-
-				projectRoles[projectID] = apiv2.ProjectRole(role)
+			projectRoles, err := helpers.ToProjectRoles(viper.GetStringSlice("project-roles"))
+			if err != nil {
+				return nil, err
 			}
 
-			tenantRoles := map[string]apiv2.TenantRole{}
-			for _, r := range viper.GetStringSlice("tenant-roles") {
-				tenantID, roleString, ok := strings.Cut(r, "=")
-				if !ok {
-					return nil, fmt.Errorf("tenant roles must be provided in the form <tenant-id>=<role>")
-				}
-
-				role, ok := apiv2.TenantRole_value[roleString]
-				if !ok {
-					return nil, fmt.Errorf("unknown role: %s", roleString)
-				}
-
-				tenantRoles[tenantID] = apiv2.TenantRole(role)
+			tenantRoles, err := helpers.ToTenantRoles(viper.GetStringSlice("tenant-roles"))
+			if err != nil {
+				return nil, err
 			}
 
-			var adminRole *apiv2.AdminRole
-			if roleString := viper.GetString("admin-role"); roleString != "" {
-				role, ok := apiv2.AdminRole_value[roleString]
-				if !ok {
-					return nil, fmt.Errorf("unknown role: %s", roleString)
-				}
-
-				adminRole = new(apiv2.AdminRole(role))
+			adminRole, err := helpers.ToAdminRole(viper.GetString("admin-role"))
+			if err != nil {
+				return nil, err
 			}
 
 			return &apiv2.TokenServiceCreateRequest{
