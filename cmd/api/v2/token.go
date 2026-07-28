@@ -289,7 +289,7 @@ func toPermissionsByVisibility(perms []*apiv2.MethodPermission) ([]*apiv2.Permis
 
 			if _, ok := permissions.GetServicePermissions().Visibility.Machine[method]; ok {
 				idx := slices.IndexFunc(res, func(p *apiv2.PermissionsByVisibility) bool {
-					return p.GetMachine() != nil
+					return p.GetMachine() != nil && p.GetMachine().Uuid == perm.Subject
 				})
 
 				if idx < 0 {
@@ -312,7 +312,7 @@ func toPermissionsByVisibility(perms []*apiv2.MethodPermission) ([]*apiv2.Permis
 
 			if _, ok := permissions.GetServicePermissions().Visibility.Project[method]; ok {
 				idx := slices.IndexFunc(res, func(p *apiv2.PermissionsByVisibility) bool {
-					return p.GetProject() != nil
+					return p.GetProject() != nil && p.GetProject().Project == perm.Subject
 				})
 
 				if idx < 0 {
@@ -379,7 +379,7 @@ func toPermissionsByVisibility(perms []*apiv2.MethodPermission) ([]*apiv2.Permis
 
 			if _, ok := permissions.GetServicePermissions().Visibility.Tenant[method]; ok {
 				idx := slices.IndexFunc(res, func(p *apiv2.PermissionsByVisibility) bool {
-					return p.GetTenant() != nil
+					return p.GetTenant() != nil && p.GetTenant().Login == perm.Subject
 				})
 
 				if idx < 0 {
