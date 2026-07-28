@@ -182,7 +182,7 @@ func Test_AdminImageCmd_Update(t *testing.T) {
 								ExpiresAt:      testresources.Image1().ExpiresAt,
 								Url:            new(testresources.Image1().Url),
 								UpdateMeta: &apiv2.UpdateMeta{
-									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_CLIENT,
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
 							WantResponse: func() connect.AnyResponse {

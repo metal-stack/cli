@@ -15,6 +15,7 @@ import (
 	e2e_test "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -52,6 +53,8 @@ func NewRootCmd(t *testing.T, c *TestConfig) e2e_test.NewRootCmdFunc {
 		}
 
 		var out bytes.Buffer
+
+		viper.Reset()
 
 		return cmd.NewRootCmd(&config.Config{
 			Fs:        fs,
