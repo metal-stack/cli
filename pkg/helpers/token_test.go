@@ -1,4 +1,4 @@
-package v2
+package helpers
 
 import (
 	"fmt"
@@ -144,7 +144,7 @@ func Test_toPermissionsByVisibility(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr := toPermissionsByVisibility(tt.perms)
+			got, gotErr := ToPermissionsByVisibility(tt.perms)
 			if diff := cmp.Diff(gotErr, tt.wantErr, errorutil.ErrorStringComparer()); diff != "" {
 				t.Errorf("diff = %s", diff)
 				return

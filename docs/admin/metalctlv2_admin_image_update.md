@@ -9,7 +9,6 @@ metalctlv2 admin image update <id> [flags]
 ### Options
 
 ```
-      --add-labels strings      labels to add to the image
       --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
       --classification string   image classification
       --description string      image description
@@ -29,9 +28,7 @@ metalctlv2 admin image update <id> [flags]
                                 	
   -h, --help                    help for update
       --id string               image id
-      --labels strings          labels to replace for the image
       --name string             image name
-      --remove-labels strings   labels to remove to the image
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
       --url string              image url
