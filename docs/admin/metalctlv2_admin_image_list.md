@@ -1,15 +1,15 @@
-## metalctlv2 image list
+## metalctlv2 admin image list
 
 list all images
 
 ```
-metalctlv2 image list [flags]
+metalctlv2 admin image list [flags]
 ```
 
 ### Options
 
 ```
-      --classification string   image classification
+      --classification string   image classification to filter for
       --description string      image description to filter for
       --feature string          image feature to filter for, can be either machine|firewall
   -h, --help                    help for list
@@ -34,5 +34,5 @@ metalctlv2 image list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 image](metalctlv2_image.md)	 - manage image entities
+* [metalctlv2 admin image](metalctlv2_admin_image.md)	 - manage image entities
 

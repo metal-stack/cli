@@ -1,9 +1,9 @@
-## metalctlv2 admin size update
+## metalctlv2 admin image apply
 
-updates the size
+applies one or more images from a given file
 
 ```
-metalctlv2 admin size update [flags]
+metalctlv2 admin image apply [flags]
 ```
 
 ### Options
@@ -13,16 +13,16 @@ metalctlv2 admin size update [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 size describe size-1 -o yaml > size.yaml
-                                $ vi size.yaml
+                                $ metalctlv2 image describe image-1 -o yaml > image.yaml
+                                $ vi image.yaml
                                 $ # either via stdin
-                                $ cat size.yaml | metalctlv2 size update -f -
+                                $ cat image.yaml | metalctlv2 image apply -f -
                                 $ # or via file
-                                $ metalctlv2 size update -f size.yaml
+                                $ metalctlv2 image apply -f image.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for update
+  -h, --help                    help for apply
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -42,5 +42,5 @@ metalctlv2 admin size update [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin size](metalctlv2_admin_size.md)	 - manage size entities
+* [metalctlv2 admin image](metalctlv2_admin_image.md)	 - manage image entities
 

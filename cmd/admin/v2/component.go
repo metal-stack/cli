@@ -22,11 +22,10 @@ func newComponentCmd(c *config.Config) *cobra.Command {
 	w := &component{
 		c: c,
 	}
-	gcli := genericcli.NewGenericCLI(w).WithFS(c.Fs)
 
 	cmdsConfig := &genericcli.CmdsConfig[any, any, *apiv2.Component]{
 		BinaryName:      config.BinaryName,
-		GenericCLI:      gcli,
+		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "component",
 		Plural:          "components",
 		Description:     "list status of components, e.g. microservices connected to the metal-apiserver",

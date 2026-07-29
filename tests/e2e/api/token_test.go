@@ -261,9 +261,6 @@ func Test_TokenCmd_Update(t *testing.T) {
 								},
 								ProjectRoles: testresources.Token2().ProjectRoles,
 								TenantRoles:  testresources.Token2().TenantRoles,
-								Labels: &apiv2.UpdateLabels{
-									Strategy: &apiv2.UpdateLabels_Replace{},
-								},
 								UpdateMeta: &apiv2.UpdateMeta{
 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},

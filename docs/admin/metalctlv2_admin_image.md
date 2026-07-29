@@ -28,8 +28,12 @@ manage images which are used to be installed on machines and firewalls
 ### SEE ALSO
 
 * [metalctlv2 admin](metalctlv2_admin.md)	 - admin commands
+* [metalctlv2 admin image apply](metalctlv2_admin_image_apply.md)	 - applies one or more images from a given file
 * [metalctlv2 admin image create](metalctlv2_admin_image_create.md)	 - creates the image
 * [metalctlv2 admin image delete](metalctlv2_admin_image_delete.md)	 - deletes the image
+* [metalctlv2 admin image describe](metalctlv2_admin_image_describe.md)	 - describes the image
 * [metalctlv2 admin image edit](metalctlv2_admin_image_edit.md)	 - edit the image through an editor and update
+* [metalctlv2 admin image list](metalctlv2_admin_image_list.md)	 - list all images
 * [metalctlv2 admin image update](metalctlv2_admin_image_update.md)	 - updates the image
+* [metalctlv2 admin image usage](metalctlv2_admin_image_usage.md)	 - show image usage
 

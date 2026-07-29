@@ -38,11 +38,9 @@ func newPartitionCmd(c *config.Config) *cobra.Command {
 		}
 	)
 
-	gcli := genericcli.NewGenericCLI(w).WithFS(c.Fs)
-
 	cmdsConfig := &genericcli.CmdsConfig[*adminv2.PartitionServiceCreateRequest, *adminv2.PartitionServiceUpdateRequest, *apiv2.Partition]{
 		BinaryName:      config.BinaryName,
-		GenericCLI:      gcli,
+		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "partition",
 		Plural:          "partitions",
 		Description:     "manage partitions",
@@ -74,7 +72,12 @@ func newPartitionCmd(c *config.Config) *cobra.Command {
 				},
 			}, nil
 		},
-		UpdateCmdMutateFn:    addMutableFlags,
+		UpdateCmdMutateFn: func(cmd *cobra.Command) {
+			addMutableFlags(cmd)
+			cmd.Flags().StringSlice("labels", nil, "labels to replace for the partition")
+			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the partition")
+			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the partition")
+		},
 		UpdateRequestFromCLI: w.updateRequestFromCLI,
 	}
 
@@ -202,13 +205,7 @@ func (c *partition) Convert(r *apiv2.Partition) (string, *adminv2.PartitionServi
 			NtpServers:           r.NtpServers,
 			MgmtServiceAddresses: r.MgmtServiceAddresses,
 			UpdateMeta:           helpers.UpdateMetaFromMeta(r.Meta),
-			Labels: &apiv2.UpdateLabels{
-				Strategy: &apiv2.UpdateLabels_Replace{
-					Replace: &apiv2.Labels{
-						Labels: pointer.SafeDeref(pointer.SafeDeref(r.Meta).Labels).Labels,
-					},
-				},
-			},
+			Labels:               helpers.UpdateLabelsFromMeta(r.Meta),
 		}, nil
 }
 
@@ -230,6 +227,11 @@ func (c *partition) updateRequestFromCLI(args []string) (*adminv2.PartitionServi
 		return nil, err
 	}
 
+	updateLabels, err := helpers.UpdateLabelsFromCLI()
+	if err != nil {
+		return nil, err
+	}
+
 	req := &adminv2.PartitionServiceUpdateRequest{
 		Id: id,
 		UpdateMeta: &apiv2.UpdateMeta{
@@ -240,21 +242,7 @@ func (c *partition) updateRequestFromCLI(args []string) (*adminv2.PartitionServi
 		DnsServers:           dnsServersFromCLI(viper.GetStringSlice("dns-servers")),
 		NtpServers:           ntpServersFromCLI(viper.GetStringSlice("ntp-servers")),
 		MgmtServiceAddresses: viper.GetStringSlice("mgmt-service-addresses"),
-		Labels:               nil,
-	}
-
-	// TODO: we need a helper function that evaluates update labels (handles both strategies for all cmds)
-	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
-		labels, err := helpers.LabelsFromSlice(labelSlice)
-		if err != nil {
-			return nil, err
-		}
-
-		req.Labels = &apiv2.UpdateLabels{
-			Strategy: &apiv2.UpdateLabels_Replace{
-				Replace: labels,
-			},
-		}
+		Labels:               updateLabels,
 	}
 
 	return req, nil
@@ -274,16 +262,20 @@ func partitionBootConfigurationFromCLI() *apiv2.PartitionBootConfiguration {
 
 func dnsServersFromCLI(ips []string) []*apiv2.DNSServer {
 	var servers []*apiv2.DNSServer
+
 	for _, ip := range ips {
 		servers = append(servers, &apiv2.DNSServer{Ip: ip})
 	}
+
 	return servers
 }
 
 func ntpServersFromCLI(addresses []string) []*apiv2.NTPServer {
 	var servers []*apiv2.NTPServer
+
 	for _, address := range addresses {
 		servers = append(servers, &apiv2.NTPServer{Address: address})
 	}
+
 	return servers
 }

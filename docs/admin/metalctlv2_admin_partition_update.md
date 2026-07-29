@@ -9,6 +9,7 @@ metalctlv2 admin partition update <id> [flags]
 ### Options
 
 ```
+      --add-labels strings               labels to add to the partition
       --bulk-output                      when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
       --commandline string               the kernel commandline used by metal-hammer
       --description string               the description of the partition
@@ -28,8 +29,10 @@ metalctlv2 admin partition update <id> [flags]
   -h, --help                             help for update
       --image-url string                 the url of the boot image used by metal-hammer
       --kernel-url string                the url of the kernel used by metal-hammer
+      --labels strings                   labels to replace for the partition
       --mgmt-service-addresses strings   the management service addresses of this partition, each in the form <ip|host>:<port>
       --ntp-servers strings              the ntp servers of this partition
+      --remove-labels strings            labels to remove to the partition
       --skip-security-prompts            skips security prompt for bulk operations
       --timestamps                       when used with --file (bulk operation): prints timestamps in-between the operations
 ```
