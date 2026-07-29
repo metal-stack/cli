@@ -1,6 +1,6 @@
 ## metalctlv2 admin image usage
 
-show partition capacity
+show image usage
 
 ```
 metalctlv2 admin image usage [flags]

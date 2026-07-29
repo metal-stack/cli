@@ -74,7 +74,7 @@ func newImageCmd(c *config.Config) *cobra.Command {
 
 	usageCmd := &cobra.Command{
 		Use:   "usage",
-		Short: "show partition capacity",
+		Short: "show image usage",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.usage()
 		},
