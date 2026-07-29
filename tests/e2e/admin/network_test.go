@@ -1,6 +1,8 @@
 package admin_e2e
 
 import (
+	"strconv"
+	"strings"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -10,6 +12,7 @@ import (
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -17,13 +20,46 @@ import (
 func Test_AdminNetworkCmd_List(t *testing.T) {
 	tests := []*e2e.Test[adminv2.NetworkServiceListResponse, apiv2.Network]{
 		{
-			Name:    "list",
-			CmdArgs: []string{"admin", "network", "list"},
+			Name: "list",
+			CmdArgs: []string{"admin", "network", "list",
+				"--project", *testresources.Network1().Project,
+				"--addressfamily", "dual-stack",
+				"--description", *testresources.Network1().Description,
+				"--destination-prefixes", strings.Join(testresources.Network1().DestinationPrefixes, ","),
+				"--prefixes", strings.Join(testresources.Network1().Prefixes, ","),
+				"--id", testresources.Network1().Id,
+				"--vrf", strconv.Itoa(int(pointer.SafeDeref(testresources.Network1().Vrf))),
+				"--type", "external",
+				"--nat-type", "none",
+				"--labels", "a=b",
+				"--name", *testresources.Network1().Name,
+				"--partition", *testresources.Network1().Partition,
+				"--parent-network", *testresources.Network2().ParentNetwork,
+			},
+			AssertExhaustiveArgs:     true,
+			AssertExhaustiveExcludes: []string{"sort-by"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.NetworkServiceListRequest{
-							Query: &apiv2.NetworkQuery{},
+							Query: &apiv2.NetworkQuery{
+								Project:     testresources.Network1().Project,
+								Id:          &testresources.Network1().Id,
+								Name:        testresources.Network1().Name,
+								Description: testresources.Network1().Description,
+								Partition:   testresources.Network1().Partition,
+								// Namespace:           new(string),
+								NatType:             apiv2.NATType_NAT_TYPE_NONE.Enum(),
+								Prefixes:            testresources.Network1().Prefixes,
+								DestinationPrefixes: testresources.Network1().DestinationPrefixes,
+								Vrf:                 testresources.Network1().Vrf,
+								ParentNetwork:       testresources.Network2().ParentNetwork,
+								AddressFamily:       apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
+								Type:                &testresources.Network1().Type,
+								Labels: &apiv2.Labels{
+									Labels: map[string]string{"a": "b"},
+								},
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.NetworkServiceListResponse{
@@ -115,23 +151,59 @@ func Test_AdminNetworkCmd_Create(t *testing.T) {
 			CmdArgs: []string{"admin", "network", "create",
 				"--id", testresources.Network1().Id,
 				"--name", *testresources.Network1().Name,
+				"--description", *testresources.Network1().Description,
 				"--type", "external",
 				"--nat-type", "none",
+				"--parent-network", *testresources.Network2().ParentNetwork,
 				"--partition", *testresources.Network1().Partition,
 				"--project", *testresources.Network1().Project,
 				"--prefixes", "10.0.0.0/16,2001:db8::/32",
+				"--destination-prefixes", strings.Join(testresources.Network1().DestinationPrefixes, ","),
+				"--additional-announcable-cidrs", "1.2.3.4/32",
+				"--addressfamily", "ipv4",
+				"--default-ipv4-prefix-length", "17",
+				"--default-ipv6-prefix-length", "64",
+				"--ipv4-prefix-length", "18",
+				"--ipv6-prefix-length", "65",
+				"--labels", "a=b",
+				"--min-ipv4-prefix-length", "14",
+				"--min-ipv6-prefix-length", "60",
+				"--vrf", strconv.Itoa(int(pointer.SafeDeref(testresources.Network1().Vrf))),
 			},
+			AssertExhaustiveArgs:     true,
+			AssertExhaustiveExcludes: e2e.CommonExcludedFileArgs(),
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.NetworkServiceCreateRequest{
-							Id:        &testresources.Network1().Id,
-							Name:      testresources.Network1().Name,
-							Partition: testresources.Network1().Partition,
-							Project:   testresources.Network1().Project,
-							Type:      apiv2.NetworkType_NETWORK_TYPE_EXTERNAL,
-							NatType:   apiv2.NATType_NAT_TYPE_NONE.Enum(),
-							Prefixes:  []string{"10.0.0.0/16", "2001:db8::/32"},
+							Id:                         &testresources.Network1().Id,
+							Name:                       testresources.Network1().Name,
+							Partition:                  testresources.Network1().Partition,
+							Project:                    testresources.Network1().Project,
+							Type:                       apiv2.NetworkType_NETWORK_TYPE_EXTERNAL,
+							NatType:                    apiv2.NATType_NAT_TYPE_NONE.Enum(),
+							Prefixes:                   []string{"10.0.0.0/16", "2001:db8::/32"},
+							AdditionalAnnouncableCidrs: []string{"1.2.3.4/32"},
+							Description:                testresources.Network1().Description,
+							DestinationPrefixes:        testresources.Network1().DestinationPrefixes,
+							Vrf:                        new(uint32(0)),
+							ParentNetwork:              testresources.Network2().ParentNetwork,
+							AddressFamily:              apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_V4.Enum(),
+							Labels: &apiv2.Labels{
+								Labels: map[string]string{"a": "b"},
+							},
+							DefaultChildPrefixLength: &apiv2.ChildPrefixLength{
+								Ipv4: new(uint32(17)),
+								Ipv6: new(uint32(64)),
+							},
+							MinChildPrefixLength: &apiv2.ChildPrefixLength{
+								Ipv4: new(uint32(14)),
+								Ipv6: new(uint32(60)),
+							},
+							Length: &apiv2.ChildPrefixLength{
+								Ipv4: new(uint32(18)),
+								Ipv6: new(uint32(65)),
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.NetworkServiceCreateResponse{
