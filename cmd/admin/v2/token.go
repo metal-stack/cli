@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/metal-stack/api/go/errorutil"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -127,7 +128,6 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("machine-roles", c.Completion.TokenMachineRolesCompletion))
 		},
 
-		// OnlyCmds:    genericcli.OnlyCmds(genericcli.ListCmd, genericcli.DeleteCmd),
 		ValidArgsFn: w.c.Completion.TokenListCompletion,
 	}
 	return genericcli.NewCmds(cmdsConfig)
@@ -137,16 +137,26 @@ func (t *token) Get(id string) (*apiv2.Token, error) {
 	ctx, cancel := t.c.NewRequestContext()
 	defer cancel()
 
-	req := &apiv2.TokenServiceGetRequest{
-		Uuid: id,
+	// the admin token api does not have a token get and the one from API scopes it to self
+	req := &adminv2.TokenServiceListRequest{
+		Query: &apiv2.TokenQuery{
+			Uuid: &id,
+		},
 	}
 
-	resp, err := t.c.Client.Apiv2().Token().Get(ctx, req)
+	resp, err := t.c.Client.Adminv2().Token().List(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get token: %w", err)
 	}
 
-	return resp.GetToken(), nil
+	switch len(resp.Tokens) {
+	case 0:
+		return nil, errorutil.NotFound("token not found")
+	case 1:
+		return resp.Tokens[0], nil
+	default:
+		return nil, errorutil.Internal("token uuid exists multiple times")
+	}
 }
 
 func (t *token) List() ([]*apiv2.Token, error) {
@@ -246,6 +256,13 @@ func (t *token) Convert(r *apiv2.Token) (string, *adminv2.TokenServiceCreateRequ
 }
 
 func (t *token) Update(rq *apiv2.TokenServiceUpdateRequest) (*apiv2.Token, error) {
-	// TODO
-	panic("unimplemented")
+	ctx, cancel := t.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := t.c.Client.Apiv2().Token().Update(ctx, rq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update token: %w", err)
+	}
+
+	return resp.Token, nil
 }

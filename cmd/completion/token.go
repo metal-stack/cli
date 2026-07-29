@@ -32,7 +32,7 @@ func (c *Completion) TokenProjectRolesCompletion(cmd *cobra.Command, args []stri
 	var roles []string
 
 	for project, role := range methods.ProjectRoles {
-		if strings.HasSuffix(role.String(), "UNSPECIFIED") {
+		if role == apiv2.ProjectRole_PROJECT_ROLE_UNSPECIFIED {
 			continue
 		}
 		roles = append(roles, project+"="+role.String())
@@ -50,7 +50,7 @@ func (c *Completion) TokenTenantRolesCompletion(cmd *cobra.Command, args []strin
 	var roles []string
 
 	for tenant, role := range methods.TenantRoles {
-		if strings.HasSuffix(role.String(), "UNSPECIFIED") {
+		if role == apiv2.TenantRole_TENANT_ROLE_UNSPECIFIED {
 			continue
 		}
 		roles = append(roles, tenant+"="+role.String())
@@ -68,7 +68,7 @@ func (c *Completion) TokenMachineRolesCompletion(cmd *cobra.Command, args []stri
 	var roles []string
 
 	for machine, role := range methods.MachineRoles {
-		if strings.HasSuffix(role.String(), "UNSPECIFIED") {
+		if role == apiv2.MachineRole_MACHINE_ROLE_UNSPECIFIED {
 			continue
 		}
 		roles = append(roles, machine+"="+role.String())
@@ -80,8 +80,8 @@ func (c *Completion) TokenMachineRolesCompletion(cmd *cobra.Command, args []stri
 func (c *Completion) TokenAdminRoleCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var roles []string
 
-	for _, role := range apiv2.AdminRole_name {
-		if strings.HasSuffix(role, "UNSPECIFIED") {
+	for i, role := range apiv2.AdminRole_name {
+		if i == int32(apiv2.AdminRole_ADMIN_ROLE_UNSPECIFIED) {
 			continue
 		}
 		roles = append(roles, role)
@@ -93,8 +93,8 @@ func (c *Completion) TokenAdminRoleCompletion(cmd *cobra.Command, args []string,
 func (c *Completion) TokenInfraRoleCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var roles []string
 
-	for _, role := range apiv2.InfraRole_name {
-		if strings.HasSuffix(role, "UNSPECIFIED") {
+	for i, role := range apiv2.InfraRole_name {
+		if i == int32(apiv2.InfraRole_INFRA_ROLE_UNSPECIFIED) {
 			continue
 		}
 		roles = append(roles, role)
