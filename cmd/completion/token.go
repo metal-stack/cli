@@ -110,27 +110,18 @@ func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []s
 	}
 
 	subject := ""
-	if s, _, ok := strings.Cut(toComplete, "="); ok {
+	if s, _, ok := strings.Cut(toComplete, "="); ok { // This does not work ?
 		subject = s
 	}
 
 	if subject == "" {
 		var perms []string
-
-		for _, m := range methods.Methods {
-			perms = append(perms, m)
-		}
-
+		perms = append(perms, methods.Methods...)
 		return perms, cobra.ShellCompDirectiveNoFileComp
 	}
 
-	// FIXME: completion does not work at this point, investigate why
-
 	var perms []string
-
-	for _, m := range methods.Methods {
-		perms = append(perms, m)
-	}
+	perms = append(perms, methods.Methods...)
 
 	return perms, cobra.ShellCompDirectiveDefault
 }
