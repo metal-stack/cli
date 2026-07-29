@@ -1,4 +1,4 @@
-FROM alpine:3.23
+FROM alpine:3.24
 LABEL maintainer="metal-stack authors <info@metal-stack.io>"
 COPY bin/metalctlv2-linux-amd64 /metalctl
 ENTRYPOINT ["/metalctl"]

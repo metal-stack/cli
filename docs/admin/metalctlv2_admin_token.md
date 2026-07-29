@@ -28,6 +28,11 @@ manage api tokens for accessing the metal-stack.io api
 ### SEE ALSO
 
 * [metalctlv2 admin](metalctlv2_admin.md)	 - admin commands
+* [metalctlv2 admin token apply](metalctlv2_admin_token_apply.md)	 - applies one or more tokens from a given file
+* [metalctlv2 admin token create](metalctlv2_admin_token_create.md)	 - creates the token
 * [metalctlv2 admin token delete](metalctlv2_admin_token_delete.md)	 - deletes the token
+* [metalctlv2 admin token describe](metalctlv2_admin_token_describe.md)	 - describes the token
+* [metalctlv2 admin token edit](metalctlv2_admin_token_edit.md)	 - edit the token through an editor and update
 * [metalctlv2 admin token list](metalctlv2_admin_token_list.md)	 - list all tokens
+* [metalctlv2 admin token update](metalctlv2_admin_token_update.md)	 - updates the token
 
