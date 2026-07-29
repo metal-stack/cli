@@ -58,7 +58,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "name of the network to create. [required]")
 			cmd.Flags().String("partition", "", "partition where this network should exist. [required]")
-			cmd.Flags().String("project", "", "partition where this network should exist (alternative to parent-network). [optional]")
+			cmd.Flags().String("project", "", "project of this network. [optional]")
 			cmd.Flags().String("parent-network", "", "the parent of the network (alternative to partition). [optional]")
 			cmd.Flags().String("description", "", "description of the network to create. [optional]")
 			cmd.Flags().StringSlice("labels", nil, "labels for this network. [optional]")
@@ -84,6 +84,10 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the network")
 			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the network")
 
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+		},
+		DeleteCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("project", "", "project of this network.")
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
 		},
 	}
@@ -157,10 +161,20 @@ func (c *networkCmd) Delete(id string) (*apiv2.Network, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Network().Delete(ctx, &apiv2.NetworkServiceDeleteRequest{
+	req := &apiv2.NetworkServiceDeleteRequest{
 		Id:      id,
 		Project: c.c.GetProject(),
-	})
+	}
+
+	if viper.IsSet("file") {
+		var err error
+		req.Id, req.Project, err = helpers.DecodeProject(id)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	resp, err := c.c.Client.Apiv2().Network().Delete(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +215,7 @@ func (c *networkCmd) Convert(r *apiv2.Network) (string, *apiv2.NetworkServiceCre
 		return "", nil, nil, err
 	}
 
-	return r.Id, networkResponseToCreate(r, addressFamily), networkResponseToUpdate(r), nil
+	return helpers.EncodeProject(r.Id, pointer.SafeDeref(r.Project)), networkResponseToCreate(r, addressFamily), networkResponseToUpdate(r), nil
 }
 
 func networkResponseToCreate(r *apiv2.Network, addressFamily *apiv2.NetworkAddressFamily) *apiv2.NetworkServiceCreateRequest {

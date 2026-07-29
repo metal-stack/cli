@@ -64,7 +64,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("type", "t", "", "type of the network. [required]")
 			cmd.Flags().String("nat-type", "", "nat-type of the network. [required]")
 			cmd.Flags().String("partition", "", "partition where this network should exist. [required]")
-			cmd.Flags().String("project", "", "partition where this network should exist (alternative to parent-network). [optional]")
+			cmd.Flags().String("project", "", "project of this network. [optional]")
 			cmd.Flags().String("parent-network", "", "the parent of the network (alternative to partition). [optional]")
 			cmd.Flags().String("description", "", "description of the network to create. [optional]")
 			cmd.Flags().StringSlice("labels", nil, "labels for this network. [optional]")
@@ -378,7 +378,7 @@ func (c *networkCmd) updateRequestFromCLI(args []string) (*adminv2.NetworkServic
 	}
 
 	var (
-		natType    = apiv2.NATType_NAT_TYPE_NONE
+		natType    *apiv2.NATType
 		defaultCPL *apiv2.ChildPrefixLength
 		minCPL     *apiv2.ChildPrefixLength
 	)
@@ -406,10 +406,12 @@ func (c *networkCmd) updateRequestFromCLI(args []string) (*adminv2.NetworkServic
 	}
 
 	if viper.IsSet("nat-type") {
-		natType, err = enum.GetEnum[apiv2.NATType](viper.GetString("nat-type"))
+		nt, err := enum.GetEnum[apiv2.NATType](viper.GetString("nat-type"))
 		if err != nil {
 			return nil, err
 		}
+
+		natType = &nt
 	}
 
 	var (
@@ -422,9 +424,12 @@ func (c *networkCmd) updateRequestFromCLI(args []string) (*adminv2.NetworkServic
 			DestinationPrefixes:        viper.GetStringSlice("destination-prefixes"),
 			DefaultChildPrefixLength:   defaultCPL,
 			MinChildPrefixLength:       minCPL,
-			NatType:                    &natType,
+			NatType:                    natType,
 			AdditionalAnnouncableCidrs: viper.GetStringSlice("additional-announcable-cidrs"),
 			Force:                      viper.GetBool("force"),
+			UpdateMeta: &apiv2.UpdateMeta{
+				LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+			},
 		}
 	)
 
