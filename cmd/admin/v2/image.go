@@ -28,12 +28,16 @@ func newImageCmd(c *config.Config) *cobra.Command {
 		}
 
 		queryFlags = func(cmd *cobra.Command) {
-			cmd.Flags().StringP("id", "", "", "image id to filter for")
-			cmd.Flags().StringP("os", "", "", "image os to filter for")
-			cmd.Flags().StringP("version", "", "", "image version to filter for")
-			cmd.Flags().StringP("name", "", "", "image name to filter for")
-			cmd.Flags().StringP("description", "", "", "image description to filter for")
-			cmd.Flags().StringP("feature", "", "", "image feature to filter for, can be either machine|firewall")
+			cmd.Flags().String("id", "", "image id to filter for")
+			cmd.Flags().String("os", "", "image os to filter for")
+			cmd.Flags().String("version", "", "image version to filter for")
+			cmd.Flags().String("name", "", "image name to filter for")
+			cmd.Flags().String("description", "", "image description to filter for")
+			cmd.Flags().String("feature", "", "image feature to filter for, can be either machine|firewall")
+			cmd.Flags().String("classification", "", "image classification to filter for")
+
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("feature", c.Completion.ImageFeaturesCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassificationCompletion))
 		}
 	)
 
@@ -55,6 +59,10 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("description", "", "image description")
 			cmd.Flags().StringSlice("features", nil, "image features can be machine and/or firewall")
 			cmd.Flags().StringSlice("labels", nil, "labels to add to the image")
+
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("features", c.Completion.ImageFeaturesCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassificationCompletion))
+
 		},
 		CreateRequestFromCLI: w.createFromCLI,
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
@@ -68,6 +76,9 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("labels", nil, "labels to replace for the image")
 			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the image")
 			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the image")
+
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("features", c.Completion.ImageFeaturesCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassificationCompletion))
 		},
 		UpdateRequestFromCLI: w.updateFromCLI,
 	}
@@ -126,15 +137,25 @@ func (c *image) createFromCLI() (*adminv2.ImageServiceCreateRequest, error) {
 		return nil, err
 	}
 
+	features, err := helpers.ImageFeaturesFromStringSlice(viper.GetStringSlice("features"))
+	if err != nil {
+		return nil, err
+	}
+
+	classification, err := helpers.ImageClassificationFromString(viper.GetString("classification"))
+	if err != nil {
+		return nil, err
+	}
+
 	return &adminv2.ImageServiceCreateRequest{
 		Image: &apiv2.Image{
 			Id:             viper.GetString("id"),
 			Url:            viper.GetString("url"),
-			Classification: helpers.ImageClassificationFromString(viper.GetString("classification")),
+			Classification: classification,
 			Name:           pointer.PointerOrNil(viper.GetString("name")),
 			Description:    pointer.PointerOrNil(viper.GetString("description")),
 			ExpiresAt:      expiresAt,
-			Features:       helpers.ImageFeaturesFromString(viper.GetStringSlice("features")),
+			Features:       features,
 			Meta: &apiv2.Meta{
 				Labels: labels,
 			},
@@ -160,14 +181,30 @@ func (c *image) List() ([]*apiv2.Image, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Image().List(ctx, &apiv2.ImageServiceListRequest{Query: &apiv2.ImageQuery{
+	feature, err := helpers.ImageFeatureFromString(viper.GetString("feature"))
+	if err != nil {
+		return nil, err
+	}
+
+	q := &apiv2.ImageQuery{
 		Id:          pointer.PointerOrNil(viper.GetString("id")),
 		Os:          pointer.PointerOrNil(viper.GetString("os")),
 		Version:     pointer.PointerOrNil(viper.GetString("version")),
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
-		Feature:     helpers.ImageFeatureFromString(viper.GetString("feature")),
-	}})
+		Feature:     feature,
+	}
+
+	if viper.IsSet("classification") {
+		classification, err := helpers.ImageClassificationFromString(viper.GetString("classification"))
+		if err != nil {
+			return nil, err
+		}
+
+		q.Classification = &classification
+	}
+
+	resp, err := c.c.Client.Apiv2().Image().List(ctx, &apiv2.ImageServiceListRequest{Query: q})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get images: %w", err)
 	}
@@ -223,6 +260,11 @@ func (c *image) updateFromCLI(args []string) (*adminv2.ImageServiceUpdateRequest
 		return nil, err
 	}
 
+	features, err := helpers.ImageFeaturesFromStringSlice(viper.GetStringSlice("features"))
+	if err != nil {
+		return nil, err
+	}
+
 	req := &adminv2.ImageServiceUpdateRequest{
 		Id:          id,
 		Url:         pointer.PointerOrNil(viper.GetString("url")),
@@ -231,7 +273,7 @@ func (c *image) updateFromCLI(args []string) (*adminv2.ImageServiceUpdateRequest
 		UpdateMeta: &apiv2.UpdateMeta{
 			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 		},
-		Features: helpers.ImageFeaturesFromString(viper.GetStringSlice("features")),
+		Features: features,
 		Labels:   updateLabels,
 	}
 
@@ -239,7 +281,12 @@ func (c *image) updateFromCLI(args []string) (*adminv2.ImageServiceUpdateRequest
 		req.ExpiresAt = timestamppb.New(time.Now().Add(viper.GetDuration("expires-in")))
 	}
 	if viper.IsSet("classification") {
-		req.Classification = helpers.ImageClassificationFromString(viper.GetString("classification"))
+		classification, err := helpers.ImageClassificationFromString(viper.GetString("classification"))
+		if err != nil {
+			return nil, err
+		}
+
+		req.Classification = classification
 	}
 
 	return req, nil
@@ -249,6 +296,11 @@ func (c *image) usage() error {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	feature, err := helpers.ImageFeatureFromString(viper.GetString("feature"))
+	if err != nil {
+		return err
+	}
+
 	resp, err := c.c.Client.Adminv2().Image().Usage(ctx, &adminv2.ImageServiceUsageRequest{
 		Query: &apiv2.ImageQuery{
 			Id:          pointer.PointerOrNil(viper.GetString("id")),
@@ -256,7 +308,7 @@ func (c *image) usage() error {
 			Version:     pointer.PointerOrNil(viper.GetString("version")),
 			Name:        pointer.PointerOrNil(viper.GetString("name")),
 			Description: pointer.PointerOrNil(viper.GetString("description")),
-			Feature:     helpers.ImageFeatureFromString(viper.GetString("feature")),
+			Feature:     feature,
 		},
 	})
 	if err != nil {

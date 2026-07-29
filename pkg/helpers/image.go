@@ -3,47 +3,38 @@ package helpers
 import (
 	"strings"
 
+	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 )
 
-func ImageFeatureFromString(feature string) *apiv2.ImageFeature {
+func ImageFeatureFromString(feature string) (*apiv2.ImageFeature, error) {
 	if feature == "" {
-		return nil
+		return nil, nil
 	}
 
-	switch strings.ToLower(feature) {
-	case "machine":
-		return apiv2.ImageFeature_IMAGE_FEATURE_MACHINE.Enum()
-	case "firewall":
-		return apiv2.ImageFeature_IMAGE_FEATURE_FIREWALL.Enum()
+	e, err := enum.GetEnum[apiv2.ImageFeature](strings.ToLower(feature))
+	if err != nil {
+		return nil, err
 	}
-	return apiv2.ImageFeature_IMAGE_FEATURE_UNSPECIFIED.Enum()
+
+	return &e, nil
 }
 
-func ImageFeaturesFromString(features []string) []apiv2.ImageFeature {
+func ImageFeaturesFromStringSlice(features []string) ([]apiv2.ImageFeature, error) {
 	var result []apiv2.ImageFeature
 
 	for _, f := range features {
-		switch strings.ToLower(f) {
-		case "machine":
-			result = append(result, apiv2.ImageFeature_IMAGE_FEATURE_MACHINE)
-		case "firewall":
-			result = append(result, apiv2.ImageFeature_IMAGE_FEATURE_FIREWALL)
+		e, err := enum.GetEnum[apiv2.ImageFeature](strings.ToLower(f))
+		if err != nil {
+			return nil, err
 		}
+
+		result = append(result, e)
 	}
 
-	return result
+	return result, nil
 }
 
-func ImageClassificationFromString(classification string) apiv2.ImageClassification {
-	switch strings.ToLower(strings.TrimSpace(classification)) {
-	case "preview":
-		return apiv2.ImageClassification_IMAGE_CLASSIFICATION_PREVIEW
-	case "supported":
-		return apiv2.ImageClassification_IMAGE_CLASSIFICATION_SUPPORTED
-	case "deprecated":
-		return apiv2.ImageClassification_IMAGE_CLASSIFICATION_DEPRECATED
-	}
-
-	return apiv2.ImageClassification_IMAGE_CLASSIFICATION_UNSPECIFIED
+func ImageClassificationFromString(classification string) (apiv2.ImageClassification, error) {
+	return enum.GetEnum[apiv2.ImageClassification](strings.ToLower(classification))
 }

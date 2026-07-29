@@ -40,6 +40,10 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("name", "", "", "image name to filter for")
 			cmd.Flags().StringP("description", "", "", "image description to filter for")
 			cmd.Flags().StringP("feature", "", "", "image feature to filter for, can be either machine|firewall")
+			cmd.Flags().String("classification", "", "image classification")
+
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("feature", c.Completion.ImageFeaturesCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassificationCompletion))
 		},
 	}
 
@@ -74,14 +78,28 @@ func (c *image) List() ([]*apiv2.Image, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	feature, err := helpers.ImageFeatureFromString(viper.GetString("feature"))
+	if err != nil {
+		return nil, err
+	}
+
 	req := &apiv2.ImageServiceListRequest{Query: &apiv2.ImageQuery{
 		Id:          pointer.PointerOrNil(viper.GetString("id")),
 		Os:          pointer.PointerOrNil(viper.GetString("os")),
 		Version:     pointer.PointerOrNil(viper.GetString("version")),
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
-		Feature:     helpers.ImageFeatureFromString(viper.GetString("feature")),
+		Feature:     feature,
 	}}
+
+	if viper.IsSet("classification") {
+		classification, err := helpers.ImageClassificationFromString(viper.GetString("classification"))
+		if err != nil {
+			return nil, err
+		}
+
+		req.Query.Classification = &classification
+	}
 
 	resp, err := c.c.Client.Apiv2().Image().List(ctx, req)
 	if err != nil {

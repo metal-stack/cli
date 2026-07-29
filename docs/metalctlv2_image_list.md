@@ -9,13 +9,14 @@ metalctlv2 image list [flags]
 ### Options
 
 ```
-      --description string   image description to filter for
-      --feature string       image feature to filter for, can be either machine|firewall
-  -h, --help                 help for list
-      --id string            image id to filter for
-      --name string          image name to filter for
-      --os string            image os to filter for
-      --version string       image version to filter for
+      --classification string   image classification
+      --description string      image description to filter for
+      --feature string          image feature to filter for, can be either machine|firewall
+  -h, --help                    help for list
+      --id string               image id to filter for
+      --name string             image name to filter for
+      --os string               image os to filter for
+      --version string          image version to filter for
 ```
 
 ### Options inherited from parent commands
