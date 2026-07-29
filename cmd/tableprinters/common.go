@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	dot = "●"
-	nbr = " "
+	dot             = "●"
+	nbr             = " "
+	halfpie         = "◒"
+	threequarterpie = "◕"
 
 	ambulance   = "🚑"
 	exclamation = "❗"
@@ -59,6 +61,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.ComponentTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Component:
 		return t.ComponentTable(d, wide)
+
+	case *apiv2.Network:
+		return t.NetworkTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Network:
+		return t.NetworkTable(d, wide)
 
 	case *apiv2.IP:
 		return t.IPTable(pointer.WrapInSlice(d), wide)
@@ -187,4 +194,15 @@ func humanizeDuration(duration time.Duration) string {
 		parts = parts[:2]
 	}
 	return strings.Join(parts, " ")
+}
+
+func getMaxLineCount(ss ...string) int {
+	max := 0
+	for _, s := range ss {
+		c := strings.Count(s, "\n")
+		if c > max {
+			max = c
+		}
+	}
+	return max
 }

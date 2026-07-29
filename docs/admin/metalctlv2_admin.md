@@ -31,6 +31,7 @@ these commands utilize the admin api, which can only be accessed by metal-stack 
 * [metalctlv2 admin audit](metalctlv2_admin_audit.md)	 - manage audit entities
 * [metalctlv2 admin component](metalctlv2_admin_component.md)	 - manage component entities
 * [metalctlv2 admin image](metalctlv2_admin_image.md)	 - manage image entities
+* [metalctlv2 admin network](metalctlv2_admin_network.md)	 - manage network entities
 * [metalctlv2 admin partition](metalctlv2_admin_partition.md)	 - manage partition entities
 * [metalctlv2 admin project](metalctlv2_admin_project.md)	 - manage project entities
 * [metalctlv2 admin size](metalctlv2_admin_size.md)	 - manage size entities
