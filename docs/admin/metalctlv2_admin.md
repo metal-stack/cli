@@ -38,4 +38,5 @@ these commands utilize the admin api, which can only be accessed by metal-stack 
 * [metalctlv2 admin task](metalctlv2_admin_task.md)	 - manage task entities
 * [metalctlv2 admin tenant](metalctlv2_admin_tenant.md)	 - manage tenant entities
 * [metalctlv2 admin token](metalctlv2_admin_token.md)	 - manage token entities
+* [metalctlv2 admin vpn](metalctlv2_admin_vpn.md)	 - manage vpn entities
 

@@ -24,6 +24,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	adminCmd.AddCommand(newTaskCmd(c))
 	adminCmd.AddCommand(newTenantCmd(c))
 	adminCmd.AddCommand(newTokenCmd(c))
+	adminCmd.AddCommand(newVPNCmd(c))
 
 	cmd.AddCommand(adminCmd)
 }

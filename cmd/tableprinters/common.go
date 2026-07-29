@@ -143,6 +143,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.User:
 		return t.UserTable(d, wide)
 
+	case *apiv2.VPNNode:
+		return t.VPNTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.VPNNode:
+		return t.VPNTable(d, wide)
+
 	default:
 		return nil, nil, fmt.Errorf("unknown table printer for type: %T", d)
 	}
