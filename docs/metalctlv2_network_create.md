@@ -31,7 +31,7 @@ metalctlv2 network create [flags]
       --name string                 name of the network to create. [required]
       --parent-network string       the parent of the network (alternative to partition). [optional]
       --partition string            partition where this network should exist. [required]
-      --project string              partition where this network should exist (alternative to parent-network). [optional]
+      --project string              project of this network. [optional]
       --skip-security-prompts       skips security prompt for bulk operations
       --timestamps                  when used with --file (bulk operation): prints timestamps in-between the operations
 ```

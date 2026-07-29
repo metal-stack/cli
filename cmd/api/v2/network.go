@@ -139,6 +139,15 @@ func (c *networkCmd) List() ([]*apiv2.Network, error) {
 		},
 	}
 
+	if viper.IsSet("type") {
+		nwType, err := enum.GetEnum[apiv2.NetworkType](viper.GetString("type"))
+		if err != nil {
+			return nil, err
+		}
+
+		req.Query.Type = &nwType
+	}
+
 	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
 		var err error
 

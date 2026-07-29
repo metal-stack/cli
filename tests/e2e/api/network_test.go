@@ -2,6 +2,8 @@ package api_e2e
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -10,6 +12,7 @@ import (
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -17,15 +20,45 @@ import (
 func Test_NetworkCmd_List(t *testing.T) {
 	tests := []*e2e.Test[apiv2.NetworkServiceListResponse, apiv2.Network]{
 		{
-			Name:    "list",
-			CmdArgs: []string{"network", "list", "--project", *testresources.Network1().Project},
+			Name: "list",
+			CmdArgs: []string{"network", "list",
+				"--project", *testresources.Network1().Project,
+				"--addressfamily", "dual-stack",
+				"--description", *testresources.Network1().Description,
+				"--destination-prefixes", strings.Join(testresources.Network1().DestinationPrefixes, ","),
+				"--prefixes", strings.Join(testresources.Network1().Prefixes, ","),
+				"--id", testresources.Network1().Id,
+				"--vrf", strconv.Itoa(int(pointer.SafeDeref(testresources.Network1().Vrf))),
+				"--type", "external",
+				"--labels", "a=b",
+				"--name", *testresources.Network1().Name,
+				"--partition", *testresources.Network1().Partition,
+				"--parent-network", *testresources.Network2().ParentNetwork,
+			},
+			AssertExhaustiveArgs:     true,
+			AssertExhaustiveExcludes: []string{"sort-by"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.NetworkServiceListRequest{
 							Project: *testresources.Network1().Project,
 							Query: &apiv2.NetworkQuery{
-								Project: testresources.Network1().Project,
+								Project:     testresources.Network1().Project,
+								Id:          &testresources.Network1().Id,
+								Name:        testresources.Network1().Name,
+								Description: testresources.Network1().Description,
+								Partition:   testresources.Network1().Partition,
+								// Namespace:           new(string),
+								// NatType:             ,
+								Prefixes:            testresources.Network1().Prefixes,
+								DestinationPrefixes: testresources.Network1().DestinationPrefixes,
+								Vrf:                 testresources.Network1().Vrf,
+								ParentNetwork:       testresources.Network2().ParentNetwork,
+								AddressFamily:       apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
+								Type:                &testresources.Network1().Type,
+								Labels: &apiv2.Labels{
+									Labels: map[string]string{"a": "b"},
+								},
 							},
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -40,14 +73,14 @@ func Test_NetworkCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			ID                                    NAME      TYPE      PROJECT                               PARTITION    NAT        PREFIXES                   PREFIX USAGE  IP USAGE
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none       10.0.0.0/16,2001:db8::/32
-			d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0  private   child     f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  partition-1  ipv4-masq  192.168.1.0/24
+            ID                                       NAME      TYPE      PROJECT                               PARTITION    NAT        PREFIXES                   PREFIX USAGE  IP USAGE
+            6988ebb0-9531-4f9b-a893-d7868258e2ef     internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none       10.0.0.0/16,2001:db8::/32
+            └─╴d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0  private   child     f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  partition-1  ipv4-masq  192.168.1.0/24
 			`),
 			WantWideTable: new(`
-			ID                                    DESCRIPTION       NAME      TYPE      PROJECT                               PARTITION    NAT        PREFIXES                   ANNOTATIONS
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet network  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none       10.0.0.0/16,2001:db8::/32  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
-			d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0  private network   private   child     f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  partition-1  ipv4-masq  192.168.1.0/24             a=b
+            ID                                       DESCRIPTION       NAME      TYPE      PROJECT                               PARTITION    NAT        PREFIXES                   ANNOTATIONS
+            6988ebb0-9531-4f9b-a893-d7868258e2ef     internet network  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none       10.0.0.0/16,2001:db8::/32  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+            └─╴d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0  private network   private   child     f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  partition-1  ipv4-masq  192.168.1.0/24             a=b
 			`),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
@@ -55,10 +88,10 @@ func Test_NetworkCmd_List(t *testing.T) {
 d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0 private
 			`),
 			WantMarkdown: new(`
-            | ID                                   | NAME     | TYPE     | PROJECT                              | PARTITION   | NAT       | PREFIXES                  | PREFIX USAGE | IP USAGE |
-            |--------------------------------------|----------|----------|--------------------------------------|-------------|-----------|---------------------------|--------------|----------|
-            | 6988ebb0-9531-4f9b-a893-d7868258e2ef | internet | external | 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | partition-1 | none      | 10.0.0.0/16,2001:db8::/32 |              |          |
-            | d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0 | private  | child    | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | partition-1 | ipv4-masq | 192.168.1.0/24            |              |          |
+            | ID                                      | NAME     | TYPE     | PROJECT                              | PARTITION   | NAT       | PREFIXES                  | PREFIX USAGE | IP USAGE |
+            |-----------------------------------------|----------|----------|--------------------------------------|-------------|-----------|---------------------------|--------------|----------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef    | internet | external | 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | partition-1 | none      | 10.0.0.0/16,2001:db8::/32 |              |          |
+            | └─╴d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0 | private  | child    | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | partition-1 | ipv4-masq | 192.168.1.0/24            |              |          |
 			`),
 		},
 	}

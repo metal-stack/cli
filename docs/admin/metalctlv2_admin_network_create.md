@@ -40,7 +40,7 @@ metalctlv2 admin network create [flags]
       --parent-network string                  the parent of the network (alternative to partition). [optional]
       --partition string                       partition where this network should exist. [required]
       --prefixes strings                       prefixes for this network. [optional]
-      --project string                         partition where this network should exist (alternative to parent-network). [optional]
+      --project string                         project of this network. [optional]
       --skip-security-prompts                  skips security prompt for bulk operations
       --timestamps                             when used with --file (bulk operation): prints timestamps in-between the operations
   -t, --type string                            type of the network. [required]

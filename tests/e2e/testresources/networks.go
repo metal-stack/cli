@@ -30,15 +30,16 @@ var (
 	}
 	Network2 = func() *apiv2.Network {
 		return &apiv2.Network{
-			Id:          "d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0",
-			Name:        new("private"),
-			Description: new("private network"),
-			Partition:   new(Partition1().Id),
-			Project:     new(Project2().Uuid),
-			Type:        apiv2.NetworkType_NETWORK_TYPE_CHILD,
-			NatType:     apiv2.NATType_NAT_TYPE_IPV4_MASQUERADE,
-			Prefixes:    []string{"192.168.1.0/24"},
-			Vrf:         new(uint32(100)),
+			Id:            "d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0",
+			Name:          new("private"),
+			Description:   new("private network"),
+			Partition:     new(Partition1().Id),
+			Project:       new(Project2().Uuid),
+			Type:          apiv2.NetworkType_NETWORK_TYPE_CHILD,
+			NatType:       apiv2.NATType_NAT_TYPE_IPV4_MASQUERADE,
+			Prefixes:      []string{"192.168.1.0/24"},
+			Vrf:           new(uint32(100)),
+			ParentNetwork: &Network1().Id,
 			Meta: &apiv2.Meta{
 				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 				Labels: &apiv2.Labels{

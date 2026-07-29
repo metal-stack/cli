@@ -23,6 +23,7 @@ metalctlv2 network delete <id> [flags]
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
   -h, --help                    help for delete
+      --project string          project of this network.
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
