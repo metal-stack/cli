@@ -118,6 +118,7 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("infra-role", "", "the infra role to associate with the api token")
 			cmd.Flags().Duration("expires", 8*time.Hour, "the duration how long the api token is valid")
 
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("user", c.Completion.TenantListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("permissions", c.Completion.TokenPermissionsCompletionfunc))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project-roles", c.Completion.TokenProjectRolesCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-roles", c.Completion.TokenTenantRolesCompletion))

@@ -104,7 +104,7 @@ func (c *Completion) TokenInfraRoleCompletion(cmd *cobra.Command, args []string,
 }
 
 func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	methods, err := c.Client.Apiv2().Method().TokenScopedList(c.Ctx, &apiv2.MethodServiceTokenScopedListRequest{})
+	methods, err := c.Client.Apiv2().Method().List(c.Ctx, &apiv2.MethodServiceListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -117,8 +117,8 @@ func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []s
 	if subject == "" {
 		var perms []string
 
-		for _, p := range methods.Permissions {
-			perms = append(perms, p.Subject)
+		for _, m := range methods.Methods {
+			perms = append(perms, m)
 		}
 
 		return perms, cobra.ShellCompDirectiveNoFileComp
@@ -128,8 +128,8 @@ func (c *Completion) TokenPermissionsCompletionfunc(cmd *cobra.Command, args []s
 
 	var perms []string
 
-	for _, p := range methods.Permissions {
-		perms = append(perms, p.Methods...)
+	for _, m := range methods.Methods {
+		perms = append(perms, m)
 	}
 
 	return perms, cobra.ShellCompDirectiveDefault
