@@ -42,7 +42,7 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 		}
 	}
 	for _, n := range *nn {
-		row, err := addNetwork("", n.parent, wide)
+		row, err := renderNetworkRow("", n.parent, wide)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -56,7 +56,7 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 			}
 			prefix += "─╴"
 
-			row, err := addNetwork(prefix, c, wide)
+			row, err := renderNetworkRow(prefix, c, wide)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -68,7 +68,7 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 	return header, rows, nil
 }
 
-func addNetwork(prefix string, n *apiv2.Network, wide bool) ([]string, error) {
+func renderNetworkRow(prefix string, n *apiv2.Network, wide bool) ([]string, error) {
 	var (
 		id               = fmt.Sprintf("%s%s", prefix, n.Id)
 		prefixes         = strings.Join(n.Prefixes, ",")

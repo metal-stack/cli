@@ -47,7 +47,7 @@ func (c *Completion) NetworkType(cmd *cobra.Command, args []string, toComplete s
 func (c *Completion) NatType(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var names []string
 	for _, val := range apiv2.NATType_value {
-		if e, err := enum.GetStringValue(apiv2.NetworkType(val)); err == nil {
+		if e, err := enum.GetStringValue(apiv2.NATType(val)); err == nil {
 			names = append(names, *e)
 		}
 	}
