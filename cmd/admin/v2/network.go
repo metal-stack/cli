@@ -38,11 +38,11 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("type", "t", "", "type of the network. [optional]")
 			cmd.Flags().String("nat-type", "", "nat type of the network. [optional]")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamilyCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkTypeCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("nat-type", c.Completion.NetworkTypeCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamily))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkType))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("nat-type", c.Completion.NetworkType))
 		}
 	)
 
@@ -55,7 +55,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		CreateRequestFromCLI: w.createRequestFromCLI,
 		UpdateRequestFromCLI: w.updateRequestFromCLI,
 		Sorter:               sorters.NetworkSorter(),
-		ValidArgsFn:          c.Completion.NetworkAdminListCompletion,
+		ValidArgsFn:          c.Completion.NetworkAdmin,
 		DescribePrinter:      func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:          func() printers.Printer { return c.ListPrinter },
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
@@ -79,17 +79,17 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("destination-prefixes", nil, "destination-prefixes for this network. [optional]")
 			cmd.Flags().StringSlice("additional-announcable-cidrs", nil, "additional-announcable-cidrs for this network. [optional]")
 			cmd.Flags().Uint32("vrf", 0, "the vrf of the network to create. [optional]")
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamilyCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkTypeCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("nat-type", c.Completion.NatTypeCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("parent-network", c.Completion.NetworkListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamily))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkType))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("nat-type", c.Completion.NatType))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("parent-network", c.Completion.Network))
 		},
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			listFlags(cmd)
 			cmd.Flags().String("parent-network", "", "parent network to filter [optional]")
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("parent-network", c.Completion.NetworkListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("parent-network", c.Completion.Network))
 		},
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("name", "", "the name of the network [optional]")
@@ -99,7 +99,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the network")
 			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the network")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
 		},
 	}
 

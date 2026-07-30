@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func (c *Completion) NetworkListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) Network(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	ownNetworks, err := c.Client.Apiv2().Network().List(c.Ctx, &apiv2.NetworkServiceListRequest{
 		Project: c.Project,
 	})
@@ -34,7 +34,7 @@ func (c *Completion) NetworkListCompletion(cmd *cobra.Command, args []string, to
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) NetworkTypeCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) NetworkType(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var names []string
 	for _, val := range apiv2.NetworkType_value {
 		if e, err := enum.GetStringValue(apiv2.NetworkType(val)); err == nil {
@@ -44,7 +44,7 @@ func (c *Completion) NetworkTypeCompletion(cmd *cobra.Command, args []string, to
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) NatTypeCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) NatType(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var names []string
 	for _, val := range apiv2.NATType_value {
 		if e, err := enum.GetStringValue(apiv2.NetworkType(val)); err == nil {
@@ -54,7 +54,7 @@ func (c *Completion) NatTypeCompletion(cmd *cobra.Command, args []string, toComp
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) NetworkAddressFamilyCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) NetworkAddressFamily(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var afs []string
 	for _, af := range []apiv2.NetworkAddressFamily{
 		apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK,
@@ -70,7 +70,7 @@ func (c *Completion) NetworkAddressFamilyCompletion(cmd *cobra.Command, args []s
 	return afs, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) NetworkAdminListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) NetworkAdmin(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	networks, err := c.Client.Adminv2().Network().List(c.Ctx, &adminv2.NetworkServiceListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError

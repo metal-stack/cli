@@ -55,7 +55,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 			}, nil
 		},
 		OnlyCmds:    genericcli.OnlyCmds(genericcli.ListCmd, genericcli.CreateCmd),
-		ValidArgsFn: w.c.Completion.AdminTenantListCompletion,
+		ValidArgsFn: w.c.Completion.AdminTenant,
 	}
 
 	return genericcli.NewCmds(cmdsConfig, newAddMemberCmd(c))
@@ -160,9 +160,9 @@ func newAddMemberCmd(c *config.Config) *cobra.Command {
 	genericcli.Must(cmd.MarkFlagRequired("member-id"))
 	genericcli.Must(cmd.MarkFlagRequired("role"))
 
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-id", c.Completion.AdminTenantListCompletion))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("member-id", c.Completion.AdminTenantListCompletion))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRoleCompletion))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-id", c.Completion.AdminTenant))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("member-id", c.Completion.AdminTenant))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRole))
 
 	return cmd
 }

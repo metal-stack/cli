@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func (c *Completion) PartitionListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) Partition(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.PartitionServiceListRequest{}
 	resp, err := c.Client.Apiv2().Partition().List(c.Ctx, req)
 	if err != nil {

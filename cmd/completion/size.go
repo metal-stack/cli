@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func (c *Completion) SizeListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) Size(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.SizeServiceListRequest{}
 	resp, err := c.Client.Apiv2().Size().List(c.Ctx, req)
 	if err != nil {

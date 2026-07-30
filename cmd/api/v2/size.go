@@ -33,7 +33,7 @@ func newSizeCmd(c *config.Config) *cobra.Command {
 		Sorter:          sorters.SizeSorter(),
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
-		ValidArgsFn:     c.Completion.SizeListCompletion,
+		ValidArgsFn:     c.Completion.Size,
 		OnlyCmds:        genericcli.OnlyCmds(genericcli.DescribeCmd, genericcli.ListCmd),
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("id", "", "", "size id to filter for")

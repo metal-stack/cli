@@ -45,7 +45,7 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("description", "", "the description of the project to create")
 			cmd.Flags().String("tenant", "", "the tenant of this project, defaults to tenant of the default project")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant", c.Completion.TenantListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
 		},
 		CreateRequestFromCLI: w.createRequestFromCLI,
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
@@ -53,7 +53,7 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("description", "", "the description of the project to update")
 		},
 		UpdateRequestFromCLI: w.updateRequestFromCLI,
-		ValidArgsFn:          w.c.Completion.ProjectListCompletion,
+		ValidArgsFn:          w.c.Completion.ProjectList,
 	}
 
 	inviteCmd := &cobra.Command{
@@ -72,8 +72,8 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 	generateInviteCmd.Flags().StringP("project", "p", "", "the project for which to generate the invite")
 	generateInviteCmd.Flags().String("role", apiv2.ProjectRole_PROJECT_ROLE_VIEWER.String(), "the role that the new member will assume when joining through the invite secret")
 
-	genericcli.Must(generateInviteCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
-	genericcli.Must(generateInviteCmd.RegisterFlagCompletionFunc("role", c.Completion.ProjectRoleCompletion))
+	genericcli.Must(generateInviteCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+	genericcli.Must(generateInviteCmd.RegisterFlagCompletionFunc("role", c.Completion.ProjectRole))
 
 	deleteInviteCmd := &cobra.Command{
 		Use:     "delete <secret>",
@@ -82,12 +82,12 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.deleteInvite(args)
 		},
-		ValidArgsFunction: c.Completion.ProjectInviteListCompletion,
+		ValidArgsFunction: c.Completion.ProjectInvite,
 	}
 
 	deleteInviteCmd.Flags().StringP("project", "p", "", "the project in which to delete the invite")
 
-	genericcli.Must(deleteInviteCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+	genericcli.Must(deleteInviteCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
 
 	listInvitesCmd := &cobra.Command{
 		Use:     "list",
@@ -102,7 +102,7 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 
 	genericcli.AddSortFlag(listInvitesCmd, sorters.ProjectInviteSorter())
 
-	genericcli.Must(listInvitesCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+	genericcli.Must(listInvitesCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
 
 	joinProjectCmd := &cobra.Command{
 		Use:   "join <secret>",
@@ -140,12 +140,12 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.removeMember(args)
 		},
-		ValidArgsFunction: c.Completion.ProjectMemberListCompletion,
+		ValidArgsFunction: c.Completion.ProjectMember,
 	}
 
 	removeMemberCmd.Flags().StringP("project", "p", "", "the project in which to remove the member")
 
-	genericcli.Must(removeMemberCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+	genericcli.Must(removeMemberCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
 
 	updateMemberCmd := &cobra.Command{
 		Use:   "update <member>",
@@ -153,14 +153,14 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.updateMember(args)
 		},
-		ValidArgsFunction: c.Completion.ProjectMemberListCompletion,
+		ValidArgsFunction: c.Completion.ProjectMember,
 	}
 
 	updateMemberCmd.Flags().StringP("project", "p", "", "the project in which to remove the member")
 	updateMemberCmd.Flags().String("role", "", "the role of the member")
 
-	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
-	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("role", c.Completion.ProjectRoleCompletion))
+	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("role", c.Completion.ProjectRole))
 
 	memberCmd.AddCommand(removeMemberCmd, updateMemberCmd, listMembersCmd)
 

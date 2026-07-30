@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func (c *Completion) IpListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) Ip(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.IPServiceListRequest{
 		Project: c.Project,
 	}

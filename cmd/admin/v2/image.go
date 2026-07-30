@@ -36,8 +36,8 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("feature", "", "image feature to filter for, can be either machine|firewall")
 			cmd.Flags().String("classification", "", "image classification to filter for")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("feature", c.Completion.ImageFeaturesCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassificationCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("feature", c.Completion.ImageFeatures))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassification))
 		}
 	)
 
@@ -60,8 +60,8 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("features", nil, "image features can be machine and/or firewall")
 			cmd.Flags().StringSlice("labels", nil, "labels to add to the image")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("features", c.Completion.ImageFeaturesCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassificationCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("features", c.Completion.ImageFeatures))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassification))
 
 		},
 		CreateRequestFromCLI: w.createFromCLI,
@@ -77,8 +77,8 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the image")
 			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the image")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("features", c.Completion.ImageFeaturesCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassificationCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("features", c.Completion.ImageFeatures))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassification))
 		},
 		UpdateRequestFromCLI: w.updateFromCLI,
 	}

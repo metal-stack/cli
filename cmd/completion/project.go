@@ -6,7 +6,7 @@ import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 )
 
-func (c *Completion) ProjectListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) ProjectList(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.ProjectServiceListRequest{}
 	resp, err := c.Client.Apiv2().Project().List(c.Ctx, req)
 	if err != nil {
@@ -21,7 +21,7 @@ func (c *Completion) ProjectListCompletion(cmd *cobra.Command, args []string, to
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) ProjectRoleCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) ProjectRole(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var names []string
 
 	for value, name := range apiv2.ProjectRole_name {
@@ -35,7 +35,7 @@ func (c *Completion) ProjectRoleCompletion(cmd *cobra.Command, args []string, to
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) ProjectInviteListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) ProjectInvite(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	resp, err := c.Client.Apiv2().Project().InvitesList(c.Ctx, &apiv2.ProjectServiceInvitesListRequest{
 		Project: c.Project,
 	})
@@ -52,7 +52,7 @@ func (c *Completion) ProjectInviteListCompletion(cmd *cobra.Command, args []stri
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) ProjectMemberListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) ProjectMember(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	resp, err := c.Client.Apiv2().Project().Get(c.Ctx, &apiv2.ProjectServiceGetRequest{
 		Project: c.Project,
 	})
