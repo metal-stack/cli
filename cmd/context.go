@@ -66,7 +66,7 @@ func newContextCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.setProject(args)
 		},
-		ValidArgsFunction: c.Completion.ProjectList,
+		ValidArgsFunction: c.Completion.Project,
 	}
 	contextRemoveCmd := &cobra.Command{
 		Use:     "remove <context-name>",
@@ -110,7 +110,7 @@ func newContextCmd(c *config.Config) *cobra.Command {
 	contextUpdateCmd.Flags().Bool("activate", false, "immediately switches to the new context")
 	contextUpdateCmd.Flags().String("provider", "", "sets the login provider for this context")
 
-	genericcli.Must(contextUpdateCmd.RegisterFlagCompletionFunc("default-project", c.Completion.ProjectList))
+	genericcli.Must(contextUpdateCmd.RegisterFlagCompletionFunc("default-project", c.Completion.Project))
 
 	contextCmd.AddCommand(
 		contextListCmd,

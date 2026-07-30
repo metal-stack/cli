@@ -37,10 +37,10 @@ func newVPNCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("project", "", "the project for which vpn nodes should be listed")
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 		},
 		OnlyCmds:    genericcli.OnlyCmds(genericcli.ListCmd),
-		ValidArgsFn: w.c.Completion.ProjectList,
+		ValidArgsFn: w.c.Completion.Project,
 	}
 
 	authKeyCmd := &cobra.Command{
@@ -49,14 +49,14 @@ func newVPNCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.authKey()
 		},
-		ValidArgsFunction: c.Completion.ProjectList,
+		ValidArgsFunction: c.Completion.Project,
 	}
 	authKeyCmd.Flags().String("project", "", "the project for which the authkey should be generated")
 	authKeyCmd.Flags().String("reason", "", "the reason why the authkey should be generated")
 	authKeyCmd.Flags().Bool("ephemeral", true, "ephemeral defines if the key can only be used once")
 	authKeyCmd.Flags().Duration("expires", 1*time.Hour, "the duration after the generated key is not valid anymore")
 	genericcli.Must(authKeyCmd.MarkFlagRequired("project"))
-	genericcli.Must(authKeyCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+	genericcli.Must(authKeyCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 
 	return genericcli.NewCmds(cmdsConfig, authKeyCmd)
 }

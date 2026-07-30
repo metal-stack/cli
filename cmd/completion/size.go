@@ -7,7 +7,7 @@ import (
 
 func (c *Completion) Size(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.SizeServiceListRequest{}
-	resp, err := c.Client.Apiv2().Size().List(c.Ctx, req)
+	resp, err := c.client.Apiv2().Size().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}

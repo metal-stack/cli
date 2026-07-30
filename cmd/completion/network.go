@@ -9,15 +9,15 @@ import (
 )
 
 func (c *Completion) Network(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	ownNetworks, err := c.Client.Apiv2().Network().List(c.Ctx, &apiv2.NetworkServiceListRequest{
-		Project: c.Project,
+	ownNetworks, err := c.client.Apiv2().Network().List(cmd.Context(), &apiv2.NetworkServiceListRequest{
+		Project: c.project,
 	})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
 
-	baseNetworks, err := c.Client.Apiv2().Network().ListBaseNetworks(c.Ctx, &apiv2.NetworkServiceListBaseNetworksRequest{
-		Project: c.Project,
+	baseNetworks, err := c.client.Apiv2().Network().ListBaseNetworks(cmd.Context(), &apiv2.NetworkServiceListBaseNetworksRequest{
+		Project: c.project,
 	})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
@@ -71,7 +71,7 @@ func (c *Completion) NetworkAddressFamily(cmd *cobra.Command, args []string, toC
 }
 
 func (c *Completion) NetworkAdmin(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	networks, err := c.Client.Adminv2().Network().List(c.Ctx, &adminv2.NetworkServiceListRequest{})
+	networks, err := c.client.Adminv2().Network().List(cmd.Context(), &adminv2.NetworkServiceListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}

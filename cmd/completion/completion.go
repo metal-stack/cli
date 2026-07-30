@@ -1,16 +1,20 @@
 package completion
 
 import (
-	"context"
-
 	"github.com/metal-stack/api/go/client"
 	"github.com/spf13/cobra"
 )
 
 type Completion struct {
-	Client  client.Client
-	Project string
-	Ctx     context.Context
+	client  client.Client
+	project string
+}
+
+func New(c client.Client, project string) *Completion {
+	return &Completion{
+		client:  c,
+		project: project,
+	}
 }
 
 func OutputFormat(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

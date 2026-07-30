@@ -38,7 +38,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("type", "t", "", "type of the network. [optional]")
 			cmd.Flags().String("nat-type", "", "nat type of the network. [optional]")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamily))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkType))
@@ -79,7 +79,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("destination-prefixes", nil, "destination-prefixes for this network. [optional]")
 			cmd.Flags().StringSlice("additional-announcable-cidrs", nil, "additional-announcable-cidrs for this network. [optional]")
 			cmd.Flags().Uint32("vrf", 0, "the vrf of the network to create. [optional]")
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamily))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkType))
@@ -99,7 +99,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the network")
 			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the network")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 		},
 	}
 
