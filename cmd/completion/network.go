@@ -54,16 +54,6 @@ func (c *Completion) NatTypeCompletion(cmd *cobra.Command, args []string, toComp
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) NetworkNatTypeCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	var names []string
-	for _, val := range apiv2.NATType_value {
-		if e, err := enum.GetStringValue(apiv2.NATType(val)); err == nil {
-			names = append(names, *e)
-		}
-	}
-	return names, cobra.ShellCompDirectiveNoFileComp
-}
-
 func (c *Completion) NetworkAddressFamilyCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var afs []string
 	for _, af := range []apiv2.NetworkAddressFamily{

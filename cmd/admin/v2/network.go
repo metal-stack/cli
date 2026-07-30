@@ -83,7 +83,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.PartitionListCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.NetworkAddressFamilyCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.NetworkTypeCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("nat-type", c.Completion.NetworkNatTypeCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("nat-type", c.Completion.NatTypeCompletion))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("parent-network", c.Completion.NetworkListCompletion))
 		},
 		ListCmdMutateFn: func(cmd *cobra.Command) {

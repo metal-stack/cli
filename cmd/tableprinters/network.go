@@ -121,7 +121,7 @@ func addNetwork(prefix string, n *apiv2.Network, wide bool) ([]string, error) {
 		name        = genericcli.TruncateEnd(pointer.SafeDeref(n.Name), 40)
 		project     = pointer.SafeDeref(n.Project)
 		partition   = pointer.SafeDeref(n.Partition)
-		natType     = n.NatType.String()
+		natType     string
 	)
 
 	if t, err := enum.GetStringValue(n.NatType); err == nil {
