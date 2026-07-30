@@ -168,3 +168,14 @@ func (nn *networks) appendChild(parentID string, child *apiv2.Network) bool {
 	}
 	return false
 }
+
+func getMaxLineCount(ss ...string) int {
+	max := 0
+	for _, s := range ss {
+		c := strings.Count(s, "\n")
+		if c > max {
+			max = c
+		}
+	}
+	return max
+}
