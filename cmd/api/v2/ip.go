@@ -34,7 +34,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project from where ips should be listed")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
@@ -45,7 +45,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().BoolP("static", "", false, "make this ip static")
 			cmd.Flags().StringP("addressfamily", "", "", "addressfamily, can be either IPv4|IPv6, defaults to IPv4 (optional)")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
 		},
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
@@ -55,21 +55,21 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringArray("remove-labels", nil, "removes the volume labels with the given key")
 			cmd.Flags().Bool("static", false, "make this ip static")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
 		},
 		DescribeCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
 		},
 		DeleteCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
 		},
 		CreateRequestFromCLI: w.createFromCLI,
 		UpdateRequestFromCLI: w.updateFromCLI,
-		ValidArgsFn:          c.Completion.IpListCompletion,
+		ValidArgsFn:          c.Completion.Ip,
 	}
 
 	return genericcli.NewCmds(cmdsConfig)

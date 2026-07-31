@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func (c *Completion) ImageFeaturesCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) ImageFeatures(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var names []string
 
 	for i := range apiv2.ImageFeature_name {
@@ -25,7 +25,7 @@ func (c *Completion) ImageFeaturesCompletion(cmd *cobra.Command, args []string, 
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) ImageClassificationCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) ImageClassification(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var names []string
 
 	for i := range apiv2.ImageClassification_name {

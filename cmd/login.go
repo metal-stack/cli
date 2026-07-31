@@ -41,7 +41,7 @@ func newLoginCmd(c *config.Config) *cobra.Command {
 
 	genericcli.Must(loginCmd.Flags().MarkHidden("admin-role"))
 	genericcli.Must(loginCmd.RegisterFlagCompletionFunc("provider", cobra.FixedCompletions([]string{"openid-connect"}, cobra.ShellCompDirectiveNoFileComp)))
-	genericcli.Must(loginCmd.RegisterFlagCompletionFunc("admin-role", c.Completion.TokenAdminRoleCompletion))
+	genericcli.Must(loginCmd.RegisterFlagCompletionFunc("admin-role", c.Completion.TokenAdminRole))
 
 	return loginCmd
 }

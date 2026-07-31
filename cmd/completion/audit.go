@@ -8,11 +8,11 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func (c *Completion) AuditPhaseListCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) AuditPhase(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return []string{apiv2.AuditPhase_AUDIT_PHASE_REQUEST.String(), apiv2.AuditPhase_AUDIT_PHASE_RESPONSE.String()}, cobra.ShellCompDirectiveNoFileComp
 }
 
-func (c *Completion) AuditStatusCodesCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func (c *Completion) AuditStatusCodes(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var result []string
 
 	for i := range 16 {

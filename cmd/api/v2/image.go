@@ -42,8 +42,8 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("feature", "", "", "image feature to filter for, can be either machine|firewall")
 			cmd.Flags().String("classification", "", "image classification")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("feature", c.Completion.ImageFeaturesCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassificationCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("feature", c.Completion.ImageFeatures))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassification))
 		},
 	}
 

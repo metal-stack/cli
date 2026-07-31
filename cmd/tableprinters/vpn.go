@@ -11,7 +11,7 @@ import (
 func (t *TablePrinter) VPNTable(data []*apiv2.VPNNode, _ bool) ([]string, [][]string, error) {
 	var (
 		rows   [][]string
-		header = []string{"ID", "Name", "Project", "IPS", "Last Seed"}
+		header = []string{"ID", "Name", "Project", "IPS", "Last Seen"}
 	)
 
 	for _, node := range data {

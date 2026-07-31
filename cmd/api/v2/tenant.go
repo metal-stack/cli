@@ -52,7 +52,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("description", "", "the description of the tenant to update")
 		},
 		UpdateRequestFromCLI: w.updateRequestFromCLI,
-		ValidArgsFn:          w.c.Completion.TenantListCompletion,
+		ValidArgsFn:          w.c.Completion.Tenant,
 	}
 
 	inviteCmd := &cobra.Command{
@@ -71,8 +71,8 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 	generateInviteCmd.Flags().String("tenant", "", "the tenant for which to generate the invite")
 	generateInviteCmd.Flags().String("role", apiv2.TenantRole_TENANT_ROLE_VIEWER.String(), "the role that the new member will assume when joining through the invite secret")
 
-	genericcli.Must(generateInviteCmd.RegisterFlagCompletionFunc("tenant", c.Completion.TenantListCompletion))
-	genericcli.Must(generateInviteCmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRoleCompletion))
+	genericcli.Must(generateInviteCmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
+	genericcli.Must(generateInviteCmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRole))
 
 	deleteInviteCmd := &cobra.Command{
 		Use:     "delete <secret>",
@@ -81,12 +81,12 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.deleteInvite(args)
 		},
-		ValidArgsFunction: c.Completion.TenantInviteListCompletion,
+		ValidArgsFunction: c.Completion.TenantInvite,
 	}
 
 	deleteInviteCmd.Flags().String("tenant", "", "the tenant in which to delete the invite")
 
-	genericcli.Must(deleteInviteCmd.RegisterFlagCompletionFunc("tenant", c.Completion.TenantListCompletion))
+	genericcli.Must(deleteInviteCmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
 
 	listInvitesCmd := &cobra.Command{
 		Use:     "list",
@@ -101,7 +101,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 
 	genericcli.AddSortFlag(listInvitesCmd, sorters.TenantInviteSorter())
 
-	genericcli.Must(listInvitesCmd.RegisterFlagCompletionFunc("tenant", c.Completion.TenantListCompletion))
+	genericcli.Must(listInvitesCmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
 
 	joinTenantCmd := &cobra.Command{
 		Use:   "join <secret>",
@@ -137,12 +137,12 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.removeMember(args)
 		},
-		ValidArgsFunction: c.Completion.TenantMemberListCompletion,
+		ValidArgsFunction: c.Completion.TenantMember,
 	}
 
 	removeMemberCmd.Flags().String("tenant", "", "the tenant in which to remove the member")
 
-	genericcli.Must(removeMemberCmd.RegisterFlagCompletionFunc("tenant", c.Completion.TenantListCompletion))
+	genericcli.Must(removeMemberCmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
 
 	updateMemberCmd := &cobra.Command{
 		Use:   "update <member>",
@@ -150,14 +150,14 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.updateMember(args)
 		},
-		ValidArgsFunction: c.Completion.TenantMemberListCompletion,
+		ValidArgsFunction: c.Completion.TenantMember,
 	}
 
 	updateMemberCmd.Flags().String("tenant", "", "the tenant in which to remove the member")
 	updateMemberCmd.Flags().String("role", "", "the role of the member")
 
-	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("tenant", c.Completion.TenantListCompletion))
-	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRoleCompletion))
+	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
+	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRole))
 
 	memberCmd.AddCommand(removeMemberCmd, updateMemberCmd, listMembersCmd)
 

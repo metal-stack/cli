@@ -119,16 +119,16 @@ func newTokenCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("infra-role", "", "the infra role to associate with the api token")
 			cmd.Flags().Duration("expires", 8*time.Hour, "the duration how long the api token is valid")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("user", c.Completion.TenantListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("permissions", c.Completion.TokenPermissionsCompletionfunc))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project-roles", c.Completion.TokenProjectRolesCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-roles", c.Completion.TokenTenantRolesCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("admin-role", c.Completion.TokenAdminRoleCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("infra-role", c.Completion.TokenInfraRoleCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("machine-roles", c.Completion.TokenMachineRolesCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("user", c.Completion.Tenant))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("permissions", c.Completion.TokenPermissions))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project-roles", c.Completion.TokenProjectRoles))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-roles", c.Completion.TokenTenantRoles))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("admin-role", c.Completion.TokenAdminRole))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("infra-role", c.Completion.TokenInfraRole))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("machine-roles", c.Completion.TokenMachineRoles))
 		},
 
-		ValidArgsFn: w.c.Completion.TokenListCompletion,
+		ValidArgsFn: w.c.Completion.Token,
 	}
 	return genericcli.NewCmds(cmdsConfig)
 }

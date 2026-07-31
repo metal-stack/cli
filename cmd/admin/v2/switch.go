@@ -46,7 +46,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		Sorter:          sorters.SwitchSorter(),
-		ValidArgsFn:     c.Completion.SwitchListCompletion,
+		ValidArgsFn:     c.Completion.Switch,
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("id", "", "ID of the switch.")
 			cmd.Flags().String("os-vendor", "", "OS vendor of this switch.")
@@ -54,11 +54,11 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().String("partition", "", "Partition of this switch.")
 			cmd.Flags().String("rack", "", "Rack of this switch.")
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.Completion.SwitchListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartitionListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRackListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("os-vendor", c.Completion.SwitchOSVendorListCompletion))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("os-version", c.Completion.SwitchOSVersionListCompletion))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.Completion.Switch))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartition))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRack))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("os-vendor", c.Completion.SwitchOSVendor))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("os-version", c.Completion.SwitchOSVersion))
 		},
 		DeleteCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().Bool("force", false, "forcefully delete the switch accepting the risk that it still has machines connected to it")
@@ -83,9 +83,9 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	// switchMachinesCmd.Flags().String("size", "", "Size of the connected machines.")
 	// switchMachinesCmd.Flags().String("machine-id", "", "The id of the connected machine, ignores size flag if set.")
 
-	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("id", c.Completion.SwitchListCompletion))
-	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartitionListCompletion))
-	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRackListCompletion))
+	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("id", c.Completion.Switch))
+	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartition))
+	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRack))
 
 	// TODO: add once size and machine completion are implemented
 	// genericcli.Must(switchMachinesCmd.RegisterFlagCompletionFunc("size", c.Completion.SizeListCompletion))
@@ -98,7 +98,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sw.switchConsole(args)
 		},
-		ValidArgsFunction: c.Completion.SwitchListCompletion,
+		ValidArgsFunction: c.Completion.Switch,
 	}
 
 	switchDetailCmd := &cobra.Command{
@@ -107,7 +107,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sw.switchDetail()
 		},
-		ValidArgsFunction: c.Completion.SwitchListCompletion,
+		ValidArgsFunction: c.Completion.Switch,
 	}
 
 	switchDetailCmd.Flags().String("id", "", "ID of the switch.")
@@ -116,14 +116,14 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	switchDetailCmd.Flags().String("partition", "", "Partition of this switch.")
 	switchDetailCmd.Flags().String("rack", "", "Rack of this switch.")
 
-	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("id", c.Completion.SwitchListCompletion))
-	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartitionListCompletion))
-	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRackListCompletion))
+	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("id", c.Completion.Switch))
+	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartition))
+	genericcli.Must(switchDetailCmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRack))
 
 	switchMigrateCmd := &cobra.Command{
 		Use:               "migrate <oldSwitchID> <newSwitchID>",
 		Short:             "migrate machine connections and other configuration from one switch to another",
-		ValidArgsFunction: c.Completion.SwitchListCompletion,
+		ValidArgsFunction: c.Completion.Switch,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sw.switchMigrate(args)
 		},
@@ -134,7 +134,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 		Short: "sets the given switch port state up or down",
 	}
 	switchPortCmd.PersistentFlags().String("port", "", "the port to be changed.")
-	genericcli.Must(switchPortCmd.RegisterFlagCompletionFunc("port", c.Completion.SwitchListPorts))
+	genericcli.Must(switchPortCmd.RegisterFlagCompletionFunc("port", c.Completion.SwitchPorts))
 
 	switchPortUpCmd := &cobra.Command{
 		Use:   "up <switch ID>",
@@ -143,7 +143,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sw.port(args, apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UP)
 		},
-		ValidArgsFunction: c.Completion.SwitchListCompletion,
+		ValidArgsFunction: c.Completion.Switch,
 	}
 
 	switchPortDownCmd := &cobra.Command{
@@ -153,7 +153,7 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sw.port(args, apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_DOWN)
 		},
-		ValidArgsFunction: c.Completion.SwitchListCompletion,
+		ValidArgsFunction: c.Completion.Switch,
 	}
 
 	switchPortCmd.AddCommand(switchPortUpCmd, switchPortDownCmd)
@@ -176,7 +176,7 @@ Operational steps to replace a switch:
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sw.switchReplace(args)
 		},
-		ValidArgsFunction: c.Completion.SwitchListCompletion,
+		ValidArgsFunction: c.Completion.Switch,
 	}
 
 	switchSSHCmd := &cobra.Command{
@@ -186,7 +186,7 @@ Operational steps to replace a switch:
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return sw.switchSSH(args)
 		},
-		ValidArgsFunction: c.Completion.SwitchListCompletion,
+		ValidArgsFunction: c.Completion.Switch,
 	}
 
 	return genericcli.NewCmds(cmdsConfig, switchConnectedMachinesCmd, switchConsoleCmd, switchDetailCmd, switchMigrateCmd, switchPortCmd, switchReplaceCmd, switchSSHCmd)
