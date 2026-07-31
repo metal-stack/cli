@@ -46,6 +46,7 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("addressfamily", "", "", "addressfamily, can be either IPv4|IPv6, defaults to IPv4 (optional)")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("network", c.Completion.Network))
 		},
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")

@@ -6,15 +6,8 @@ import (
 )
 
 type Completion struct {
-	client  client.Client
-	project string
-}
-
-func New(c client.Client, project string) *Completion {
-	return &Completion{
-		client:  c,
-		project: project,
-	}
+	Client client.Client
+	Proj   string
 }
 
 func OutputFormat(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
