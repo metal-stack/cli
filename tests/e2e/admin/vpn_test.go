@@ -41,12 +41,12 @@ func Test_AdminVpnCmd_List(t *testing.T) {
 2 f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c
 			`),
 			WantTable: new(`
-            ID  NAME    PROJECT                               IPS              LAST SEED
+            ID  NAME    PROJECT                               IPS              LAST SEEN
             1   node-1  0d81bca7-73f6-4da3-8397-4a8c52a0c583  1.2.3.4,1.2.3.5  2000-01-01 00:00:00
             2   node-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  2.3.4.5          2000-01-01 00:01:00
 			`),
 			WantMarkdown: new(`
-            | ID | NAME   | PROJECT                              | IPS             | LAST SEED           |
+            | ID | NAME   | PROJECT                              | IPS             | LAST SEEN           |
             |----|--------|--------------------------------------|-----------------|---------------------|
             | 1  | node-1 | 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | 1.2.3.4,1.2.3.5 | 2000-01-01 00:00:00 |
             | 2  | node-2 | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | 2.3.4.5         | 2000-01-01 00:01:00 |
