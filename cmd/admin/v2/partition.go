@@ -94,7 +94,7 @@ func newPartitionCmd(c *config.Config) *cobra.Command {
 	capacityCmd.Flags().StringP("project", "", "", "consider project-specific counts, e.g. size reservations.")
 	capacityCmd.Flags().StringSlice("sort-by", []string{}, fmt.Sprintf("order by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: %s", strings.Join(sorters.PartitionCapacitySorter().AvailableKeys(), "|")))
 	genericcli.Must(capacityCmd.RegisterFlagCompletionFunc("id", c.Completion.Partition))
-	genericcli.Must(capacityCmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+	genericcli.Must(capacityCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 	genericcli.Must(capacityCmd.RegisterFlagCompletionFunc("size", c.Completion.Size))
 	genericcli.Must(capacityCmd.RegisterFlagCompletionFunc("sort-by", cobra.FixedCompletions(sorters.PartitionCapacitySorter().AvailableKeys(), cobra.ShellCompDirectiveNoFileComp)))
 

@@ -8,7 +8,7 @@ import (
 
 func (c *Completion) Tenant(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.TenantServiceListRequest{}
-	resp, err := c.Client.Apiv2().Tenant().List(c.Ctx, req)
+	resp, err := c.client.Apiv2().Tenant().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -35,14 +35,14 @@ func (c *Completion) TenantRole(cmd *cobra.Command, args []string, toComplete st
 }
 
 func (c *Completion) TenantInvite(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	projectResp, err := c.Client.Apiv2().Project().Get(c.Ctx, &apiv2.ProjectServiceGetRequest{
-		Project: c.Project,
+	projectResp, err := c.client.Apiv2().Project().Get(cmd.Context(), &apiv2.ProjectServiceGetRequest{
+		Project: c.project,
 	})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
 
-	resp, err := c.Client.Apiv2().Tenant().InvitesList(c.Ctx, &apiv2.TenantServiceInvitesListRequest{
+	resp, err := c.client.Apiv2().Tenant().InvitesList(cmd.Context(), &apiv2.TenantServiceInvitesListRequest{
 		Login: projectResp.Project.Tenant,
 	})
 	if err != nil {
@@ -59,14 +59,14 @@ func (c *Completion) TenantInvite(cmd *cobra.Command, args []string, toComplete 
 }
 
 func (c *Completion) TenantMember(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	projectResp, err := c.Client.Apiv2().Project().Get(c.Ctx, &apiv2.ProjectServiceGetRequest{
-		Project: c.Project,
+	projectResp, err := c.client.Apiv2().Project().Get(cmd.Context(), &apiv2.ProjectServiceGetRequest{
+		Project: c.project,
 	})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
 
-	resp, err := c.Client.Apiv2().Tenant().Get(c.Ctx, &apiv2.TenantServiceGetRequest{
+	resp, err := c.client.Apiv2().Tenant().Get(cmd.Context(), &apiv2.TenantServiceGetRequest{
 		Login: projectResp.Project.Tenant,
 	})
 	if err != nil {
@@ -84,7 +84,7 @@ func (c *Completion) TenantMember(cmd *cobra.Command, args []string, toComplete 
 
 func (c *Completion) AdminTenant(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &adminv2.TenantServiceListRequest{}
-	resp, err := c.Client.Adminv2().Tenant().List(c.Ctx, req)
+	resp, err := c.client.Adminv2().Tenant().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}

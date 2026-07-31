@@ -7,7 +7,7 @@ import (
 
 func (c *Completion) Partition(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.PartitionServiceListRequest{}
-	resp, err := c.Client.Apiv2().Partition().List(c.Ctx, req)
+	resp, err := c.client.Apiv2().Partition().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}

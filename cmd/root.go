@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"log/slog"
 	"os"
 
@@ -21,11 +20,10 @@ import (
 
 func Execute() {
 	cfg := &config.Config{
-		Fs:         afero.NewOsFs(),
-		Out:        os.Stdout,
-		PromptOut:  os.Stdout,
-		In:         os.Stdin,
-		Completion: &completion.Completion{},
+		Fs:        afero.NewOsFs(),
+		Out:       os.Stdout,
+		PromptOut: os.Stdout,
+		In:        os.Stdin,
 	}
 
 	cmd := NewRootCmd(cfg)
@@ -129,10 +127,7 @@ func initConfigWithViperCtx(c *config.Config) error {
 	}
 
 	c.Client = mc
-	c.Completion.Client = mc
-	c.Completion.Ctx = context.Background()
-	c.Completion.Project = c.GetProject()
-
+	c.Completion = completion.New(mc, c.GetProject())
 	return nil
 }
 

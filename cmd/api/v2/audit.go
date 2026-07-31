@@ -66,7 +66,7 @@ func newAuditCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().Bool("prettify-body", true, "attempts to interpret the body as json and prettifies it.")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("phase", c.Completion.AuditPhase))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.ProjectList))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("result-code", c.Completion.AuditStatusCodes))
 		},
