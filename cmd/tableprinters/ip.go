@@ -12,7 +12,7 @@ import (
 func (t *TablePrinter) IPTable(data []*apiv2.IP, wide bool) ([]string, [][]string, error) {
 	var (
 		rows   [][]string
-		header = []string{"IP", "Project", "ID", "Type", "Name", "Attached Service"}
+		header = []string{"IP", "Project", "ID", "Network", "Type", "Name", "Attached Service"}
 	)
 
 	if wide {
@@ -33,7 +33,7 @@ func (t *TablePrinter) IPTable(data []*apiv2.IP, wide bool) ([]string, [][]strin
 		if wide {
 			rows = append(rows, []string{ip.Ip, ip.Project, ip.Uuid, pointer.SafeDeref(t), ip.Name, ip.Description, strings.Join(labels, "\n")})
 		} else {
-			rows = append(rows, []string{ip.Ip, ip.Project, ip.Uuid, pointer.SafeDeref(t), ip.Name, attachedService})
+			rows = append(rows, []string{ip.Ip, ip.Project, ip.Uuid, ip.Network, pointer.SafeDeref(t), ip.Name, attachedService})
 		}
 	}
 

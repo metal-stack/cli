@@ -12,6 +12,7 @@ metalctlv2 admin ip list [flags]
       --addressfamily string   addressfamily of ips which should be listed
   -h, --help                   help for list
       --ip string              ip which should be listed
+      --labels strings         lists only ips with the given labels
       --machine string         machine where ips are attached to
       --name string            name from ips which should be listed
       --network string         network from where ips should be listed
