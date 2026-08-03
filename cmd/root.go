@@ -9,6 +9,7 @@ import (
 
 	adminv2 "github.com/metal-stack/cli/cmd/admin/v2"
 	apiv2 "github.com/metal-stack/cli/cmd/api/v2"
+	"github.com/metal-stack/cli/cmd/mcp"
 
 	"github.com/metal-stack/cli/cmd/completion"
 	"github.com/metal-stack/cli/cmd/config"
@@ -95,7 +96,7 @@ func NewRootCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	rootCmd.AddCommand(newContextCmd(c), markdownCmd, newLoginCmd(c), newLogoutCmd(c))
+	rootCmd.AddCommand(newContextCmd(c), markdownCmd, newLoginCmd(c), newLogoutCmd(c), mcp.NewMCPCmd(c))
 	adminv2.AddCmds(rootCmd, c)
 	apiv2.AddCmds(rootCmd, c)
 
