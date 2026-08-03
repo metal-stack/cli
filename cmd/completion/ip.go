@@ -34,3 +34,17 @@ func (c *Completion) AddressFamily(cmd *cobra.Command, args []string, toComplete
 
 	return afs, cobra.ShellCompDirectiveNoFileComp
 }
+func (c *Completion) IPType(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	var afs []string
+	for _, af := range []apiv2.IPType{
+		apiv2.IPType_IP_TYPE_STATIC,
+		apiv2.IPType_IP_TYPE_EPHEMERAL} {
+		stringValue, err := enum.GetStringValue(af)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveError
+		}
+		afs = append(afs, *stringValue)
+	}
+
+	return afs, cobra.ShellCompDirectiveNoFileComp
+}
