@@ -32,16 +32,16 @@ func TestMCPServer(t *testing.T) {
 
 	// Call a tool on the server.
 	params := &mcp.CallToolParams{
-		Name:      "metalstack_api_v2_AuditService_Get",
-		Arguments: map[string]any{"name": "you"},
+		Name:      "metalstack_api_v2_PartitionService_List",
+		Arguments: map[string]any{},
 	}
 	res, err := session.CallTool(ctx, params)
 	require.NoError(t, err)
 	if res.IsError {
 		t.Logf("tool failed %v", res.Content)
-		// t.Fail()
 	}
 	for _, c := range res.Content {
 		log.Print(c.(*mcp.TextContent).Text)
 	}
+	t.Fail()
 }
