@@ -10,7 +10,7 @@ import (
 
 func (c *Completion) Token(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.TokenServiceListRequest{}
-	resp, err := c.client.Apiv2().Token().List(cmd.Context(), req)
+	resp, err := c.Client.Apiv2().Token().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -24,7 +24,7 @@ func (c *Completion) Token(cmd *cobra.Command, args []string, toComplete string)
 }
 
 func (c *Completion) TokenProjectRoles(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	methods, err := c.client.Apiv2().Method().TokenScopedList(cmd.Context(), &apiv2.MethodServiceTokenScopedListRequest{})
+	methods, err := c.Client.Apiv2().Method().TokenScopedList(cmd.Context(), &apiv2.MethodServiceTokenScopedListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -42,7 +42,7 @@ func (c *Completion) TokenProjectRoles(cmd *cobra.Command, args []string, toComp
 }
 
 func (c *Completion) TokenTenantRoles(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	methods, err := c.client.Apiv2().Method().TokenScopedList(cmd.Context(), &apiv2.MethodServiceTokenScopedListRequest{})
+	methods, err := c.Client.Apiv2().Method().TokenScopedList(cmd.Context(), &apiv2.MethodServiceTokenScopedListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -60,7 +60,7 @@ func (c *Completion) TokenTenantRoles(cmd *cobra.Command, args []string, toCompl
 }
 
 func (c *Completion) TokenMachineRoles(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	methods, err := c.client.Apiv2().Method().TokenScopedList(cmd.Context(), &apiv2.MethodServiceTokenScopedListRequest{})
+	methods, err := c.Client.Apiv2().Method().TokenScopedList(cmd.Context(), &apiv2.MethodServiceTokenScopedListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -104,7 +104,7 @@ func (c *Completion) TokenInfraRole(cmd *cobra.Command, args []string, toComplet
 }
 
 func (c *Completion) TokenPermissions(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	methods, err := c.client.Apiv2().Method().List(cmd.Context(), &apiv2.MethodServiceListRequest{})
+	methods, err := c.Client.Apiv2().Method().List(cmd.Context(), &apiv2.MethodServiceListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
