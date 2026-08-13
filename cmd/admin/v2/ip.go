@@ -52,6 +52,10 @@ func newIPCmd(c *config.Config) *cobra.Command {
 
 		},
 		ValidArgsFn: c.Completion.Ip,
+		OnlyCmds: map[genericcli.DefaultCmd]bool{
+			genericcli.ListCmd:     true,
+			genericcli.DescribeCmd: true,
+		},
 	}
 
 	return genericcli.NewCmds(cmdsConfig)

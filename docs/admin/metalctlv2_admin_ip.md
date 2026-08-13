@@ -28,11 +28,6 @@ an ip address of metal-stack.io
 ### SEE ALSO
 
 * [metalctlv2 admin](metalctlv2_admin.md)	 - admin commands
-* [metalctlv2 admin ip apply](metalctlv2_admin_ip_apply.md)	 - applies one or more ips from a given file
-* [metalctlv2 admin ip create](metalctlv2_admin_ip_create.md)	 - creates the ip
-* [metalctlv2 admin ip delete](metalctlv2_admin_ip_delete.md)	 - deletes the ip
 * [metalctlv2 admin ip describe](metalctlv2_admin_ip_describe.md)	 - describes the ip
-* [metalctlv2 admin ip edit](metalctlv2_admin_ip_edit.md)	 - edit the ip through an editor and update
 * [metalctlv2 admin ip list](metalctlv2_admin_ip_list.md)	 - list all ips
-* [metalctlv2 admin ip update](metalctlv2_admin_ip_update.md)	 - updates the ip
 
