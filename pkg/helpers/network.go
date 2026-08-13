@@ -3,8 +3,17 @@ package helpers
 import (
 	"net/netip"
 
+	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 )
+
+func IPTypeToType(t string) *apiv2.IPType {
+	ipt, err := enum.GetEnum[apiv2.IPType](t)
+	if err != nil {
+		return nil
+	}
+	return &ipt
+}
 
 func IPAddressFamilyToType(af string) *apiv2.IPAddressFamily {
 	switch af {

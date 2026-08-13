@@ -21,10 +21,11 @@ import (
 
 func Execute() {
 	cfg := &config.Config{
-		Fs:        afero.NewOsFs(),
-		Out:       os.Stdout,
-		PromptOut: os.Stdout,
-		In:        os.Stdin,
+		Fs:         afero.NewOsFs(),
+		Out:        os.Stdout,
+		PromptOut:  os.Stdout,
+		In:         os.Stdin,
+		Completion: &completion.Completion{},
 	}
 
 	cmd := NewRootCmd(cfg)
@@ -128,7 +129,8 @@ func initConfigWithViperCtx(c *config.Config) error {
 	}
 
 	c.Client = mc
-	c.Completion = completion.New(mc, c.GetProject())
+	c.Completion.Client = mc
+	c.Completion.Proj = c.GetProject()
 	return nil
 }
 
