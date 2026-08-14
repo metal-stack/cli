@@ -37,6 +37,7 @@ manage machines
 * [metalctlv2 admin machine edit](metalctlv2_admin_machine_edit.md)	 - edit the machine through an editor and update
 * [metalctlv2 admin machine list](metalctlv2_admin_machine_list.md)	 - list all machines
 * [metalctlv2 admin machine lock](metalctlv2_admin_machine_lock.md)	 - lock or unlock a machine, e.g. machine cannot be used
+* [metalctlv2 admin machine ssh](metalctlv2_admin_machine_ssh.md)	 - SSH to a firewall
 * [metalctlv2 admin machine taint](metalctlv2_admin_machine_taint.md)	 - taint or untaint a machine, e.g. machine will not be automatically selected on machine create, only admins can create them
 * [metalctlv2 admin machine update](metalctlv2_admin_machine_update.md)	 - updates the machine
 

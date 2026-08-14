@@ -9,28 +9,29 @@ metalctlv2 ip update <id> [flags]
 ### Options
 
 ```
-      --bulk-output                 when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
-      --description string          description of the ip
-  -f, --file string                 filename of the create or update request in yaml format, or - for stdin.
-                                    
-                                    Example:
-                                    $ metalctlv2 ip describe ip-1 -o yaml > ip.yaml
-                                    $ vi ip.yaml
-                                    $ # either via stdin
-                                    $ cat ip.yaml | metalctlv2 ip update <id> -f -
-                                    $ # or via file
-                                    $ metalctlv2 ip update <id> -f ip.yaml
-                                    
-                                    the file can also contain multiple documents and perform a bulk operation.
-                                    	
-  -h, --help                        help for update
-      --labels stringArray          adds (or edits) the volume labels in the form of <key>=<value>
-      --name string                 name of the ip
-  -p, --project string              project of the ip
-      --remove-labels stringArray   removes the volume labels with the given key
-      --skip-security-prompts       skips security prompt for bulk operations
-      --static                      make this ip static
-      --timestamps                  when used with --file (bulk operation): prints timestamps in-between the operations
+      --add-labels strings      labels to add to the ip
+      --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
+      --description string      description of the ip
+  -f, --file string             filename of the create or update request in yaml format, or - for stdin.
+                                
+                                Example:
+                                $ metalctlv2 ip describe ip-1 -o yaml > ip.yaml
+                                $ vi ip.yaml
+                                $ # either via stdin
+                                $ cat ip.yaml | metalctlv2 ip update <id> -f -
+                                $ # or via file
+                                $ metalctlv2 ip update <id> -f ip.yaml
+                                
+                                the file can also contain multiple documents and perform a bulk operation.
+                                	
+  -h, --help                    help for update
+      --labels strings          labels to replace for the ip
+      --name string             name of the ip
+  -p, --project string          project of the ip
+      --remove-labels strings   labels to remove to the ip
+      --skip-security-prompts   skips security prompt for bulk operations
+      --static                  make this ip static
+      --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
 
 ### Options inherited from parent commands
