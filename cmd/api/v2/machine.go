@@ -17,6 +17,7 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -245,16 +246,15 @@ func (c *machine) createRequestFromCLI() (*apiv2.MachineServiceCreateRequest, er
 		ntpServers     []*apiv2.NTPServer
 		allocationType apiv2.MachineAllocationType
 		firewallSpec   *apiv2.FirewallSpec
-		labels         *apiv2.Labels
 
-		sshPublicKeyArgument = viper.GetString("sshpublickey")
-		dnsServersArgument   = viper.GetStringSlice("dnsservers")
-		ntpServersArgument   = viper.GetStringSlice("ntpservers")
+		sshPublicKeyArgument = viper.GetString("ssh-public-key")
+		dnsServersArgument   = viper.GetStringSlice("dns-servers")
+		ntpServersArgument   = viper.GetStringSlice("ntp-servers")
 	)
 
 	if strings.HasPrefix(sshPublicKeyArgument, "@") {
 		var err error
-		sshPublicKeyArgument, err = readFromFile(sshPublicKeyArgument[1:])
+		sshPublicKeyArgument, err = readFromFile(c.c.Fs, sshPublicKeyArgument[1:])
 		if err != nil {
 			return nil, err
 		}
@@ -266,7 +266,7 @@ func (c *machine) createRequestFromCLI() (*apiv2.MachineServiceCreateRequest, er
 			return nil, err
 		}
 		sshPublicKey := sshKey + ".pub"
-		sshPublicKeyArgument, err = readFromFile(sshPublicKey)
+		sshPublicKeyArgument, err = readFromFile(c.c.Fs, sshPublicKey)
 		if err != nil {
 			return nil, err
 		}
@@ -279,7 +279,7 @@ func (c *machine) createRequestFromCLI() (*apiv2.MachineServiceCreateRequest, er
 	userDataArgument := viper.GetString("userdata")
 	if strings.HasPrefix(userDataArgument, "@") {
 		var err error
-		userDataArgument, err = readFromFile(userDataArgument[1:])
+		userDataArgument, err = readFromFile(c.c.Fs, userDataArgument[1:])
 		if err != nil {
 			return nil, err
 		}
@@ -307,30 +307,18 @@ func (c *machine) createRequestFromCLI() (*apiv2.MachineServiceCreateRequest, er
 		allocationType = apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL
 	}
 
-	for k, v := range viper.GetStringMap("labels") {
-		if labels == nil {
-			labels = &apiv2.Labels{}
-		} else {
-			value, ok := v.(string)
-			if ok {
-				labels.Labels[k] = value
-			} else {
-				labels.Labels[k] = ""
-			}
-		}
+	labels, err := helpers.LabelsFromSlice(viper.GetStringSlice("labels"))
+	if err != nil {
+		return nil, err
 	}
 
 	var filesystemlayout *string
-	if viper.IsSet("filesystemlayout") {
-		filesystemlayout = new(viper.GetString("filesystemlayout"))
+	if viper.IsSet("filesystem-layout") {
+		filesystemlayout = new(viper.GetString("filesystem-layout"))
 	}
 	var size *string
 	if viper.IsSet("size") {
 		size = new(viper.GetString("size"))
-	}
-	var uuid *string
-	if viper.IsSet("id") {
-		uuid = new(viper.GetString("id"))
 	}
 	var partition *string
 	if viper.IsSet("partition") {
@@ -351,7 +339,6 @@ func (c *machine) createRequestFromCLI() (*apiv2.MachineServiceCreateRequest, er
 		Hostname:         hostname,
 		Image:            viper.GetString("image"),
 		Name:             viper.GetString("name"),
-		Uuid:             uuid,
 		Project:          viper.GetString("project"),
 		Size:             size,
 		SshPublicKeys:    keys,
@@ -394,16 +381,18 @@ func searchSSHKey() (string, error) {
 	}
 	return key, nil
 }
-func readFromFile(filePath string) (string, error) {
+
+func readFromFile(fs *afero.Afero, filePath string) (string, error) {
 	filePath, err := expandFilepath(filePath)
 	if err != nil {
 		return "", err
 	}
 
-	content, err := os.ReadFile(filePath)
+	content, err := fs.ReadFile(filePath)
 	if err != nil {
-		return "", fmt.Errorf("unable to read from given file %s error:%w", filePath, err)
+		return "", fmt.Errorf("unable to read from given file %q: %w", filePath, err)
 	}
+
 	return strings.TrimSpace(string(content)), nil
 }
 
@@ -422,8 +411,10 @@ func expandFilepath(filePath string) (string, error) {
 
 	return filePath, nil
 }
+
 func parseNetworks(possibleNetworks []string) ([]*apiv2.MachineAllocationNetwork, error) {
 	var result []*apiv2.MachineAllocationNetwork
+
 	for _, n := range possibleNetworks {
 		if n == "" {
 			continue
@@ -434,48 +425,49 @@ func parseNetworks(possibleNetworks []string) ([]*apiv2.MachineAllocationNetwork
 		nw, ipsString, found := strings.Cut(n, ":")
 		if found {
 			man.Network = nw
-			for ip := range strings.SplitSeq(ipsString, ",") {
+			for ip := range strings.SplitSeq(ipsString, ";") {
 				if ip == "" {
 					continue
 				}
 				_, err := netip.ParseAddr(ip)
 				if err != nil {
-					return nil, fmt.Errorf("malformed ip:%s %w", ip, err)
+					return nil, fmt.Errorf("malformed ip %q: %w", ip, err)
 				}
 				man.Ips = append(man.Ips, ip)
 			}
 		}
 		result = append(result, man)
 	}
+
 	return result, nil
 }
 
 func (c *machine) addMachineCreateFlags(cmd *cobra.Command, name string) {
-	cmd.Flags().StringP("description", "d", "", "Description of the "+name+" to create. [optional]")
-	cmd.Flags().StringP("partition", "S", "", "partition/datacenter where the "+name+" is created. [required, except for reserved machines]")
-	cmd.Flags().StringP("hostname", "H", "", "Hostname of the "+name+". [required]")
-	cmd.Flags().StringP("image", "i", "", "OS Image to install. [required]")
-	cmd.Flags().StringP("filesystemlayout", "", "", "Filesystemlayout to use during machine installation. [optional]")
-	cmd.Flags().StringP("name", "n", "", "Name of the "+name+". [optional]")
-	cmd.Flags().StringP("id", "I", "", "ID of a specific "+name+" to allocate, if given, size and partition are ignored. Need to be set to reserved (--reserve) state before.")
-	cmd.Flags().StringP("project", "P", "", "Project where the "+name+" should belong to. [required]")
-	cmd.Flags().StringP("size", "s", "", "Size of the "+name+". [required, except for reserved machines]")
-	cmd.Flags().StringP("allocation-type", "t", "machine", "allocation type, can be either machine|firewall")
-	cmd.Flags().StringP("sshpublickey", "p", "",
+	cmd.Flags().String("description", "", "Description of the "+name+" to create. [optional]")
+	cmd.Flags().String("partition", "", "partition/datacenter where the "+name+" is created. [required, except for reserved machines]")
+	cmd.Flags().String("hostname", "", "Hostname of the "+name+". [required]")
+	cmd.Flags().String("image", "", "OS Image to install. [required]")
+	cmd.Flags().String("filesystem-layout", "", "Filesystemlayout to use during machine installation. [optional]")
+	cmd.Flags().String("name", "", "Name of the "+name+". [optional]")
+	cmd.Flags().StringP("project", "p", "", "Project where the "+name+" should belong to. [required]")
+	cmd.Flags().String("size", "", "Size of the "+name+". [required, except for reserved machines]")
+	cmd.Flags().String("allocation-type", "machine", "allocation type, can be either machine|firewall")
+	cmd.Flags().StringP("ssh-public-key", "i", "",
 		`SSH public key for access via ssh and console. [optional]
 Can be either the public key as string, or pointing to the public key file to use e.g.: "@~/.ssh/id_rsa.pub".
 If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picked as default, matching the first one in this order.`)
-	cmd.Flags().StringSlice("tags", []string{}, "tags to add to the "+name+", use it like: --tags \"tag1,tag2\" or --tags \"tag3\".")
-	cmd.Flags().StringP("userdata", "", "", `cloud-init.io compatible userdata. [optional]
+	cmd.Flags().StringSlice("labels", []string{}, "labels to add to the "+name+", use it like: --labels \"a=b\" or --labels \"a=\".")
+	cmd.Flags().String("userdata", "", `cloud-init.io compatible userdata. [optional]
 Can be either the userdata as string, or pointing to the userdata file to use e.g.: "@/tmp/userdata.cfg".`)
-	cmd.Flags().StringSlice("dnsservers", []string{}, "dns servers to add to the machine or firewall. [optional]")
-	cmd.Flags().StringSlice("ntpservers", []string{}, "ntp servers to add to the machine or firewall. [optional]")
+	cmd.Flags().StringSlice("dns-servers", []string{}, "dns servers to add to the machine or firewall. [optional]")
+	cmd.Flags().StringSlice("ntp-servers", []string{}, "ntp servers to add to the machine or firewall. [optional]")
 
 	cmd.Flags().StringSlice("networks", []string{},
-		`Adds a network. Usage: [--networks NETWORK,[ip:ip:ip][,NETWORK...]...
+		`Adds a network. Usage: [--networks NETWORK[:ip[;ip]][,NETWORK[:ip[;ip]]...
 NETWORK specifies the name or id of an existing network.
 IPs can be added per network colon separated, these ips must be already allocated upfront. If no ip(s) are specified per network, one ip per network is allocated.
 `)
+	cmd.Flags().StringSlice("placement-tags", []string{}, "placement tags used for rack spreading")
 
 	cmd.MarkFlagsMutuallyExclusive("file", "project")
 	cmd.MarkFlagsRequiredTogether("project", "networks", "hostname", "image")
@@ -486,8 +478,7 @@ IPs can be added per network colon separated, these ips must be already allocate
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.c.Completion.Partition))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("size", c.c.Completion.Size))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.c.Completion.Project))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.c.Completion.Machine))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.c.Completion.Image))
 	// FIXME implement
-	// genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.c.Completion.ImageListCompletion))
-	// genericcli.Must(cmd.RegisterFlagCompletionFunc("filesystemlayout", c.c.Completion.FilesystemLayoutListCompletion))
+	// genericcli.Must(cmd.RegisterFlagCompletionFunc("filesystem-layout", c.c.Completion.FilesystemLayoutListCompletion))
 }
