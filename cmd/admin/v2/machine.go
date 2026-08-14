@@ -503,7 +503,7 @@ func (c *machine) firewallSSH(ctx context.Context, args []string) (err error) {
 				return err
 			}
 			if parsed.Is4() {
-				vpnopts = append(vpnopts, metalvpn.ConnectOptWithFirewallVPNIPAddress(ip))
+				vpnopts = append(vpnopts, metalvpn.ConnectOptWithVpnIPAddress(ip))
 			}
 		}
 	}
