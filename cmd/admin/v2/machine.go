@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"strings"
 
@@ -46,7 +45,7 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
-			cmd.Flags().String("uuid", "", "allocation uuid of machine which should be listed")
+			cmd.Flags().String("id", "", "id of machine which should be listed")
 			cmd.Flags().String("name", "", "name from machines which should be listed")
 			cmd.Flags().String("hostname", "", "hostname from machines which should be listed")
 			cmd.Flags().String("size", "", "size from machines which should be listed")
@@ -58,6 +57,7 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("size", c.Completion.Size))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.Completion.Image))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.Completion.AdminMachine))
 
 			cmd.Long = cmd.Short + "\n" + helpers.EmojiHelpText()
 		},
@@ -66,8 +66,24 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 		},
+		CreateRequestFromCLI: func() (*apiv2.MachineServiceCreateRequest, error) {
+			rq, err := helpers.MachineCreateRequestFromCLI(c)
+			if err != nil {
+				return nil, err
+			}
+
+			if viper.IsSet("id") {
+				rq.Uuid = new(viper.GetString("id"))
+			}
+
+			return rq, nil
+		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
-			// w.addMachineCreateFlags(cmd, "machine")
+			helpers.AddMachineCreateFlags(cmd, "machine", c.Completion)
+
+			cmd.Flags().String("id", "", "id of the machine to create. [optional]")
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.Completion.AdminMachine))
+
 			cmd.Aliases = []string{"allocate"}
 			cmd.Example = `machine create can be done in two different ways:
 
@@ -105,7 +121,23 @@ metalctl machine reserve 00000000-0000-0000-0000-0cc47ae54694 --remove
 Once created the machine installation can not be modified anymore.
 `
 		},
-		ValidArgsFn: c.Completion.Machine,
+		UpdateCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
+			cmd.Flags().String("description", "", "description of the machine")
+			cmd.Flags().StringSlice("labels", nil, "labels to replace for the machine")
+			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the machine")
+			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the machine")
+			cmd.Flags().StringP("ssh-public-key", "i", "",
+				`SSH public key for access via ssh and console. [optional]
+Can be either the public key as string, or pointing to the public key file to use e.g.: "@~/.ssh/id_rsa.pub".
+If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picked as default, matching the first one in this order.`)
+
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+		},
+		UpdateRequestFromCLI: func(args []string) (*apiv2.MachineServiceUpdateRequest, error) {
+			return helpers.MachineUpdateRequestFromCLI(c, args)
+		},
+		ValidArgsFn: c.Completion.AdminMachine,
 	}
 
 	bmcCommandCmd := &cobra.Command{
@@ -114,7 +146,7 @@ Once created the machine installation can not be modified anymore.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.bmcCommand(args)
 		},
-		ValidArgsFunction: c.Completion.Machine,
+		ValidArgsFunction: c.Completion.AdminMachine,
 	}
 	bmcCommandCmd.Flags().String("command", "", "the actual command to send to the machine")
 	genericcli.Must(bmcCommandCmd.RegisterFlagCompletionFunc("command", c.Completion.BMCCommands))
@@ -126,7 +158,7 @@ Once created the machine installation can not be modified anymore.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.lockOrTaint(args, apiv2.MachineState_MACHINE_STATE_LOCKED)
 		},
-		ValidArgsFunction: c.Completion.Machine,
+		ValidArgsFunction: c.Completion.AdminMachine,
 	}
 	lockCmd.Flags().String("description", "", "description of why the machine was locked")
 	lockCmd.Flags().Bool("remove", false, "if set to true, machine will be unlocked")
@@ -137,7 +169,7 @@ Once created the machine installation can not be modified anymore.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.lockOrTaint(args, apiv2.MachineState_MACHINE_STATE_TAINTED)
 		},
-		ValidArgsFunction: c.Completion.Machine,
+		ValidArgsFunction: c.Completion.AdminMachine,
 	}
 	taintCmd.Flags().String("description", "", "description of why the machine was tainted")
 	taintCmd.Flags().Bool("remove", false, "if set to true, machine will be untainted")
@@ -148,7 +180,7 @@ Once created the machine installation can not be modified anymore.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.console(cmd.Context(), args)
 		},
-		ValidArgsFunction: c.Completion.Machine,
+		ValidArgsFunction: c.Completion.AdminMachine,
 	}
 	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)")
 	consoleCmd.Flags().Int("metal-console-port", 5222, "port open on our control-plane to connect via ssh to get machine console access")
@@ -218,9 +250,10 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 
 	var allocation *apiv2.MachineAllocationQuery
 
-	if viper.IsSet("hostname") || viper.IsSet("project") || viper.IsSet("image") {
+	if viper.IsSet("hostname") || viper.IsSet("name") || viper.IsSet("project") || viper.IsSet("image") {
 		allocation = &apiv2.MachineAllocationQuery{
 			Hostname: pointer.PointerOrNil(viper.GetString("hostname")),
+			Name:     pointer.PointerOrNil(viper.GetString("name")),
 			Project:  pointer.PointerOrNil(viper.GetString("project")),
 			Image:    pointer.PointerOrNil(viper.GetString("image")),
 		}
@@ -229,7 +262,6 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 	resp, err := c.c.Client.Adminv2().Machine().List(ctx, &adminv2.MachineServiceListRequest{
 		Query: &apiv2.MachineQuery{
 			Uuid:       pointer.PointerOrNil(viper.GetString("id")),
-			Name:       pointer.PointerOrNil(viper.GetString("name")),
 			Partition:  pointer.PointerOrNil(viper.GetString("partition")),
 			Size:       pointer.PointerOrNil(viper.GetString("size")),
 			Allocation: allocation,
@@ -506,14 +538,14 @@ func (c *machine) firewallSSH(ctx context.Context, args []string) (err error) {
 
 // sshClient opens an interactive ssh session to the host on port with user, authenticated by the key.
 func sshClient(user, keyfile, host string, port int, idToken *string, passwordAuth bool) error {
-
 	var opts []metalssh.ConnectOpt
+
 	if passwordAuth {
 		opts = append(opts, metalssh.ConnectOptOutputPassword(*idToken))
 	} else {
 		if keyfile == "" {
 			var err error
-			keyfile, err = searchSSHKey()
+			keyfile, err = helpers.SearchSSHKey()
 			if err != nil {
 				return err
 			}
@@ -531,39 +563,12 @@ func sshClient(user, keyfile, host string, port int, idToken *string, passwordAu
 	if err != nil {
 		return err
 	}
+
 	var env *metalssh.Env
+
 	if idToken != nil {
 		env = &metalssh.Env{"LC_METAL_STACK_OIDC_TOKEN": *idToken}
 	}
+
 	return s.Connect(env)
-}
-
-var (
-	defaultSSHKeys = [...]string{"id_ed25519", "id_ecdsa", "id_rsa", "id_dsa"}
-)
-
-func searchSSHKey() (string, error) {
-	currentUser, err := user.Current()
-	if err != nil {
-		return "", fmt.Errorf("unable to determine current user for expanding userdata path:%w", err)
-	}
-	homeDir := currentUser.HomeDir
-	defaultDir := filepath.Join(homeDir, "/.ssh/")
-	var key string
-	for _, k := range defaultSSHKeys {
-		possibleKey := filepath.Join(defaultDir, k)
-		_, err := os.ReadFile(possibleKey)
-		if err == nil {
-			fmt.Printf("using SSH identity: %s. Another identity can be specified with --sshidentity/-p\n",
-				possibleKey)
-			key = possibleKey
-			break
-		}
-	}
-
-	if key == "" {
-		return "", fmt.Errorf("failure to locate a SSH identity in default location (%s), "+
-			"another identity can be specified with --sshidentity/-p", defaultDir)
-	}
-	return key, nil
 }

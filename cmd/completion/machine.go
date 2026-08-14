@@ -28,6 +28,25 @@ func (c *Completion) Machine(cmd *cobra.Command, args []string, toComplete strin
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
+func (c *Completion) AdminMachine(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	resp, err := c.Client.Adminv2().Machine().List(cmd.Context(), &adminv2.MachineServiceListRequest{})
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	var names []string
+
+	for _, m := range resp.Machines {
+		name := m.Uuid
+		if m.Allocation != nil {
+			name = m.Uuid + "\t" + m.Allocation.Hostname
+		}
+		names = append(names, name)
+	}
+
+	return names, cobra.ShellCompDirectiveNoFileComp
+}
+
 func (c *Completion) Firewall(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	resp, err := c.Client.Adminv2().Machine().List(cmd.Context(), &adminv2.MachineServiceListRequest{
 		Query: &apiv2.MachineQuery{

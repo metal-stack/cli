@@ -27,13 +27,13 @@ metalctlv2 admin machine list [flags]
 ```
   -h, --help               help for list
       --hostname string    hostname from machines which should be listed
+      --id string          id of machine which should be listed
       --image string       image
       --name string        name from machines which should be listed
       --partition string   partition from where machines should be listed
   -p, --project string     project from where machines should be listed
       --size string        size from machines which should be listed
       --sort-by strings    sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: age|image|partition|project|rack|size|uuid
-      --uuid string        allocation uuid of machine which should be listed
 ```
 
 ### Options inherited from parent commands
