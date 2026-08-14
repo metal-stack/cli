@@ -20,6 +20,7 @@ func (c *Completion) Ip(cmd *cobra.Command, args []string, toComplete string) ([
 	}
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
+
 func (c *Completion) AddressFamily(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var afs []string
 	for _, af := range []apiv2.IPAddressFamily{
@@ -34,6 +35,7 @@ func (c *Completion) AddressFamily(cmd *cobra.Command, args []string, toComplete
 
 	return afs, cobra.ShellCompDirectiveNoFileComp
 }
+
 func (c *Completion) IPType(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var afs []string
 	for _, af := range []apiv2.IPType{

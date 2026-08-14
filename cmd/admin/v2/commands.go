@@ -18,6 +18,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	adminCmd.AddCommand(newComponentCmd(c))
 	adminCmd.AddCommand(newImageCmd(c))
 	adminCmd.AddCommand(newIPCmd(c))
+	adminCmd.AddCommand(newMachineCmd(c))
 	adminCmd.AddCommand(newNetworkCmd(c))
 	adminCmd.AddCommand(newPartitionCmd(c))
 	adminCmd.AddCommand(newProjectCmd(c))

@@ -6,6 +6,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func (c *Completion) Image(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	resp, err := c.Client.Apiv2().Image().List(cmd.Context(), &apiv2.ImageServiceListRequest{})
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	var names []string
+
+	for _, img := range resp.Images {
+		names = append(names, img.Id+"\t"+*img.Name)
+	}
+
+	return names, cobra.ShellCompDirectiveNoFileComp
+}
+
 func (c *Completion) ImageFeatures(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	var names []string
 

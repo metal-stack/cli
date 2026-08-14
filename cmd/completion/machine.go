@@ -1,25 +1,33 @@
 package completion
 
 import (
-	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
+	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/spf13/cobra"
 )
 
 func (c *Completion) Machine(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	req := &adminv2.MachineServiceListRequest{}
-	resp, err := c.Client.Adminv2().Machine().List(cmd.Context(), req)
+	resp, err := c.Client.Apiv2().Machine().List(cmd.Context(), &apiv2.MachineServiceListRequest{
+		Project: c.Proj,
+	})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
+
 	var names []string
-	for _, m := range resp.Machines {
-		var hostname string
-		if m.Allocation != nil {
-			hostname = m.Allocation.Hostname
-			names = append(names, m.Uuid+"\t"+hostname)
-		} else {
-			names = append(names, m.Uuid)
-		}
+
+	for _, s := range resp.Machines {
+		names = append(names, s.Uuid)
 	}
+
+	return names, cobra.ShellCompDirectiveNoFileComp
+}
+
+func (c *Completion) BMCCommands(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	var names []string
+
+	for _, name := range apiv2.MachineBMCCommand_name {
+		names = append(names, name)
+	}
+
 	return names, cobra.ShellCompDirectiveNoFileComp
 }

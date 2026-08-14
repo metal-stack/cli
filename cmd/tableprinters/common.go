@@ -18,15 +18,6 @@ const (
 	nbr             = " "
 	halfpie         = "◒"
 	threequarterpie = "◕"
-
-	ambulance   = "🚑"
-	exclamation = "❗"
-	bark        = "🚧"
-	loop        = "⭕"
-	lock        = "🔒"
-	question    = "❓"
-	skull       = "💀"
-	vpn         = "🛡"
 )
 
 type TablePrinter struct {
