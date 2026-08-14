@@ -9,8 +9,9 @@ metalctlv2 admin machine console [flags]
 ### Options
 
 ```
-  -h, --help   help for console
-      --ipmi   if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)
+  -h, --help                     help for console
+      --ipmi                     if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)
+      --metal-console-port int   port open on our control-plane to connect via ssh to get machine console access (default 5222)
 ```
 
 ### Options inherited from parent commands

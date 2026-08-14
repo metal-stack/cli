@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/metal-stack/api/go/errorutil"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -34,7 +35,7 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 		c: c,
 	}
 
-	cmdsConfig := &genericcli.CmdsConfig[any, any, *apiv2.Machine]{
+	cmdsConfig := &genericcli.CmdsConfig[*apiv2.MachineServiceCreateRequest, *apiv2.MachineServiceUpdateRequest, *apiv2.Machine]{
 		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "machine",
@@ -144,18 +145,19 @@ Once created the machine installation can not be modified anymore.
 		Use:   "console",
 		Short: "establishes a connection to the serial console of a machine. for authentication at the metal-console it uses the token such that no machine ssh key is required for access (unlike the corresponding user API command).",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.console(args)
+			return w.console(cmd.Context(), args)
 		},
 		ValidArgsFunction: c.Completion.Machine,
 	}
 	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)")
+	consoleCmd.Flags().Int("metal-console-port", 5222, "port open on our control-plane to connect via ssh to get machine console access")
 
 	firewallSSHCmd := &cobra.Command{
 		Use:   "ssh <firewall ID>",
 		Short: "SSH to a firewall",
 		Long:  `SSH to a firewall via VPN.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.firewallSSH(args)
+			return w.firewallSSH(cmd.Context(), args)
 		},
 		ValidArgsFunction: c.Completion.Firewall,
 	}
@@ -165,12 +167,34 @@ Once created the machine installation can not be modified anymore.
 	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd, lockCmd, taintCmd, consoleCmd, firewallSSHCmd)
 }
 
-func (c *machine) Create(rq any) (*apiv2.Machine, error) {
-	panic("unimplemented")
+func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine, error) {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Apiv2().Machine().Create(ctx, rq)
+	if err != nil {
+		if errorutil.IsConflict(err) {
+			return nil, genericcli.AlreadyExistsError()
+		}
+
+		return nil, err
+	}
+
+	return resp.Machine, nil
 }
 
 func (c *machine) Delete(id string) (*apiv2.Machine, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Adminv2().Machine().Delete(ctx, &adminv2.MachineServiceDeleteRequest{
+		Uuid: id,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Machine, nil
 }
 
 func (c *machine) Get(id string) (*apiv2.Machine, error) {
@@ -242,21 +266,36 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 	return resp.Machines, nil
 }
 
-func (c *machine) Update(rq any) (*apiv2.Machine, error) {
-	panic("unimplemented")
+func (c *machine) Update(rq *apiv2.MachineServiceUpdateRequest) (*apiv2.Machine, error) {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Apiv2().Machine().Update(ctx, rq)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Machine, nil
 }
 
-func (c *machine) Convert(r *apiv2.Machine) (string, any, any, error) {
-	panic("unimplemented")
+func (c *machine) Convert(r *apiv2.Machine) (string, *apiv2.MachineServiceCreateRequest, *apiv2.MachineServiceUpdateRequest, error) {
+	update, err := helpers.MachineResponseToUpdate(r)
+	if err != nil {
+		return "", nil, nil, err
+	}
 
-}
+	create, err := helpers.MachineResponseToCreate(r)
+	if err != nil {
+		return "", nil, nil, err
+	}
 
-func (c *machine) MachineResponseToCreate(r *apiv2.Machine) any {
-	panic("unimplemented")
-}
+	if r.Uuid != "" {
+		create.Uuid = &r.Uuid
+		create.Partition = nil
+		create.Size = nil
+	}
 
-func (c *machine) MachineResponseToUpdate(desired *apiv2.Machine) (any, error) {
-	panic("unimplemented")
+	return r.Uuid, create, update, err
 }
 
 func (c *machine) lockOrTaint(args []string, state apiv2.MachineState) error {
@@ -311,10 +350,7 @@ func (c *machine) bmcCommand(args []string) error {
 	return err
 }
 
-// Port open on our control-plane to connect via ssh to get machine console access.
-const bmcConsolePort = 5222
-
-func (c *machine) console(args []string) error {
+func (c *machine) console(ctx context.Context, args []string) error {
 	id, err := genericcli.GetExactlyOneArg(args)
 	if err != nil {
 		return err
@@ -322,7 +358,7 @@ func (c *machine) console(args []string) error {
 
 	useIpmi := viper.GetBool("ipmi")
 	if useIpmi {
-		return c.impitool(id)
+		return c.impitool(ctx, id)
 	}
 
 	parsedurl, err := url.Parse(pointer.SafeDeref(c.c.Context.ApiURL))
@@ -330,7 +366,7 @@ func (c *machine) console(args []string) error {
 		return err
 	}
 
-	err = sshClient(id, viper.GetString("sshidentity"), parsedurl.Host, bmcConsolePort, &c.c.Context.Token, true)
+	err = sshClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), &c.c.Context.Token, true)
 	if err != nil {
 		return fmt.Errorf("machine console error:%w", err)
 	}
@@ -338,7 +374,7 @@ func (c *machine) console(args []string) error {
 	return nil
 }
 
-func (c *machine) impitool(id string) error {
+func (c *machine) impitool(ctx context.Context, id string) error {
 	path, err := exec.LookPath("ipmitool")
 	if err != nil {
 		return fmt.Errorf("unable to locate ipmitool in path")
@@ -387,14 +423,15 @@ func (c *machine) impitool(id string) error {
 
 	args := []string{"-I", intf, "-H", hostAndPort[0], "-p", hostAndPort[1], "-U", usr, "-E", "sol", "activate"}
 	_, _ = fmt.Fprintf(c.c.Out, "connecting to console with:\n%s %s\nExit with ~.\n\n", path, strings.Join(args, " "))
-	cmd := exec.Command(path, args...)
+	cmd := exec.CommandContext(ctx, path, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
+
 	return cmd.Run()
 }
 
-func (c *machine) firewallSSH(args []string) (err error) {
+func (c *machine) firewallSSH(ctx context.Context, args []string) (err error) {
 	id, err := genericcli.GetExactlyOneArg(args)
 	if err != nil {
 		return err
@@ -415,7 +452,7 @@ func (c *machine) firewallSSH(args []string) (err error) {
 
 	projectID := machine.Allocation.Project
 	_, _ = fmt.Fprintf(c.c.Out, "accessing firewall through vpn ")
-	authKeyResp, err := c.c.Client.Adminv2().VPN().AuthKey(context.Background(), &adminv2.VPNServiceAuthKeyRequest{
+	authKeyResp, err := c.c.Client.Adminv2().VPN().AuthKey(ctx, &adminv2.VPNServiceAuthKeyRequest{
 		Project:   projectID,
 		Ephemeral: true,
 		Reason:    viper.GetString("reason"),
@@ -423,7 +460,7 @@ func (c *machine) firewallSSH(args []string) (err error) {
 	if err != nil {
 		return fmt.Errorf("failed to get VPN auth key: %w", err)
 	}
-	ctx := context.Background()
+
 	v, err := metalvpn.Connect(ctx, machine.Uuid, authKeyResp.Address, authKeyResp.AuthKey)
 	if err != nil {
 		return err
