@@ -410,7 +410,7 @@ func (c *machine) firewallSSH(args []string) (err error) {
 	}
 
 	if machine.Allocation.AllocationType != apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL {
-		return fmt.Errorf("ssh can only be made to firewalls.")
+		return fmt.Errorf("ssh can only be used for connecting to firewalls")
 	}
 
 	projectID := machine.Allocation.Project
