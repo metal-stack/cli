@@ -1,7 +1,14 @@
 package v2
 
 import (
+	"context"
 	"fmt"
+	"net/url"
+	"os"
+	"os/exec"
+	"os/user"
+	"path/filepath"
+	"strings"
 
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -10,6 +17,9 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
+	metalssh "github.com/metal-stack/metal-lib/pkg/ssh"
+	metalvpn "github.com/metal-stack/metal-lib/pkg/vpn"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -137,7 +147,19 @@ Once created the machine installation can not be modified anymore.
 	}
 	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)")
 
-	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd, lockCmd, taintCmd, consoleCmd)
+	firewallSSHCmd := &cobra.Command{
+		Use:   "ssh <firewall ID>",
+		Short: "SSH to a firewall",
+		Long:  `SSH to a firewall via VPN.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.firewallSSH(args)
+		},
+		ValidArgsFunction: c.Completion.Firewall,
+	}
+	firewallSSHCmd.Flags().StringP("identity", "i", "~/.ssh/id_rsa", "specify identity file to SSH to the firewall like: -i path/to/id_rsa")
+	firewallSSHCmd.Flags().String("reason", "", "the reason why to connect to the firewall through SSH")
+
+	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd, lockCmd, taintCmd, consoleCmd, firewallSSHCmd)
 }
 
 func (c *machine) Create(rq any) (*apiv2.Machine, error) {
@@ -286,6 +308,207 @@ func (c *machine) bmcCommand(args []string) error {
 	return err
 }
 
+// Port open on our control-plane to connect via ssh to get machine console access.
+const bmcConsolePort = 5222
+
 func (c *machine) console(args []string) error {
-	panic("unimplemented")
+	id, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return err
+	}
+
+	useIpmi := viper.GetBool("ipmi")
+	if useIpmi {
+		return c.impitool(id)
+	}
+
+	parsedurl, err := url.Parse(pointer.SafeDeref(c.c.Context.ApiURL))
+	if err != nil {
+		return err
+	}
+
+	err = sshClient(id, viper.GetString("sshidentity"), parsedurl.Host, bmcConsolePort, &c.c.Context.Token, true)
+	if err != nil {
+		return fmt.Errorf("machine console error:%w", err)
+	}
+
+	return nil
+}
+
+func (c *machine) impitool(id string) error {
+	path, err := exec.LookPath("ipmitool")
+	if err != nil {
+		return fmt.Errorf("unable to locate ipmitool in path")
+	}
+
+	resp, err := c.c.Client.Adminv2().Machine().GetBMC(context.Background(), &adminv2.MachineServiceGetBMCRequest{
+		Uuid: id,
+	})
+	if err != nil {
+		return err
+	}
+
+	bmc := resp.Bmc.Bmc
+	intf := "lanplus"
+
+	// -I lanplus  -H 192.168.2.19 -U ADMIN -P ADMIN sol activate
+	hostAndPort := strings.Split(bmc.Address, ":")
+	if len(hostAndPort) < 2 {
+		hostAndPort = append(hostAndPort, "623")
+	}
+	usr := bmc.User
+	if bmc.User == "" {
+		_, _ = fmt.Fprintf(c.c.Out, "no ipmi user stored, please specify with --ipmiuser\n")
+	}
+	ipmiuser := viper.GetString("ipmiuser")
+	if ipmiuser != "" {
+		usr = ipmiuser
+	}
+	password := bmc.Password
+	if bmc.Password == "" {
+		_, _ = fmt.Fprintf(c.c.Out, "no ipmi password stored, please specify with --ipmipassword\n")
+	}
+
+	bmcpassword := viper.GetString("ipmipassword")
+	if bmcpassword != "" {
+		password = bmcpassword
+	}
+
+	err = os.Setenv("IPMITOOL_PASSWORD", password)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = os.Unsetenv("IPMITOOL_PASSWORD")
+	}()
+
+	args := []string{"-I", intf, "-H", hostAndPort[0], "-p", hostAndPort[1], "-U", usr, "-E", "sol", "activate"}
+	_, _ = fmt.Fprintf(c.c.Out, "connecting to console with:\n%s %s\nExit with ~.\n\n", path, strings.Join(args, " "))
+	cmd := exec.Command(path, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
+	return cmd.Run()
+}
+
+func (c *machine) firewallSSH(args []string) (err error) {
+	id, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return err
+	}
+
+	machine, err := c.Get(id)
+	if err != nil {
+		return fmt.Errorf("failed to find firewall: %w", err)
+	}
+
+	if machine.Allocation == nil {
+		return fmt.Errorf("firewall allocation is nil")
+	}
+
+	if machine.Allocation.AllocationType != apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL {
+		return fmt.Errorf("ssh can only be made to firewalls.")
+	}
+
+	projectID := machine.Allocation.Project
+	_, _ = fmt.Fprintf(c.c.Out, "accessing firewall through vpn ")
+	authKeyResp, err := c.c.Client.Adminv2().VPN().AuthKey(context.Background(), &adminv2.VPNServiceAuthKeyRequest{
+		Project:   projectID,
+		Ephemeral: true,
+		Reason:    viper.GetString("reason"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to get VPN auth key: %w", err)
+	}
+	ctx := context.Background()
+	v, err := metalvpn.Connect(ctx, machine.Uuid, authKeyResp.Address, authKeyResp.AuthKey)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = v.Close()
+	}()
+
+	privateKeyFile := viper.GetString("identity")
+	if strings.HasPrefix(privateKeyFile, "~/") {
+		home, _ := os.UserHomeDir()
+		privateKeyFile = filepath.Join(home, privateKeyFile[2:])
+	}
+
+	privateKey, err := os.ReadFile(privateKeyFile)
+	if err != nil {
+		return err
+	}
+
+	opts := []metalssh.ConnectOpt{metalssh.ConnectOptOutputPrivateKey(privateKey)}
+
+	s, err := metalssh.NewClientWithConnection("metal", v.TargetIP, v.Conn, opts...)
+	if err != nil {
+		return err
+	}
+	return s.Connect(nil)
+}
+
+// sshClient opens an interactive ssh session to the host on port with user, authenticated by the key.
+func sshClient(user, keyfile, host string, port int, idToken *string, passwordAuth bool) error {
+
+	var opts []metalssh.ConnectOpt
+	if passwordAuth {
+		opts = append(opts, metalssh.ConnectOptOutputPassword(*idToken))
+	} else {
+		if keyfile == "" {
+			var err error
+			keyfile, err = searchSSHKey()
+			if err != nil {
+				return err
+			}
+		}
+
+		privateKey, err := os.ReadFile(keyfile)
+		if err != nil {
+			return err
+		}
+
+		opts = append(opts, metalssh.ConnectOptOutputPrivateKey(privateKey))
+	}
+
+	s, err := metalssh.NewClient(user, host, port, opts...)
+	if err != nil {
+		return err
+	}
+	var env *metalssh.Env
+	if idToken != nil {
+		env = &metalssh.Env{"LC_METAL_STACK_OIDC_TOKEN": *idToken}
+	}
+	return s.Connect(env)
+}
+
+var (
+	defaultSSHKeys = [...]string{"id_ed25519", "id_ecdsa", "id_rsa", "id_dsa"}
+)
+
+func searchSSHKey() (string, error) {
+	currentUser, err := user.Current()
+	if err != nil {
+		return "", fmt.Errorf("unable to determine current user for expanding userdata path:%w", err)
+	}
+	homeDir := currentUser.HomeDir
+	defaultDir := filepath.Join(homeDir, "/.ssh/")
+	var key string
+	for _, k := range defaultSSHKeys {
+		possibleKey := filepath.Join(defaultDir, k)
+		_, err := os.ReadFile(possibleKey)
+		if err == nil {
+			fmt.Printf("using SSH identity: %s. Another identity can be specified with --sshidentity/-p\n",
+				possibleKey)
+			key = possibleKey
+			break
+		}
+	}
+
+	if key == "" {
+		return "", fmt.Errorf("failure to locate a SSH identity in default location (%s), "+
+			"another identity can be specified with --sshidentity/-p", defaultDir)
+	}
+	return key, nil
 }
