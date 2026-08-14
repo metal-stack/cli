@@ -2,6 +2,7 @@ package api_e2e
 
 import (
 	"encoding/base64"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -14,6 +15,7 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_MachineCmd_List(t *testing.T) {
@@ -196,275 +198,328 @@ func Test_MachineCmd_Create(t *testing.T) {
 			}),
 			WantProtoObject: testresources.Machine2(),
 		},
-		// {
-		// 	Name:    "create from file",
-		// 	CmdArgs: append([]string{"machine", "create"}, e2e.AppendFromFileCommonArgs()...),
-		// 	NewRootCmd: e2erootcmd.NewRootCmd(t,
-		// 		&e2erootcmd.TestConfig{
-		// 			FsMocks: func(fs *afero.Afero) {
-		// 				require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine1()), 0755))
-		// 			},
-		// 			ClientCalls: []client.ClientCall{
-		// 				{
-		// 					WantRequest: &apiv2.MachineServiceCreateRequest{
-		// 						Ip:               &testresources.Machine1().Ip,
-		// 						Project:          testresources.Machine1().Project,
-		// 						Network:          testresources.Machine1().Network,
-		// 						Name:             &testresources.Machine1().Name,
-		// 						Descrmachinetion: &testresources.Machine1().Descrmachinetion,
-		// 						Labels:           testresources.Machine1().Meta.Labels,
-		// 						Type:             &testresources.Machine1().Type,
-		// 						AddressFamily:    nil,
-		// 					},
-		// 					WantResponse: func() connect.AnyResponse {
-		// 						return connect.NewResponse(&apiv2.MachineServiceCreateResponse{
-		// 							Ip: testresources.Machine1(),
-		// 						})
-		// 					},
-		// 				},
-		// 			},
-		// 		}),
-		// 	WantTable: new(`
-		//     Machine       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
-		//     1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
-		// 	`),
-		// },
+		{
+			Name:    "create from file",
+			CmdArgs: append([]string{"machine", "create"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine2()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &apiv2.MachineServiceCreateRequest{
+								Project:     testresources.Machine2().Allocation.Project,
+								Name:        testresources.Machine2().Allocation.Name,
+								Description: &testresources.Machine2().Allocation.Description,
+								Hostname:    &testresources.Machine2().Allocation.Hostname,
+								Partition:   &testresources.Machine2().Partition.Id,
+								Size:        &testresources.Machine2().Size.Id,
+								Image:       testresources.Machine2().Allocation.Image.Id,
+								Userdata:    nil,
+								Labels:      testresources.Machine2().Meta.Labels,
+								Networks: func() []*apiv2.MachineAllocationNetwork {
+									var nws []*apiv2.MachineAllocationNetwork
+
+									for _, nw := range testresources.Machine2().Allocation.Networks {
+										nws = append(nws, &apiv2.MachineAllocationNetwork{
+											Network: nw.Network,
+											Ips:     nw.Ips,
+										})
+									}
+
+									return nws
+								}(),
+								AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
+								FirewallSpec:   nil,
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&apiv2.MachineServiceCreateResponse{
+									Machine: testresources.Machine2(),
+								})
+							},
+						},
+					},
+				}),
+			WantTable: new(`
+            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+			`),
+		},
 	}
 	for _, tt := range tests {
 		tt.TestCmd(t)
 	}
 }
 
-// func Test_MachineCmd_Delete(t *testing.T) {
-// 	tests := []*e2e.Test[apiv2.MachineServiceDeleteResponse, *apiv2.Machine]{
-// 		{
-// 			Name:    "delete",
-// 			CmdArgs: []string{"machine", "delete", "--project", testresources.Machine1().Project, testresources.Machine1().Ip},
-// 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
-// 				ClientCalls: []client.ClientCall{
-// 					{
-// 						WantRequest: &apiv2.MachineServiceDeleteRequest{
-// 							Ip:      testresources.Machine1().Ip,
-// 							Project: testresources.Machine1().Project,
-// 						},
-// 						WantResponse: func() connect.AnyResponse {
-// 							return connect.NewResponse(&apiv2.MachineServiceDeleteResponse{
-// 								Ip: testresources.Machine1(),
-// 							})
-// 						},
-// 					},
-// 				},
-// 			}),
-// 			WantProtoObject: testresources.Machine1(),
-// 		},
-// 		{
-// 			Name:    "delete from file",
-// 			CmdArgs: append([]string{"machine", "delete"}, e2e.AppendFromFileCommonArgs()...),
-// 			NewRootCmd: e2erootcmd.NewRootCmd(t,
-// 				&e2erootcmd.TestConfig{
-// 					FsMocks: func(fs *afero.Afero) {
-// 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine1()), 0755))
-// 					},
-// 					ClientCalls: []client.ClientCall{
-// 						{
-// 							WantRequest: &apiv2.MachineServiceDeleteRequest{
-// 								Ip:      testresources.Machine1().Ip,
-// 								Project: testresources.Machine1().Project,
-// 							},
-// 							WantResponse: func() connect.AnyResponse {
-// 								return connect.NewResponse(&apiv2.MachineServiceDeleteResponse{
-// 									Ip: testresources.Machine1(),
-// 								})
-// 							},
-// 						},
-// 					},
-// 				},
-// 			),
-// 			WantTable: new(`
-//             Machine       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
-//             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
-// 			`),
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		tt.TestCmd(t)
-// 	}
-// }
+func Test_MachineCmd_Delete(t *testing.T) {
+	tests := []*e2e.Test[apiv2.MachineServiceDeleteResponse, *apiv2.Machine]{
+		{
+			Name:    "delete",
+			CmdArgs: []string{"machine", "delete", "--project", testresources.Project2().Uuid, testresources.Machine2().Uuid},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &apiv2.MachineServiceDeleteRequest{
+							Project: testresources.Project2().Uuid,
+							Uuid:    testresources.Machine2().Uuid,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.MachineServiceDeleteResponse{
+								Machine: testresources.Machine2(),
+							})
+						},
+					},
+				},
+			}),
+			WantProtoObject: testresources.Machine2(),
+		},
+		{
+			Name:    "delete from file",
+			CmdArgs: append([]string{"machine", "delete"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine2()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &apiv2.MachineServiceDeleteRequest{
+								Uuid:    testresources.Machine2().Uuid,
+								Project: testresources.Machine2().Allocation.Project,
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&apiv2.MachineServiceDeleteResponse{
+									Machine: testresources.Machine2(),
+								})
+							},
+						},
+					},
+				},
+			),
+			WantTable: new(`
+            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
 
-// func Test_MachineCmd_Update(t *testing.T) {
-// 	tests := []*e2e.Test[apiv2.MachineServiceUpdateResponse, *apiv2.Machine]{
-// 		{
-// 			Name:    "update",
-// 			CmdArgs: []string{"machine", "update", "--project", testresources.Machine1().Project, testresources.Machine1().Ip, "--name", "foo"},
-// 			NewRootCmd: e2erootcmd.NewRootCmd(t,
-// 				&e2erootcmd.TestConfig{
-// 					ClientCalls: []client.ClientCall{
-// 						{
-// 							WantRequest: &apiv2.MachineServiceUpdateRequest{
-// 								Ip:      testresources.Machine1().Ip,
-// 								Project: testresources.Machine1().Project,
-// 								Name:    new("foo"),
-// 								UpdateMeta: &apiv2.UpdateMeta{
-// 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
-// 								},
-// 							},
-// 							WantResponse: func() connect.AnyResponse {
-// 								return connect.NewResponse(&apiv2.MachineServiceUpdateResponse{
-// 									Ip: testresources.Machine1(),
-// 								})
-// 							},
-// 						},
-// 					},
-// 				},
-// 			),
-// 			WantProtoObject: testresources.Machine1(),
-// 			WantTable: new(`
-//             Machine       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
-//             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
-// 			`),
-// 			WantWideTable: new(`
-// 			Machine       PROJECT                               ID                                    TYPE    NAME  DESCRMachineTION    LABELS
-// 			1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  static  a     a descrmachinetion  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
-// 			`),
-// 		},
-// 		{
-// 			Name:    "update from file",
-// 			CmdArgs: append([]string{"machine", "update"}, e2e.AppendFromFileCommonArgs()...),
-// 			NewRootCmd: e2erootcmd.NewRootCmd(t,
-// 				&e2erootcmd.TestConfig{
-// 					FsMocks: func(fs *afero.Afero) {
-// 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine1()), 0755))
-// 					},
-// 					ClientCalls: []client.ClientCall{
-// 						{
-// 							WantRequest: &apiv2.MachineServiceUpdateRequest{
-// 								Ip:          testresources.Machine1().Ip,
-// 								Project:     testresources.Machine1().Project,
-// 								Descrmachinetion: &testresources.Machine1().Descrmachinetion,
-// 								Labels: &apiv2.UpdateLabels{
-// 									Strategy: &apiv2.UpdateLabels_Replace{
-// 										Replace: &apiv2.Labels{
-// 											Labels: testresources.Machine1().Meta.Labels.Labels,
-// 										},
-// 									},
-// 								},
-// 								Name: &testresources.Machine1().Name,
-// 								Type: &testresources.Machine1().Type,
-// 								UpdateMeta: &apiv2.UpdateMeta{
-// 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
-// 								},
-// 							},
-// 							WantResponse: func() connect.AnyResponse {
-// 								return connect.NewResponse(&apiv2.MachineServiceUpdateResponse{
-// 									Ip: testresources.Machine1(),
-// 								})
-// 							},
-// 						},
-// 					},
-// 				},
-// 			),
-// 			WantTable: new(`
-//             Machine       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
-//             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
-// 			`),
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		tt.TestCmd(t)
-// 	}
-// }
+func Test_MachineCmd_Update(t *testing.T) {
+	tests := []*e2e.Test[apiv2.MachineServiceUpdateResponse, *apiv2.Machine]{
+		{
+			Name: "update",
+			CmdArgs: []string{"machine", "update",
+				"--project", testresources.Project2().Uuid,
+				testresources.Machine2().Uuid,
+				"--description", "42",
+				"--labels", "1=2",
+				"--ssh-public-key", "@.ssh/id_rsa.pub",
+			},
+			AssertExhaustiveArgs:     true,
+			AssertExhaustiveExcludes: append(e2e.CommonExcludedFileArgs(), "add-labels", "remove-labels"),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						genericcli.Must(fs.WriteFile(".ssh/id_rsa.pub", []byte("12345"), os.ModeAppend))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &apiv2.MachineServiceUpdateRequest{
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
+								Uuid:        testresources.Machine2().Uuid,
+								Project:     testresources.Project2().Uuid,
+								Description: new("42"),
+								Labels: &apiv2.UpdateLabels{
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: &apiv2.Labels{
+											Labels: map[string]string{
+												"1": "2",
+											},
+										},
+									},
+								},
+								SshPublicKeys: []string{"12345"},
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&apiv2.MachineServiceUpdateResponse{
+									Machine: testresources.Machine2(),
+								})
+							},
+						},
+					},
+				},
+			),
+			WantProtoObject: testresources.Machine2(),
+		},
+		{
+			Name:    "update from file",
+			CmdArgs: append([]string{"machine", "update"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine2()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &apiv2.MachineServiceUpdateRequest{
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
+								Uuid:        testresources.Machine2().Uuid,
+								Project:     testresources.Machine2().Allocation.Project,
+								Description: &testresources.Machine2().Allocation.Description,
+								Labels: &apiv2.UpdateLabels{
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: testresources.Machine2().Meta.Labels,
+									},
+								},
+								SshPublicKeys: []string{},
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&apiv2.MachineServiceUpdateResponse{
+									Machine: testresources.Machine2(),
+								})
+							},
+						},
+					},
+				},
+			),
+			WantTable: new(`
+            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
 
-// func Test_MachineCmd_Apply(t *testing.T) {
-// 	tests := []*e2e.Test[apiv2.MachineServiceUpdateResponse, *apiv2.Machine]{
-// 		{
-// 			Name:    "apply",
-// 			CmdArgs: append([]string{"machine", "apply"}, e2e.AppendFromFileCommonArgs()...),
-// 			NewRootCmd: e2erootcmd.NewRootCmd(t,
-// 				&e2erootcmd.TestConfig{
-// 					FsMocks: func(fs *afero.Afero) {
-// 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine1()), 0755))
-// 					},
-// 					ClientCalls: []client.ClientCall{
-// 						{
-// 							WantRequest: &apiv2.MachineServiceCreateRequest{
-// 								Ip:            &testresources.Machine1().Ip,
-// 								Project:       testresources.Machine1().Project,
-// 								Network:       testresources.Machine1().Network,
-// 								Name:          &testresources.Machine1().Name,
-// 								Descrmachinetion:   &testresources.Machine1().Descrmachinetion,
-// 								Labels:        testresources.Machine1().Meta.Labels,
-// 								Type:          &testresources.Machine1().Type,
-// 								AddressFamily: nil,
-// 							},
-// 							WantResponse: func() connect.AnyResponse {
-// 								return connect.NewResponse(&apiv2.MachineServiceCreateResponse{
-// 									Ip: testresources.Machine1(),
-// 								})
-// 							},
-// 						},
-// 					},
-// 				},
-// 			),
-// 			WantTable: new(`
-//             Machine       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
-//             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
-// 			`),
-// 		},
-// 		{
-// 			Name:    "apply already exists",
-// 			CmdArgs: append([]string{"machine", "apply"}, e2e.AppendFromFileCommonArgs()...),
-// 			NewRootCmd: e2erootcmd.NewRootCmd(t,
-// 				&e2erootcmd.TestConfig{
-// 					FsMocks: func(fs *afero.Afero) {
-// 						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine1()), 0755))
-// 					},
-// 					ClientCalls: []client.ClientCall{
-// 						{
-// 							WantRequest: &apiv2.MachineServiceCreateRequest{
-// 								Ip:            &testresources.Machine1().Ip,
-// 								Project:       testresources.Machine1().Project,
-// 								Network:       testresources.Machine1().Network,
-// 								Name:          &testresources.Machine1().Name,
-// 								Descrmachinetion:   &testresources.Machine1().Descrmachinetion,
-// 								Labels:        testresources.Machine1().Meta.Labels,
-// 								Type:          &testresources.Machine1().Type,
-// 								AddressFamily: nil,
-// 							},
-// 							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
-// 						},
-// 						{
-// 							WantRequest: &apiv2.MachineServiceUpdateRequest{
-// 								Ip:          testresources.Machine1().Ip,
-// 								Project:     testresources.Machine1().Project,
-// 								Descrmachinetion: &testresources.Machine1().Descrmachinetion,
-// 								Labels: &apiv2.UpdateLabels{
-// 									Strategy: &apiv2.UpdateLabels_Replace{
-// 										Replace: &apiv2.Labels{
-// 											Labels: testresources.Machine1().Meta.Labels.Labels,
-// 										},
-// 									}},
-// 								Name: &testresources.Machine1().Name,
-// 								Type: &testresources.Machine1().Type,
-// 								UpdateMeta: &apiv2.UpdateMeta{
-// 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
-// 								},
-// 							},
-// 							WantResponse: func() connect.AnyResponse {
-// 								return connect.NewResponse(&apiv2.MachineServiceUpdateResponse{
-// 									Ip: testresources.Machine1(),
-// 								})
-// 							},
-// 						},
-// 					},
-// 				},
-// 			),
-// 			WantTable: new(`
-//             Machine       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
-//             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
-// 			`),
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		tt.TestCmd(t)
-// 	}
-// }
+func Test_MachineCmd_Apply(t *testing.T) {
+	tests := []*e2e.Test[apiv2.MachineServiceUpdateResponse, *apiv2.Machine]{
+		{
+			Name:    "apply",
+			CmdArgs: append([]string{"machine", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine2()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &apiv2.MachineServiceCreateRequest{
+								Project:     testresources.Machine2().Allocation.Project,
+								Name:        testresources.Machine2().Allocation.Name,
+								Description: &testresources.Machine2().Allocation.Description,
+								Hostname:    &testresources.Machine2().Allocation.Hostname,
+								Partition:   &testresources.Machine2().Partition.Id,
+								Size:        &testresources.Machine2().Size.Id,
+								Image:       testresources.Machine2().Allocation.Image.Id,
+								Userdata:    nil,
+								Labels:      testresources.Machine2().Meta.Labels,
+								Networks: func() []*apiv2.MachineAllocationNetwork {
+									var nws []*apiv2.MachineAllocationNetwork
+
+									for _, nw := range testresources.Machine2().Allocation.Networks {
+										nws = append(nws, &apiv2.MachineAllocationNetwork{
+											Network: nw.Network,
+											Ips:     nw.Ips,
+										})
+									}
+
+									return nws
+								}(),
+								AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
+								FirewallSpec:   nil,
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&apiv2.MachineServiceCreateResponse{
+									Machine: testresources.Machine2(),
+								})
+							},
+						},
+					},
+				},
+			),
+			WantTable: new(`
+            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+			`),
+		},
+		{
+			Name:    "apply already exists",
+			CmdArgs: append([]string{"machine", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Machine2()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &apiv2.MachineServiceCreateRequest{
+								Project:     testresources.Machine2().Allocation.Project,
+								Name:        testresources.Machine2().Allocation.Name,
+								Description: &testresources.Machine2().Allocation.Description,
+								Hostname:    &testresources.Machine2().Allocation.Hostname,
+								Partition:   &testresources.Machine2().Partition.Id,
+								Size:        &testresources.Machine2().Size.Id,
+								Image:       testresources.Machine2().Allocation.Image.Id,
+								Userdata:    nil,
+								Labels:      testresources.Machine2().Meta.Labels,
+								Networks: func() []*apiv2.MachineAllocationNetwork {
+									var nws []*apiv2.MachineAllocationNetwork
+
+									for _, nw := range testresources.Machine2().Allocation.Networks {
+										nws = append(nws, &apiv2.MachineAllocationNetwork{
+											Network: nw.Network,
+											Ips:     nw.Ips,
+										})
+									}
+
+									return nws
+								}(),
+								AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
+								FirewallSpec:   nil,
+							},
+							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
+						},
+						{
+							WantRequest: &apiv2.MachineServiceUpdateRequest{
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
+								Uuid:        testresources.Machine2().Uuid,
+								Project:     testresources.Machine2().Allocation.Project,
+								Description: &testresources.Machine2().Allocation.Description,
+								Labels: &apiv2.UpdateLabels{
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: testresources.Machine2().Meta.Labels,
+									},
+								},
+								SshPublicKeys: []string{},
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&apiv2.MachineServiceUpdateResponse{
+									Machine: testresources.Machine2(),
+								})
+							},
+						},
+					},
+				},
+			),
+			WantTable: new(`
+            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            `),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}

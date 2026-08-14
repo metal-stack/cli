@@ -40,6 +40,7 @@ meta:
     createdAt: "2000-01-01T00:00:00Z"
 description: leaf switch 2
 rack: rack-1
+room: room-2
 partition: fra-equ01
 managementIp: 10.0.0.2
 managementUser: admin
@@ -289,6 +290,7 @@ switch:
         createdAt: "2000-01-01T00:00:00Z"
     description: leaf switch 2
     rack: rack-1
+    room: room-2
     partition: fra-equ01
     managementIp: 10.0.0.2
     managementUser: admin

@@ -59,6 +59,20 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.Completion.Image))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
 		},
+		UpdateCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
+			cmd.Flags().String("description", "", "description of the machine")
+			cmd.Flags().StringSlice("labels", nil, "labels to replace for the machine")
+			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the machine")
+			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the machine")
+			cmd.Flags().StringP("ssh-public-key", "i", "",
+				`SSH public key for access via ssh and console. [optional]
+Can be either the public key as string, or pointing to the public key file to use e.g.: "@~/.ssh/id_rsa.pub".
+If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picked as default, matching the first one in this order.`)
+
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+		},
+		UpdateRequestFromCLI: w.updateRequestFromCLI,
 		DescribeCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the machine")
 
@@ -95,10 +109,20 @@ func (c *machine) Delete(id string) (*apiv2.Machine, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Machine().Delete(ctx, &apiv2.MachineServiceDeleteRequest{
+	req := &apiv2.MachineServiceDeleteRequest{
 		Uuid:    id,
 		Project: c.c.GetProject(),
-	})
+	}
+
+	if viper.IsSet("file") {
+		var err error
+		req.Uuid, req.Project, err = helpers.DecodeProject(id)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	resp, err := c.c.Client.Apiv2().Machine().Delete(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -211,9 +235,9 @@ func (c *machine) MachineResponseToCreate(r *apiv2.Machine) (*apiv2.MachineServi
 		Partition:        new(pointer.SafeDeref(r.Partition).Id),
 		Size:             new(pointer.SafeDeref(r.Size).Id),
 		Image:            r.Allocation.Image.Id,
-		FilesystemLayout: &r.Allocation.FilesystemLayout.Id,
+		FilesystemLayout: pointer.PointerOrNil(r.Allocation.FilesystemLayout.Id),
 		SshPublicKeys:    r.Allocation.SshPublicKeys,
-		Userdata:         &r.Allocation.Userdata,
+		Userdata:         pointer.PointerOrNil(r.Allocation.Userdata),
 		Labels:           pointer.SafeDeref(r.Meta).Labels,
 		Networks:         networks,
 		DnsServers:       r.Allocation.DnsServers,
@@ -351,6 +375,39 @@ func (c *machine) createRequestFromCLI() (*apiv2.MachineServiceCreateRequest, er
 		PlacementTags:    viper.GetStringSlice("placement-tags"),
 		AllocationType:   allocationType,
 		FirewallSpec:     firewallSpec,
+	}, nil
+}
+
+func (c *machine) updateRequestFromCLI(args []string) (*apiv2.MachineServiceUpdateRequest, error) {
+	id, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return nil, err
+	}
+
+	updateLabels, err := helpers.UpdateLabelsFromCLI()
+	if err != nil {
+		return nil, err
+	}
+
+	sshPublicKeyArgument := viper.GetString("ssh-public-key")
+
+	if strings.HasPrefix(sshPublicKeyArgument, "@") {
+		var err error
+		sshPublicKeyArgument, err = readFromFile(c.c.Fs, sshPublicKeyArgument[1:])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &apiv2.MachineServiceUpdateRequest{
+		Uuid: id,
+		UpdateMeta: &apiv2.UpdateMeta{
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+		},
+		Project:       c.c.GetProject(),
+		Description:   pointer.PointerOrNil(viper.GetString("description")),
+		Labels:        updateLabels,
+		SshPublicKeys: []string{sshPublicKeyArgument},
 	}, nil
 }
 
