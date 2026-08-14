@@ -3,6 +3,7 @@ package v2
 import (
 	"context"
 	"fmt"
+	"net/netip"
 	"net/url"
 	"os"
 	"os/exec"
@@ -461,7 +462,21 @@ func (c *machine) firewallSSH(ctx context.Context, args []string) (err error) {
 		return fmt.Errorf("failed to get VPN auth key: %w", err)
 	}
 
-	v, err := metalvpn.Connect(ctx, machine.Uuid, authKeyResp.Address, authKeyResp.AuthKey)
+	var vpnopts = []metalvpn.ConnectOpt{}
+
+	if machine.Allocation.Vpn != nil {
+		for _, ip := range machine.Allocation.Vpn.Ips {
+			parsed, err := netip.ParseAddr(ip)
+			if err != nil {
+				return err
+			}
+			if parsed.Is4() {
+				vpnopts = append(vpnopts, metalvpn.ConnectOptWithFirewallVPNIPAddress(ip))
+			}
+		}
+	}
+
+	v, err := metalvpn.Connect(ctx, machine.Uuid, authKeyResp.Address, authKeyResp.AuthKey, vpnopts...)
 	if err != nil {
 		return err
 	}

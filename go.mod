@@ -10,7 +10,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/metal-stack/api v0.4.4
-	github.com/metal-stack/metal-lib v0.26.2
+	github.com/metal-stack/metal-lib v0.26.3-0.20260814130818-94b999d88c4f
 	github.com/metal-stack/v v1.0.3
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.2
