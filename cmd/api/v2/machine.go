@@ -126,10 +126,9 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 
 	var allocation *apiv2.MachineAllocationQuery
 
-	if viper.IsSet("hostname") || viper.IsSet("project") || viper.IsSet("image") {
+	if viper.IsSet("hostname") || viper.IsSet("image") {
 		allocation = &apiv2.MachineAllocationQuery{
 			Hostname: pointer.PointerOrNil(viper.GetString("hostname")),
-			Project:  pointer.PointerOrNil(viper.GetString("project")),
 			Image:    pointer.PointerOrNil(viper.GetString("image")),
 		}
 	}
@@ -182,24 +181,45 @@ func (c *machine) MachineResponseToCreate(r *apiv2.Machine) (*apiv2.MachineServi
 		return nil, fmt.Errorf("allocation is nil")
 	}
 
+	var (
+		networks     []*apiv2.MachineAllocationNetwork
+		firewallSpec *apiv2.FirewallSpec
+	)
+
+	for _, nw := range r.Allocation.Networks {
+		networks = append(networks, &apiv2.MachineAllocationNetwork{
+			Network: nw.Network,
+			Ips:     nw.Ips,
+		})
+	}
+
+	if r.Allocation.AllocationType.Enum() == apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL.Enum() {
+		firewallSpec = &apiv2.FirewallSpec{
+			FirewallRules: &apiv2.FirewallRules{
+				Egress:  r.Allocation.FirewallRules.Egress,
+				Ingress: r.Allocation.FirewallRules.Ingress,
+			},
+		}
+	}
+
 	return &apiv2.MachineServiceCreateRequest{
 		Project:          r.Allocation.Project,
 		Name:             r.Allocation.Name,
 		Description:      &r.Allocation.Description,
 		Hostname:         &r.Allocation.Hostname,
-		Partition:        &r.Partition.Id,
-		Size:             &r.Size.Id,
+		Partition:        new(pointer.SafeDeref(r.Partition).Id),
+		Size:             new(pointer.SafeDeref(r.Size).Id),
 		Image:            r.Allocation.Image.Id,
 		FilesystemLayout: &r.Allocation.FilesystemLayout.Id,
 		SshPublicKeys:    r.Allocation.SshPublicKeys,
 		Userdata:         &r.Allocation.Userdata,
 		Labels:           pointer.SafeDeref(r.Meta).Labels,
-		// Networks:         r.Allocation.Networks, TODO
+		Networks:         networks,
+		DnsServers:       r.Allocation.DnsServers,
+		NtpServers:       r.Allocation.NtpServers,
+		AllocationType:   r.Allocation.AllocationType,
+		FirewallSpec:     firewallSpec,
 		// PlacementTags:    r.Allocation.Plac, // TODO: should be stored in the allocation to see what was provided
-		DnsServers:     r.Allocation.DnsServers,
-		NtpServers:     r.Allocation.NtpServers,
-		AllocationType: r.Allocation.AllocationType,
-		// FirewallSpec:     r.Allocation.Fir, TODO
 	}, nil
 }
 
@@ -325,7 +345,7 @@ func (c *machine) createRequestFromCLI() (*apiv2.MachineServiceCreateRequest, er
 		description = new(viper.GetString("description"))
 	}
 
-	mcr := &apiv2.MachineServiceCreateRequest{
+	return &apiv2.MachineServiceCreateRequest{
 		Description:      description,
 		Partition:        partition,
 		Hostname:         hostname,
@@ -344,8 +364,7 @@ func (c *machine) createRequestFromCLI() (*apiv2.MachineServiceCreateRequest, er
 		PlacementTags:    viper.GetStringSlice("placement-tags"),
 		AllocationType:   allocationType,
 		FirewallSpec:     firewallSpec,
-	}
-	return mcr, nil
+	}, nil
 }
 
 var defaultSSHKeys = [...]string{"id_ed25519", "id_ecdsa", "id_rsa", "id_dsa"}

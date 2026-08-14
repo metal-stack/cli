@@ -58,6 +58,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Network:
 		return t.NetworkTable(d, wide)
 
+	case *apiv2.Machine:
+		return t.MachineTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Machine:
+		return t.MachineTable(d, wide)
+
 	case *apiv2.IP:
 		return t.IPTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.IP:

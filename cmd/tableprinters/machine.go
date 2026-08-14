@@ -1,7 +1,6 @@
 package tableprinters
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -21,7 +20,7 @@ func (t *TablePrinter) MachineTable(data []*apiv2.Machine, wide bool) ([]string,
 	)
 
 	if wide {
-		header = []string{"ID", "Last Event", "When", "Age", "Description", "Name", "Hostname", "Project", "IPs", "Size", "Image", "Partition", "Rack", "Started", "Tags", "Lock/Reserve"}
+		header = []string{"ID", "Last Event", "When", "Age", "Description", "Name", "Hostname", "Project", "Ips", "Size", "Image", "Partition", "Rack", "Started", "Tags", "State"}
 	}
 
 	for _, machine := range data {
@@ -79,7 +78,11 @@ func (t *TablePrinter) MachineTable(data []*apiv2.Machine, wide bool) ([]string,
 			if err != nil {
 				return nil, nil, err
 			}
-			reserved = fmt.Sprintf("%s:%s", *stateString, machine.Status.Condition.Description)
+
+			reserved = *stateString
+			if machine.Status.Condition.Description != "" {
+				reserved += ":" + machine.Status.Condition.Description
+			}
 		}
 
 		if len(machine.RecentProvisioningEvents.Events) > 0 {
