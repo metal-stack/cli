@@ -1,6 +1,7 @@
 package tableprinters
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -107,6 +108,114 @@ func (t *TablePrinter) MachineTable(data []*apiv2.Machine, wide bool) ([]string,
 	t.t.DisableAutoWrap(false)
 
 	return header, rows, nil
+}
+
+func (t *TablePrinter) MachineBMCTable(data map[string]*apiv2.MachineBMCReport, wide bool) ([]string, [][]string, error) {
+	var (
+		rows   [][]string
+		header = []string{"ID", "Power", "IP", "Mac", "Board Part Number", "Bios", "BMC", "Size", "Partition", "Rack", "Updated"}
+	)
+
+	if wide {
+		header = []string{"ID", "Power", "IP", "Mac", "Board Part Number", "Chassis Serial", "Product Serial", "Bios Version", "BMC Version", "Size", "Partition", "Rack", "Updated"}
+	}
+
+	for machineID, report := range data {
+		// partition := pointer.SafeDeref(machine.).ID
+		// size := pointer.SafeDeref(pointer.SafeDeref(machine.Size).ID)
+
+		if report.LedState != nil && report.LedState.Value == "LED-ON" {
+			blue := color.New(color.FgBlue).SprintFunc()
+			machineID = blue(machineID)
+		}
+
+		var (
+			// FIXME these are not provided by machineBMCReport
+			// FIXME Events are also not provided.
+			size      = ""
+			partition = ""
+			rack      = ""
+
+			ipAddress   = ""
+			mac         = ""
+			bpn         = ""
+			cs          = ""
+			ps          = ""
+			bmcVersion  = ""
+			bmc         = report.Bmc
+			fru         = report.Fru
+			lastUpdated = "never"
+			bios        = report.Bios
+			biosVersion = ""
+		)
+		if fru != nil {
+			bpn = pointer.SafeDeref(fru.BoardPartNumber)
+			cs = pointer.SafeDeref(fru.ChassisPartSerial)
+			ps = pointer.SafeDeref(fru.ProductSerial)
+		}
+
+		if bmc != nil {
+			ipAddress = bmc.Address
+			mac = bmc.Mac
+			bmcVersion = bmc.Version
+
+		}
+		power, powerText := extractPowerState(report)
+
+		if report.UpdatedAt != nil && !report.UpdatedAt.AsTime().IsZero() {
+			lastUpdated = fmt.Sprintf("%s ago", humanizeDuration(time.Since(report.UpdatedAt.AsTime())))
+		}
+
+		if bios != nil {
+			biosVersion = bios.Version
+		}
+
+		if wide {
+			rows = append(rows, []string{machineID, powerText, ipAddress, mac, bpn, cs, ps, biosVersion, bmcVersion, size, partition, rack, lastUpdated})
+		} else {
+			rows = append(rows, []string{machineID, power, ipAddress, mac, bpn, biosVersion, bmcVersion, size, partition, rack, lastUpdated})
+		}
+
+	}
+
+	t.t.DisableAutoWrap(false)
+
+	return header, rows, nil
+}
+
+func extractPowerState(bmc *apiv2.MachineBMCReport) (short, wide string) {
+	if bmc == nil || bmc.Bmc == nil {
+		return color.WhiteString(poweron), wide
+	}
+
+	state := bmc.Bmc.PowerState
+	switch state {
+	case "ON":
+		short = color.GreenString(poweron)
+	case "OFF":
+		short = color.GreenString(powersleep)
+	default:
+		short = color.WhiteString(poweron)
+	}
+
+	wide = state
+	for _, ps := range bmc.PowerSupplies {
+		if ps.Health != "OK" {
+			short = color.RedString(poweron)
+			wide = wide + nbr + "Power Supply" + nbr + ps.Health
+		}
+		if ps.State != "Enabled" {
+			short = color.RedString(powersleep)
+			wide = wide + nbr + ps.State
+		}
+	}
+
+	if bmc.PowerMetric != nil {
+		short = fmt.Sprintf("%s"+nbr+"%.0fW", short, bmc.PowerMetric.AverageConsumedWatts)
+		wide = fmt.Sprintf("%s %.0fW", wide, bmc.PowerMetric.AverageConsumedWatts)
+	}
+
+	return short, wide
 }
 
 func (t *TablePrinter) getMachineStatusEmojis(m *apiv2.Machine) string {

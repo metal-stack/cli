@@ -156,6 +156,42 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	genericcli.Must(bmcCommandCmd.RegisterFlagCompletionFunc("command", c.Completion.BMCCommands))
 	genericcli.Must(bmcCommandCmd.MarkFlagRequired("command"))
 
+	bmcCmd := &cobra.Command{
+		Use:     "bmc",
+		Aliases: []string{"ipmi"},
+		Short:   "get and list machine bmc/ipmi information",
+	}
+
+	bmcGetCmd := &cobra.Command{
+		Use:   "get",
+		Short: "get the bmc of a machine",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.bmcGet(args)
+		},
+		ValidArgsFunction: c.Completion.AdminMachine,
+	}
+
+	bmcListCmd := &cobra.Command{
+		Use:   "list",
+		Short: "list the bmc of machines",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.bmcList()
+		},
+	}
+	bmcListCmd.Flags().String("id", "", "id of machine which should be listed")
+	bmcListCmd.Flags().String("size", "", "size from machines which should be listed")
+	bmcListCmd.Flags().String("image", "", "image")
+	bmcListCmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
+	bmcListCmd.Flags().StringP("partition", "", "", "partition from where machines should be listed")
+
+	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("size", c.Completion.Size))
+	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("image", c.Completion.Image))
+	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
+	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("id", c.Completion.AdminMachine))
+
+	bmcCmd.AddCommand(bmcGetCmd, bmcListCmd)
+
 	lockCmd := &cobra.Command{
 		Use:   "lock",
 		Short: "lock or unlock a machine, e.g. machine cannot be used",
@@ -201,7 +237,7 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	firewallSSHCmd.Flags().StringP("identity", "i", "~/.ssh/id_rsa", "specify identity file to SSH to the firewall like: -i path/to/id_rsa")
 	firewallSSHCmd.Flags().String("reason", "", "the reason why to connect to the firewall through SSH")
 
-	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd, lockCmd, taintCmd, consoleCmd, firewallSSHCmd)
+	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd, bmcCmd, lockCmd, taintCmd, consoleCmd, firewallSSHCmd)
 }
 
 func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine, error) {
@@ -384,7 +420,41 @@ func (c *machine) bmcCommand(args []string) error {
 		return err
 	}
 
-	return err
+	return nil
+}
+
+func (c *machine) bmcGet(args []string) error {
+	id, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Adminv2().Machine().GetBMC(ctx, &adminv2.MachineServiceGetBMCRequest{
+		Uuid: id,
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.c.DescribePrinter.Print(resp)
+}
+
+func (c *machine) bmcList() error {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	// FIXME api contains the wrong query here, must be a MachineQuery instead of a MachineBMCQuery
+	req := &adminv2.MachineServiceListBMCRequest{}
+
+	resp, err := c.c.Client.Adminv2().Machine().ListBMC(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	return c.c.ListPrinter.Print(resp.BmcReports)
 }
 
 func (c *machine) console(ctx context.Context, args []string) error {
