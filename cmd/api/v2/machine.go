@@ -26,6 +26,7 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "machine",
+		Aliases:         []string{"ms"},
 		Plural:          "machines",
 		Description:     "allocate a machine",
 		Sorter:          sorters.MachineSorter(),
