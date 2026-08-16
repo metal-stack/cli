@@ -121,6 +121,9 @@ metalctl machine reserve 00000000-0000-0000-0000-0cc47ae54694 --remove
 Once created the machine installation can not be modified anymore.
 `
 		},
+		DeleteCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Short = "Delete a machine from the database. This can only be done if the machine is offline and dead."
+		},
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
 			cmd.Flags().String("description", "", "description of the machine")
