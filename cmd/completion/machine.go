@@ -8,7 +8,6 @@ import (
 
 func (c *Completion) Machine(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	resp, err := c.Client.Apiv2().Machine().List(cmd.Context(), &apiv2.MachineServiceListRequest{
-		// FIXME this only works for end users, not admin because they have no project set
 		Project: c.Proj,
 	})
 	if err != nil {
