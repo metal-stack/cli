@@ -29,10 +29,12 @@ manage machines
 
 * [metalctlv2 admin](metalctlv2_admin.md)	 - admin commands
 * [metalctlv2 admin machine apply](metalctlv2_admin_machine_apply.md)	 - applies one or more machines from a given file
+* [metalctlv2 admin machine bmc](metalctlv2_admin_machine_bmc.md)	 - get and list machine bmc/ipmi information
 * [metalctlv2 admin machine bmc-command](metalctlv2_admin_machine_bmc-command.md)	 - send a command to the bmc of a machine
 * [metalctlv2 admin machine console](metalctlv2_admin_machine_console.md)	 - establishes a connection to the serial console of a machine. for authentication at the metal-console it uses the token such that no machine ssh key is required for access (unlike the corresponding user API command).
+* [metalctlv2 admin machine consolepassword](metalctlv2_admin_machine_consolepassword.md)	 - fetch the consolepassword of a machine
 * [metalctlv2 admin machine create](metalctlv2_admin_machine_create.md)	 - creates the machine
-* [metalctlv2 admin machine delete](metalctlv2_admin_machine_delete.md)	 - deletes the machine
+* [metalctlv2 admin machine delete](metalctlv2_admin_machine_delete.md)	 - Delete a machine from the database. This can only be done if the machine is offline and dead.
 * [metalctlv2 admin machine describe](metalctlv2_admin_machine_describe.md)	 - describes the machine
 * [metalctlv2 admin machine edit](metalctlv2_admin_machine_edit.md)	 - edit the machine through an editor and update
 * [metalctlv2 admin machine list](metalctlv2_admin_machine_list.md)	 - list all machines

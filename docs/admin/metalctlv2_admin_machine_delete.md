@@ -1,6 +1,6 @@
 ## metalctlv2 admin machine delete
 
-deletes the machine
+Delete a machine from the database. This can only be done if the machine is offline and dead.
 
 ```
 metalctlv2 admin machine delete <id> [flags]
