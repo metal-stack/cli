@@ -225,6 +225,16 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)")
 	consoleCmd.Flags().Int("metal-console-port", 5222, "port open on our control-plane to connect via ssh to get machine console access")
 
+	consolePasswordCmd := &cobra.Command{
+		Use:   "consolepassword",
+		Short: "fetch the consolepassword of a machine",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.consolePassword(cmd.Context(), args)
+		},
+		ValidArgsFunction: c.Completion.AdminMachine,
+	}
+	consolePasswordCmd.Flags().String("reason", "", "a short description why access to the consolepassword is required")
+
 	firewallSSHCmd := &cobra.Command{
 		Use:   "ssh <firewall ID>",
 		Short: "SSH to a firewall",
@@ -237,7 +247,7 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	firewallSSHCmd.Flags().StringP("identity", "i", "~/.ssh/id_rsa", "specify identity file to SSH to the firewall like: -i path/to/id_rsa")
 	firewallSSHCmd.Flags().String("reason", "", "the reason why to connect to the firewall through SSH")
 
-	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd, bmcCmd, lockCmd, taintCmd, consoleCmd, firewallSSHCmd)
+	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd, bmcCmd, lockCmd, taintCmd, consoleCmd, consolePasswordCmd, firewallSSHCmd)
 }
 
 func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine, error) {
@@ -455,6 +465,27 @@ func (c *machine) bmcList() error {
 	}
 
 	return c.c.ListPrinter.Print(resp.BmcReports)
+}
+
+func (c *machine) consolePassword(ctx context.Context, args []string) error {
+	id, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	req := &adminv2.MachineServiceConsolePasswordRequest{
+		Uuid:   id,
+		Reason: viper.GetString("reason"),
+	}
+
+	resp, err := c.c.Client.Adminv2().Machine().ConsolePassword(ctx, req)
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintln(c.c.Out, resp.Password)
+	return err
 }
 
 func (c *machine) console(ctx context.Context, args []string) error {
