@@ -313,60 +313,6 @@ func (t *TablePrinter) SwitchDetailTable(switches []SwitchDetail) ([]string, [][
 	return header, rows, nil
 }
 
-func (t *TablePrinter) getMachineStatusEmojis(m *apiv2.Machine) string {
-	if m == nil {
-		return ""
-	}
-
-	var (
-		emojis []string
-	)
-
-	if status := m.Status; status != nil {
-		switch status.Liveliness {
-		case apiv2.MachineLiveliness_MACHINE_LIVELINESS_ALIVE:
-			// noop
-		case apiv2.MachineLiveliness_MACHINE_LIVELINESS_DEAD:
-			emojis = append(emojis, skull)
-		default:
-			emojis = append(emojis, question)
-		}
-
-		if status.Condition != nil {
-			switch status.Condition.State {
-			case apiv2.MachineState_MACHINE_STATE_LOCKED:
-				emojis = append(emojis, lock)
-			case apiv2.MachineState_MACHINE_STATE_TAINTED:
-				emojis = append(emojis, bark)
-			default:
-				// noop
-			}
-		}
-	}
-
-	if events := m.RecentProvisioningEvents; events != nil {
-		switch events.State {
-		case apiv2.MachineProvisioningEventState_MACHINE_PROVISIONING_EVENT_STATE_FAILED_RECLAIM:
-			emojis = append(emojis, ambulance)
-		case apiv2.MachineProvisioningEventState_MACHINE_PROVISIONING_EVENT_STATE_CRASHLOOP:
-			emojis = append(emojis, loop)
-		default:
-			// noop
-
-		}
-
-		if time.Since(events.LastErrorEvent.Time.AsTime()) < t.lastEventErrorThreshold {
-			emojis = append(emojis, exclamation)
-		}
-	}
-
-	if m.Allocation != nil && m.Allocation.Vpn != nil && m.Allocation.Vpn.Connected {
-		emojis = append(emojis, vpn)
-	}
-
-	return strings.Join(emojis, nbr)
-}
-
 func filterColumns(filter *apiv2.BGPFilter, i int) []string {
 	var (
 		vni  string

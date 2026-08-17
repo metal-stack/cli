@@ -26,7 +26,7 @@ const (
 )
 
 type Config struct {
-	Fs              afero.Fs
+	Fs              *afero.Afero
 	In              io.Reader
 	Out             io.Writer
 	PromptOut       io.Writer

@@ -1,36 +1,37 @@
-## metalctlv2 ip update
+## metalctlv2 machine update
 
-updates the ip
+updates the machine
 
 ```
-metalctlv2 ip update <id> [flags]
+metalctlv2 machine update <id> [flags]
 ```
 
 ### Options
 
 ```
-      --add-labels strings      labels to add to the ip
+      --add-labels strings      labels to add to the machine
       --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
-      --description string      description of the ip
+      --description string      description of the machine
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 ip describe ip-1 -o yaml > ip.yaml
-                                $ vi ip.yaml
+                                $ metalctlv2 machine describe machine-1 -o yaml > machine.yaml
+                                $ vi machine.yaml
                                 $ # either via stdin
-                                $ cat ip.yaml | metalctlv2 ip update <id> -f -
+                                $ cat machine.yaml | metalctlv2 machine update <id> -f -
                                 $ # or via file
-                                $ metalctlv2 ip update <id> -f ip.yaml
+                                $ metalctlv2 machine update <id> -f machine.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
   -h, --help                    help for update
-      --labels strings          labels to replace for the ip
-      --name string             name of the ip
-  -p, --project string          project of the ip
-      --remove-labels strings   labels to remove to the ip
+      --labels strings          labels to replace for the machine
+  -p, --project string          project from where machines should be listed
+      --remove-labels strings   labels to remove to the machine
       --skip-security-prompts   skips security prompt for bulk operations
-      --static                  make this ip static
+  -i, --ssh-public-key string   SSH public key for access via ssh and console. [optional]
+                                Can be either the public key as string, or pointing to the public key file to use e.g.: "@~/.ssh/id_rsa.pub".
+                                If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picked as default, matching the first one in this order.
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
 
@@ -49,5 +50,5 @@ metalctlv2 ip update <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
+* [metalctlv2 machine](metalctlv2_machine.md)	 - manage machine entities
 

@@ -18,15 +18,8 @@ const (
 	nbr             = " "
 	halfpie         = "◒"
 	threequarterpie = "◕"
-
-	ambulance   = "🚑"
-	exclamation = "❗"
-	bark        = "🚧"
-	loop        = "⭕"
-	lock        = "🔒"
-	question    = "❓"
-	skull       = "💀"
-	vpn         = "🛡"
+	poweron         = "⏻"
+	powersleep      = "⏾"
 )
 
 type TablePrinter struct {
@@ -66,6 +59,14 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.NetworkTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Network:
 		return t.NetworkTable(d, wide)
+
+	case *apiv2.Machine:
+		return t.MachineTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Machine:
+		return t.MachineTable(d, wide)
+
+	case map[string]*apiv2.MachineBMCReport:
+		return t.MachineBMCTable(d, wide)
 
 	case *apiv2.IP:
 		return t.IPTable(pointer.WrapInSlice(d), wide)

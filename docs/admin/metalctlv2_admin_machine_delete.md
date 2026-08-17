@@ -1,36 +1,29 @@
-## metalctlv2 ip update
+## metalctlv2 admin machine delete
 
-updates the ip
+Delete a machine from the database. This can only be done if the machine is offline and dead.
 
 ```
-metalctlv2 ip update <id> [flags]
+metalctlv2 admin machine delete <id> [flags]
 ```
 
 ### Options
 
 ```
-      --add-labels strings      labels to add to the ip
       --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
-      --description string      description of the ip
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 ip describe ip-1 -o yaml > ip.yaml
-                                $ vi ip.yaml
+                                $ metalctlv2 machine describe machine-1 -o yaml > machine.yaml
+                                $ vi machine.yaml
                                 $ # either via stdin
-                                $ cat ip.yaml | metalctlv2 ip update <id> -f -
+                                $ cat machine.yaml | metalctlv2 machine delete <id> -f -
                                 $ # or via file
-                                $ metalctlv2 ip update <id> -f ip.yaml
+                                $ metalctlv2 machine delete <id> -f machine.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for update
-      --labels strings          labels to replace for the ip
-      --name string             name of the ip
-  -p, --project string          project of the ip
-      --remove-labels strings   labels to remove to the ip
+  -h, --help                    help for delete
       --skip-security-prompts   skips security prompt for bulk operations
-      --static                  make this ip static
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
 
@@ -49,5 +42,5 @@ metalctlv2 ip update <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
+* [metalctlv2 admin machine](metalctlv2_admin_machine.md)	 - manage machine entities
 
