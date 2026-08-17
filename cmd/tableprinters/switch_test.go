@@ -168,7 +168,7 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 			name:       "switches empty",
 			switches:   []*apiv2.Switch{},
 			wide:       false,
-			wantHeader: []string{"ID", "Partition", "Rack", "OS", "Status", "Last Sync"},
+			wantHeader: []string{"ID", "Partition", "Rack", "OS", "Metalcore", "Status", "Last Sync"},
 			wantRows:   nil,
 		},
 		{
@@ -266,15 +266,15 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 				},
 			},
 			wide:       false,
-			wantHeader: []string{"ID", "Partition", "Rack", "OS", "Status", "Last Sync"},
+			wantHeader: []string{"ID", "Partition", "Rack", "OS", "Metalcore", "Status", "Last Sync"},
 			wantRows: [][]string{
 				// FIXME: color of the dots is ignored; how to test for correct colors?
-				{"r01leaf01", "partition-a", "rack01", "🦔", color.GreenString(dot), "0s ago"},                                                      // status green but error because one port is not in its desired state
-				{"r01leaf02", "partition-a", "rack01", "🐢", nbr + color.RedString(dot), "0s ago"},                                                  // status red because in replace mode
-				{"r02leaf01", "partition-a", "rack02", apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_UNSPECIFIED.String(), color.RedString(dot), "1h ago"}, // status red because last error came later than last sync
-				{"r02leaf02", "partition-a", "rack02", "", color.RedString(dot), "10m ago"},                                                        // status red because last sync is too long ago
-				{"r03leaf01", "partition-a", "rack03", "", color.YellowString(dot), "0s ago"},                                                      // status yellow because last sync duration was too long
-				{"r03leaf02", "partition-a", "rack03", "", color.YellowString(dot), ""},                                                            // status yellow because not all connceted ports are up
+				{"r01leaf01", "partition-a", "rack01", "🦔", "",color.GreenString(dot), "0s ago"},                                                      // status green but error because one port is not in its desired state
+				{"r01leaf02", "partition-a", "rack01", "🐢","", nbr + color.RedString(dot), "0s ago"},                                                  // status red because in replace mode
+				{"r02leaf01", "partition-a", "rack02", apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_UNSPECIFIED.String(), "",color.RedString(dot), "1h ago"}, // status red because last error came later than last sync
+				{"r02leaf02", "partition-a", "rack02", "", "",color.RedString(dot), "10m ago"},                                                        // status red because last sync is too long ago
+				{"r03leaf01", "partition-a", "rack03", "", "",color.YellowString(dot), "0s ago"},                                                      // status yellow because last sync duration was too long
+				{"r03leaf02", "partition-a", "rack03", "", "",color.YellowString(dot), ""},                                                            // status yellow because not all connceted ports are up
 			},
 		},
 		{
