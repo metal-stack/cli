@@ -69,11 +69,5 @@ func (c *Completion) Firewall(cmd *cobra.Command, args []string, toComplete stri
 }
 
 func (c *Completion) BMCCommands(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	var names []string
-
-	for _, name := range apiv2.MachineBMCCommand_name {
-		names = append(names, name)
-	}
-
-	return names, cobra.ShellCompDirectiveNoFileComp
+	return c.genericEnums(apiv2.MachineBMCCommand_name)
 }

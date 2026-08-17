@@ -84,9 +84,9 @@ func Test_AdminSwitchCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID      PARTITION  RACK    OS  STATUS  LAST SYNC
-            leaf01  fra-equ01  rack-1  🦔  ●
-            leaf02  fra-equ01  rack-1  🦔  ●
+            ID      PARTITION  RACK    OS  METALCORE         STATUS  LAST SYNC  
+            leaf01  fra-equ01  rack-1  🦔  v0.9.1 (abc1234)  ●                  
+            leaf02  fra-equ01  rack-1  🦔  v0.9.1 (abc1234)  ●
             `),
 			WantWideTable: new(`
             ID      PARTITION  RACK    OS             METALCORE         IP        MODE         LAST SYNC  SYNC DURATION  LAST ERROR
@@ -99,10 +99,10 @@ leaf01 fra-equ01
 leaf02 fra-equ01
             `),
 			WantMarkdown: new(`
-            | ID     | PARTITION | RACK   | OS | STATUS | LAST SYNC |
-            |--------|-----------|--------|----|--------|-----------|
-            | leaf01 | fra-equ01 | rack-1 | 🦔 | ●      |           |
-            | leaf02 | fra-equ01 | rack-1 | 🦔 | ●      |           |
+            | ID     | PARTITION | RACK   | OS | METALCORE        | STATUS | LAST SYNC |
+            |--------|-----------|--------|----|------------------|--------|-----------|
+            | leaf01 | fra-equ01 | rack-1 | 🦔 | v0.9.1 (abc1234) | ●      |           |
+            | leaf02 | fra-equ01 | rack-1 | 🦔 | v0.9.1 (abc1234) | ●      |           |
             `),
 		},
 	}
@@ -167,8 +167,8 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-            ID      PARTITION  RACK    OS  STATUS  LAST SYNC
-            leaf02  fra-equ01  rack-1  🦔  ●
+            ID      PARTITION  RACK    OS  METALCORE         STATUS  LAST SYNC  
+            leaf02  fra-equ01  rack-1  🦔  v0.9.1 (abc1234)  ●
                     `),
 			WantWideTable: new(`
             ID      PARTITION  RACK    OS             METALCORE         IP        MODE         LAST SYNC  SYNC DURATION  LAST ERROR
@@ -177,9 +177,9 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 			Template:     new("{{ .id }} {{ .os.metal_core_version }}"),
 			WantTemplate: new(`leaf02 v0.9.1 (abc1234), tags/v0.9.1`),
 			WantMarkdown: new(`
-            | ID     | PARTITION | RACK   | OS | STATUS | LAST SYNC |
-            |--------|-----------|--------|----|--------|-----------|
-            | leaf02 | fra-equ01 | rack-1 | 🦔 | ●      |           |
+            | ID     | PARTITION | RACK   | OS | METALCORE        | STATUS | LAST SYNC |
+            |--------|-----------|--------|----|------------------|--------|-----------|
+            | leaf02 | fra-equ01 | rack-1 | 🦔 | v0.9.1 (abc1234) | ●      |           |
                     `),
 		},
 	}
