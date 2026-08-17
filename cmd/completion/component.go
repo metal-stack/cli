@@ -1,0 +1,16 @@
+package completion
+
+import (
+	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	"github.com/spf13/cobra"
+)
+
+func (c *Completion) ComponentTypes(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	var names []string
+
+	for _, name := range apiv2.ComponentType_name {
+		names = append(names, name)
+	}
+
+	return names, cobra.ShellCompDirectiveNoFileComp
+}
