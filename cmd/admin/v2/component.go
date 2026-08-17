@@ -121,7 +121,10 @@ func (c *component) prune(ctx context.Context) error {
 		return err
 	}
 
-	maxAge := viper.GetDuration("max-age")
+	var (
+		maxAge           = viper.GetDuration("max-age")
+		prunedComponents []*apiv2.Component
+	)
 
 	for _, ct := range components {
 		if time.Since(ct.ReportedAt.AsTime()) < maxAge {
@@ -137,13 +140,10 @@ func (c *component) prune(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("failed to prune components: %w", err)
 		}
-		_, err = fmt.Fprintf(c.c.Out, "deleted component %s:%s\n", resp.Component.Uuid, resp.Component.Identifier)
-		if err != nil {
-			return err
-		}
+		prunedComponents = append(prunedComponents, resp.Component)
 	}
 
-	return nil
+	return c.c.ListPrinter.Print(prunedComponents)
 }
 
 func (c *component) Convert(r *apiv2.Component) (string, any, any, error) {
