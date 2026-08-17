@@ -166,7 +166,7 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 		Use:   "get",
 		Short: "get the bmc of a machine",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.bmcGet(args)
+			return w.bmcGet(cmd.Context(), args)
 		},
 		ValidArgsFunction: c.Completion.AdminMachine,
 	}
@@ -175,7 +175,7 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 		Use:   "list",
 		Short: "list the bmc of machines",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.bmcList()
+			return w.bmcList(cmd.Context())
 		},
 	}
 	bmcListCmd.Flags().String("id", "", "id of machine which should be listed")
@@ -433,15 +433,11 @@ func (c *machine) bmcCommand(args []string) error {
 	return nil
 }
 
-func (c *machine) bmcGet(args []string) error {
+func (c *machine) bmcGet(ctx context.Context, args []string) error {
 	id, err := genericcli.GetExactlyOneArg(args)
 	if err != nil {
 		return err
 	}
-
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
 	resp, err := c.c.Client.Adminv2().Machine().GetBMC(ctx, &adminv2.MachineServiceGetBMCRequest{
 		Uuid: id,
 	})
@@ -452,10 +448,7 @@ func (c *machine) bmcGet(args []string) error {
 	return c.c.DescribePrinter.Print(resp)
 }
 
-func (c *machine) bmcList() error {
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
+func (c *machine) bmcList(ctx context.Context) error {
 	// FIXME api contains the wrong query here, must be a MachineQuery instead of a MachineBMCQuery
 	req := &adminv2.MachineServiceListBMCRequest{}
 
@@ -472,9 +465,6 @@ func (c *machine) consolePassword(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
 	req := &adminv2.MachineServiceConsolePasswordRequest{
 		Uuid:   id,
 		Reason: viper.GetString("reason"),
