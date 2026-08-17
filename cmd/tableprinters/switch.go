@@ -21,7 +21,7 @@ func (t *TablePrinter) SwitchTable(switches []*apiv2.Switch, wide bool) ([]strin
 		rows [][]string
 	)
 
-	header := []string{"ID", "Partition", "Rack", "OS", "Status", "Last Sync"}
+	header := []string{"ID", "Partition", "Rack", "OS", "Metalcore", "Status", "Last Sync"}
 	if wide {
 		header = []string{"ID", "Partition", "Rack", "OS", "Metalcore", "IP", "Mode", "Last Sync", "Sync Duration", "Last Error"}
 		t.t.DisableAutoWrap(true)
@@ -171,7 +171,7 @@ func (t *TablePrinter) SwitchTable(switches []*apiv2.Switch, wide bool) ([]strin
 		if wide {
 			rows = append(rows, []string{id, partition, rack, os, metalCore, s.ManagementIp, mode, syncLast, syncDurStr, lastError})
 		} else {
-			rows = append(rows, []string{id, partition, rack, osIcon, shortStatus, syncLast})
+			rows = append(rows, []string{id, partition, rack, osIcon, metalCore, shortStatus, syncLast})
 		}
 	}
 
