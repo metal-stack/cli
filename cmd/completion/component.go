@@ -6,11 +6,5 @@ import (
 )
 
 func (c *Completion) ComponentTypes(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	var names []string
-
-	for _, name := range apiv2.ComponentType_name {
-		names = append(names, name)
-	}
-
-	return names, cobra.ShellCompDirectiveNoFileComp
+	return c.genericEnums(apiv2.ComponentType_name)
 }

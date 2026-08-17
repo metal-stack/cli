@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Completion) AuditPhase(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return []string{apiv2.AuditPhase_AUDIT_PHASE_REQUEST.String(), apiv2.AuditPhase_AUDIT_PHASE_RESPONSE.String()}, cobra.ShellCompDirectiveNoFileComp
+	return c.genericEnums(apiv2.AuditPhase_name)
 }
 
 func (c *Completion) AuditStatusCodes(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
