@@ -53,8 +53,9 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
 			cmd.Flags().String("name", "", "name of the ip")
 			cmd.Flags().String("description", "", "description of the ip")
-			cmd.Flags().StringArray("labels", nil, "adds (or edits) the volume labels in the form of <key>=<value>")
-			cmd.Flags().StringArray("remove-labels", nil, "removes the volume labels with the given key")
+			cmd.Flags().StringSlice("labels", nil, "labels to replace for the ip")
+			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the ip")
+			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the ip")
 			cmd.Flags().Bool("static", false, "make this ip static")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
@@ -100,12 +101,18 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		return nil, err
 	}
 
+	updateLabels, err := helpers.UpdateLabelsFromCLI()
+	if err != nil {
+		return nil, err
+	}
+
 	req := &apiv2.IPServiceUpdateRequest{
 		Ip:      uuid,
 		Project: c.c.GetProject(),
 		UpdateMeta: &apiv2.UpdateMeta{
 			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 		},
+		Labels: updateLabels,
 	}
 
 	if viper.IsSet("name") {
@@ -116,27 +123,6 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 	}
 	if viper.IsSet("static") {
 		req.Type = pointer.PointerOrNil(ipStaticToType(viper.GetBool("static")))
-	}
-	if viper.IsSet("remove-labels") || viper.IsSet("labels") {
-		updates := &apiv2.LabelsPatch{}
-
-		if viper.IsSet("remove-labels") {
-			updates.Remove = viper.GetStringSlice("remove-labels")
-		}
-
-		if viper.IsSet("labels") {
-			labels, err := genericcli.LabelsToMap(viper.GetStringSlice("labels"))
-			if err != nil {
-				return nil, err
-			}
-			updates.Update = &apiv2.Labels{Labels: labels}
-		}
-
-		req.Labels = &apiv2.UpdateLabels{
-			Strategy: &apiv2.UpdateLabels_Patch{
-				Patch: updates,
-			},
-		}
 	}
 
 	return req, nil

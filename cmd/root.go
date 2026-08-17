@@ -21,7 +21,9 @@ import (
 
 func Execute() {
 	cfg := &config.Config{
-		Fs:         afero.NewOsFs(),
+		Fs: &afero.Afero{
+			Fs: afero.NewOsFs(),
+		},
 		Out:        os.Stdout,
 		PromptOut:  os.Stdout,
 		In:         os.Stdin,

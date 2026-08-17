@@ -15,11 +15,12 @@ var (
 			Id:             "leaf01",
 			Partition:      "fra-equ01",
 			Rack:           new("rack-1"),
+			Room:           new("room-1"),
 			Description:    "leaf switch 1",
 			ManagementIp:   "10.0.0.1",
 			ManagementUser: new("admin"),
 			MachineConnections: []*apiv2.MachineConnection{
-				&apiv2.MachineConnection{
+				{
 					MachineId: "id1",
 					Nic:       Nic1(),
 				},
@@ -44,6 +45,7 @@ var (
 			Id:             "leaf02",
 			Partition:      "fra-equ01",
 			Rack:           new("rack-1"),
+			Room:           new("room-2"),
 			Description:    "leaf switch 2",
 			ManagementIp:   "10.0.0.2",
 			ManagementUser: new("admin"),

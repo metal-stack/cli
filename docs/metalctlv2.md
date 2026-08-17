@@ -27,6 +27,7 @@ cli for managing entities in metal-stack
 * [metalctlv2 ip](metalctlv2_ip.md)	 - manage ip entities
 * [metalctlv2 login](metalctlv2_login.md)	 - login
 * [metalctlv2 logout](metalctlv2_logout.md)	 - logout
+* [metalctlv2 machine](metalctlv2_machine.md)	 - manage machine entities
 * [metalctlv2 markdown](metalctlv2_markdown.md)	 - create markdown documentation
 * [metalctlv2 mcp](metalctlv2_mcp.md)	 - start mcp server
 * [metalctlv2 network](metalctlv2_network.md)	 - manage network entities
