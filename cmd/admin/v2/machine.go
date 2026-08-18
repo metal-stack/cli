@@ -279,8 +279,13 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	query, err := helpers.MachineQuery(true)
+	if err != nil {
+		return nil, err
+	}
+
 	resp, err := c.c.Client.Adminv2().Machine().List(ctx, &adminv2.MachineServiceListRequest{
-		Query: helpers.MachineQuery(true),
+		Query: query,
 	})
 	if err != nil {
 		return nil, err
@@ -394,8 +399,13 @@ func (c *machine) bmcList(ctx context.Context) error {
 		return err
 	}
 
+	query, err := helpers.MachineQuery(true)
+	if err != nil {
+		return err
+	}
+
 	resp, err := c.c.Client.Adminv2().Machine().ListBMC(ctx, &adminv2.MachineServiceListBMCRequest{
-		Query: helpers.MachineQuery(true),
+		Query: query,
 	})
 	if err != nil {
 		return err

@@ -135,9 +135,14 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	query, err := helpers.MachineQuery(false)
+	if err != nil {
+		return nil, err
+	}
+
 	resp, err := c.c.Client.Apiv2().Machine().List(ctx, &apiv2.MachineServiceListRequest{
 		Project: c.c.GetProject(),
-		Query:   helpers.MachineQuery(false),
+		Query:   query,
 	})
 	if err != nil {
 		return nil, err
