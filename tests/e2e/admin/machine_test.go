@@ -550,7 +550,7 @@ func Test_MachineCmd_Apply(t *testing.T) {
 }
 
 func Test_MachineCmd_BmcList(t *testing.T) {
-	tests := []*e2e.Test[apiv2.MachineServiceListResponse, apiv2.Machine]{
+	tests := []*e2e.Test[adminv2.MachineServiceListBMCResponse, apiv2.MachineBMCDetails]{
 		{
 			Name: "list",
 			CmdArgs: []string{"admin", "machine", "bmc", "list",
@@ -593,25 +593,94 @@ func Test_MachineCmd_BmcList(t *testing.T) {
 			}),
 			WantTable: new(`
             ID                                        POWER   IP            MAC                BOARD PART NUMBER  BIOS   BMC    SIZE           PARTITION    RACK    UPDATED
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd     ⏾ 0W    10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         2.0.0  2.4.0  v1-medium-x86  partition-2  rack-1  2m ago
             5fa2bbe1-407c-4142-92d5-e4419daf9646   🟒  ⏾ 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         1.5.6  3.1.1  v1-medium-x86  partition-1  rack-1  1m ago
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd     ⏾ 0W    10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         2.0.0  2.4.0  v1-medium-x86  partition-2  rack-1  2m ago
             `),
 			WantWideTable: new(`
             ID                                     LED      POWER                               IP            MAC                BOARD PART NUMBER  CHASSIS SERIAL  PRODUCT SERIAL  BIOS VERSION  BMC VERSION  SIZE           PARTITION    RACK    UPDATED
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  LED-OFF  off Power Supply Warning Absent 0W  10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         Chassis-SN-2    Product-SN-2    2.0.0         2.4.0        v1-medium-x86  partition-2  rack-1  2m ago
             5fa2bbe1-407c-4142-92d5-e4419daf9646   LED-ON   on On On 120W                       10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         Chassis-SN-1    Product-SN-1    1.5.6         3.1.1        v1-medium-x86  partition-1  rack-1  1m ago
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  LED-OFF  off Power Supply Warning Absent 0W  10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         Chassis-SN-2    Product-SN-2    2.0.0         2.4.0        v1-medium-x86  partition-2  rack-1  2m ago
 			`),
 			Template: new("{{ .uuid }} {{ .bmc_report.bmc.address }}"),
 			WantTemplate: new(`
-673fc473-63ca-4ea4-b9dd-b45cb2127a6fd 10.0.0.2:623
 5fa2bbe1-407c-4142-92d5-e4419daf9646 10.0.0.1:623
+673fc473-63ca-4ea4-b9dd-b45cb2127a6fd 10.0.0.2:623
 			`),
 			WantMarkdown: new(`
             | ID                                    |   | POWER  | IP           | MAC               | BOARD PART NUMBER | BIOS  | BMC   | SIZE          | PARTITION   | RACK   | UPDATED |
             |---------------------------------------|---|--------|--------------|-------------------|-------------------|-------|-------|---------------|-------------|--------|---------|
-            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6fd |   | ⏾ 0W   | 10.0.0.2:623 | 02:00:00:00:00:02 | Board-PN-2        | 2.0.0 | 2.4.0 | v1-medium-x86 | partition-2 | rack-1 | 2m ago  |
             | 5fa2bbe1-407c-4142-92d5-e4419daf9646  | 🟒 | ⏾ 120W | 10.0.0.1:623 | 02:00:00:00:00:01 | Board-PN-1        | 1.5.6 | 3.1.1 | v1-medium-x86 | partition-1 | rack-1 | 1m ago  |
+            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6fd |   | ⏾ 0W   | 10.0.0.2:623 | 02:00:00:00:00:02 | Board-PN-2        | 2.0.0 | 2.4.0 | v1-medium-x86 | partition-2 | rack-1 | 2m ago  |
             `),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_MachineCmd_BmcDescribe(t *testing.T) {
+	tests := []*e2e.Test[adminv2.MachineServiceListBMCResponse, apiv2.MachineBMCDetails]{
+		{
+			Name:    "describe",
+			CmdArgs: []string{"admin", "machine", "bmc", "describe", testresources.Machine1().Uuid},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.MachineServiceGetBMCRequest{
+							Uuid: testresources.Machine1().Uuid,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.MachineServiceGetBMCResponse{
+								BmcDetails: testresources.Machine1BmcDetails,
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                       POWER   IP            MAC                BOARD PART NUMBER  BIOS   BMC    SIZE           PARTITION    RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646  🟒  ⏾ 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         1.5.6  3.1.1  v1-medium-x86  partition-1  rack-1  1m ago
+            `),
+			WantWideTable: new(`
+            ID                                    LED     POWER          IP            MAC                BOARD PART NUMBER  CHASSIS SERIAL  PRODUCT SERIAL  BIOS VERSION  BMC VERSION  SIZE           PARTITION    RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646  LED-ON  on On On 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         Chassis-SN-1    Product-SN-1    1.5.6         3.1.1        v1-medium-x86  partition-1  rack-1  1m ago
+			`),
+			Template: new("{{ .uuid }} {{ .bmc_report.bmc.address }}"),
+			WantTemplate: new(`
+            5fa2bbe1-407c-4142-92d5-e4419daf9646 10.0.0.1:623
+			`),
+			WantMarkdown: new(`
+            | ID                                   |   | POWER  | IP           | MAC               | BOARD PART NUMBER | BIOS  | BMC   | SIZE          | PARTITION   | RACK   | UPDATED |
+            |--------------------------------------|---|--------|--------------|-------------------|-------------------|-------|-------|---------------|-------------|--------|---------|
+            | 5fa2bbe1-407c-4142-92d5-e4419daf9646 | 🟒 | ⏾ 120W | 10.0.0.1:623 | 02:00:00:00:00:01 | Board-PN-1        | 1.5.6 | 3.1.1 | v1-medium-x86 | partition-1 | rack-1 | 1m ago  |
+            `),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_MachineCmd_BmcCommand(t *testing.T) {
+	tests := []*e2e.Test[adminv2.MachineServiceListBMCResponse, apiv2.MachineBMCDetails]{
+		{
+			Name:    "bmc command",
+			CmdArgs: []string{"admin", "machine", "bmc", "command", testresources.Machine1().Uuid, "--command", "MACHINE_BMC_COMMAND_ON"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.MachineServiceBMCCommandRequest{
+							Uuid:    testresources.Machine1().Uuid,
+							Command: apiv2.MachineBMCCommand_MACHINE_BMC_COMMAND_ON,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.MachineServiceBMCCommandResponse{})
+						},
+					},
+				},
+			}),
+			WantDefault: new(``),
 		},
 	}
 	for _, tt := range tests {

@@ -25,6 +25,6 @@ get and list machine bmc/ipmi information
 
 * [metalctlv2 admin machine](metalctlv2_admin_machine.md)	 - manage machine entities
 * [metalctlv2 admin machine bmc command](metalctlv2_admin_machine_bmc_command.md)	 - send a command to the bmc of a machine
-* [metalctlv2 admin machine bmc get](metalctlv2_admin_machine_bmc_get.md)	 - get the bmc of a machine
+* [metalctlv2 admin machine bmc describe](metalctlv2_admin_machine_bmc_describe.md)	 - get the bmc of a machine
 * [metalctlv2 admin machine bmc list](metalctlv2_admin_machine_bmc_list.md)	 - list the bmc of machines
 

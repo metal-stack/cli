@@ -1,15 +1,15 @@
-## metalctlv2 admin machine bmc get
+## metalctlv2 admin machine bmc describe
 
 get the bmc of a machine
 
 ```
-metalctlv2 admin machine bmc get [flags]
+metalctlv2 admin machine bmc describe [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+  -h, --help   help for describe
 ```
 
 ### Options inherited from parent commands

@@ -132,6 +132,12 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 		ValidArgsFn: c.Completion.AdminMachine,
 	}
 
+	bmcCmd := &cobra.Command{
+		Use:     "bmc",
+		Aliases: []string{"ipmi"},
+		Short:   "get and list machine bmc/ipmi information",
+	}
+
 	bmcCommandCmd := &cobra.Command{
 		Use:   "command",
 		Short: "send a command to the bmc of a machine",
@@ -144,15 +150,10 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	genericcli.Must(bmcCommandCmd.RegisterFlagCompletionFunc("command", c.Completion.BMCCommands))
 	genericcli.Must(bmcCommandCmd.MarkFlagRequired("command"))
 
-	bmcCmd := &cobra.Command{
-		Use:     "bmc",
-		Aliases: []string{"ipmi"},
-		Short:   "get and list machine bmc/ipmi information",
-	}
-
-	bmcGetCmd := &cobra.Command{
-		Use:   "get",
-		Short: "get the bmc of a machine",
+	bmcDescribeCmd := &cobra.Command{
+		Use:     "describe",
+		Aliases: []string{"get"},
+		Short:   "get the bmc of a machine",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.bmcGet(cmd.Context(), args)
 		},
@@ -168,8 +169,9 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	}
 
 	w.addMachineQueryFlags(bmcListCmd)
+	genericcli.AddSortFlag(bmcListCmd, sorters.MachineBmcSorter())
 
-	bmcCmd.AddCommand(bmcGetCmd, bmcListCmd, bmcCommandCmd)
+	bmcCmd.AddCommand(bmcDescribeCmd, bmcListCmd, bmcCommandCmd)
 
 	lockCmd := &cobra.Command{
 		Use:   "lock",
@@ -387,12 +389,19 @@ func (c *machine) bmcGet(ctx context.Context, args []string) error {
 }
 
 func (c *machine) bmcList(ctx context.Context) error {
-	req := &adminv2.MachineServiceListBMCRequest{
-		Query: machineQuery(),
+	sortKeys, err := genericcli.ParseSortFlags()
+	if err != nil {
+		return err
 	}
 
-	resp, err := c.c.Client.Adminv2().Machine().ListBMC(ctx, req)
+	resp, err := c.c.Client.Adminv2().Machine().ListBMC(ctx, &adminv2.MachineServiceListBMCRequest{
+		Query: machineQuery(),
+	})
 	if err != nil {
+		return err
+	}
+
+	if err := sorters.MachineBmcSorter().SortBy(resp.BmcDetails, sortKeys...); err != nil {
 		return err
 	}
 
@@ -625,7 +634,6 @@ func (c *machine) addMachineQueryFlags(cmd *cobra.Command) {
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.c.Completion.Image))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.c.Completion.Partition))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.c.Completion.AdminMachine))
-
 }
 
 func machineQuery() *apiv2.MachineQuery {
