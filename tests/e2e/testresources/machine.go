@@ -203,14 +203,14 @@ var (
 				Date:    "04/01/2024",
 			},
 			Fru: &apiv2.MachineFRU{
-				ChassisPartNumber:   newString("Chassis-PN-1"),
-				ChassisPartSerial:   newString("Chassis-SN-1"),
-				BoardMfg:            newString("Supermicro"),
-				BoardMfgSerial:      newString("Board-SN-1"),
-				BoardPartNumber:     newString("Board-PN-1"),
-				ProductManufacturer: newString("Dell"),
-				ProductPartNumber:   newString("Product-PN-1"),
-				ProductSerial:       newString("Product-SN-1"),
+				ChassisPartNumber:   new("Chassis-PN-1"),
+				ChassisPartSerial:   new("Chassis-SN-1"),
+				BoardMfg:            new("Supermicro"),
+				BoardMfgSerial:      new("Board-SN-1"),
+				BoardPartNumber:     new("Board-PN-1"),
+				ProductManufacturer: new("Dell"),
+				ProductPartNumber:   new("Product-PN-1"),
+				ProductSerial:       new("Product-SN-1"),
 			},
 			PowerMetric: &apiv2.MachinePowerMetric{
 				AverageConsumedWatts: 120.5,
@@ -258,14 +258,14 @@ var (
 				Date:    "10/15/2023",
 			},
 			Fru: &apiv2.MachineFRU{
-				ChassisPartNumber:   newString("Chassis-PN-2"),
-				ChassisPartSerial:   newString("Chassis-SN-2"),
-				BoardMfg:            newString("Supermicro"),
-				BoardMfgSerial:      newString("Board-SN-2"),
-				BoardPartNumber:     newString("Board-PN-2"),
-				ProductManufacturer: newString("HPE"),
-				ProductPartNumber:   newString("Product-PN-2"),
-				ProductSerial:       newString("Product-SN-2"),
+				ChassisPartNumber:   new("Chassis-PN-2"),
+				ChassisPartSerial:   new("Chassis-SN-2"),
+				BoardMfg:            new("Supermicro"),
+				BoardMfgSerial:      new("Board-SN-2"),
+				BoardPartNumber:     new("Board-PN-2"),
+				ProductManufacturer: new("HPE"),
+				ProductPartNumber:   new("Product-PN-2"),
+				ProductSerial:       new("Product-SN-2"),
 			},
 			PowerMetric: &apiv2.MachinePowerMetric{
 				AverageConsumedWatts: 0,
@@ -287,9 +287,3 @@ var (
 		},
 	}
 )
-
-func newString(v string) *string {
-	s := new(string)
-	*s = v
-	return s
-}
