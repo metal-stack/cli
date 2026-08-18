@@ -31,4 +31,5 @@ list status of components, e.g. microservices connected to the metal-apiserver
 * [metalctlv2 admin component delete](metalctlv2_admin_component_delete.md)	 - deletes the component
 * [metalctlv2 admin component describe](metalctlv2_admin_component_describe.md)	 - describes the component
 * [metalctlv2 admin component list](metalctlv2_admin_component_list.md)	 - list all components
+* [metalctlv2 admin component prune](metalctlv2_admin_component_prune.md)	 - prune outdated component entries
 

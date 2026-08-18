@@ -53,7 +53,7 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.Completion.Image))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
 
-			cmd.Long = cmd.Short + "\n" + helpers.EmojiHelpText()
+			cmd.Long = cmd.Short + "\n" + helpers.MachineListEmojiHelpText()
 		},
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project from where machines should be listed")

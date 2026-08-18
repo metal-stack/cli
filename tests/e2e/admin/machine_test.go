@@ -168,7 +168,7 @@ func Test_MachineCmd_Create(t *testing.T) {
 				"--ssh-public-key", "@.ssh/id_rsa.pub",
 				"--labels", "a=b",
 				"--userdata", "@ignition.json",
-				"--placement-tags", "cluster-id=cluster-uuid",
+				"--placement-labels", "cluster-id=cluster-uuid",
 			},
 			AssertExhaustiveArgs:     true,
 			AssertExhaustiveExcludes: e2e.CommonExcludedFileArgs(),
@@ -208,7 +208,11 @@ func Test_MachineCmd_Create(t *testing.T) {
 
 								return nws
 							}(),
-							PlacementTags:  []string{"cluster-id=cluster-uuid"},
+							PlacementLabels: &apiv2.Labels{
+								Labels: map[string]string{
+									"cluster-id": "cluster-uuid",
+								},
+							},
 							DnsServers:     []*apiv2.DNSServer{{Ip: "1.1.1.1"}},
 							NtpServers:     []*apiv2.NTPServer{{Address: "2.2.2.2"}, {Address: "3.3.3.3"}},
 							AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
@@ -537,6 +541,76 @@ func Test_MachineCmd_Apply(t *testing.T) {
 			WantTable: new(`
             ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
             673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            `),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_MachineCmd_BmcList(t *testing.T) {
+	tests := []*e2e.Test[apiv2.MachineServiceListResponse, apiv2.Machine]{
+		{
+			Name: "list",
+			CmdArgs: []string{"admin", "machine", "bmc", "list",
+				"--name", "name",
+				"--hostname", "hostname",
+				"--image", "image",
+				"--partition", "partition",
+				"--project", "project",
+				"--size", "size",
+				"--id", "uuid",
+			},
+			AssertExhaustiveArgs:     true,
+			AssertExhaustiveExcludes: []string{"sort-by"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.MachineServiceListBMCRequest{
+							Query: &apiv2.MachineQuery{
+								Allocation: &apiv2.MachineAllocationQuery{
+									Hostname: new("hostname"),
+									Name:     new("name"),
+									Image:    new("image"),
+									Project:  new("project"),
+								},
+								Partition: new("partition"),
+								Size:      new("size"),
+								Uuid:      new("uuid"),
+							},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.MachineServiceListBMCResponse{
+								BmcDetails: []*apiv2.MachineBMCDetails{
+									testresources.Machine2BmcDetails,
+									testresources.Machine1BmcDetails,
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                        POWER   IP            MAC                BOARD PART NUMBER  BIOS   BMC    SIZE           PARTITION    RACK    UPDATED
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd     ⏾ 0W    10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         2.0.0  2.4.0  v1-medium-x86  partition-2  rack-1  2m ago
+            5fa2bbe1-407c-4142-92d5-e4419daf9646   🟒  ⏾ 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         1.5.6  3.1.1  v1-medium-x86  partition-1  rack-1  1m ago
+            `),
+			WantWideTable: new(`
+            ID                                     LED      POWER                               IP            MAC                BOARD PART NUMBER  CHASSIS SERIAL  PRODUCT SERIAL  BIOS VERSION  BMC VERSION  SIZE           PARTITION    RACK    UPDATED
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  LED-OFF  off Power Supply Warning Absent 0W  10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         Chassis-SN-2    Product-SN-2    2.0.0         2.4.0        v1-medium-x86  partition-2  rack-1  2m ago
+            5fa2bbe1-407c-4142-92d5-e4419daf9646   LED-ON   on On On 120W                       10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         Chassis-SN-1    Product-SN-1    1.5.6         3.1.1        v1-medium-x86  partition-1  rack-1  1m ago
+			`),
+			Template: new("{{ .uuid }} {{ .bmc_report.bmc.address }}"),
+			WantTemplate: new(`
+673fc473-63ca-4ea4-b9dd-b45cb2127a6fd 10.0.0.2:623
+5fa2bbe1-407c-4142-92d5-e4419daf9646 10.0.0.1:623
+			`),
+			WantMarkdown: new(`
+            | ID                                    |   | POWER  | IP           | MAC               | BOARD PART NUMBER | BIOS  | BMC   | SIZE          | PARTITION   | RACK   | UPDATED |
+            |---------------------------------------|---|--------|--------------|-------------------|-------------------|-------|-------|---------------|-------------|--------|---------|
+            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6fd |   | ⏾ 0W   | 10.0.0.2:623 | 02:00:00:00:00:02 | Board-PN-2        | 2.0.0 | 2.4.0 | v1-medium-x86 | partition-2 | rack-1 | 2m ago  |
+            | 5fa2bbe1-407c-4142-92d5-e4419daf9646  | 🟒 | ⏾ 120W | 10.0.0.1:623 | 02:00:00:00:00:01 | Board-PN-1        | 1.5.6 | 3.1.1 | v1-medium-x86 | partition-1 | rack-1 | 1m ago  |
             `),
 		},
 	}

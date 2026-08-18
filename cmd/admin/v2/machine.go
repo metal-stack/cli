@@ -46,21 +46,9 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
-			cmd.Flags().String("id", "", "id of machine which should be listed")
-			cmd.Flags().String("name", "", "name from machines which should be listed")
-			cmd.Flags().String("hostname", "", "hostname from machines which should be listed")
-			cmd.Flags().String("size", "", "size from machines which should be listed")
-			cmd.Flags().String("image", "", "image")
-			cmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
-			cmd.Flags().StringP("partition", "", "", "partition from where machines should be listed")
+			w.addMachineQueryFlags(cmd)
 
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("size", c.Completion.Size))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.Completion.Image))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.Completion.AdminMachine))
-
-			cmd.Long = cmd.Short + "\n" + helpers.EmojiHelpText()
+			cmd.Long = cmd.Short + "\n" + helpers.MachineListEmojiHelpText()
 		},
 		DescribeCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the machine")
@@ -145,7 +133,7 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	}
 
 	bmcCommandCmd := &cobra.Command{
-		Use:   "bmc-command",
+		Use:   "command",
 		Short: "send a command to the bmc of a machine",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.bmcCommand(args)
@@ -178,19 +166,10 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 			return w.bmcList(cmd.Context())
 		},
 	}
-	bmcListCmd.Flags().String("id", "", "id of machine which should be listed")
-	bmcListCmd.Flags().String("size", "", "size from machines which should be listed")
-	bmcListCmd.Flags().String("image", "", "image")
-	bmcListCmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
-	bmcListCmd.Flags().StringP("partition", "", "", "partition from where machines should be listed")
 
-	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
-	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("size", c.Completion.Size))
-	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("image", c.Completion.Image))
-	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
-	genericcli.Must(bmcListCmd.RegisterFlagCompletionFunc("id", c.Completion.AdminMachine))
+	w.addMachineQueryFlags(bmcListCmd)
 
-	bmcCmd.AddCommand(bmcGetCmd, bmcListCmd)
+	bmcCmd.AddCommand(bmcGetCmd, bmcListCmd, bmcCommandCmd)
 
 	lockCmd := &cobra.Command{
 		Use:   "lock",
@@ -247,7 +226,7 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	firewallSSHCmd.Flags().StringP("identity", "i", "~/.ssh/id_rsa", "specify identity file to SSH to the firewall like: -i path/to/id_rsa")
 	firewallSSHCmd.Flags().String("reason", "", "the reason why to connect to the firewall through SSH")
 
-	return genericcli.NewCmds(cmdsConfig, bmcCommandCmd, bmcCmd, lockCmd, taintCmd, consoleCmd, consolePasswordCmd, firewallSSHCmd)
+	return genericcli.NewCmds(cmdsConfig, bmcCmd, lockCmd, taintCmd, consoleCmd, consolePasswordCmd, firewallSSHCmd)
 }
 
 func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine, error) {
@@ -298,49 +277,8 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	var allocation *apiv2.MachineAllocationQuery
-
-	if viper.IsSet("hostname") || viper.IsSet("name") || viper.IsSet("project") || viper.IsSet("image") {
-		allocation = &apiv2.MachineAllocationQuery{
-			Hostname: pointer.PointerOrNil(viper.GetString("hostname")),
-			Name:     pointer.PointerOrNil(viper.GetString("name")),
-			Project:  pointer.PointerOrNil(viper.GetString("project")),
-			Image:    pointer.PointerOrNil(viper.GetString("image")),
-		}
-	}
-
 	resp, err := c.c.Client.Adminv2().Machine().List(ctx, &adminv2.MachineServiceListRequest{
-		Query: &apiv2.MachineQuery{
-			Uuid:       pointer.PointerOrNil(viper.GetString("id")),
-			Partition:  pointer.PointerOrNil(viper.GetString("partition")),
-			Size:       pointer.PointerOrNil(viper.GetString("size")),
-			Allocation: allocation,
-			// 	Rack:      pointer.PointerOrNil(viper.GetString("rack")),
-			// 	Labels: &apiv2.Labels{
-			// 		Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
-			// 	},
-			// 	Bmc: &apiv2.MachineBMCQuery{
-			// 		Address:   pointer.PointerOrNil(viper.GetString("bmc-address")),
-			// 		Mac:       pointer.PointerOrNil(viper.GetString("bmc-mac")),
-			// 		User:      pointer.PointerOrNil(viper.GetString("bmc-user")),
-			// 		Interface: pointer.PointerOrNil(viper.GetString("bmc-interface")),
-			// 	},
-			// 	Fru: &apiv2.MachineFRUQuery{
-			// 		ChassisPartNumber:   pointer.PointerOrNil(viper.GetString("chassis-part-number")),
-			// 		ChassisPartSerial:   pointer.PointerOrNil(viper.GetString("chassis-part-serial")),
-			// 		BoardMfg:            pointer.PointerOrNil(viper.GetString("board-mfg")),
-			// 		BoardSerial:         pointer.PointerOrNil(viper.GetString("board-serial")),
-			// 		BoardPartNumber:     pointer.PointerOrNil(viper.GetString("board-part-number")),
-			// 		ProductManufacturer: pointer.PointerOrNil(viper.GetString("product-manufacturer")),
-			// 		ProductPartNumber:   pointer.PointerOrNil(viper.GetString("product-part-number")),
-			// 		ProductSerial:       pointer.PointerOrNil(viper.GetString("product-serial")),
-			// 	},
-			// 	Hardware: &apiv2.MachineHardwareQuery{
-			// 		Memory:   pointer.PointerOrNil(viper.GetUint64("memory")),
-			// 		CpuCores: pointer.PointerOrNil(viper.GetUint32("cpu-cores")),
-			// 	},
-			// State:    &0,
-		},
+		Query: machineQuery(),
 	})
 	if err != nil {
 		return nil, err
@@ -445,19 +383,20 @@ func (c *machine) bmcGet(ctx context.Context, args []string) error {
 		return err
 	}
 
-	return c.c.DescribePrinter.Print(resp)
+	return c.c.DescribePrinter.Print(resp.BmcDetails)
 }
 
 func (c *machine) bmcList(ctx context.Context) error {
-	// FIXME api contains the wrong query here, must be a MachineQuery instead of a MachineBMCQuery
-	req := &adminv2.MachineServiceListBMCRequest{}
+	req := &adminv2.MachineServiceListBMCRequest{
+		Query: machineQuery(),
+	}
 
 	resp, err := c.c.Client.Adminv2().Machine().ListBMC(ctx, req)
 	if err != nil {
 		return err
 	}
 
-	return c.c.ListPrinter.Print(resp.BmcReports)
+	return c.c.ListPrinter.Print(resp.BmcDetails)
 }
 
 func (c *machine) consolePassword(ctx context.Context, args []string) error {
@@ -515,7 +454,11 @@ func (c *machine) impitool(ctx context.Context, id string) error {
 		return err
 	}
 
-	bmc := resp.Bmc.Bmc
+	if resp.BmcDetails == nil || resp.BmcDetails.BmcReport == nil || resp.BmcDetails.BmcReport.Bmc == nil {
+		return fmt.Errorf("no bmc details present")
+	}
+
+	bmc := resp.BmcDetails.BmcReport.Bmc
 	intf := "lanplus"
 
 	// -I lanplus  -H 192.168.2.19 -U ADMIN -P ADMIN sol activate
@@ -666,4 +609,66 @@ func sshClient(user, keyfile, host string, port int, idToken *string, passwordAu
 	}
 
 	return s.Connect(env)
+}
+
+func (c *machine) addMachineQueryFlags(cmd *cobra.Command) {
+	cmd.Flags().String("id", "", "id of machine which should be listed")
+	cmd.Flags().String("name", "", "name from machines which should be listed")
+	cmd.Flags().String("hostname", "", "hostname from machines which should be listed")
+	cmd.Flags().String("size", "", "size from machines which should be listed")
+	cmd.Flags().String("image", "", "image")
+	cmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
+	cmd.Flags().StringP("partition", "", "", "partition from where machines should be listed")
+
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.c.Completion.Project))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("size", c.c.Completion.Size))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.c.Completion.Image))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.c.Completion.Partition))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.c.Completion.AdminMachine))
+
+}
+
+func machineQuery() *apiv2.MachineQuery {
+	var allocation *apiv2.MachineAllocationQuery
+
+	if viper.IsSet("hostname") || viper.IsSet("name") || viper.IsSet("project") || viper.IsSet("image") {
+		allocation = &apiv2.MachineAllocationQuery{
+			Hostname: pointer.PointerOrNil(viper.GetString("hostname")),
+			Name:     pointer.PointerOrNil(viper.GetString("name")),
+			Project:  pointer.PointerOrNil(viper.GetString("project")),
+			Image:    pointer.PointerOrNil(viper.GetString("image")),
+		}
+	}
+
+	return &apiv2.MachineQuery{
+		Uuid:       pointer.PointerOrNil(viper.GetString("id")),
+		Partition:  pointer.PointerOrNil(viper.GetString("partition")),
+		Size:       pointer.PointerOrNil(viper.GetString("size")),
+		Allocation: allocation,
+		// 	Rack:      pointer.PointerOrNil(viper.GetString("rack")),
+		// 	Labels: &apiv2.Labels{
+		// 		Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
+		// 	},
+		// 	Bmc: &apiv2.MachineBMCQuery{
+		// 		Address:   pointer.PointerOrNil(viper.GetString("bmc-address")),
+		// 		Mac:       pointer.PointerOrNil(viper.GetString("bmc-mac")),
+		// 		User:      pointer.PointerOrNil(viper.GetString("bmc-user")),
+		// 		Interface: pointer.PointerOrNil(viper.GetString("bmc-interface")),
+		// 	},
+		// 	Fru: &apiv2.MachineFRUQuery{
+		// 		ChassisPartNumber:   pointer.PointerOrNil(viper.GetString("chassis-part-number")),
+		// 		ChassisPartSerial:   pointer.PointerOrNil(viper.GetString("chassis-part-serial")),
+		// 		BoardMfg:            pointer.PointerOrNil(viper.GetString("board-mfg")),
+		// 		BoardSerial:         pointer.PointerOrNil(viper.GetString("board-serial")),
+		// 		BoardPartNumber:     pointer.PointerOrNil(viper.GetString("board-part-number")),
+		// 		ProductManufacturer: pointer.PointerOrNil(viper.GetString("product-manufacturer")),
+		// 		ProductPartNumber:   pointer.PointerOrNil(viper.GetString("product-part-number")),
+		// 		ProductSerial:       pointer.PointerOrNil(viper.GetString("product-serial")),
+		// 	},
+		// 	Hardware: &apiv2.MachineHardwareQuery{
+		// 		Memory:   pointer.PointerOrNil(viper.GetUint64("memory")),
+		// 		CpuCores: pointer.PointerOrNil(viper.GetUint32("cpu-cores")),
+		// 	},
+		// State:    &0,
+	}
 }

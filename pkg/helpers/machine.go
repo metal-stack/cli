@@ -154,6 +154,11 @@ func MachineCreateRequestFromCLI(c *config.Config) (*apiv2.MachineServiceCreateR
 		return nil, err
 	}
 
+	placementLabels, err := LabelsFromSlice(viper.GetStringSlice("placement-labels"))
+	if err != nil {
+		return nil, err
+	}
+
 	var filesystemlayout *string
 	if viper.IsSet("filesystem-layout") {
 		filesystemlayout = new(viper.GetString("filesystem-layout"))
@@ -190,7 +195,7 @@ func MachineCreateRequestFromCLI(c *config.Config) (*apiv2.MachineServiceCreateR
 		DnsServers:       dnsServers,
 		NtpServers:       ntpServers,
 		FilesystemLayout: filesystemlayout,
-		PlacementTags:    viper.GetStringSlice("placement-tags"),
+		PlacementLabels:  placementLabels,
 		AllocationType:   allocationType,
 		FirewallSpec:     firewallSpec,
 	}, nil
@@ -342,7 +347,7 @@ Can be either the userdata as string, or pointing to the userdata file to use e.
 NETWORK specifies the name or id of an existing network.
 IPs can be added per network colon separated, these ips must be already allocated upfront. If no ip(s) are specified per network, one ip per network is allocated.
 `)
-	cmd.Flags().StringSlice("placement-tags", []string{}, "placement tags used for rack spreading")
+	cmd.Flags().StringSlice("placement-labels", []string{}, "placement tags used for rack spreading")
 
 	cmd.MarkFlagsMutuallyExclusive("file", "project")
 	cmd.MarkFlagsRequiredTogether("project", "networks", "hostname", "image")

@@ -1,22 +1,16 @@
-## metalctlv2 admin machine bmc list
+## metalctlv2 admin machine bmc command
 
-list the bmc of machines
+send a command to the bmc of a machine
 
 ```
-metalctlv2 admin machine bmc list [flags]
+metalctlv2 admin machine bmc command [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help               help for list
-      --hostname string    hostname from machines which should be listed
-      --id string          id of machine which should be listed
-      --image string       image
-      --name string        name from machines which should be listed
-      --partition string   partition from where machines should be listed
-  -p, --project string     project from where machines should be listed
-      --size string        size from machines which should be listed
+      --command string   the actual command to send to the machine
+  -h, --help             help for command
 ```
 
 ### Options inherited from parent commands

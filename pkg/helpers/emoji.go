@@ -11,7 +11,7 @@ const (
 	VPN         = "🛡"
 )
 
-func EmojiHelpText() string {
+func MachineListEmojiHelpText() string {
 	return `
 Meaning of the emojis:
 

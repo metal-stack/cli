@@ -20,6 +20,7 @@ const (
 	threequarterpie = "◕"
 	poweron         = "⏻"
 	powersleep      = "⏾"
+	ledon           = "🟒"
 )
 
 type TablePrinter struct {
@@ -65,7 +66,9 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Machine:
 		return t.MachineTable(d, wide)
 
-	case map[string]*apiv2.MachineBMCReport:
+	case *apiv2.MachineBMCDetails:
+		return t.MachineBMCTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.MachineBMCDetails:
 		return t.MachineBMCTable(d, wide)
 
 	case *apiv2.IP:
