@@ -388,8 +388,8 @@ func MachineQuery(unscoped bool) (*apiv2.MachineQuery, error) {
 			Prefixes:            viper.GetStringSlice("network-prefixes"),
 			DestinationPrefixes: viper.GetStringSlice("network-destination-prefixes"),
 			Ips:                 viper.GetStringSlice("network-ips"),
-			Vrfs:                intSliceToUint64(viper.GetIntSlice("network-vrfs")),
-			Asns:                intSliceToUint32(viper.GetIntSlice("network-asns")),
+			Vrfs:                intSliceToUint[uint64](viper.GetIntSlice("network-vrfs")),
+			Asns:                intSliceToUint[uint32](viper.GetIntSlice("network-asns")),
 		}
 	}
 
@@ -408,7 +408,7 @@ func MachineQuery(unscoped bool) (*apiv2.MachineQuery, error) {
 	if len(viper.GetStringSlice("disk-names")) > 0 || len(viper.GetIntSlice("disk-sizes")) > 0 {
 		disk = &apiv2.MachineDiskQuery{
 			Names: viper.GetStringSlice("disk-names"),
-			Sizes: intSliceToUint64(viper.GetIntSlice("disk-sizes")),
+			Sizes: intSliceToUint[uint64](viper.GetIntSlice("disk-sizes")),
 		}
 	}
 
@@ -422,23 +422,23 @@ func MachineQuery(unscoped bool) (*apiv2.MachineQuery, error) {
 	}
 
 	return &apiv2.MachineQuery{
-		Uuid:          pointer.PointerOrNil(viper.GetString("id")),
-		Partition:     pointer.PointerOrNil(viper.GetString("partition")),
-		Size:          pointer.PointerOrNil(viper.GetString("size")),
-		Rack:          pointer.PointerOrNil(viper.GetString("rack")),
-		Room:          pointer.PointerOrNil(viper.GetString("room")),
-		Labels:        labels,
-		Allocation:    allocation,
-		Network:       network,
-		Nic:           nic,
-		Disk:          disk,
-		Bmc:           bmc,
-		Fru:           fru,
-		Hardware:      hardware,
-		State:         state,
-		Waiting:       pointer.PointerOrNil(unscoped && viper.GetBool("waiting")),
-		Preallocated:  pointer.PointerOrNil(unscoped && viper.GetBool("preallocated")),
-		NotAllocated:  pointer.PointerOrNil(unscoped && viper.GetBool("not-allocated")),
+		Uuid:         pointer.PointerOrNil(viper.GetString("id")),
+		Partition:    pointer.PointerOrNil(viper.GetString("partition")),
+		Size:         pointer.PointerOrNil(viper.GetString("size")),
+		Rack:         pointer.PointerOrNil(viper.GetString("rack")),
+		Room:         pointer.PointerOrNil(viper.GetString("room")),
+		Labels:       labels,
+		Allocation:   allocation,
+		Network:      network,
+		Nic:          nic,
+		Disk:         disk,
+		Bmc:          bmc,
+		Fru:          fru,
+		Hardware:     hardware,
+		State:        state,
+		Waiting:      pointer.PointerOrNil(unscoped && viper.GetBool("waiting")),
+		Preallocated: pointer.PointerOrNil(unscoped && viper.GetBool("preallocated")),
+		NotAllocated: pointer.PointerOrNil(unscoped && viper.GetBool("not-allocated")),
 	}, nil
 }
 
@@ -530,18 +530,10 @@ func parseNetworks(possibleNetworks []string) ([]*apiv2.MachineAllocationNetwork
 	return result, nil
 }
 
-func intSliceToUint64(values []int) []uint64 {
-	result := make([]uint64, 0, len(values))
+func intSliceToUint[T ~uint32 | ~uint64](values []int) []T {
+	result := make([]T, 0, len(values))
 	for _, v := range values {
-		result = append(result, uint64(v))
-	}
-	return result
-}
-
-func intSliceToUint32(values []int) []uint32 {
-	result := make([]uint32, 0, len(values))
-	for _, v := range values {
-		result = append(result, uint32(v))
+		result = append(result, T(v))
 	}
 	return result
 }
