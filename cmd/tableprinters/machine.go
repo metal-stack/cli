@@ -170,6 +170,7 @@ func (t *TablePrinter) MachineBMCTable(data []*apiv2.MachineBMCDetails, wide boo
 			}
 		}
 
+		// this condition is quite brittle, unfortunately there is no enum in the api for this field
 		if strings.EqualFold(ledState, "LED-ON") {
 			blue := color.New(color.FgBlue).SprintFunc()
 			emojis = append(emojis, blue(ledon))
