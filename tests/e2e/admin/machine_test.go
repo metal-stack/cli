@@ -31,6 +31,45 @@ func Test_MachineCmd_List(t *testing.T) {
 				"--project", "project",
 				"--size", "size",
 				"--id", "uuid",
+				"--rack", "rack",
+				"--labels", "a=b",
+				"--state", "available",
+				"--bmc-address", "bmc-address",
+				"--bmc-mac", "bmc-mac",
+				"--bmc-user", "bmc-user",
+				"--bmc-interface", "bmc-interface",
+				"--chassis-part-number", "chassis-part-number",
+				"--chassis-part-serial", "chassis-part-serial",
+				"--board-mfg", "board-mfg",
+				"--board-serial", "board-serial",
+				"--board-part-number", "board-part-number",
+				"--product-manufacturer", "product-manufacturer",
+				"--product-part-number", "product-part-number",
+				"--product-serial", "product-serial",
+				"--memory", "1024",
+				"--cpu-cores", "4",
+				"--room", "room",
+				"--filesystem-layout", "fsl",
+				"--allocation-type", "firewall",
+				"--vpn-control-plane-address", "vpn-cp",
+				"--vpn-auth-key", "vpn-auth",
+				"--vpn-connected",
+				"--vpn-ips", "10.0.0.1",
+				"--waiting",
+				"--preallocated",
+				"--not-allocated",
+				"--network-names", "network-name",
+				"--network-prefixes", "network-prefix",
+				"--network-destination-prefixes", "network-dest-prefix",
+				"--network-ips", "1.2.3.4",
+				"--network-vrfs", "1",
+				"--network-asns", "2",
+				"--nic-macs", "nic-mac",
+				"--nic-names", "nic-name",
+				"--nic-neighbor-macs", "nic-neighbor-mac",
+				"--nic-neighbor-names", "nic-neighbor-name",
+				"--disk-names", "disk-name",
+				"--disk-sizes", "1024",
 			},
 			AssertExhaustiveArgs:     true,
 			AssertExhaustiveExcludes: []string{"sort-by"},
@@ -40,14 +79,71 @@ func Test_MachineCmd_List(t *testing.T) {
 						WantRequest: &adminv2.MachineServiceListRequest{
 							Query: &apiv2.MachineQuery{
 								Allocation: &apiv2.MachineAllocationQuery{
-									Hostname: new("hostname"),
-									Name:     new("name"),
-									Image:    new("image"),
-									Project:  new("project"),
+									Hostname:         new("hostname"),
+									Name:             new("name"),
+									Image:            new("image"),
+									Project:          new("project"),
+									FilesystemLayout: new("fsl"),
+									AllocationType:   apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL.Enum(),
+									Vpn: &apiv2.MachineVPN{
+										ControlPlaneAddress: "vpn-cp",
+										AuthKey:             "vpn-auth",
+										Connected:           true,
+										Ips:                 []string{"10.0.0.1"},
+									},
 								},
 								Partition: new("partition"),
 								Size:      new("size"),
 								Uuid:      new("uuid"),
+								Rack:      new("rack"),
+								Room:      new("room"),
+								Labels: &apiv2.Labels{
+									Labels: map[string]string{
+										"a": "b",
+									},
+								},
+								State:        apiv2.MachineState_MACHINE_STATE_AVAILABLE.Enum(),
+								Waiting:      new(true),
+								Preallocated: new(true),
+								NotAllocated: new(true),
+								Network: &apiv2.MachineNetworkQuery{
+									Networks:            []string{"network-name"},
+									Prefixes:            []string{"network-prefix"},
+									DestinationPrefixes: []string{"network-dest-prefix"},
+									Ips:                 []string{"1.2.3.4"},
+									Vrfs:                []uint64{1},
+									Asns:                []uint32{2},
+								},
+								Nic: &apiv2.MachineNicQuery{
+									Macs:          []string{"nic-mac"},
+									Names:         []string{"nic-name"},
+									NeighborMacs:  []string{"nic-neighbor-mac"},
+									NeighborNames: []string{"nic-neighbor-name"},
+								},
+								Disk: &apiv2.MachineDiskQuery{
+									Names: []string{"disk-name"},
+									Sizes: []uint64{1024},
+								},
+								Bmc: &apiv2.MachineBMCQuery{
+									Address:   new("bmc-address"),
+									Mac:       new("bmc-mac"),
+									User:      new("bmc-user"),
+									Interface: new("bmc-interface"),
+								},
+								Fru: &apiv2.MachineFRUQuery{
+									ChassisPartNumber:   new("chassis-part-number"),
+									ChassisPartSerial:   new("chassis-part-serial"),
+									BoardMfg:            new("board-mfg"),
+									BoardSerial:         new("board-serial"),
+									BoardPartNumber:     new("board-part-number"),
+									ProductManufacturer: new("product-manufacturer"),
+									ProductPartNumber:   new("product-part-number"),
+									ProductSerial:       new("product-serial"),
+								},
+								Hardware: &apiv2.MachineHardwareQuery{
+									Memory:   new(uint64(1024)),
+									CpuCores: new(uint32(4)),
+								},
 							},
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -83,6 +179,32 @@ func Test_MachineCmd_List(t *testing.T) {
             | 5fa2bbe1-407c-4142-92d5-e4419daf9646  |   | Alive       | 1m   |     |           |                                      | v1-medium-x86 |              | partition-1 | rack-1 |
             | 673fc473-63ca-4ea4-b9dd-b45cb2127a6fd | 🛡 | Phoned Home | 1m   | 1m  | machine-2 | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | v1-medium-x86 | Ubuntu 24.04 | partition-2 | rack-1 |
 			`),
+		},
+		{
+			Name:    "no flags",
+			CmdArgs: []string{"admin", "machine", "list"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.MachineServiceListRequest{
+							Query: &apiv2.MachineQuery{},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.MachineServiceListResponse{
+								Machines: []*apiv2.Machine{
+									testresources.Machine2(),
+									testresources.Machine1(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
+            5fa2bbe1-407c-4142-92d5-e4419daf9646      Alive        1m                                                          v1-medium-x86                partition-1  rack-1
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -168,7 +290,7 @@ func Test_MachineCmd_Create(t *testing.T) {
 				"--ssh-public-key", "@.ssh/id_rsa.pub",
 				"--labels", "a=b",
 				"--userdata", "@ignition.json",
-				"--placement-tags", "cluster-id=cluster-uuid",
+				"--placement-labels", "cluster-id=cluster-uuid",
 			},
 			AssertExhaustiveArgs:     true,
 			AssertExhaustiveExcludes: e2e.CommonExcludedFileArgs(),
@@ -208,7 +330,11 @@ func Test_MachineCmd_Create(t *testing.T) {
 
 								return nws
 							}(),
-							PlacementTags:  []string{"cluster-id=cluster-uuid"},
+							PlacementLabels: &apiv2.Labels{
+								Labels: map[string]string{
+									"cluster-id": "cluster-uuid",
+								},
+							},
 							DnsServers:     []*apiv2.DNSServer{{Ip: "1.1.1.1"}},
 							NtpServers:     []*apiv2.NTPServer{{Address: "2.2.2.2"}, {Address: "3.3.3.3"}},
 							AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
@@ -538,6 +664,241 @@ func Test_MachineCmd_Apply(t *testing.T) {
             ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
             673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
             `),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_MachineCmd_BmcList(t *testing.T) {
+	tests := []*e2e.Test[adminv2.MachineServiceListBMCResponse, apiv2.MachineBMCDetails]{
+		{
+			Name: "list",
+			CmdArgs: []string{"admin", "machine", "bmc", "list",
+				"--name", "name",
+				"--hostname", "hostname",
+				"--image", "image",
+				"--partition", "partition",
+				"--project", "project",
+				"--size", "size",
+				"--id", "uuid",
+				"--rack", "rack",
+				"--labels", "a=b",
+				"--state", "available",
+				"--bmc-address", "bmc-address",
+				"--bmc-mac", "bmc-mac",
+				"--bmc-user", "bmc-user",
+				"--bmc-interface", "bmc-interface",
+				"--chassis-part-number", "chassis-part-number",
+				"--chassis-part-serial", "chassis-part-serial",
+				"--board-mfg", "board-mfg",
+				"--board-serial", "board-serial",
+				"--board-part-number", "board-part-number",
+				"--product-manufacturer", "product-manufacturer",
+				"--product-part-number", "product-part-number",
+				"--product-serial", "product-serial",
+				"--memory", "1024",
+				"--cpu-cores", "4",
+				"--room", "room",
+				"--filesystem-layout", "fsl",
+				"--allocation-type", "firewall",
+				"--vpn-control-plane-address", "vpn-cp",
+				"--vpn-auth-key", "vpn-auth",
+				"--vpn-connected",
+				"--vpn-ips", "10.0.0.1",
+				"--waiting",
+				"--preallocated",
+				"--not-allocated",
+				"--network-names", "network-name",
+				"--network-prefixes", "network-prefix",
+				"--network-destination-prefixes", "network-dest-prefix",
+				"--network-ips", "1.2.3.4",
+				"--network-vrfs", "1",
+				"--network-asns", "2",
+				"--nic-macs", "nic-mac",
+				"--nic-names", "nic-name",
+				"--nic-neighbor-macs", "nic-neighbor-mac",
+				"--nic-neighbor-names", "nic-neighbor-name",
+				"--disk-names", "disk-name",
+				"--disk-sizes", "1024",
+			},
+			AssertExhaustiveArgs:     true,
+			AssertExhaustiveExcludes: []string{"sort-by"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.MachineServiceListBMCRequest{
+							Query: &apiv2.MachineQuery{
+								Allocation: &apiv2.MachineAllocationQuery{
+									Hostname:         new("hostname"),
+									Name:             new("name"),
+									Image:            new("image"),
+									Project:          new("project"),
+									FilesystemLayout: new("fsl"),
+									AllocationType:   apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL.Enum(),
+									Vpn: &apiv2.MachineVPN{
+										ControlPlaneAddress: "vpn-cp",
+										AuthKey:             "vpn-auth",
+										Connected:           true,
+										Ips:                 []string{"10.0.0.1"},
+									},
+								},
+								Partition: new("partition"),
+								Size:      new("size"),
+								Uuid:      new("uuid"),
+								Rack:      new("rack"),
+								Room:      new("room"),
+								Labels: &apiv2.Labels{
+									Labels: map[string]string{
+										"a": "b",
+									},
+								},
+								State:        apiv2.MachineState_MACHINE_STATE_AVAILABLE.Enum(),
+								Waiting:      new(true),
+								Preallocated: new(true),
+								NotAllocated: new(true),
+								Network: &apiv2.MachineNetworkQuery{
+									Networks:            []string{"network-name"},
+									Prefixes:            []string{"network-prefix"},
+									DestinationPrefixes: []string{"network-dest-prefix"},
+									Ips:                 []string{"1.2.3.4"},
+									Vrfs:                []uint64{1},
+									Asns:                []uint32{2},
+								},
+								Nic: &apiv2.MachineNicQuery{
+									Macs:          []string{"nic-mac"},
+									Names:         []string{"nic-name"},
+									NeighborMacs:  []string{"nic-neighbor-mac"},
+									NeighborNames: []string{"nic-neighbor-name"},
+								},
+								Disk: &apiv2.MachineDiskQuery{
+									Names: []string{"disk-name"},
+									Sizes: []uint64{1024},
+								},
+								Bmc: &apiv2.MachineBMCQuery{
+									Address:   new("bmc-address"),
+									Mac:       new("bmc-mac"),
+									User:      new("bmc-user"),
+									Interface: new("bmc-interface"),
+								},
+								Fru: &apiv2.MachineFRUQuery{
+									ChassisPartNumber:   new("chassis-part-number"),
+									ChassisPartSerial:   new("chassis-part-serial"),
+									BoardMfg:            new("board-mfg"),
+									BoardSerial:         new("board-serial"),
+									BoardPartNumber:     new("board-part-number"),
+									ProductManufacturer: new("product-manufacturer"),
+									ProductPartNumber:   new("product-part-number"),
+									ProductSerial:       new("product-serial"),
+								},
+								Hardware: &apiv2.MachineHardwareQuery{
+									Memory:   new(uint64(1024)),
+									CpuCores: new(uint32(4)),
+								},
+							},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.MachineServiceListBMCResponse{
+								BmcDetails: []*apiv2.MachineBMCDetails{
+									testresources.Machine2BmcDetails,
+									testresources.Machine1BmcDetails,
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                        POWER   IP            MAC                BOARD PART NUMBER  BIOS   BMC    SIZE           PARTITION    RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646   🟒  ⏾ 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         1.5.6  3.1.1  v1-medium-x86  partition-1  rack-1  1m ago
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd     ⏾ 0W    10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         2.0.0  2.4.0  v1-medium-x86  partition-2  rack-1  2m ago
+            `),
+			WantWideTable: new(`
+            ID                                     LED      POWER                               IP            MAC                BOARD PART NUMBER  CHASSIS SERIAL  PRODUCT SERIAL  BIOS VERSION  BMC VERSION  SIZE           PARTITION    RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646   LED-ON   on On On 120W                       10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         Chassis-SN-1    Product-SN-1    1.5.6         3.1.1        v1-medium-x86  partition-1  rack-1  1m ago
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  LED-OFF  off Power Supply Warning Absent 0W  10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         Chassis-SN-2    Product-SN-2    2.0.0         2.4.0        v1-medium-x86  partition-2  rack-1  2m ago
+			`),
+			Template: new("{{ .uuid }} {{ .bmc_report.bmc.address }}"),
+			WantTemplate: new(`
+5fa2bbe1-407c-4142-92d5-e4419daf9646 10.0.0.1:623
+673fc473-63ca-4ea4-b9dd-b45cb2127a6fd 10.0.0.2:623
+			`),
+			WantMarkdown: new(`
+            | ID                                    |   | POWER  | IP           | MAC               | BOARD PART NUMBER | BIOS  | BMC   | SIZE          | PARTITION   | RACK   | UPDATED |
+            |---------------------------------------|---|--------|--------------|-------------------|-------------------|-------|-------|---------------|-------------|--------|---------|
+            | 5fa2bbe1-407c-4142-92d5-e4419daf9646  | 🟒 | ⏾ 120W | 10.0.0.1:623 | 02:00:00:00:00:01 | Board-PN-1        | 1.5.6 | 3.1.1 | v1-medium-x86 | partition-1 | rack-1 | 1m ago  |
+            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6fd |   | ⏾ 0W   | 10.0.0.2:623 | 02:00:00:00:00:02 | Board-PN-2        | 2.0.0 | 2.4.0 | v1-medium-x86 | partition-2 | rack-1 | 2m ago  |
+            `),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_MachineCmd_BmcDescribe(t *testing.T) {
+	tests := []*e2e.Test[adminv2.MachineServiceListBMCResponse, apiv2.MachineBMCDetails]{
+		{
+			Name:    "describe",
+			CmdArgs: []string{"admin", "machine", "bmc", "describe", testresources.Machine1().Uuid},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.MachineServiceGetBMCRequest{
+							Uuid: testresources.Machine1().Uuid,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.MachineServiceGetBMCResponse{
+								BmcDetails: testresources.Machine1BmcDetails,
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                       POWER   IP            MAC                BOARD PART NUMBER  BIOS   BMC    SIZE           PARTITION    RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646  🟒  ⏾ 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         1.5.6  3.1.1  v1-medium-x86  partition-1  rack-1  1m ago
+            `),
+			WantWideTable: new(`
+            ID                                    LED     POWER          IP            MAC                BOARD PART NUMBER  CHASSIS SERIAL  PRODUCT SERIAL  BIOS VERSION  BMC VERSION  SIZE           PARTITION    RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646  LED-ON  on On On 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         Chassis-SN-1    Product-SN-1    1.5.6         3.1.1        v1-medium-x86  partition-1  rack-1  1m ago
+			`),
+			Template: new("{{ .uuid }} {{ .bmc_report.bmc.address }}"),
+			WantTemplate: new(`
+            5fa2bbe1-407c-4142-92d5-e4419daf9646 10.0.0.1:623
+			`),
+			WantMarkdown: new(`
+            | ID                                   |   | POWER  | IP           | MAC               | BOARD PART NUMBER | BIOS  | BMC   | SIZE          | PARTITION   | RACK   | UPDATED |
+            |--------------------------------------|---|--------|--------------|-------------------|-------------------|-------|-------|---------------|-------------|--------|---------|
+            | 5fa2bbe1-407c-4142-92d5-e4419daf9646 | 🟒 | ⏾ 120W | 10.0.0.1:623 | 02:00:00:00:00:01 | Board-PN-1        | 1.5.6 | 3.1.1 | v1-medium-x86 | partition-1 | rack-1 | 1m ago  |
+            `),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_MachineCmd_BmcCommand(t *testing.T) {
+	tests := []*e2e.Test[adminv2.MachineServiceListBMCResponse, apiv2.MachineBMCDetails]{
+		{
+			Name:    "bmc command",
+			CmdArgs: []string{"admin", "machine", "bmc", "command", testresources.Machine1().Uuid, "--command", "MACHINE_BMC_COMMAND_ON"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.MachineServiceBMCCommandRequest{
+							Uuid:    testresources.Machine1().Uuid,
+							Command: apiv2.MachineBMCCommand_MACHINE_BMC_COMMAND_ON,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.MachineServiceBMCCommandResponse{})
+						},
+					},
+				},
+			}),
+			WantDefault: new(``),
 		},
 	}
 	for _, tt := range tests {

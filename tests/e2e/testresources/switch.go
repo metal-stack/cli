@@ -68,7 +68,7 @@ var (
 		return &apiv2.SwitchNic{
 			Name:       "Ethernet0",
 			Identifier: "oid:0x1000000000001",
-			Mac:        "52:54:00:ab:cd:01",
+			Mac:        new("52:54:00:ab:cd:01"),
 			Vrf:        new("default"),
 			State: &apiv2.NicState{
 				Desired: new(apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UP),
@@ -99,7 +99,7 @@ var (
 		return &apiv2.SwitchNic{
 			Name:       "Ethernet4",
 			Identifier: "oid:0x1000000000002",
-			Mac:        "52:54:00:ab:cd:02",
+			Mac:        new("52:54:00:ab:cd:02"),
 			State: &apiv2.NicState{
 				Desired: new(apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UP),
 				Actual:  apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_DOWN,

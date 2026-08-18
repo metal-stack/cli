@@ -1,15 +1,21 @@
-## metalctlv2 admin machine bmc get
+## metalctlv2 admin component prune
 
-get the bmc of a machine
+prune outdated component entries
+
+### Synopsis
+
+prune outdated component entries to shorten the component list
 
 ```
-metalctlv2 admin machine bmc get [flags]
+metalctlv2 admin component prune [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+  -h, --help               help for prune
+      --max-age duration   prune all components which are older than max-age and not active anymore (default 12h0m0s)
+      --type string        prune only component of this type
 ```
 
 ### Options inherited from parent commands
@@ -27,5 +33,5 @@ metalctlv2 admin machine bmc get [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin machine bmc](metalctlv2_admin_machine_bmc.md)	 - get and list machine bmc/ipmi information
+* [metalctlv2 admin component](metalctlv2_admin_component.md)	 - manage component entities
 

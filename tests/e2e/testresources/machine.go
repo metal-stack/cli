@@ -179,4 +179,111 @@ var (
 			},
 		}
 	}
+
+	Machine1BmcDetails = &apiv2.MachineBMCDetails{
+		Uuid:      Machine1().Uuid,
+		Partition: Machine1().Partition.Id,
+		Rack:      Machine1().Rack,
+		Room:      Machine1().Room,
+		Size:      Machine1().Size.Id,
+		BmcReport: &apiv2.MachineBMCReport{
+			Uuid: Machine1().Uuid,
+			Bmc: &apiv2.MachineBMC{
+				Address:    "10.0.0.1:623",
+				Mac:        "02:00:00:00:00:01",
+				User:       "admin",
+				Password:   "password",
+				Interface:  "lanplus",
+				Version:    "3.1.1",
+				PowerState: "on",
+			},
+			Bios: &apiv2.MachineBios{
+				Version: "1.5.6",
+				Vendor:  "American Megatrends Inc.",
+				Date:    "04/01/2024",
+			},
+			Fru: &apiv2.MachineFRU{
+				ChassisPartNumber:   new("Chassis-PN-1"),
+				ChassisPartSerial:   new("Chassis-SN-1"),
+				BoardMfg:            new("Supermicro"),
+				BoardMfgSerial:      new("Board-SN-1"),
+				BoardPartNumber:     new("Board-PN-1"),
+				ProductManufacturer: new("Dell"),
+				ProductPartNumber:   new("Product-PN-1"),
+				ProductSerial:       new("Product-SN-1"),
+			},
+			PowerMetric: &apiv2.MachinePowerMetric{
+				AverageConsumedWatts: 120.5,
+				IntervalInMin:        5,
+				MaxConsumedWatts:     180.2,
+				MinConsumedWatts:     95.3,
+			},
+			PowerSupplies: []*apiv2.MachinePowerSupply{
+				{
+					Health: "OK",
+					State:  "On",
+				},
+				{
+					Health: "OK",
+					State:  "On",
+				},
+			},
+			LedState: &apiv2.MachineChassisIdentifyLEDState{
+				Value:       "LED-ON",
+				Description: "User initiated chassis identify",
+			},
+			UpdatedAt: timestamppb.New(e2e.TimeBubbleStartTime().Add(-1 * time.Minute)),
+		},
+	}
+	Machine2BmcDetails = &apiv2.MachineBMCDetails{
+		Uuid:      Machine2().Uuid,
+		Partition: Machine2().Partition.Id,
+		Rack:      Machine2().Rack,
+		Room:      Machine2().Room,
+		Size:      Machine2().Size.Id,
+		BmcReport: &apiv2.MachineBMCReport{
+			Uuid: Machine2().Uuid,
+			Bmc: &apiv2.MachineBMC{
+				Address:    "10.0.0.2:623",
+				Mac:        "02:00:00:00:00:02",
+				User:       "root",
+				Password:   "changeme",
+				Interface:  "lanplus",
+				Version:    "2.4.0",
+				PowerState: "off",
+			},
+			Bios: &apiv2.MachineBios{
+				Version: "2.0.0",
+				Vendor:  "Supermicro",
+				Date:    "10/15/2023",
+			},
+			Fru: &apiv2.MachineFRU{
+				ChassisPartNumber:   new("Chassis-PN-2"),
+				ChassisPartSerial:   new("Chassis-SN-2"),
+				BoardMfg:            new("Supermicro"),
+				BoardMfgSerial:      new("Board-SN-2"),
+				BoardPartNumber:     new("Board-PN-2"),
+				ProductManufacturer: new("HPE"),
+				ProductPartNumber:   new("Product-PN-2"),
+				ProductSerial:       new("Product-SN-2"),
+			},
+			PowerMetric: &apiv2.MachinePowerMetric{
+				AverageConsumedWatts: 0,
+				IntervalInMin:        0,
+				MaxConsumedWatts:     0,
+				MinConsumedWatts:     0,
+			},
+			PowerSupplies: []*apiv2.MachinePowerSupply{
+				{
+					Health: "Warning",
+					State:  "Absent",
+				},
+			},
+			LedState: &apiv2.MachineChassisIdentifyLEDState{
+				Value:       "LED-OFF",
+				Description: "",
+			},
+			UpdatedAt: timestamppb.New(e2e.TimeBubbleStartTime().Add(-2 * time.Minute)),
+		},
+	}
 )

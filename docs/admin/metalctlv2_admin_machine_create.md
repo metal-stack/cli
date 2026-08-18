@@ -78,7 +78,7 @@ Once created the machine installation can not be modified anymore.
                                    
       --ntp-servers strings        ntp servers to add to the machine or firewall. [optional]
       --partition string           partition/datacenter where the machine is created. [required, except for reserved machines]
-      --placement-tags strings     placement tags used for rack spreading
+      --placement-labels strings   placement tags used for rack spreading
   -p, --project string             Project where the machine should belong to. [required]
       --size string                Size of the machine. [required, except for reserved machines]
       --skip-security-prompts      skips security prompt for bulk operations
