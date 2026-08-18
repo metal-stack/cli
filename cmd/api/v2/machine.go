@@ -8,7 +8,6 @@ import (
 	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
-	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -40,18 +39,7 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 			cmd.Aliases = []string{"allocate"}
 		},
 		ListCmdMutateFn: func(cmd *cobra.Command) {
-			cmd.Flags().String("uuid", "", "allocation uuid of machine which should be listed")
-			cmd.Flags().String("name", "", "name from machines which should be listed")
-			cmd.Flags().String("hostname", "", "hostname from machines which should be listed")
-			cmd.Flags().String("size", "", "size from machines which should be listed")
-			cmd.Flags().String("image", "", "image")
-			cmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
-			cmd.Flags().StringP("partition", "", "", "partition from where machines should be listed")
-
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("size", c.Completion.Size))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.Completion.Image))
-			genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.Completion.Partition))
+			helpers.AddMachineQueryFlags(cmd, c.Completion)
 
 			cmd.Long = cmd.Short + "\n" + helpers.MachineListEmojiHelpText()
 		},
@@ -147,24 +135,9 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	var allocation *apiv2.MachineAllocationQuery
-
-	if viper.IsSet("hostname") || viper.IsSet("image") {
-		allocation = &apiv2.MachineAllocationQuery{
-			Hostname: pointer.PointerOrNil(viper.GetString("hostname")),
-			Image:    pointer.PointerOrNil(viper.GetString("image")),
-		}
-	}
-
 	resp, err := c.c.Client.Apiv2().Machine().List(ctx, &apiv2.MachineServiceListRequest{
 		Project: c.c.GetProject(),
-		Query: &apiv2.MachineQuery{
-			Uuid:       pointer.PointerOrNil(viper.GetString("id")),
-			Name:       pointer.PointerOrNil(viper.GetString("name")),
-			Partition:  pointer.PointerOrNil(viper.GetString("partition")),
-			Size:       pointer.PointerOrNil(viper.GetString("size")),
-			Allocation: allocation,
-		},
+		Query:   helpers.MachineQuery(false),
 	})
 	if err != nil {
 		return nil, err

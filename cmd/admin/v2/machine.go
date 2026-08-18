@@ -46,7 +46,7 @@ func newMachineCmd(c *config.Config) *cobra.Command {
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
-			w.addMachineQueryFlags(cmd)
+			helpers.AddMachineQueryFlags(cmd, c.Completion)
 
 			cmd.Long = cmd.Short + "\n" + helpers.MachineListEmojiHelpText()
 		},
@@ -168,7 +168,7 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 		},
 	}
 
-	w.addMachineQueryFlags(bmcListCmd)
+	helpers.AddMachineQueryFlags(bmcListCmd, c.Completion)
 	genericcli.AddSortFlag(bmcListCmd, sorters.MachineBmcSorter())
 
 	bmcCmd.AddCommand(bmcDescribeCmd, bmcListCmd, bmcCommandCmd)
@@ -280,7 +280,7 @@ func (c *machine) List() ([]*apiv2.Machine, error) {
 	defer cancel()
 
 	resp, err := c.c.Client.Adminv2().Machine().List(ctx, &adminv2.MachineServiceListRequest{
-		Query: machineQuery(),
+		Query: helpers.MachineQuery(true),
 	})
 	if err != nil {
 		return nil, err
@@ -395,7 +395,7 @@ func (c *machine) bmcList(ctx context.Context) error {
 	}
 
 	resp, err := c.c.Client.Adminv2().Machine().ListBMC(ctx, &adminv2.MachineServiceListBMCRequest{
-		Query: machineQuery(),
+		Query: helpers.MachineQuery(true),
 	})
 	if err != nil {
 		return err
@@ -618,65 +618,4 @@ func sshClient(user, keyfile, host string, port int, idToken *string, passwordAu
 	}
 
 	return s.Connect(env)
-}
-
-func (c *machine) addMachineQueryFlags(cmd *cobra.Command) {
-	cmd.Flags().String("id", "", "id of machine which should be listed")
-	cmd.Flags().String("name", "", "name from machines which should be listed")
-	cmd.Flags().String("hostname", "", "hostname from machines which should be listed")
-	cmd.Flags().String("size", "", "size from machines which should be listed")
-	cmd.Flags().String("image", "", "image")
-	cmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
-	cmd.Flags().StringP("partition", "", "", "partition from where machines should be listed")
-
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.c.Completion.Project))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("size", c.c.Completion.Size))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("image", c.c.Completion.Image))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", c.c.Completion.Partition))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("id", c.c.Completion.AdminMachine))
-}
-
-func machineQuery() *apiv2.MachineQuery {
-	var allocation *apiv2.MachineAllocationQuery
-
-	if viper.IsSet("hostname") || viper.IsSet("name") || viper.IsSet("project") || viper.IsSet("image") {
-		allocation = &apiv2.MachineAllocationQuery{
-			Hostname: pointer.PointerOrNil(viper.GetString("hostname")),
-			Name:     pointer.PointerOrNil(viper.GetString("name")),
-			Project:  pointer.PointerOrNil(viper.GetString("project")),
-			Image:    pointer.PointerOrNil(viper.GetString("image")),
-		}
-	}
-
-	return &apiv2.MachineQuery{
-		Uuid:       pointer.PointerOrNil(viper.GetString("id")),
-		Partition:  pointer.PointerOrNil(viper.GetString("partition")),
-		Size:       pointer.PointerOrNil(viper.GetString("size")),
-		Allocation: allocation,
-		// 	Rack:      pointer.PointerOrNil(viper.GetString("rack")),
-		// 	Labels: &apiv2.Labels{
-		// 		Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
-		// 	},
-		// 	Bmc: &apiv2.MachineBMCQuery{
-		// 		Address:   pointer.PointerOrNil(viper.GetString("bmc-address")),
-		// 		Mac:       pointer.PointerOrNil(viper.GetString("bmc-mac")),
-		// 		User:      pointer.PointerOrNil(viper.GetString("bmc-user")),
-		// 		Interface: pointer.PointerOrNil(viper.GetString("bmc-interface")),
-		// 	},
-		// 	Fru: &apiv2.MachineFRUQuery{
-		// 		ChassisPartNumber:   pointer.PointerOrNil(viper.GetString("chassis-part-number")),
-		// 		ChassisPartSerial:   pointer.PointerOrNil(viper.GetString("chassis-part-serial")),
-		// 		BoardMfg:            pointer.PointerOrNil(viper.GetString("board-mfg")),
-		// 		BoardSerial:         pointer.PointerOrNil(viper.GetString("board-serial")),
-		// 		BoardPartNumber:     pointer.PointerOrNil(viper.GetString("board-part-number")),
-		// 		ProductManufacturer: pointer.PointerOrNil(viper.GetString("product-manufacturer")),
-		// 		ProductPartNumber:   pointer.PointerOrNil(viper.GetString("product-part-number")),
-		// 		ProductSerial:       pointer.PointerOrNil(viper.GetString("product-serial")),
-		// 	},
-		// 	Hardware: &apiv2.MachineHardwareQuery{
-		// 		Memory:   pointer.PointerOrNil(viper.GetUint64("memory")),
-		// 		CpuCores: pointer.PointerOrNil(viper.GetUint32("cpu-cores")),
-		// 	},
-		// State:    &0,
-	}
 }

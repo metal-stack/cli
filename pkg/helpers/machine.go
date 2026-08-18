@@ -234,6 +234,76 @@ func MachineUpdateRequestFromCLI(c *config.Config, args []string) (*apiv2.Machin
 	}, nil
 }
 
+func AddMachineQueryFlags(cmd *cobra.Command, completion *completion.Completion) {
+	cmd.Flags().String("id", "", "id of machine which should be listed")
+	cmd.Flags().String("name", "", "name from machines which should be listed")
+	cmd.Flags().String("hostname", "", "hostname from machines which should be listed")
+	cmd.Flags().String("size", "", "size from machines which should be listed")
+	cmd.Flags().String("image", "", "image")
+	cmd.Flags().StringP("project", "p", "", "project from where machines should be listed")
+	cmd.Flags().StringP("partition", "", "", "partition from where machines should be listed")
+
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("project", completion.Project))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("size", completion.Size))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("image", completion.Image))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", completion.Partition))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("id", completion.AdminMachine))
+}
+
+// MachineQuery returns a machine query from the cmd flags added through AddMachineQueryFlags
+// unscoped indicates an unscoped request made from the admin API, which has certain effects on building the query
+func MachineQuery(unscoped bool) *apiv2.MachineQuery {
+	var allocation *apiv2.MachineAllocationQuery
+
+	if viper.IsSet("hostname") || viper.IsSet("name") || viper.IsSet("image") {
+		allocation = &apiv2.MachineAllocationQuery{
+			Hostname: pointer.PointerOrNil(viper.GetString("hostname")),
+			Name:     pointer.PointerOrNil(viper.GetString("name")),
+			Image:    pointer.PointerOrNil(viper.GetString("image")),
+		}
+	}
+
+	if unscoped && viper.IsSet("project") {
+		if allocation == nil {
+			allocation = &apiv2.MachineAllocationQuery{}
+		}
+
+		allocation.Project = pointer.PointerOrNil(viper.GetString("project"))
+	}
+
+	return &apiv2.MachineQuery{
+		Uuid:       pointer.PointerOrNil(viper.GetString("id")),
+		Partition:  pointer.PointerOrNil(viper.GetString("partition")),
+		Size:       pointer.PointerOrNil(viper.GetString("size")),
+		Allocation: allocation,
+		// 	Rack:      pointer.PointerOrNil(viper.GetString("rack")),
+		// 	Labels: &apiv2.Labels{
+		// 		Labels: tag.NewTagMap(viper.GetStringSlice("labels")),
+		// 	},
+		// 	Bmc: &apiv2.MachineBMCQuery{
+		// 		Address:   pointer.PointerOrNil(viper.GetString("bmc-address")),
+		// 		Mac:       pointer.PointerOrNil(viper.GetString("bmc-mac")),
+		// 		User:      pointer.PointerOrNil(viper.GetString("bmc-user")),
+		// 		Interface: pointer.PointerOrNil(viper.GetString("bmc-interface")),
+		// 	},
+		// 	Fru: &apiv2.MachineFRUQuery{
+		// 		ChassisPartNumber:   pointer.PointerOrNil(viper.GetString("chassis-part-number")),
+		// 		ChassisPartSerial:   pointer.PointerOrNil(viper.GetString("chassis-part-serial")),
+		// 		BoardMfg:            pointer.PointerOrNil(viper.GetString("board-mfg")),
+		// 		BoardSerial:         pointer.PointerOrNil(viper.GetString("board-serial")),
+		// 		BoardPartNumber:     pointer.PointerOrNil(viper.GetString("board-part-number")),
+		// 		ProductManufacturer: pointer.PointerOrNil(viper.GetString("product-manufacturer")),
+		// 		ProductPartNumber:   pointer.PointerOrNil(viper.GetString("product-part-number")),
+		// 		ProductSerial:       pointer.PointerOrNil(viper.GetString("product-serial")),
+		// 	},
+		// 	Hardware: &apiv2.MachineHardwareQuery{
+		// 		Memory:   pointer.PointerOrNil(viper.GetUint64("memory")),
+		// 		CpuCores: pointer.PointerOrNil(viper.GetUint32("cpu-cores")),
+		// 	},
+		// State:    &0,
+	}
+}
+
 var defaultSSHKeys = [...]string{"id_ed25519", "id_ecdsa", "id_rsa", "id_dsa"}
 
 func SearchSSHKey() (string, error) {
