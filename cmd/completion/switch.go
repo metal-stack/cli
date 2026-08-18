@@ -48,6 +48,20 @@ func (c *Completion) SwitchRack(cmd *cobra.Command, args []string, toComplete st
 	return racks, cobra.ShellCompDirectiveNoFileComp
 }
 
+func (c *Completion) SwitchRoom(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	resp, err := c.Client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	var rooms []string
+	for _, s := range resp.Switches {
+		rooms = append(rooms, pointer.SafeDeref(s.Room))
+	}
+
+	return rooms, cobra.ShellCompDirectiveNoFileComp
+}
+
 func (c *Completion) SwitchOSVendor(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	resp, err := c.Client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
 	if err != nil {

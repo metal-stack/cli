@@ -289,6 +289,10 @@ func AddMachineQueryFlags(cmd *cobra.Command, completion *completion.Completion)
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("image", completion.Image))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("partition", completion.Partition))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("id", completion.AdminMachine))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("rack", completion.SwitchRack))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("room", completion.SwitchRoom))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("state", completion.MachineState))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("allocation-type", completion.MachineAllocationType))
 }
 
 // MachineQuery returns a machine query from the cmd flags added through AddMachineQueryFlags
