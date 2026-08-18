@@ -436,9 +436,9 @@ func MachineQuery(unscoped bool) (*apiv2.MachineQuery, error) {
 		Fru:          fru,
 		Hardware:     hardware,
 		State:        state,
-		Waiting:      pointer.PointerOrNil(unscoped && viper.GetBool("waiting")),
-		Preallocated: pointer.PointerOrNil(unscoped && viper.GetBool("preallocated")),
-		NotAllocated: pointer.PointerOrNil(unscoped && viper.GetBool("not-allocated")),
+		Waiting:      pointer.PointerOrNil(viper.GetBool("waiting")),
+		Preallocated: pointer.PointerOrNil(viper.GetBool("preallocated")),
+		NotAllocated: pointer.PointerOrNil(viper.GetBool("not-allocated")),
 	}, nil
 }
 
