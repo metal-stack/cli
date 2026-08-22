@@ -71,3 +71,11 @@ func (c *Completion) Firewall(cmd *cobra.Command, args []string, toComplete stri
 func (c *Completion) BMCCommands(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return c.genericEnums(apiv2.MachineBMCCommand_name)
 }
+
+func (c *Completion) MachineState(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return c.genericEnums(apiv2.MachineState_name)
+}
+
+func (c *Completion) MachineAllocationType(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return c.genericEnums(apiv2.MachineAllocationType_name)
+}

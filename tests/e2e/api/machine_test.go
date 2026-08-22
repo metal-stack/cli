@@ -143,7 +143,7 @@ func Test_MachineCmd_Create(t *testing.T) {
 				"--ssh-public-key", "@.ssh/id_rsa.pub",
 				"--labels", "a=b",
 				"--userdata", "@ignition.json",
-				"--placement-tags", "cluster-id=cluster-uuid",
+				"--placement-labels", "cluster-id=cluster-uuid",
 			},
 			AssertExhaustiveArgs:     true,
 			AssertExhaustiveExcludes: e2e.CommonExcludedFileArgs(),
@@ -183,9 +183,10 @@ func Test_MachineCmd_Create(t *testing.T) {
 								return nws
 							}(),
 							PlacementLabels: &apiv2.Labels{
-								Labels: map[string]string{"cluster-id": "cluster-uuid"},
-							},
-							DnsServers:     []*apiv2.DNSServer{{Ip: "1.1.1.1"}},
+								Labels: map[string]string{
+									"cluster-id": "cluster-uuid",
+								},
+							}, DnsServers: []*apiv2.DNSServer{{Ip: "1.1.1.1"}},
 							NtpServers:     []*apiv2.NTPServer{{Address: "2.2.2.2"}, {Address: "3.3.3.3"}},
 							AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
 							FirewallSpec:   nil,

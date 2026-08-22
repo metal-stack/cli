@@ -110,72 +110,77 @@ func (t *TablePrinter) MachineTable(data []*apiv2.Machine, wide bool) ([]string,
 	return header, rows, nil
 }
 
-func (t *TablePrinter) MachineBMCTable(data map[string]*apiv2.MachineBMCReport, wide bool) ([]string, [][]string, error) {
+func (t *TablePrinter) MachineBMCTable(data []*apiv2.MachineBMCDetails, wide bool) ([]string, [][]string, error) {
 	var (
 		rows   [][]string
-		header = []string{"ID", "Power", "IP", "Mac", "Board Part Number", "Bios", "BMC", "Size", "Partition", "Rack", "Updated"}
+		header = []string{"ID", "", "Power", "IP", "Mac", "Board Part Number", "Bios", "BMC", "Size", "Partition", "Rack", "Updated"}
 	)
 
 	if wide {
-		header = []string{"ID", "Power", "IP", "Mac", "Board Part Number", "Chassis Serial", "Product Serial", "Bios Version", "BMC Version", "Size", "Partition", "Rack", "Updated"}
+		header = []string{"ID", "LED", "Power", "IP", "Mac", "Board Part Number", "Chassis Serial", "Product Serial", "Bios Version", "BMC Version", "Size", "Partition", "Rack", "Updated"}
 	}
 
-	for machineID, report := range data {
-		// partition := pointer.SafeDeref(machine.).ID
-		// size := pointer.SafeDeref(pointer.SafeDeref(machine.Size).ID)
-
-		if report.LedState != nil && report.LedState.Value == "LED-ON" {
-			blue := color.New(color.FgBlue).SprintFunc()
-			machineID = blue(machineID)
-		}
-
+	for _, detail := range data {
 		var (
-			// FIXME these are not provided by machineBMCReport
-			// FIXME Events are also not provided.
-			size      = ""
-			partition = ""
-			rack      = ""
+			size      = detail.Size
+			partition = detail.Partition
+			rack      = detail.Rack
+			machineID = detail.Uuid
 
-			ipAddress   = ""
-			mac         = ""
-			bpn         = ""
-			cs          = ""
-			ps          = ""
-			bmcVersion  = ""
-			bmc         = report.Bmc
-			fru         = report.Fru
-			lastUpdated = "never"
-			bios        = report.Bios
-			biosVersion = ""
+			ipAddress     = ""
+			mac           = ""
+			bpn           = ""
+			chassisSerial = ""
+			productSerial = ""
+			bmcVersion    = ""
+			lastUpdated   = "never"
+			biosVersion   = ""
+			power         = ""
+			powerText     = ""
+			ledState      = ""
+
+			emojis []string
 		)
-		if fru != nil {
-			bpn = pointer.SafeDeref(fru.BoardPartNumber)
-			cs = pointer.SafeDeref(fru.ChassisPartSerial)
-			ps = pointer.SafeDeref(fru.ProductSerial)
+
+		if report := detail.BmcReport; report != nil {
+			if led := report.LedState; led != nil {
+				ledState = led.Value
+			}
+
+			if fru := report.Fru; fru != nil {
+				bpn = pointer.SafeDeref(fru.BoardPartNumber)
+				chassisSerial = pointer.SafeDeref(fru.ChassisPartSerial)
+				productSerial = pointer.SafeDeref(fru.ProductSerial)
+			}
+
+			if bmc := report.Bmc; bmc != nil {
+				ipAddress = bmc.Address
+				mac = bmc.Mac
+				bmcVersion = bmc.Version
+			}
+
+			power, powerText = extractPowerState(report)
+
+			if report.UpdatedAt != nil && !report.UpdatedAt.AsTime().IsZero() {
+				lastUpdated = fmt.Sprintf("%s ago", humanizeDuration(time.Since(report.UpdatedAt.AsTime())))
+			}
+
+			if bios := report.Bios; bios != nil {
+				biosVersion = bios.Version
+			}
 		}
 
-		if bmc != nil {
-			ipAddress = bmc.Address
-			mac = bmc.Mac
-			bmcVersion = bmc.Version
-
-		}
-		power, powerText := extractPowerState(report)
-
-		if report.UpdatedAt != nil && !report.UpdatedAt.AsTime().IsZero() {
-			lastUpdated = fmt.Sprintf("%s ago", humanizeDuration(time.Since(report.UpdatedAt.AsTime())))
-		}
-
-		if bios != nil {
-			biosVersion = bios.Version
+		// this condition is quite brittle, unfortunately there is no enum in the api for this field
+		if strings.EqualFold(ledState, "LED-ON") {
+			blue := color.New(color.FgBlue).SprintFunc()
+			emojis = append(emojis, blue(ledon))
 		}
 
 		if wide {
-			rows = append(rows, []string{machineID, powerText, ipAddress, mac, bpn, cs, ps, biosVersion, bmcVersion, size, partition, rack, lastUpdated})
+			rows = append(rows, []string{machineID, ledState, powerText, ipAddress, mac, bpn, chassisSerial, productSerial, biosVersion, bmcVersion, size, partition, rack, lastUpdated})
 		} else {
-			rows = append(rows, []string{machineID, power, ipAddress, mac, bpn, biosVersion, bmcVersion, size, partition, rack, lastUpdated})
+			rows = append(rows, []string{machineID, strings.Join(emojis, nbr), power, ipAddress, mac, bpn, biosVersion, bmcVersion, size, partition, rack, lastUpdated})
 		}
-
 	}
 
 	t.t.DisableAutoWrap(false)

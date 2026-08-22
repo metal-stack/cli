@@ -1,11 +1,16 @@
-## metalctlv2 admin machine bmc
+## metalctlv2 admin machine bmc command
 
-get and list machine bmc/ipmi information
+send a command to the bmc of a machine
+
+```
+metalctlv2 admin machine bmc command [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for bmc
+      --command string   the actual command to send to the machine
+  -h, --help             help for command
 ```
 
 ### Options inherited from parent commands
@@ -23,8 +28,5 @@ get and list machine bmc/ipmi information
 
 ### SEE ALSO
 
-* [metalctlv2 admin machine](metalctlv2_admin_machine.md)	 - manage machine entities
-* [metalctlv2 admin machine bmc command](metalctlv2_admin_machine_bmc_command.md)	 - send a command to the bmc of a machine
-* [metalctlv2 admin machine bmc describe](metalctlv2_admin_machine_bmc_describe.md)	 - get the bmc of a machine
-* [metalctlv2 admin machine bmc list](metalctlv2_admin_machine_bmc_list.md)	 - list the bmc of machines
+* [metalctlv2 admin machine bmc](metalctlv2_admin_machine_bmc.md)	 - get and list machine bmc/ipmi information
 

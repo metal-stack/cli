@@ -35,3 +35,23 @@ func MachineSorter() *multisort.Sorter[*apiv2.Machine] {
 		},
 	}, multisort.Keys{{ID: "partition"}, {ID: "size"}, {ID: "project"}, {ID: "uuid"}})
 }
+
+func MachineBmcSorter() *multisort.Sorter[*apiv2.MachineBMCDetails] {
+	return multisort.New(multisort.FieldMap[*apiv2.MachineBMCDetails]{
+		"uuid": func(a, b *apiv2.MachineBMCDetails, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.Uuid, b.Uuid, descending)
+		},
+		"partition": func(a, b *apiv2.MachineBMCDetails, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.Partition, b.Partition, descending)
+		},
+		"size": func(a, b *apiv2.MachineBMCDetails, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.Size, b.Size, descending)
+		},
+		"rack": func(a, b *apiv2.MachineBMCDetails, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.Rack, b.Rack, descending)
+		},
+		"room": func(a, b *apiv2.MachineBMCDetails, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.Room, b.Room, descending)
+		},
+	}, multisort.Keys{{ID: "partition"}, {ID: "size"}, {ID: "uuid"}})
+}
