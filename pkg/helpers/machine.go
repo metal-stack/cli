@@ -155,7 +155,6 @@ func MachineCreateRequestFromCLI(c *config.Config) (*apiv2.MachineServiceCreateR
 	if err != nil {
 		return nil, err
 	}
-
 	placementLabels, err := LabelsFromSlice(viper.GetStringSlice("placement-labels"))
 	if err != nil {
 		return nil, err
