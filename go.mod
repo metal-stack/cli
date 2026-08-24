@@ -1,6 +1,6 @@
 module github.com/metal-stack/cli
 
-go 1.26.5
+go 1.27
 
 require (
 	connectrpc.com/connect v1.20.0
@@ -9,14 +9,14 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/metal-stack/api v0.5.0
+	github.com/metal-stack/api v0.5.1
 	github.com/metal-stack/metal-lib v0.26.3
 	github.com/metal-stack/v v1.0.3
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
-	github.com/stretchr/testify v1.12.0
-	google.golang.org/grpc v1.83.0
+	github.com/stretchr/testify v1.12.1
+	google.golang.org/grpc v1.83.1
 	google.golang.org/protobuf v1.36.12
 	sigs.k8s.io/yaml v1.6.0
 )
@@ -36,12 +36,12 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/coder/websocket v1.8.15 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
-	github.com/creachadair/msync v0.10.0 // indirect
+	github.com/creachadair/msync v0.10.1 // indirect
 	github.com/dblohm7/wingoes v0.0.0-20260526185140-fb298caac7ca // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.3 // indirect
 	github.com/gaissmai/bart v0.29.0 // indirect
-	github.com/go-json-experiment/json v0.0.0-20260623181947-01eb4420fa68 // indirect
+	github.com/go-json-experiment/json v0.0.0-20260820222146-c27c302e5fc3 // indirect
 	github.com/go-openapi/errors v0.22.8 // indirect
 	github.com/go-openapi/strfmt v0.27.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
@@ -61,7 +61,7 @@ require (
 	github.com/klauspost/connect-compress/v2 v2.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
-	github.com/mattn/go-runewidth v0.0.27 // indirect
+	github.com/mattn/go-runewidth v0.0.28 // indirect
 	github.com/mdlayher/netlink v1.11.2 // indirect
 	github.com/mdlayher/socket v0.6.1 // indirect
 	github.com/minio/minlz v1.2.0 // indirect
@@ -92,7 +92,7 @@ require (
 	go4.org/mem v0.0.0-20240501181205-ae6ca9944745 // indirect
 	go4.org/netipx v0.0.0-20231129151722-fdeea329fbba // indirect
 	golang.org/x/crypto v0.55.0 // indirect
-	golang.org/x/exp v0.0.0-20260813180055-c1d0aacb2297 // indirect
+	golang.org/x/exp v0.0.0-20260820142414-ca536658362e // indirect
 	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
@@ -102,12 +102,12 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 	golang.zx2c4.com/wireguard/windows v1.0.1 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260810153831-ec0a7760b754 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260810153831-ec0a7760b754 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260819154853-08b0e4226688 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gvisor.dev/gvisor v0.0.0-20260224225140-573d5e7127a8 // indirect
-	k8s.io/apimachinery v0.36.3 // indirect
+	k8s.io/apimachinery v0.36.4 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
-	tailscale.com v1.102.2 // indirect
+	tailscale.com v1.102.3 // indirect
 )

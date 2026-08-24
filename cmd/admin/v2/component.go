@@ -8,6 +8,7 @@ import (
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
+	"github.com/metal-stack/cli/cmd/sorters"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -32,6 +33,7 @@ func newComponentCmd(c *config.Config) *cobra.Command {
 		Description:     "list status of components, e.g. microservices connected to the metal-apiserver",
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
+		Sorter:          sorters.ComponentSorter(),
 		OnlyCmds:        genericcli.OnlyCmds(genericcli.DescribeCmd, genericcli.ListCmd, genericcli.DeleteCmd),
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("uuid", "", "lists only component with this uuid")
