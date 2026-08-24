@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/metal-stack/api/go/client"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/v"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -48,8 +47,8 @@ func NewMCPCmd(c *config.Config) *cobra.Command {
 
 			raw, mcps := gosdk.NewServer("metal-stack.io mcp server", v.V.String())
 
-			client.ForwardToAdminv2(c.Client.Adminv2(), mcps)
-			client.ForwardToApiv2(c.Client.Apiv2(), mcps)
+			c.Client.Adminv2().EnableMCP(mcps)
+			c.Client.Apiv2().EnableMCP(mcps)
 
 			if err := raw.Run(cmd.Context(), &mcp.StdioTransport{}); err != nil {
 				return err
