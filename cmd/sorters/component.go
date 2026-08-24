@@ -16,5 +16,8 @@ func ComponentSorter() *multisort.Sorter[*apiv2.Component] {
 		"started": func(a, b *apiv2.Component, descending bool) multisort.CompareResult {
 			return multisort.Compare(a.StartedAt.AsTime().String(), b.StartedAt.AsTime().String(), descending)
 		},
+		"expiration": func(a, b *apiv2.Component, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.Token.Expires.String(), b.Token.Expires.String(), descending)
+		},
 	}, multisort.Keys{{ID: "type", Descending: true}, {ID: "identifier", Descending: true}})
 }
