@@ -214,27 +214,27 @@ func (c *image) List() ([]*apiv2.Image, error) {
 
 func (c *image) Convert(r *apiv2.Image) (string, *adminv2.ImageServiceCreateRequest, *adminv2.ImageServiceUpdateRequest, error) {
 	return r.Id, &adminv2.ImageServiceCreateRequest{
-			Image: &apiv2.Image{
-				Id:             r.Id,
-				Url:            r.Url,
-				Name:           r.Name,
-				Description:    r.Description,
-				Features:       r.Features,
-				Meta:           r.Meta,
-				Classification: r.Classification,
-				ExpiresAt:      r.ExpiresAt,
-			},
-		}, &adminv2.ImageServiceUpdateRequest{
-			UpdateMeta:     helpers.UpdateMetaFromMeta(r.Meta),
-			Labels:         helpers.UpdateLabelsFromMeta(r.Meta),
+		Image: &apiv2.Image{
 			Id:             r.Id,
-			Url:            &r.Url,
+			Url:            r.Url,
 			Name:           r.Name,
 			Description:    r.Description,
 			Features:       r.Features,
+			Meta:           r.Meta,
 			Classification: r.Classification,
 			ExpiresAt:      r.ExpiresAt,
-		}, nil
+		},
+	}, &adminv2.ImageServiceUpdateRequest{
+		UpdateMeta:     helpers.UpdateMetaFromMeta(r.Meta),
+		Labels:         helpers.UpdateLabelsFromMeta(r.Meta),
+		Id:             r.Id,
+		Url:            &r.Url,
+		Name:           r.Name,
+		Description:    r.Description,
+		Features:       r.Features,
+		Classification: r.Classification,
+		ExpiresAt:      r.ExpiresAt,
+	}, nil
 }
 
 func (c *image) Update(rq *adminv2.ImageServiceUpdateRequest) (*apiv2.Image, error) {
