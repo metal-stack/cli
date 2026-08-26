@@ -228,31 +228,31 @@ func (t *token) Convert(r *apiv2.Token) (string, *adminv2.TokenServiceCreateRequ
 	}
 
 	return r.Uuid, &adminv2.TokenServiceCreateRequest{
-			User: &r.User,
-			TokenCreateRequest: &apiv2.TokenServiceCreateRequest{
-				Description:  r.GetDescription(),
-				Permissions:  perms,
-				ProjectRoles: r.GetProjectRoles(),
-				TenantRoles:  r.GetTenantRoles(),
-				Expires:      durationpb.New(time.Until(r.GetExpires().AsTime())),
-				Labels:       pointer.SafeDeref(r.Meta).Labels,
-			},
-		}, &apiv2.TokenServiceUpdateRequest{
-			Uuid:         r.Uuid,
-			Description:  pointer.PointerOrNil(r.Description),
+		User: &r.User,
+		TokenCreateRequest: &apiv2.TokenServiceCreateRequest{
+			Description:  r.GetDescription(),
 			Permissions:  perms,
-			ProjectRoles: r.ProjectRoles,
-			TenantRoles:  r.TenantRoles,
-			AdminRole:    r.AdminRole,
-			Labels: &apiv2.UpdateLabels{
-				Strategy: &apiv2.UpdateLabels_Replace{
-					Replace: &apiv2.Labels{
-						Labels: pointer.SafeDeref(pointer.SafeDeref(r.Meta).Labels).Labels,
-					},
+			ProjectRoles: r.GetProjectRoles(),
+			TenantRoles:  r.GetTenantRoles(),
+			Expires:      durationpb.New(time.Until(r.GetExpires().AsTime())),
+			Labels:       pointer.SafeDeref(r.Meta).Labels,
+		},
+	}, &apiv2.TokenServiceUpdateRequest{
+		Uuid:         r.Uuid,
+		Description:  pointer.PointerOrNil(r.Description),
+		Permissions:  perms,
+		ProjectRoles: r.ProjectRoles,
+		TenantRoles:  r.TenantRoles,
+		AdminRole:    r.AdminRole,
+		Labels: &apiv2.UpdateLabels{
+			Strategy: &apiv2.UpdateLabels_Replace{
+				Replace: &apiv2.Labels{
+					Labels: pointer.SafeDeref(pointer.SafeDeref(r.Meta).Labels).Labels,
 				},
 			},
-			UpdateMeta: helpers.UpdateMetaFromMeta(r.Meta),
-		}, nil
+		},
+		UpdateMeta: helpers.UpdateMetaFromMeta(r.Meta),
+	}, nil
 }
 
 func (t *token) Update(rq *apiv2.TokenServiceUpdateRequest) (*apiv2.Token, error) {
