@@ -11,6 +11,7 @@ metalctlv2 admin component list [flags]
 ```
   -h, --help                help for list
       --identifier string   lists only component with this identifier
+      --sort-by strings     sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: identifier|started|type
       --type string         lists only component of this type
       --uuid string         lists only component with this uuid
 ```
