@@ -1,6 +1,10 @@
 package v2
 
 import (
+	"context"
+	"fmt"
+	"net/url"
+
 	"github.com/metal-stack/api/go/errorutil"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -8,6 +12,7 @@ import (
 	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -72,7 +77,21 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 		ValidArgsFn: c.Completion.Machine,
 	}
 
-	return genericcli.NewCmds(cmdsConfig)
+	consoleCmd := &cobra.Command{
+		Use:   "console",
+		Short: "establishes a connection to the serial console of a machine. for authentication at the metal-console it uses the token such that no machine ssh key is required for access (unlike the corresponding user API command).",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.console(cmd.Context(), args)
+		},
+		ValidArgsFunction: c.Completion.AdminMachine,
+	}
+	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)")
+	consoleCmd.Flags().Int("metal-console-port", 5222, "port open on our control-plane to connect via ssh to get machine console access")
+	consoleCmd.Flags().StringP("project", "p", "", "project of the machine")
+	genericcli.Must(consoleCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+	genericcli.Must(consoleCmd.MarkFlagRequired("project"))
+
+	return genericcli.NewCmds(cmdsConfig, consoleCmd)
 }
 
 func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine, error) {
@@ -175,4 +194,23 @@ func (c *machine) Convert(r *apiv2.Machine) (string, *apiv2.MachineServiceCreate
 	}
 
 	return helpers.EncodeProject(r.Uuid, r.Allocation.Project), create, update, err
+}
+
+func (c *machine) console(ctx context.Context, args []string) error {
+	id, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return err
+	}
+
+	parsedurl, err := url.Parse(pointer.SafeDeref(c.c.Context.ApiURL))
+	if err != nil {
+		return err
+	}
+
+	err = helpers.SShClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, viper.GetString("project"))
+	if err != nil {
+		return fmt.Errorf("machine console error:%w", err)
+	}
+
+	return nil
 }
