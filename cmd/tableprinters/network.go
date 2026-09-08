@@ -6,6 +6,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/metal-stack/api/go/enum"
+	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -66,6 +67,38 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 	}
 
 	return header, rows, nil
+}
+
+func (t *TablePrinter) NetworkExternalMembersTable(data *adminv2.NetworkServiceListExternalMembersResponse) ([]string, [][]string, error) {
+	var (
+		rows   = [][]string{}
+		header = []string{"NETWORK", "SWITCH", "PORTS"}
+	)
+
+	if len(data.Members) < 1 {
+		return header, append(rows, []string{data.Network}), nil
+	}
+
+	for i, member := range data.Members {
+		for j, port := range member.Ports {
+			var (
+				first, second string
+			)
+			if i == 0 && j == 0 {
+				first = data.Network
+			}
+			if j == 0 {
+				second = member.Switch
+			}
+			rows = append(rows, []string{first, second, port})
+		}
+	}
+
+	return header, rows, nil
+}
+
+func (t *TablePrinter) NetworkExternalMembersChangedTable(network *apiv2.Network, switches []*apiv2.Switch) ([]string, [][]string, error) {
+	panic("unimplemented")
 }
 
 func renderNetworkRow(prefix string, n *apiv2.Network, wide bool) ([]string, error) {

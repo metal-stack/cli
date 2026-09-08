@@ -390,3 +390,130 @@ func Test_AdminNetworkCmd_Update(t *testing.T) {
 		tt.TestCmd(t)
 	}
 }
+
+func Test_AdminNetworkCmd_ListExternalMembers(t *testing.T) {
+	var (
+		p01r01switch01 = &apiv2.Switch{
+			Id:        "p01r01switch01",
+			Partition: "p01",
+			Rack:      new("p01r01"),
+		}
+		p01r02switch01 = &apiv2.Switch{
+			Id:        "p01r02switch01",
+			Partition: "p01",
+			Rack:      new("p01r02"),
+		}
+		p02r01switch01 = &apiv2.Switch{
+			Id:        "p02r01switch01",
+			Partition: "p02",
+			Rack:      new("p02r01"),
+		}
+	)
+
+	tests := []*e2e.Test[adminv2.NetworkServiceListResponse, apiv2.Network]{
+		{
+			Name: "list empty members",
+			CmdArgs: []string{"admin", "network", "list-external-members",
+				testresources.Network2().Id,
+			},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceListExternalMembersRequest{
+							Network: testresources.Network2().Id,
+							Query:   &apiv2.ExternalNetworkMemberQuery{},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.NetworkServiceListExternalMembersResponse{
+								Network: testresources.Network1().Id,
+								Members: []*apiv2.ExternalNetworkMember{},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            NETWORK                               SWITCH  PORTS
+            6988ebb0-9531-4f9b-a893-d7868258e2ef
+			`),
+			WantWideTable: new(`
+            NETWORK                               SWITCH  PORTS
+            6988ebb0-9531-4f9b-a893-d7868258e2ef
+			`),
+			Template:     new("{{ .network }} {{ range .members }}{{ .switch }}{{ end }}"),
+			WantTemplate: new(`6988ebb0-9531-4f9b-a893-d7868258e2ef`),
+			WantMarkdown: new(`
+            | NETWORK                              | SWITCH | PORTS |
+            |--------------------------------------|--------|-------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef |        |       |
+			`),
+		},
+		{
+			Name: "list all",
+			CmdArgs: []string{"admin", "network", "list-external-members",
+				testresources.Network1().Id,
+			},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceListExternalMembersRequest{
+							Network: testresources.Network1().Id,
+							Query:   &apiv2.ExternalNetworkMemberQuery{},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.NetworkServiceListExternalMembersResponse{
+								Network: testresources.Network1().Id,
+								Members: []*apiv2.ExternalNetworkMember{
+									{
+										Switch: p01r01switch01.Id,
+										Ports:  []string{"Ethernet0", "Ethernet1"},
+									},
+									{
+										Switch: p01r02switch01.Id,
+										Ports:  []string{"Ethernet0", "Ethernet1"},
+									},
+									{
+										Switch: p02r01switch01.Id,
+										Ports:  []string{"Ethernet0"},
+									},
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+			NETWORK                               SWITCH          PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  p01r01switch01  Ethernet0  
+                                                                  Ethernet1  
+                                                  p01r02switch01  Ethernet0  
+                                                                  Ethernet1  
+                                                  p02r01switch01  Ethernet0
+			`),
+			WantWideTable: new(`
+			NETWORK                               SWITCH          PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  p01r01switch01  Ethernet0  
+                                                                  Ethernet1  
+                                                  p01r02switch01  Ethernet0  
+                                                                  Ethernet1  
+                                                  p02r01switch01  Ethernet0
+			`),
+			Template: new("{{ .network }} {{ range .members }}{{ .switch }} {{ end }}"),
+			WantTemplate: new(`
+            6988ebb0-9531-4f9b-a893-d7868258e2ef p01r01switch01 p01r02switch01 p02r01switch01
+			`),
+			WantMarkdown: new(`
+			| NETWORK                              | SWITCH         | PORTS     |
+            |--------------------------------------|----------------|-----------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef | p01r01switch01 | Ethernet0 |
+            |                                      |                | Ethernet1 |
+            |                                      | p01r02switch01 | Ethernet0 |
+            |                                      |                | Ethernet1 |
+            |                                      | p02r01switch01 | Ethernet0 |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}

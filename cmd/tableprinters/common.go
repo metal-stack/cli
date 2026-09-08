@@ -60,6 +60,12 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.NetworkTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Network:
 		return t.NetworkTable(d, wide)
+	case *adminv2.NetworkServiceListExternalMembersResponse:
+		return t.NetworkExternalMembersTable(d)
+	case *adminv2.NetworkServiceAddExternalMembersResponse:
+		return t.NetworkExternalMembersChangedTable(d.Network, d.Switches)
+	case *adminv2.NetworkServiceRemoveExternalMembersResponse:
+		return t.NetworkExternalMembersChangedTable(d.Network, d.Switches)
 
 	case *apiv2.Machine:
 		return t.MachineTable(pointer.WrapInSlice(d), wide)
