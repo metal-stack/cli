@@ -207,7 +207,7 @@ func (c *machine) console(ctx context.Context, args []string) error {
 		return err
 	}
 
-	err = helpers.SShClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, viper.GetString("project"))
+	err = helpers.SShClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, new(viper.GetString("project")))
 	if err != nil {
 		return fmt.Errorf("machine console error:%w", err)
 	}
