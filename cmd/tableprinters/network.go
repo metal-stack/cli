@@ -6,7 +6,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/metal-stack/api/go/enum"
-	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -69,36 +68,52 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 	return header, rows, nil
 }
 
-func (t *TablePrinter) NetworkExternalMembersTable(data *adminv2.NetworkServiceListExternalMembersResponse) ([]string, [][]string, error) {
+func (t *TablePrinter) NetworkExternalMembersTable(network *apiv2.Network, members []*apiv2.ExternalNetworkMember, wide bool) ([]string, [][]string, error) {
 	var (
-		rows   = [][]string{}
-		header = []string{"NETWORK", "SWITCH", "PORTS"}
+		rows = [][]string{}
 	)
 
-	if len(data.Members) < 1 {
-		return header, append(rows, []string{data.Network}), nil
+	header := []string{"ID", "NAME", "SWITCH", "PARTITION", "RACK", "PORTS"}
+	if wide {
+		header = []string{"ID", "NAME", "TYPE", "PREFIXES", "SWITCH", "PARTITION", "RACK", "PORTS"}
 	}
 
-	for i, member := range data.Members {
+	if len(members) < 1 {
+		return header, append(rows, []string{network.Id}), nil
+	}
+
+	for i, member := range members {
 		for j, port := range member.Ports {
 			var (
-				first, second string
+				id        string
+				name      string
+				nwType    string
+				prefixes  string
+				sw        string
+				partition string
+				rack      string
 			)
 			if i == 0 && j == 0 {
-				first = data.Network
+				id = network.Id
+				name = pointer.SafeDeref(network.Name)
+				nwType = network.Type.String()
+				prefixes = strings.Join(network.Prefixes, ",")
 			}
 			if j == 0 {
-				second = member.Switch
+				sw = member.Switch
+				partition = member.Partition
+				rack = member.Rack
 			}
-			rows = append(rows, []string{first, second, port})
+
+			if wide {
+				rows = append(rows, []string{id, name, nwType, prefixes, sw, partition, rack, port})
+			} else {
+				rows = append(rows, []string{id, name, sw, partition, rack, port})
+			}
 		}
 	}
 
 	return header, rows, nil
-}
-
-func (t *TablePrinter) NetworkExternalMembersChangedTable(network *apiv2.Network, switches []*apiv2.Switch) ([]string, [][]string, error) {
-	panic("unimplemented")
 }
 
 func renderNetworkRow(prefix string, n *apiv2.Network, wide bool) ([]string, error) {

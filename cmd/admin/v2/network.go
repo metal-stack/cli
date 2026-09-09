@@ -125,7 +125,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	networkAddExternalMembersCmd.Flags().StringSlice("rack", nil, "rack of the external members")
+	networkAddExternalMembersCmd.Flags().String("rack", "", "rack of the external members")
 	networkAddExternalMembersCmd.Flags().StringSlice("ports", nil, "ports to add to the network")
 
 	networkRemoveExternalMembersCmd := &cobra.Command{
@@ -137,7 +137,7 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	networkRemoveExternalMembersCmd.Flags().StringSlice("rack", nil, "rack of the external members")
+	networkRemoveExternalMembersCmd.Flags().String("rack", "", "rack of the external members")
 	networkRemoveExternalMembersCmd.Flags().StringSlice("ports", nil, "ports to add to the network")
 
 	return genericcli.NewCmds(cmdsConfig, networkListExternalMembersCmd, networkAddExternalMembersCmd, networkRemoveExternalMembersCmd)
