@@ -78,14 +78,14 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 
 	consoleCmd := &cobra.Command{
 		Use:   "console",
-		Short: "establishes a connection to the serial console of a machine. for authentication at the metal-console it uses the token such that no machine ssh key is required for access (unlike the corresponding user API command).",
+		Short: "establishes a connection to the serial console of a machine. for authentication at the metal-console it uses the token and the machine ssh key that was used when creating the machine.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.console(args)
 		},
-		ValidArgsFunction: c.Completion.AdminMachine,
+		ValidArgsFunction: c.Completion.Machine,
 	}
-	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)")
-	consoleCmd.Flags().Int("metal-console-port", 5222, "port open on our control-plane to connect via ssh to get machine console access")
+	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present and the machine bmc being accessible from the local machine)")
+	consoleCmd.Flags().Int("metal-console-port", 5222, "the metal-console tcp port in the control-plane to connect via ssh to get machine console access")
 	consoleCmd.Flags().StringP("project", "p", "", "project of the machine")
 	consoleCmd.Flags().StringP("sshidentity", "i", "", "the ssh private key used when creating the machine")
 	genericcli.Must(consoleCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
@@ -207,7 +207,7 @@ func (c *machine) console(args []string) error {
 		return err
 	}
 
-	err = helpers.SShClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, new(viper.GetString("project")))
+	err = helpers.SSHClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, new(viper.GetString("project")))
 	if err != nil {
 		return fmt.Errorf("machine console error: %w", err)
 	}

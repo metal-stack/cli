@@ -203,8 +203,8 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 		},
 		ValidArgsFunction: c.Completion.AdminMachine,
 	}
-	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)")
-	consoleCmd.Flags().Int("metal-console-port", 5222, "port open on our control-plane to connect via ssh to get machine console access")
+	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present and the machine bmc being accessible from the local machine)")
+	consoleCmd.Flags().Int("metal-console-port", 5222, "the metal-console tcp port in the control-plane to connect via ssh to get machine console access")
 
 	consolePasswordCmd := &cobra.Command{
 		Use:   "consolepassword",
@@ -452,7 +452,7 @@ func (c *machine) console(ctx context.Context, args []string) error {
 		return err
 	}
 
-	err = helpers.SShClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, nil)
+	err = helpers.SSHClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, nil)
 	if err != nil {
 		return fmt.Errorf("machine console error:%w", err)
 	}

@@ -7,8 +7,8 @@ import (
 	metalssh "github.com/metal-stack/metal-lib/pkg/ssh"
 )
 
-// SShClient opens an interactive ssh session to the host on port with user, authenticated by the key.
-func SShClient(user, keyfile, host string, port int, idToken string, project *string) error {
+// SSHClient opens an interactive ssh session to the host on port with user, authenticated by the key.
+func SSHClient(user, keyfile, host string, port int, idToken string, project *string) error {
 	var opts []metalssh.ConnectOpt
 
 	opts = append(opts, metalssh.ConnectOptOutputPassword(idToken))
