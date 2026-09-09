@@ -29,6 +29,7 @@ allocate a machine
 
 * [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
 * [metalctlv2 machine apply](metalctlv2_machine_apply.md)	 - applies one or more machines from a given file
+* [metalctlv2 machine console](metalctlv2_machine_console.md)	 - establishes a connection to the serial console of a machine. for authentication at the metal-console it uses the token such that no machine ssh key is required for access (unlike the corresponding user API command).
 * [metalctlv2 machine create](metalctlv2_machine_create.md)	 - creates the machine
 * [metalctlv2 machine delete](metalctlv2_machine_delete.md)	 - deletes the machine
 * [metalctlv2 machine describe](metalctlv2_machine_describe.md)	 - describes the machine

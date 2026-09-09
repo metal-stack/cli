@@ -1,19 +1,19 @@
-## metalctlv2 admin component list
+## metalctlv2 machine console
 
-list all components
+establishes a connection to the serial console of a machine. for authentication at the metal-console it uses the token such that no machine ssh key is required for access (unlike the corresponding user API command).
 
 ```
-metalctlv2 admin component list [flags]
+metalctlv2 machine console [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help                help for list
-      --identifier string   lists only component with this identifier
-      --sort-by strings     sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: expiration|identifier|started|type
-      --type string         lists only component of this type
-      --uuid string         lists only component with this uuid
+  -h, --help                     help for console
+      --ipmi                     if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)
+      --metal-console-port int   port open on our control-plane to connect via ssh to get machine console access (default 5222)
+  -p, --project string           project of the machine
+  -i, --sshidentity string       the ssh private key used when creating the machine
 ```
 
 ### Options inherited from parent commands
@@ -31,5 +31,5 @@ metalctlv2 admin component list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin component](metalctlv2_admin_component.md)	 - manage component entities
+* [metalctlv2 machine](metalctlv2_machine.md)	 - manage machine entities
 
