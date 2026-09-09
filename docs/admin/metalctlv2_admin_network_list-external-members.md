@@ -1,19 +1,22 @@
-## metalctlv2 admin component list
+## metalctlv2 admin network list-external-members
 
-list all components
+lists external members of the network
+
+### Synopsis
+
+lists switch ports that are members of this network but are not connected to any registered machine.
 
 ```
-metalctlv2 admin component list [flags]
+metalctlv2 admin network list-external-members <network> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help                help for list
-      --identifier string   lists only component with this identifier
-      --sort-by strings     sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: expiration|identifier|started|type
-      --type string         lists only component of this type
-      --uuid string         lists only component with this uuid
+  -h, --help               help for list-external-members
+      --partition string   filter by partition
+      --rack string        filter by rack
+      --switch string      filter by switch
 ```
 
 ### Options inherited from parent commands
@@ -31,5 +34,5 @@ metalctlv2 admin component list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin component](metalctlv2_admin_component.md)	 - manage component entities
+* [metalctlv2 admin network](metalctlv2_admin_network.md)	 - manage network entities
 

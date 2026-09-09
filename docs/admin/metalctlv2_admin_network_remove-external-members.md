@@ -1,19 +1,21 @@
-## metalctlv2 admin component list
+## metalctlv2 admin network remove-external-members
 
-list all components
+removes external members from the network
+
+### Synopsis
+
+removes switch ports of a rack from the network.
 
 ```
-metalctlv2 admin component list [flags]
+metalctlv2 admin network remove-external-members <network> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help                help for list
-      --identifier string   lists only component with this identifier
-      --sort-by strings     sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: expiration|identifier|started|type
-      --type string         lists only component of this type
-      --uuid string         lists only component with this uuid
+  -h, --help            help for remove-external-members
+      --ports strings   ports to add to the network
+      --rack string     rack of the external members
 ```
 
 ### Options inherited from parent commands
@@ -31,5 +33,5 @@ metalctlv2 admin component list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin component](metalctlv2_admin_component.md)	 - manage component entities
+* [metalctlv2 admin network](metalctlv2_admin_network.md)	 - manage network entities
 
