@@ -203,8 +203,8 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 		},
 		ValidArgsFunction: c.Completion.AdminMachine,
 	}
-	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present)")
-	consoleCmd.Flags().Int("metal-console-port", 5222, "port open on our control-plane to connect via ssh to get machine console access")
+	consoleCmd.Flags().Bool("ipmi", false, "if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present and the machine bmc being accessible from the local machine)")
+	consoleCmd.Flags().Int("metal-console-port", 5222, "the metal-console tcp port in the control-plane to connect via ssh to get machine console access")
 
 	consolePasswordCmd := &cobra.Command{
 		Use:   "consolepassword",
@@ -452,7 +452,7 @@ func (c *machine) console(ctx context.Context, args []string) error {
 		return err
 	}
 
-	err = sshClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), &c.c.Context.Token, true)
+	err = helpers.SSHClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, nil)
 	if err != nil {
 		return fmt.Errorf("machine console error:%w", err)
 	}
@@ -591,41 +591,4 @@ func (c *machine) firewallSSH(ctx context.Context, args []string) (err error) {
 		return err
 	}
 	return s.Connect(nil)
-}
-
-// sshClient opens an interactive ssh session to the host on port with user, authenticated by the key.
-func sshClient(user, keyfile, host string, port int, idToken *string, passwordAuth bool) error {
-	var opts []metalssh.ConnectOpt
-
-	if passwordAuth {
-		opts = append(opts, metalssh.ConnectOptOutputPassword(*idToken))
-	} else {
-		if keyfile == "" {
-			var err error
-			keyfile, err = helpers.SearchSSHKey()
-			if err != nil {
-				return err
-			}
-		}
-
-		privateKey, err := os.ReadFile(keyfile)
-		if err != nil {
-			return err
-		}
-
-		opts = append(opts, metalssh.ConnectOptOutputPrivateKey(privateKey))
-	}
-
-	s, err := metalssh.NewClient(user, host, port, opts...)
-	if err != nil {
-		return err
-	}
-
-	var env *metalssh.Env
-
-	if idToken != nil {
-		env = &metalssh.Env{"LC_METAL_STACK_OIDC_TOKEN": *idToken}
-	}
-
-	return s.Connect(env)
 }

@@ -1,9 +1,9 @@
-## metalctlv2 admin machine console
+## metalctlv2 machine console
 
-establishes a connection to the serial console of a machine. for authentication at the metal-console it uses the token such that no machine ssh key is required for access (unlike the corresponding user API command).
+establishes a connection to the serial console of a machine. for authentication at the metal-console it uses the token and the machine ssh key that was used when creating the machine.
 
 ```
-metalctlv2 admin machine console [flags]
+metalctlv2 machine console [flags]
 ```
 
 ### Options
@@ -12,6 +12,8 @@ metalctlv2 admin machine console [flags]
   -h, --help                     help for console
       --ipmi                     if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present and the machine bmc being accessible from the local machine)
       --metal-console-port int   the metal-console tcp port in the control-plane to connect via ssh to get machine console access (default 5222)
+  -p, --project string           project of the machine
+  -i, --sshidentity string       the ssh private key used when creating the machine
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +31,5 @@ metalctlv2 admin machine console [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin machine](metalctlv2_admin_machine.md)	 - manage machine entities
+* [metalctlv2 machine](metalctlv2_machine.md)	 - manage machine entities
 
