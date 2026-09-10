@@ -28,11 +28,14 @@ networks can be attached to a machine or firewall such that they can communicate
 ### SEE ALSO
 
 * [metalctlv2 admin](metalctlv2_admin.md)	 - admin commands
+* [metalctlv2 admin network add-external-members](metalctlv2_admin_network_add-external-members.md)	 - adds external members to the network
 * [metalctlv2 admin network apply](metalctlv2_admin_network_apply.md)	 - applies one or more networks from a given file
 * [metalctlv2 admin network create](metalctlv2_admin_network_create.md)	 - creates the network
 * [metalctlv2 admin network delete](metalctlv2_admin_network_delete.md)	 - deletes the network
 * [metalctlv2 admin network describe](metalctlv2_admin_network_describe.md)	 - describes the network
 * [metalctlv2 admin network edit](metalctlv2_admin_network_edit.md)	 - edit the network through an editor and update
 * [metalctlv2 admin network list](metalctlv2_admin_network_list.md)	 - list all networks
+* [metalctlv2 admin network list-external-members](metalctlv2_admin_network_list-external-members.md)	 - lists external members of the network
+* [metalctlv2 admin network remove-external-members](metalctlv2_admin_network_remove-external-members.md)	 - removes external members from the network
 * [metalctlv2 admin network update](metalctlv2_admin_network_update.md)	 - updates the network
 

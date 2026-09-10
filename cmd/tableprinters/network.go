@@ -68,6 +68,54 @@ func (t *TablePrinter) NetworkTable(data []*apiv2.Network, wide bool) ([]string,
 	return header, rows, nil
 }
 
+func (t *TablePrinter) NetworkExternalMembersTable(network *apiv2.Network, members []*apiv2.ExternalNetworkMember, wide bool) ([]string, [][]string, error) {
+	var (
+		rows = [][]string{}
+	)
+
+	header := []string{"ID", "NAME", "SWITCH", "PARTITION", "RACK", "PORTS"}
+	if wide {
+		header = []string{"ID", "NAME", "TYPE", "PREFIXES", "SWITCH", "PARTITION", "RACK", "PORTS"}
+	}
+
+	if len(members) < 1 {
+		return header, append(rows, []string{network.Id}), nil
+	}
+
+	for i, member := range members {
+		for j, port := range member.Ports {
+			var (
+				id        string
+				name      string
+				nwType    string
+				prefixes  string
+				sw        string
+				partition string
+				rack      string
+			)
+			if i == 0 && j == 0 {
+				id = network.Id
+				name = pointer.SafeDeref(network.Name)
+				nwType = network.Type.String()
+				prefixes = strings.Join(network.Prefixes, ",")
+			}
+			if j == 0 {
+				sw = member.Switch
+				partition = member.Partition
+				rack = member.Rack
+			}
+
+			if wide {
+				rows = append(rows, []string{id, name, nwType, prefixes, sw, partition, rack, port})
+			} else {
+				rows = append(rows, []string{id, name, sw, partition, rack, port})
+			}
+		}
+	}
+
+	return header, rows, nil
+}
+
 func renderNetworkRow(prefix string, n *apiv2.Network, wide bool) ([]string, error) {
 	var (
 		id               = fmt.Sprintf("%s%s", prefix, n.Id)

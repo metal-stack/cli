@@ -103,7 +103,44 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	return genericcli.NewCmds(cmdsConfig)
+	networkListExternalMembersCmd := &cobra.Command{
+		Use:   "list-external-members <network>",
+		Short: "lists external members of the network",
+		Long:  "lists switch ports that are members of this network but are not connected to any registered machine.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.listExternalMembers(args)
+		},
+	}
+
+	networkListExternalMembersCmd.Flags().String("partition", "", "filter by partition")
+	networkListExternalMembersCmd.Flags().String("rack", "", "filter by rack")
+	networkListExternalMembersCmd.Flags().String("switch", "", "filter by switch")
+
+	networkAddExternalMembersCmd := &cobra.Command{
+		Use:   "add-external-members <network>",
+		Short: "adds external members to the network",
+		Long:  "adds switch ports of a rack as members to the network.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.addExternalMembers(args)
+		},
+	}
+
+	networkAddExternalMembersCmd.Flags().String("rack", "", "rack of the external members")
+	networkAddExternalMembersCmd.Flags().StringSlice("ports", nil, "ports to add to the network")
+
+	networkRemoveExternalMembersCmd := &cobra.Command{
+		Use:   "remove-external-members <network>",
+		Short: "removes external members from the network",
+		Long:  "removes switch ports of a rack from the network.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.removeExternalMembers(args)
+		},
+	}
+
+	networkRemoveExternalMembersCmd.Flags().String("rack", "", "rack of the external members")
+	networkRemoveExternalMembersCmd.Flags().StringSlice("ports", nil, "ports to add to the network")
+
+	return genericcli.NewCmds(cmdsConfig, networkListExternalMembersCmd, networkAddExternalMembersCmd, networkRemoveExternalMembersCmd)
 }
 
 func (c *networkCmd) Get(id string) (*apiv2.Network, error) {
@@ -221,6 +258,72 @@ func (c *networkCmd) Update(rq *adminv2.NetworkServiceUpdateRequest) (*apiv2.Net
 	}
 
 	return resp.Network, nil
+}
+
+func (c *networkCmd) listExternalMembers(args []string) error {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	nw, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return err
+	}
+
+	res, err := c.c.Client.Adminv2().Network().ListExternalMembers(ctx, &adminv2.NetworkServiceListExternalMembersRequest{
+		Network: nw,
+		Query: &apiv2.ExternalNetworkMemberQuery{
+			Switch:    pointer.PointerOrNil(viper.GetString("switch")),
+			Rack:      pointer.PointerOrNil(viper.GetString("rack")),
+			Partition: pointer.PointerOrNil(viper.GetString("partition")),
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.c.ListPrinter.Print(res)
+}
+
+func (c *networkCmd) addExternalMembers(args []string) error {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	nw, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return err
+	}
+
+	res, err := c.c.Client.Adminv2().Network().AddExternalMembers(ctx, &adminv2.NetworkServiceAddExternalMembersRequest{
+		Network: nw,
+		Rack:    viper.GetString("rack"),
+		Ports:   viper.GetStringSlice("ports"),
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.c.ListPrinter.Print(res)
+}
+
+func (c *networkCmd) removeExternalMembers(args []string) error {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	nw, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return err
+	}
+
+	res, err := c.c.Client.Adminv2().Network().RemoveExternalMembers(ctx, &adminv2.NetworkServiceRemoveExternalMembersRequest{
+		Network: nw,
+		Rack:    viper.GetString("rack"),
+		Ports:   viper.GetStringSlice("ports"),
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.c.ListPrinter.Print(res)
 }
 
 func (c *networkCmd) Convert(r *apiv2.Network) (string, *adminv2.NetworkServiceCreateRequest, *adminv2.NetworkServiceUpdateRequest, error) {

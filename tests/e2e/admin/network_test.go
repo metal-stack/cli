@@ -390,3 +390,433 @@ func Test_AdminNetworkCmd_Update(t *testing.T) {
 		tt.TestCmd(t)
 	}
 }
+
+func Test_AdminNetworkCmd_ListExternalMembers(t *testing.T) {
+	var (
+		p01r01switch01 = &apiv2.Switch{
+			Id:        "p01r01switch01",
+			Partition: "p01",
+			Rack:      new("p01r01"),
+		}
+		p01r02switch01 = &apiv2.Switch{
+			Id:        "p01r02switch01",
+			Partition: "p01",
+			Rack:      new("p01r02"),
+		}
+		p02r01switch01 = &apiv2.Switch{
+			Id:        "p02r01switch01",
+			Partition: "p02",
+			Rack:      new("p02r01"),
+		}
+	)
+
+	tests := []*e2e.Test[adminv2.NetworkServiceListResponse, apiv2.Network]{
+		{
+			Name: "list empty members",
+			CmdArgs: []string{"admin", "network", "list-external-members",
+				testresources.Network2().Id,
+			},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceListExternalMembersRequest{
+							Network: testresources.Network2().Id,
+							Query:   &apiv2.ExternalNetworkMemberQuery{},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.NetworkServiceListExternalMembersResponse{
+								Network: testresources.Network1(),
+								Members: []*apiv2.ExternalNetworkMember{},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+			ID                                    NAME  SWITCH  PARTITION  RACK  PORTS  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef
+            `),
+			WantWideTable: new(`
+			ID                                    NAME  TYPE  PREFIXES  SWITCH  PARTITION  RACK  PORTS  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef
+            `),
+			Template:     new("{{ .network.id }} {{ range .members }}{{ .switch }}{{ end }}"),
+			WantTemplate: new(`6988ebb0-9531-4f9b-a893-d7868258e2ef`),
+			WantMarkdown: new(`
+            | ID                                   | NAME | SWITCH | PARTITION | RACK | PORTS |
+            |--------------------------------------|------|--------|-----------|------|-------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef |      |        |           |      |       |
+            `),
+		},
+		{
+			Name: "list all",
+			CmdArgs: []string{"admin", "network", "list-external-members",
+				testresources.Network1().Id,
+			},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceListExternalMembersRequest{
+							Network: testresources.Network1().Id,
+							Query:   &apiv2.ExternalNetworkMemberQuery{},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.NetworkServiceListExternalMembersResponse{
+								Network: testresources.Network1(),
+								Members: []*apiv2.ExternalNetworkMember{
+									{
+										Switch:    p01r01switch01.Id,
+										Partition: p01r01switch01.Partition,
+										Rack:      pointer.SafeDeref(p01r01switch01.Rack),
+										Ports:     []string{"Ethernet0", "Ethernet1"},
+									},
+									{
+										Switch:    p01r02switch01.Id,
+										Partition: p01r02switch01.Partition,
+										Rack:      pointer.SafeDeref(p01r02switch01.Rack),
+										Ports:     []string{"Ethernet0", "Ethernet1"},
+									},
+									{
+										Switch:    p02r01switch01.Id,
+										Partition: p02r01switch01.Partition,
+										Rack:      pointer.SafeDeref(p02r01switch01.Rack),
+										Ports:     []string{"Ethernet0"},
+									},
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                    NAME      SWITCH          PARTITION  RACK    PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  p01r01switch01  p01        p01r01  Ethernet0  
+                                                                                               Ethernet1  
+                                                            p01r02switch01  p01        p01r02  Ethernet0  
+                                                                                               Ethernet1  
+                                                            p02r01switch01  p02        p02r01  Ethernet0
+			`),
+			WantWideTable: new(`
+            ID                                    NAME      TYPE                   PREFIXES                   SWITCH          PARTITION  RACK    PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  NETWORK_TYPE_EXTERNAL  10.0.0.0/16,2001:db8::/32  p01r01switch01  p01        p01r01  Ethernet0  
+                                                                                                                                                 Ethernet1  
+                                                                                                              p01r02switch01  p01        p01r02  Ethernet0  
+                                                                                                                                                 Ethernet1  
+                                                                                                              p02r01switch01  p02        p02r01  Ethernet0
+			`),
+			Template: new("{{ .network.id }} {{ range .members }}{{ .switch }} {{ end }}"),
+			WantTemplate: new(`
+            6988ebb0-9531-4f9b-a893-d7868258e2ef p01r01switch01 p01r02switch01 p02r01switch01
+			`),
+			WantMarkdown: new(`
+            | ID                                   | NAME     | SWITCH         | PARTITION | RACK   | PORTS     |
+            |--------------------------------------|----------|----------------|-----------|--------|-----------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef | internet | p01r01switch01 | p01       | p01r01 | Ethernet0 |
+            |                                      |          |                |           |        | Ethernet1 |
+            |                                      |          | p01r02switch01 | p01       | p01r02 | Ethernet0 |
+            |                                      |          |                |           |        | Ethernet1 |
+            |                                      |          | p02r01switch01 | p02       | p02r01 | Ethernet0 |
+			`),
+		},
+		{
+			Name: "query",
+			CmdArgs: []string{"admin", "network", "list-external-members",
+				testresources.Network1().Id,
+				"--partition", p01r01switch01.Partition,
+				"--rack", *p01r01switch01.Rack,
+				"--switch", p01r01switch01.Id,
+			},
+			AssertExhaustiveArgs: true,
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceListExternalMembersRequest{
+							Network: testresources.Network1().Id,
+							Query: &apiv2.ExternalNetworkMemberQuery{
+								Switch:    new(p01r01switch01.Id),
+								Rack:      p01r01switch01.Rack,
+								Partition: new(p01r01switch01.Partition),
+							},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.NetworkServiceListExternalMembersResponse{
+								Network: testresources.Network1(),
+								Members: []*apiv2.ExternalNetworkMember{
+									{
+										Switch:    p01r01switch01.Id,
+										Partition: p01r01switch01.Partition,
+										Rack:      pointer.SafeDeref(p01r01switch01.Rack),
+										Ports:     []string{"Ethernet0", "Ethernet1"},
+									},
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                    NAME      SWITCH          PARTITION  RACK    PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  p01r01switch01  p01        p01r01  Ethernet0  
+                                                                                               Ethernet1  
+			`),
+			WantWideTable: new(`
+            ID                                    NAME      TYPE                   PREFIXES                   SWITCH          PARTITION  RACK    PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  NETWORK_TYPE_EXTERNAL  10.0.0.0/16,2001:db8::/32  p01r01switch01  p01        p01r01  Ethernet0  
+                                                                                                                                                 Ethernet1  
+			`),
+			Template: new("{{ .network.id }} {{ range .members }}{{ .switch }} {{ end }}"),
+			WantTemplate: new(`
+            6988ebb0-9531-4f9b-a893-d7868258e2ef p01r01switch01
+			`),
+			WantMarkdown: new(`
+            | ID                                   | NAME     | SWITCH         | PARTITION | RACK   | PORTS     |
+            |--------------------------------------|----------|----------------|-----------|--------|-----------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef | internet | p01r01switch01 | p01       | p01r01 | Ethernet0 |
+            |                                      |          |                |           |        | Ethernet1 |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_AdminNetworkCmd_AddExternalMembers(t *testing.T) {
+	var (
+		p01r01switch01 = &apiv2.Switch{
+			Id:        "p01r01switch01",
+			Partition: "p01",
+			Rack:      new("p01r01"),
+		}
+		p01r01switch02 = &apiv2.Switch{
+			Id:        "p01r01switch02",
+			Partition: "p01",
+			Rack:      new("p01r01"),
+		}
+	)
+
+	tests := []*e2e.Test[adminv2.NetworkServiceListResponse, apiv2.Network]{
+		{
+			Name: "add no members to network",
+			CmdArgs: []string{"admin", "network", "add-external-members",
+				testresources.Network2().Id,
+			},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceAddExternalMembersRequest{
+							Network: testresources.Network2().Id,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.NetworkServiceAddExternalMembersResponse{
+								Network: testresources.Network1(),
+								Members: []*apiv2.ExternalNetworkMember{},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                    NAME  SWITCH  PARTITION  RACK  PORTS  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef
+			`),
+			WantWideTable: new(`
+            ID                                    NAME  TYPE  PREFIXES  SWITCH  PARTITION  RACK  PORTS  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef
+			`),
+			Template:     new("{{ .network.id }} {{ range .members }}{{ .switch }}{{ end }}"),
+			WantTemplate: new(`6988ebb0-9531-4f9b-a893-d7868258e2ef`),
+			WantMarkdown: new(`
+            | ID                                   | NAME | SWITCH | PARTITION | RACK | PORTS |
+            |--------------------------------------|------|--------|-----------|------|-------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef |      |        |           |      |       |
+			`),
+		},
+		{
+			Name: "add members to network",
+			CmdArgs: []string{"admin", "network", "add-external-members",
+				testresources.Network2().Id,
+				"--rack", pointer.SafeDeref(p01r01switch01.Rack),
+				"--ports", "Ethernet0,Ethernet1",
+			},
+			AssertExhaustiveArgs: true,
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceAddExternalMembersRequest{
+							Network: testresources.Network2().Id,
+							Rack:    pointer.SafeDeref(p01r01switch01.Rack),
+							Ports:   []string{"Ethernet0", "Ethernet1"},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.NetworkServiceAddExternalMembersResponse{
+								Network: testresources.Network1(),
+								Members: []*apiv2.ExternalNetworkMember{
+									{
+										Switch:    p01r01switch01.Id,
+										Partition: p01r01switch01.Partition,
+										Rack:      pointer.SafeDeref(p01r01switch01.Rack),
+										Ports:     []string{"Ethernet0", "Ethernet1"},
+									},
+									{
+										Switch:    p01r01switch02.Id,
+										Partition: p01r01switch02.Partition,
+										Rack:      pointer.SafeDeref(p01r01switch02.Rack),
+										Ports:     []string{"Ethernet0", "Ethernet1"},
+									},
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                    NAME      SWITCH          PARTITION  RACK    PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  p01r01switch01  p01        p01r01  Ethernet0  
+                                                                                               Ethernet1  
+                                                            p01r01switch02  p01        p01r01  Ethernet0  
+                                                                                               Ethernet1
+			`),
+			WantWideTable: new(`
+            ID                                    NAME      TYPE                   PREFIXES                   SWITCH          PARTITION  RACK    PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  NETWORK_TYPE_EXTERNAL  10.0.0.0/16,2001:db8::/32  p01r01switch01  p01        p01r01  Ethernet0  
+                                                                                                                                                 Ethernet1  
+                                                                                                              p01r01switch02  p01        p01r01  Ethernet0  
+                                                                                                                                                 Ethernet1
+			`),
+			Template:     new("{{ .network.id }} {{ range .members }}{{ .switch }} {{ end }}"),
+			WantTemplate: new(`6988ebb0-9531-4f9b-a893-d7868258e2ef p01r01switch01 p01r01switch02`),
+			WantMarkdown: new(`
+            | ID                                   | NAME     | SWITCH         | PARTITION | RACK   | PORTS     |
+            |--------------------------------------|----------|----------------|-----------|--------|-----------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef | internet | p01r01switch01 | p01       | p01r01 | Ethernet0 |
+            |                                      |          |                |           |        | Ethernet1 |
+            |                                      |          | p01r01switch02 | p01       | p01r01 | Ethernet0 |
+            |                                      |          |                |           |        | Ethernet1 |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_AdminNetworkCmd_RemoveExternalMembers(t *testing.T) {
+	var (
+		p01r01switch01 = &apiv2.Switch{
+			Id:        "p01r01switch01",
+			Partition: "p01",
+			Rack:      new("p01r01"),
+		}
+		p01r01switch02 = &apiv2.Switch{
+			Id:        "p01r01switch02",
+			Partition: "p01",
+			Rack:      new("p01r01"),
+		}
+	)
+
+	tests := []*e2e.Test[adminv2.NetworkServiceListResponse, apiv2.Network]{
+		{
+			Name: "remove no members from network",
+			CmdArgs: []string{"admin", "network", "remove-external-members",
+				testresources.Network2().Id,
+			},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceRemoveExternalMembersRequest{
+							Network: testresources.Network2().Id,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.NetworkServiceRemoveExternalMembersResponse{
+								Network: testresources.Network1(),
+								Members: []*apiv2.ExternalNetworkMember{},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                    NAME  SWITCH  PARTITION  RACK  PORTS  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef
+			`),
+			WantWideTable: new(`
+            ID                                    NAME  TYPE  PREFIXES  SWITCH  PARTITION  RACK  PORTS  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef
+			`),
+			Template:     new("{{ .network.id }} {{ range .members }}{{ .switch }}{{ end }}"),
+			WantTemplate: new(`6988ebb0-9531-4f9b-a893-d7868258e2ef`),
+			WantMarkdown: new(`
+            | ID                                   | NAME | SWITCH | PARTITION | RACK | PORTS |
+            |--------------------------------------|------|--------|-----------|------|-------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef |      |        |           |      |       |
+			`),
+		},
+		{
+			Name: "remove members members network",
+			CmdArgs: []string{"admin", "network", "remove-external-members",
+				testresources.Network2().Id,
+				"--rack", pointer.SafeDeref(p01r01switch01.Rack),
+				"--ports", "Ethernet0,Ethernet1",
+			},
+			AssertExhaustiveArgs: true,
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceRemoveExternalMembersRequest{
+							Network: testresources.Network2().Id,
+							Rack:    pointer.SafeDeref(p01r01switch01.Rack),
+							Ports:   []string{"Ethernet0", "Ethernet1"},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.NetworkServiceRemoveExternalMembersResponse{
+								Network: testresources.Network1(),
+								Members: []*apiv2.ExternalNetworkMember{
+									{
+										Switch:    p01r01switch01.Id,
+										Partition: p01r01switch01.Partition,
+										Rack:      pointer.SafeDeref(p01r01switch01.Rack),
+										Ports:     []string{"Ethernet0", "Ethernet1"},
+									},
+									{
+										Switch:    p01r01switch02.Id,
+										Partition: p01r01switch02.Partition,
+										Rack:      pointer.SafeDeref(p01r01switch02.Rack),
+										Ports:     []string{"Ethernet0", "Ethernet1"},
+									},
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                    NAME      SWITCH          PARTITION  RACK    PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  p01r01switch01  p01        p01r01  Ethernet0  
+                                                                                               Ethernet1  
+                                                            p01r01switch02  p01        p01r01  Ethernet0  
+                                                                                               Ethernet1
+			`),
+			WantWideTable: new(`
+            ID                                    NAME      TYPE                   PREFIXES                   SWITCH          PARTITION  RACK    PORTS      
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  NETWORK_TYPE_EXTERNAL  10.0.0.0/16,2001:db8::/32  p01r01switch01  p01        p01r01  Ethernet0  
+                                                                                                                                                 Ethernet1  
+                                                                                                              p01r01switch02  p01        p01r01  Ethernet0  
+                                                                                                                                                 Ethernet1
+			`),
+			Template:     new("{{ .network.id }} {{ range .members }}{{ .switch }} {{ end }}"),
+			WantTemplate: new(`6988ebb0-9531-4f9b-a893-d7868258e2ef p01r01switch01 p01r01switch02`),
+			WantMarkdown: new(`
+            | ID                                   | NAME     | SWITCH         | PARTITION | RACK   | PORTS     |
+            |--------------------------------------|----------|----------------|-----------|--------|-----------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef | internet | p01r01switch01 | p01       | p01r01 | Ethernet0 |
+            |                                      |          |                |           |        | Ethernet1 |
+            |                                      |          | p01r01switch02 | p01       | p01r01 | Ethernet0 |
+            |                                      |          |                |           |        | Ethernet1 |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
