@@ -566,7 +566,7 @@ IPs can be added per network colon separated, these ips must be already allocate
 	cmd.Flags().StringSlice("placement-labels", []string{}, "placement tags used for rack spreading")
 
 	cmd.MarkFlagsMutuallyExclusive("file", "project")
-	cmd.MarkFlagsRequiredTogether("project", "networks", "hostname", "image")
+	cmd.MarkFlagsRequiredTogether("networks", "hostname", "image")
 	cmd.MarkFlagsRequiredTogether("size", "partition")
 
 	// Completion for arguments
