@@ -7,17 +7,19 @@ import (
 )
 
 func (c *Completion) Ip(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	req := &apiv2.IPServiceListRequest{
+	resp, err := c.Client.Apiv2().IP().List(cmd.Context(), &apiv2.IPServiceListRequest{
 		Project: c.Proj,
-	}
-	resp, err := c.Client.Apiv2().IP().List(cmd.Context(), req)
+	})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
+
 	var names []string
+
 	for _, s := range resp.Ips {
-		names = append(names, s.Uuid+"\t"+s.Ip+"\t"+s.Name)
+		names = append(names, s.Ip+"\t"+s.Uuid+"\t"+s.Name)
 	}
+
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
 
