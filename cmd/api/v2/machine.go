@@ -89,7 +89,6 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	consoleCmd.Flags().StringP("project", "p", "", "project of the machine")
 	consoleCmd.Flags().StringP("sshidentity", "i", "", "the ssh private key used when creating the machine")
 	genericcli.Must(consoleCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
-	genericcli.Must(consoleCmd.MarkFlagRequired("project"))
 
 	return genericcli.NewCmds(cmdsConfig, consoleCmd)
 }
@@ -207,7 +206,7 @@ func (c *machine) console(args []string) error {
 		return err
 	}
 
-	err = helpers.SSHClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, new(viper.GetString("project")))
+	err = helpers.SSHClient(id, viper.GetString("sshidentity"), parsedurl.Host, viper.GetInt("metal-console-port"), c.c.Context.Token, new(c.c.GetProject()))
 	if err != nil {
 		return fmt.Errorf("machine console error: %w", err)
 	}
