@@ -9,9 +9,17 @@ metalctlv2 ip list [flags]
 ### Options
 
 ```
-  -h, --help              help for list
-  -p, --project string    project from where ips should be listed
-      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: ip|name|network|project|type|uuid
+      --addressfamily string   addressfamily of ips which should be listed
+  -h, --help                   help for list
+      --ip string              ip which should be listed
+      --labels strings         lists only ips with the given labels
+      --machine string         machine where ips are attached to
+      --name string            name from ips which should be listed
+      --network string         network from where ips should be listed
+  -p, --project string         project from where ips should be listed
+      --sort-by strings        sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: ip|name|network|project|type|uuid
+      --type string            type of ips which should be listed
+      --uuid string            allocation uuid of ip which should be listed
 ```
 
 ### Options inherited from parent commands
