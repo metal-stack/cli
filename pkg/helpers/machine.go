@@ -188,7 +188,7 @@ func MachineCreateRequestFromCLI(c *config.Config) (*apiv2.MachineServiceCreateR
 		Hostname:         hostname,
 		Image:            viper.GetString("image"),
 		Name:             viper.GetString("name"),
-		Project:          viper.GetString("project"),
+		Project:          c.GetProject(),
 		Size:             size,
 		SshPublicKeys:    keys,
 		Labels:           labels,
