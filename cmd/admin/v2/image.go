@@ -81,6 +81,7 @@ func newImageCmd(c *config.Config) *cobra.Command {
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("classification", c.Completion.ImageClassification))
 		},
 		UpdateRequestFromCLI: w.updateFromCLI,
+		ValidArgsFn:          c.Completion.Image,
 	}
 
 	usageCmd := &cobra.Command{

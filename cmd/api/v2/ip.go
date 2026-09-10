@@ -33,8 +33,20 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project from where ips should be listed")
+			cmd.Flags().String("ip", "", "ip which should be listed")
+			cmd.Flags().String("uuid", "", "allocation uuid of ip which should be listed")
+			cmd.Flags().String("name", "", "name from ips which should be listed")
+			cmd.Flags().String("network", "", "network from where ips should be listed")
+			cmd.Flags().String("machine", "", "machine where ips are attached to")
+			cmd.Flags().StringSlice("labels", nil, "lists only ips with the given labels")
+			cmd.Flags().String("addressfamily", "", "addressfamily of ips which should be listed")
+			cmd.Flags().String("type", "", "type of ips which should be listed")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("network", c.Completion.Network))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("machine", c.Completion.Machine))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.AddressFamily))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.IPType))
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
@@ -188,8 +200,28 @@ func (c *ip) List() ([]*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	var labels *apiv2.Labels
+	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
+		var err error
+
+		labels, err = helpers.LabelsFromSlice(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	resp, err := c.c.Client.Apiv2().IP().List(ctx, &apiv2.IPServiceListRequest{
 		Project: c.c.GetProject(),
+		Query: &apiv2.IPQuery{
+			Ip:            pointer.PointerOrNil(viper.GetString("ip")),
+			Uuid:          pointer.PointerOrNil(viper.GetString("uuid")),
+			Network:       pointer.PointerOrNil(viper.GetString("network")),
+			Name:          pointer.PointerOrNil(viper.GetString("name")),
+			Machine:       pointer.PointerOrNil(viper.GetString("machine")),
+			Labels:        labels,
+			Type:          helpers.IPTypeToType(viper.GetString("type")),
+			AddressFamily: helpers.IPAddressFamilyToType(viper.GetString("addressfamily")),
+		},
 	})
 	if err != nil {
 		return nil, err

@@ -10,6 +10,7 @@ import (
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -24,6 +25,7 @@ func Test_IPCmd_List(t *testing.T) {
 					{
 						WantRequest: &apiv2.IPServiceListRequest{
 							Project: testresources.IP1().Project,
+							Query:   &apiv2.IPQuery{},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.IPServiceListResponse{
@@ -37,8 +39,8 @@ func Test_IPCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            IP       PROJECT                               ID                                    NETWORK   TYPE       NAME  ATTACHED SERVICE  
-            4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  internet  ephemeral  b                       
+            IP       PROJECT                               ID                                    NETWORK   TYPE       NAME  ATTACHED SERVICE
+            4.3.2.1  46bdfc45-9c8d-4268-b359-b40e3079d384  9cef40ec-29c6-4dfa-aee8-47ee1f49223d  internet  ephemeral  b
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static     a
 			`),
 			WantWideTable: new(`
@@ -56,6 +58,54 @@ func Test_IPCmd_List(t *testing.T) {
             |---------|--------------------------------------|--------------------------------------|----------|-----------|------|------------------|
             | 4.3.2.1 | 46bdfc45-9c8d-4268-b359-b40e3079d384 | 9cef40ec-29c6-4dfa-aee8-47ee1f49223d | internet | ephemeral | b    |                  |
             | 1.1.1.1 | ce19a655-7933-4745-8f3e-9592b4a90488 | 2e0144a2-09ef-42b7-b629-4263295db6e8 | internet | static    | a    |                  |
+			`),
+		},
+		{
+			Name: "list filters",
+			CmdArgs: []string{"ip", "list",
+				"--project", testresources.IP1().Project,
+				"--ip", testresources.IP1().Ip,
+				"--uuid", testresources.IP1().Uuid,
+				"--name", testresources.IP1().Name,
+				"--network", testresources.IP1().Network,
+				"--machine", "machine-1",
+				"--labels", "a=b",
+				"--addressfamily", "IPv4",
+				"--type", "static",
+			},
+			AssertExhaustiveArgs:     true,
+			AssertExhaustiveExcludes: []string{"sort-by"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &apiv2.IPServiceListRequest{
+							Project: testresources.IP1().Project,
+							Query: &apiv2.IPQuery{
+								Ip:            pointer.PointerOrNil(testresources.IP1().Ip),
+								Uuid:          pointer.PointerOrNil(testresources.IP1().Uuid),
+								Name:          pointer.PointerOrNil(testresources.IP1().Name),
+								Network:       pointer.PointerOrNil(testresources.IP1().Network),
+								Machine:       pointer.PointerOrNil("machine-1"),
+								Type:          pointer.PointerOrNil(apiv2.IPType_IP_TYPE_STATIC),
+								AddressFamily: apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4.Enum(),
+								Labels: &apiv2.Labels{
+									Labels: map[string]string{"a": "b"},
+								},
+							},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.IPServiceListResponse{
+								Ips: []*apiv2.IP{
+									testresources.IP1(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
+            1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
 			`),
 		},
 	}
@@ -86,7 +136,7 @@ func Test_IPCmd_Describe(t *testing.T) {
 			}),
 			WantProtoObject: testresources.IP1(),
 			WantTable: new(`
-            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE  
+            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
 			`),
 			WantWideTable: new(`
@@ -161,7 +211,7 @@ func Test_IPCmd_Create(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE  
+            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
 			`),
 		},
@@ -217,7 +267,7 @@ func Test_IPCmd_Delete(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE  
+            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
 			`),
 		},
@@ -255,7 +305,7 @@ func Test_IPCmd_Update(t *testing.T) {
 			),
 			WantProtoObject: testresources.IP1(),
 			WantTable: new(`
-            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE  
+            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
 			`),
 			WantWideTable: new(`
@@ -300,7 +350,7 @@ func Test_IPCmd_Update(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE  
+            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
 			`),
 		},
@@ -342,7 +392,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE  
+            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
 			`),
 		},
@@ -395,7 +445,7 @@ func Test_IPCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE  
+            IP       PROJECT                               ID                                    NETWORK   TYPE    NAME  ATTACHED SERVICE
             1.1.1.1  ce19a655-7933-4745-8f3e-9592b4a90488  2e0144a2-09ef-42b7-b629-4263295db6e8  internet  static  a
 			`),
 		},
