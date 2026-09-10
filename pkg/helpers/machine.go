@@ -188,7 +188,7 @@ func MachineCreateRequestFromCLI(c *config.Config) (*apiv2.MachineServiceCreateR
 		Hostname:         hostname,
 		Image:            viper.GetString("image"),
 		Name:             viper.GetString("name"),
-		Project:          viper.GetString("project"),
+		Project:          c.GetProject(),
 		Size:             size,
 		SshPublicKeys:    keys,
 		Labels:           labels,
@@ -566,7 +566,7 @@ IPs can be added per network colon separated, these ips must be already allocate
 	cmd.Flags().StringSlice("placement-labels", []string{}, "placement tags used for rack spreading")
 
 	cmd.MarkFlagsMutuallyExclusive("file", "project")
-	cmd.MarkFlagsRequiredTogether("project", "networks", "hostname", "image")
+	cmd.MarkFlagsRequiredTogether("networks", "hostname", "image")
 	cmd.MarkFlagsRequiredTogether("size", "partition")
 
 	// Completion for arguments
