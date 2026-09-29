@@ -1,6 +1,10 @@
 ## metalctlv2 tenant member
 
-manage tenant members
+manage member entities
+
+### Synopsis
+
+manage api tenant members
 
 ### Options
 
@@ -24,7 +28,11 @@ manage tenant members
 ### SEE ALSO
 
 * [metalctlv2 tenant](metalctlv2_tenant.md)	 - manage tenant entities
-* [metalctlv2 tenant member list](metalctlv2_tenant_member_list.md)	 - lists members of a tenant
-* [metalctlv2 tenant member remove](metalctlv2_tenant_member_remove.md)	 - remove member from a tenant
-* [metalctlv2 tenant member update](metalctlv2_tenant_member_update.md)	 - update member from a tenant
+* [metalctlv2 tenant member apply](metalctlv2_tenant_member_apply.md)	 - applies one or more members from a given file
+* [metalctlv2 tenant member create](metalctlv2_tenant_member_create.md)	 - creates the member
+* [metalctlv2 tenant member delete](metalctlv2_tenant_member_delete.md)	 - deletes the member
+* [metalctlv2 tenant member describe](metalctlv2_tenant_member_describe.md)	 - describes the member
+* [metalctlv2 tenant member edit](metalctlv2_tenant_member_edit.md)	 - edit the member through an editor and update
+* [metalctlv2 tenant member list](metalctlv2_tenant_member_list.md)	 - list all members
+* [metalctlv2 tenant member update](metalctlv2_tenant_member_update.md)	 - updates the member
 

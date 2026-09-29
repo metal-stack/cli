@@ -1,9 +1,9 @@
-## metalctlv2 project member update
+## metalctlv2 project member create
 
-updates the member
+creates the member
 
 ```
-metalctlv2 project member update <id> [flags]
+metalctlv2 project member create [flags]
 ```
 
 ### Options
@@ -16,15 +16,14 @@ metalctlv2 project member update <id> [flags]
                                 $ metalctlv2 member describe member-1 -o yaml > member.yaml
                                 $ vi member.yaml
                                 $ # either via stdin
-                                $ cat member.yaml | metalctlv2 member update <id> -f -
+                                $ cat member.yaml | metalctlv2 member create -f -
                                 $ # or via file
-                                $ metalctlv2 member update <id> -f member.yaml
+                                $ metalctlv2 member create -f member.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for update
-      --project string          the project for which to update a project member, defaults to project of the default project
-      --role string             the role of the member
+  -h, --help                    help for create
+      --project string          the project for which to create a project member, defaults to project of the default project
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```

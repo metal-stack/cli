@@ -57,7 +57,7 @@ var (
 		}
 	}
 
-	Tenant1Members = func() *apiv2.TenantMember {
+	Tenant1Member = func() *apiv2.TenantMember {
 		return &apiv2.TenantMember{
 			Id:        "16d6e8ba-f574-494f-8d5e-74f6cb2d8db0",
 			Role:      apiv2.TenantRole_TENANT_ROLE_OWNER,
@@ -65,7 +65,7 @@ var (
 			Projects:  []string{Project1().Uuid, Project2().Uuid},
 		}
 	}
-	Tenant2Members = func() *apiv2.TenantMember {
+	Tenant2Member = func() *apiv2.TenantMember {
 		return &apiv2.TenantMember{
 			Id:        "40c0da4b-9eb9-4371-91aa-1ae62193fa54",
 			Role:      apiv2.TenantRole_TENANT_ROLE_EDITOR,

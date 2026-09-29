@@ -114,57 +114,7 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 
 	inviteCmd.AddCommand(generateInviteCmd, deleteInviteCmd, listInvitesCmd, joinProjectCmd)
 
-	memberCmd := &cobra.Command{
-		Use:     "member",
-		Aliases: []string{"members"},
-		Short:   "manage project members",
-	}
-
-	listMembersCmd := &cobra.Command{
-		Use:     "list",
-		Aliases: []string{"ls"},
-		Short:   "lists members of a project",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.listMembers()
-		},
-	}
-
-	listMembersCmd.Flags().StringP("project", "p", "", "the project of which to list the members")
-
-	genericcli.AddSortFlag(listMembersCmd, sorters.ProjectMemberSorter())
-
-	removeMemberCmd := &cobra.Command{
-		Use:     "delete <member>",
-		Aliases: []string{"destroy", "rm", "remove"},
-		Short:   "remove member from a project",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.removeMember(args)
-		},
-		ValidArgsFunction: c.Completion.ProjectMember,
-	}
-
-	removeMemberCmd.Flags().StringP("project", "p", "", "the project in which to remove the member")
-
-	genericcli.Must(removeMemberCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
-
-	updateMemberCmd := &cobra.Command{
-		Use:   "update <member>",
-		Short: "update member from a project",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.updateMember(args)
-		},
-		ValidArgsFunction: c.Completion.ProjectMember,
-	}
-
-	updateMemberCmd.Flags().StringP("project", "p", "", "the project in which to remove the member")
-	updateMemberCmd.Flags().String("role", "", "the role of the member")
-
-	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
-	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("role", c.Completion.ProjectRole))
-
-	memberCmd.AddCommand(removeMemberCmd, updateMemberCmd, listMembersCmd)
-
-	return genericcli.NewCmds(cmdsConfig, joinProjectCmd, inviteCmd, memberCmd)
+	return genericcli.NewCmds(cmdsConfig, joinProjectCmd, inviteCmd, newProjectMemberCmd(c))
 }
 
 func (c *project) Get(id string) (*apiv2.Project, error) {
@@ -408,67 +358,4 @@ func (c *project) deleteInvite(args []string) error {
 	}
 
 	return nil
-}
-
-func (c *project) removeMember(args []string) error {
-	member, err := genericcli.GetExactlyOneArg(args)
-	if err != nil {
-		return err
-	}
-
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	_, err = c.c.Client.Apiv2().Project().RemoveMember(ctx, &apiv2.ProjectServiceRemoveMemberRequest{
-		Project: c.c.GetProject(),
-		Member:  member,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to remove member from project: %w", err)
-	}
-
-	_, _ = fmt.Fprintf(c.c.Out, "%s successfully removed member %q\n", color.GreenString("✔"), member)
-
-	return nil
-}
-
-func (c *project) updateMember(args []string) error {
-	member, err := genericcli.GetExactlyOneArg(args)
-	if err != nil {
-		return err
-	}
-
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	resp, err := c.c.Client.Apiv2().Project().UpdateMember(ctx, &apiv2.ProjectServiceUpdateMemberRequest{
-		Project: c.c.GetProject(),
-		Member:  member,
-		Role:    apiv2.ProjectRole(apiv2.ProjectRole_value[viper.GetString("role")]),
-	})
-	if err != nil {
-		return fmt.Errorf("failed to update member: %w", err)
-	}
-
-	return c.c.DescribePrinter.Print(resp.GetProjectMember())
-}
-
-func (c *project) listMembers() error {
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	resp, err := c.c.Client.Apiv2().Project().Get(ctx, &apiv2.ProjectServiceGetRequest{
-		Project: c.c.GetProject(),
-	})
-	if err != nil {
-		return fmt.Errorf("failed to get project: %w", err)
-	}
-
-	members := resp.GetProjectMembers()
-
-	if err := sorters.ProjectMemberSorter().SortBy(members); err != nil {
-		return err
-	}
-
-	return c.c.ListPrinter.Print(members)
 }

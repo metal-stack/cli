@@ -111,59 +111,9 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	memberCmd := &cobra.Command{
-		Use:     "member",
-		Aliases: []string{"members"},
-		Short:   "manage tenant members",
-	}
-
-	listMembersCmd := &cobra.Command{
-		Use:     "list",
-		Aliases: []string{"ls"},
-		Short:   "lists members of a tenant",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.listMembers()
-		},
-	}
-
-	listMembersCmd.Flags().String("tenant", "", "the tenant in which to remove the member")
-
-	genericcli.AddSortFlag(listMembersCmd, sorters.TenantMemberSorter())
-
-	removeMemberCmd := &cobra.Command{
-		Use:     "remove <member>",
-		Short:   "remove member from a tenant",
-		Aliases: []string{"destroy", "rm", "remove"},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.removeMember(args)
-		},
-		ValidArgsFunction: c.Completion.TenantMember,
-	}
-
-	removeMemberCmd.Flags().String("tenant", "", "the tenant in which to remove the member")
-
-	genericcli.Must(removeMemberCmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
-
-	updateMemberCmd := &cobra.Command{
-		Use:   "update <member>",
-		Short: "update member from a tenant",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.updateMember(args)
-		},
-		ValidArgsFunction: c.Completion.TenantMember,
-	}
-
-	updateMemberCmd.Flags().String("tenant", "", "the tenant in which to remove the member")
-	updateMemberCmd.Flags().String("role", "", "the role of the member")
-
-	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
-	genericcli.Must(updateMemberCmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRole))
-
-	memberCmd.AddCommand(removeMemberCmd, updateMemberCmd, listMembersCmd)
-
 	inviteCmd.AddCommand(generateInviteCmd, deleteInviteCmd, listInvitesCmd, joinTenantCmd)
 
-	return genericcli.NewCmds(cmdsConfig, joinTenantCmd, inviteCmd, memberCmd)
+	return genericcli.NewCmds(cmdsConfig, joinTenantCmd, inviteCmd, newTenantMemberCmd(c))
 }
 
 func (c *tenant) Get(id string) (*apiv2.Tenant, error) {
@@ -397,82 +347,4 @@ func (c *tenant) deleteInvite(args []string) error {
 	}
 
 	return nil
-}
-
-func (c *tenant) removeMember(args []string) error {
-	member, err := genericcli.GetExactlyOneArg(args)
-	if err != nil {
-		return err
-	}
-
-	tenant, err := c.c.GetTenant()
-	if err != nil {
-		return err
-	}
-
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	_, err = c.c.Client.Apiv2().Tenant().RemoveMember(ctx, &apiv2.TenantServiceRemoveMemberRequest{
-		Login:  tenant,
-		Member: member,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to remove member from tenant: %w", err)
-	}
-
-	_, _ = fmt.Fprintf(c.c.Out, "%s successfully removed member %q\n", color.GreenString("✔"), member)
-
-	return nil
-}
-
-func (c *tenant) updateMember(args []string) error {
-	member, err := genericcli.GetExactlyOneArg(args)
-	if err != nil {
-		return err
-	}
-
-	tenant, err := c.c.GetTenant()
-	if err != nil {
-		return err
-	}
-
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	resp, err := c.c.Client.Apiv2().Tenant().UpdateMember(ctx, &apiv2.TenantServiceUpdateMemberRequest{
-		Login:  tenant,
-		Member: member,
-		Role:   apiv2.TenantRole(apiv2.TenantRole_value[viper.GetString("role")]),
-	})
-	if err != nil {
-		return fmt.Errorf("failed to update member: %w", err)
-	}
-
-	return c.c.DescribePrinter.Print(resp.GetTenantMember())
-}
-
-func (c *tenant) listMembers() error {
-	ctx, cancel := c.c.NewRequestContext()
-	defer cancel()
-
-	tenant, err := c.c.GetTenant()
-	if err != nil {
-		return err
-	}
-
-	resp, err := c.c.Client.Apiv2().Tenant().Get(ctx, &apiv2.TenantServiceGetRequest{
-		Login: tenant,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to get tenant: %w", err)
-	}
-
-	members := resp.GetTenantMembers()
-
-	if err := sorters.TenantMemberSorter().SortBy(members); err != nil {
-		return err
-	}
-
-	return c.c.ListPrinter.Print(members)
 }

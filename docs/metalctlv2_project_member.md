@@ -1,6 +1,10 @@
 ## metalctlv2 project member
 
-manage project members
+manage member entities
+
+### Synopsis
+
+manage api project members
 
 ### Options
 
@@ -24,7 +28,11 @@ manage project members
 ### SEE ALSO
 
 * [metalctlv2 project](metalctlv2_project.md)	 - manage project entities
-* [metalctlv2 project member delete](metalctlv2_project_member_delete.md)	 - remove member from a project
-* [metalctlv2 project member list](metalctlv2_project_member_list.md)	 - lists members of a project
-* [metalctlv2 project member update](metalctlv2_project_member_update.md)	 - update member from a project
+* [metalctlv2 project member apply](metalctlv2_project_member_apply.md)	 - applies one or more members from a given file
+* [metalctlv2 project member create](metalctlv2_project_member_create.md)	 - creates the member
+* [metalctlv2 project member delete](metalctlv2_project_member_delete.md)	 - deletes the member
+* [metalctlv2 project member describe](metalctlv2_project_member_describe.md)	 - describes the member
+* [metalctlv2 project member edit](metalctlv2_project_member_edit.md)	 - edit the member through an editor and update
+* [metalctlv2 project member list](metalctlv2_project_member_list.md)	 - list all members
+* [metalctlv2 project member update](metalctlv2_project_member_update.md)	 - updates the member
 

@@ -8,6 +8,7 @@ import (
 
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	cliv2 "github.com/metal-stack/api/go/metalstack/cli/v2"
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -93,9 +94,9 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.ProjectInviteTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.ProjectInvite:
 		return t.ProjectInviteTable(d, wide)
-	case *apiv2.ProjectMember:
+	case *cliv2.ProjectMember:
 		return t.ProjectMemberTable(pointer.WrapInSlice(d), wide)
-	case []*apiv2.ProjectMember:
+	case []*cliv2.ProjectMember:
 		return t.ProjectMemberTable(d, wide)
 
 	case *adminv2.TaskInfo:
@@ -127,9 +128,9 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 		return t.TenantInviteTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.TenantInvite:
 		return t.TenantInviteTable(d, wide)
-	case *apiv2.TenantMember:
+	case *cliv2.TenantMember:
 		return t.TenantMemberTable(pointer.WrapInSlice(d), wide)
-	case []*apiv2.TenantMember:
+	case []*cliv2.TenantMember:
 		return t.TenantMemberTable(d, wide)
 
 	case *apiv2.Health:

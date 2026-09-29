@@ -1,6 +1,6 @@
 ## metalctlv2 project member list
 
-lists members of a project
+list all members
 
 ```
 metalctlv2 project member list [flags]
@@ -10,7 +10,8 @@ metalctlv2 project member list [flags]
 
 ```
   -h, --help              help for list
-  -p, --project string    the project of which to list the members
+      --project string    the project to list the project members of, defaults to project of the default project
+      --role string       the role of the member
       --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: created|id|inherited|role
 ```
 
@@ -29,5 +30,5 @@ metalctlv2 project member list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage project members
+* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage member entities
 
