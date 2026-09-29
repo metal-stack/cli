@@ -3,6 +3,7 @@ package cmd
 import (
 	"log/slog"
 	"os"
+	"strings"
 
 	client "github.com/metal-stack/api/go/client"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
@@ -42,6 +43,10 @@ func Execute() {
 }
 
 func NewRootCmd(c *config.Config) *cobra.Command {
+	viper.SetEnvPrefix(strings.ToUpper(config.ConfigDir))
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	viper.AutomaticEnv()
+
 	rootCmd := &cobra.Command{
 		Use:          config.BinaryName,
 		Aliases:      []string{"m"},
