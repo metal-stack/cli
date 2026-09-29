@@ -241,12 +241,11 @@ func (c *tenant) Delete(id string) (*apiv2.Tenant, error) {
 }
 
 func (c *tenant) Convert(r *apiv2.Tenant) (string, *apiv2.TenantServiceCreateRequest, *apiv2.TenantServiceUpdateRequest, error) {
-
 	return r.Login, &apiv2.TenantServiceCreateRequest{
 			Name:        r.Name,
-			Description: &r.Description,
-			Email:       &r.Email,
-			AvatarUrl:   &r.AvatarUrl,
+			Description: pointer.PointerOrNil(r.Description),
+			Email:       pointer.PointerOrNil(r.Email),
+			AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
 		},
 		&apiv2.TenantServiceUpdateRequest{
 			Login:       r.Login,
