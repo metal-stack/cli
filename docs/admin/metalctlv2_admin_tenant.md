@@ -29,6 +29,11 @@ manage api tenants
 
 * [metalctlv2 admin](metalctlv2_admin.md)	 - admin commands
 * [metalctlv2 admin tenant add-member](metalctlv2_admin_tenant_add-member.md)	 - Add a new member to a tenant
+* [metalctlv2 admin tenant apply](metalctlv2_admin_tenant_apply.md)	 - applies one or more tenants from a given file
 * [metalctlv2 admin tenant create](metalctlv2_admin_tenant_create.md)	 - creates the tenant
+* [metalctlv2 admin tenant delete](metalctlv2_admin_tenant_delete.md)	 - deletes the tenant
+* [metalctlv2 admin tenant describe](metalctlv2_admin_tenant_describe.md)	 - describes the tenant
+* [metalctlv2 admin tenant edit](metalctlv2_admin_tenant_edit.md)	 - edit the tenant through an editor and update
 * [metalctlv2 admin tenant list](metalctlv2_admin_tenant_list.md)	 - list all tenants
+* [metalctlv2 admin tenant update](metalctlv2_admin_tenant_update.md)	 - updates the tenant
 

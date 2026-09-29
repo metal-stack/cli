@@ -196,6 +196,7 @@ func (c *tenant) Convert(r *apiv2.Tenant) (string, *apiv2.TenantServiceCreateReq
 			Description: pointer.PointerOrNil(r.Description),
 			Email:       pointer.PointerOrNil(r.Email),
 			AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
+			Labels:      pointer.SafeDeref(r.Meta).Labels,
 		},
 		&apiv2.TenantServiceUpdateRequest{
 			Login:       r.Login,
@@ -203,6 +204,8 @@ func (c *tenant) Convert(r *apiv2.Tenant) (string, *apiv2.TenantServiceCreateReq
 			Email:       pointer.PointerOrNil(r.Email),
 			Description: pointer.PointerOrNil(r.Description),
 			AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
+			UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
+			Labels:      helpers.UpdateLabelsFromMeta(r.Meta),
 		},
 		nil
 }

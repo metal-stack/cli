@@ -173,6 +173,7 @@ func (c *project) Create(rq *apiv2.ProjectServiceCreateRequest) (*apiv2.Project,
 
 		return nil, err
 	}
+
 	return resp.Project, nil
 }
 
@@ -195,10 +196,15 @@ func (c *project) Convert(r *apiv2.Project) (string, *apiv2.ProjectServiceCreate
 		Login:       r.Tenant,
 		Name:        r.Name,
 		Description: r.Description,
+		AvatarUrl:   r.AvatarUrl,
+		Labels:      pointer.SafeDeref(r.Meta).Labels,
 	}, &apiv2.ProjectServiceUpdateRequest{
 		Project:     r.Uuid,
-		Name:        new(r.Name),
-		Description: new(r.Description),
+		Name:        pointer.PointerOrNil(r.Name),
+		Description: pointer.PointerOrNil(r.Description),
+		AvatarUrl:   r.AvatarUrl,
+		UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
+		Labels:      helpers.UpdateLabelsFromMeta(r.Meta),
 	}, nil
 }
 

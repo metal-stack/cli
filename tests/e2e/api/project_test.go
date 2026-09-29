@@ -243,6 +243,9 @@ func Test_ProjectCmd_Update(t *testing.T) {
 							Project:     testresources.Project1().Uuid,
 							Name:        new(testresources.Project1().Name),
 							Description: new(testresources.Project1().Description),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
@@ -365,6 +368,9 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 								Project:     testresources.Project1().Uuid,
 								Description: &testresources.Project1().Description,
 								Name:        &testresources.Project1().Name,
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{

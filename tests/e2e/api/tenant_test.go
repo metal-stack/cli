@@ -296,6 +296,9 @@ func Test_TenantCmd_Update(t *testing.T) {
 							Name:        new(testresources.Tenant1().Name),
 							Email:       new(testresources.Tenant1().Email),
 							Description: new(testresources.Tenant1().Description),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{
@@ -372,6 +375,9 @@ func Test_TenantCmd_Apply(t *testing.T) {
 								Email:       new(testresources.Tenant1().Email),
 								Description: new(testresources.Tenant1().Description),
 								Name:        new(testresources.Tenant1().Name),
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{
