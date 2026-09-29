@@ -48,14 +48,6 @@ func newPartitionCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ValidArgsFn:     c.Completion.Partition,
 		Sorter:          sorters.PartitionSorter(),
-		OnlyCmds: genericcli.OnlyCmds(
-			genericcli.DescribeCmd,
-			genericcli.ListCmd,
-			genericcli.CreateCmd,
-			genericcli.UpdateCmd,
-			genericcli.DeleteCmd,
-			genericcli.EditCmd,
-		),
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("id", "", "the id of the partition to create")
 			addMutableFlags(cmd)
