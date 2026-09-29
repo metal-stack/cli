@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/metal-stack/api/go/errorutil"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -165,7 +166,11 @@ func (c *partition) Create(rq *adminv2.PartitionServiceCreateRequest) (*apiv2.Pa
 
 	resp, err := c.c.Client.Adminv2().Partition().Create(ctx, rq)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create partition: %w", err)
+		if errorutil.IsConflict(err) {
+			return nil, genericcli.AlreadyExistsError()
+		}
+
+		return nil, err
 	}
 
 	return resp.Partition, nil
