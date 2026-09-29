@@ -3,6 +3,7 @@ package v2
 import (
 	"fmt"
 
+	"github.com/metal-stack/api/go/errorutil"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -24,7 +25,7 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 		c: c,
 	}
 
-	cmdsConfig := &genericcli.CmdsConfig[*apiv2.ProjectServiceCreateRequest, *apiv2.ProjectServiceUpdateRequest, *apiv2.Project]{
+	cmdsConfig := &genericcli.CmdsConfig[*adminv2.ProjectServiceCreateRequest, *apiv2.ProjectServiceUpdateRequest, *apiv2.Project]{
 		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "project",
@@ -43,7 +44,19 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 }
 
 func (c *project) Get(id string) (*apiv2.Project, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	req := &apiv2.ProjectServiceGetRequest{
+		Project: id,
+	}
+
+	resp, err := c.c.Client.Apiv2().Project().Get(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get project: %w", err)
+	}
+
+	return resp.GetProject(), nil
 }
 
 func (c *project) List() ([]*apiv2.Project, error) {
@@ -73,18 +86,62 @@ func (c *project) List() ([]*apiv2.Project, error) {
 	return resp.GetProjects(), nil
 }
 
-func (c *project) Create(rq *apiv2.ProjectServiceCreateRequest) (*apiv2.Project, error) {
-	panic("unimplemented")
+func (c *project) Create(rq *adminv2.ProjectServiceCreateRequest) (*apiv2.Project, error) {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Adminv2().Project().Create(ctx, rq)
+	if err != nil {
+		if errorutil.IsConflict(err) {
+			return nil, genericcli.AlreadyExistsError()
+		}
+
+		return nil, err
+	}
+
+	return resp.Project, nil
 }
 
 func (c *project) Delete(id string) (*apiv2.Project, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Apiv2().Project().Delete(ctx, &apiv2.ProjectServiceDeleteRequest{
+		Project: id,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete project: %w", err)
+	}
+
+	return resp.Project, nil
 }
 
-func (c *project) Convert(r *apiv2.Project) (string, *apiv2.ProjectServiceCreateRequest, *apiv2.ProjectServiceUpdateRequest, error) {
-	panic("unimplemented")
+func (c *project) Convert(r *apiv2.Project) (string, *adminv2.ProjectServiceCreateRequest, *apiv2.ProjectServiceUpdateRequest, error) {
+	return r.Uuid, &adminv2.ProjectServiceCreateRequest{
+		Login:       r.Tenant,
+		Name:        r.Name,
+		Description: r.Description,
+		AvatarUrl:   r.AvatarUrl,
+		Labels:      pointer.SafeDeref(r.Meta).Labels,
+		Project:     pointer.PointerOrNil(r.Uuid),
+	}, &apiv2.ProjectServiceUpdateRequest{
+		Project:     r.Uuid,
+		Name:        pointer.PointerOrNil(r.Name),
+		Description: pointer.PointerOrNil(r.Description),
+		AvatarUrl:   r.AvatarUrl,
+		UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
+		Labels:      helpers.UpdateLabelsFromMeta(r.Meta),
+	}, nil
 }
 
 func (c *project) Update(rq *apiv2.ProjectServiceUpdateRequest) (*apiv2.Project, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Apiv2().Project().Update(ctx, rq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update project: %w", err)
+	}
+
+	return resp.Project, nil
 }

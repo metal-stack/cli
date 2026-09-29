@@ -243,6 +243,9 @@ func Test_ProjectCmd_Update(t *testing.T) {
 							Project:     testresources.Project1().Uuid,
 							Name:        new(testresources.Project1().Name),
 							Description: new(testresources.Project1().Description),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
@@ -365,6 +368,9 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 								Project:     testresources.Project1().Uuid,
 								Description: &testresources.Project1().Description,
 								Name:        &testresources.Project1().Name,
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
@@ -548,7 +554,7 @@ func Test_ProjectCmd_ListMembers(t *testing.T) {
 							return connect.NewResponse(&apiv2.ProjectServiceGetResponse{
 								Project: testresources.Project1(),
 								ProjectMembers: []*apiv2.ProjectMember{
-									testresources.Project1Members(), testresources.Project2Members(),
+									testresources.Project1Member(), testresources.Project2Member(),
 								},
 							})
 						},
@@ -565,7 +571,7 @@ func Test_ProjectCmd_ListMembers(t *testing.T) {
             16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  PROJECT_ROLE_OWNER   false      now
             40c0da4b-9eb9-4371-91aa-1ae62193fa54  PROJECT_ROLE_EDITOR  true       now
 			`),
-			Template: new("{{ .id }} {{ .role }}"),
+			Template: new("{{ .project_member.id }} {{ .project_member.role }}"),
 			WantTemplate: new(`
 16d6e8ba-f574-494f-8d5e-74f6cb2d8db0 1
 40c0da4b-9eb9-4371-91aa-1ae62193fa54 2
@@ -587,21 +593,26 @@ func Test_ProjectCmd_DeleteMember(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ProjectServiceRemoveMemberResponse, string]{
 		{
 			Name:    "delete project member",
-			CmdArgs: []string{"project", "member", "delete", testresources.Project1Members().Id, "--project", testresources.Project1().Uuid},
+			CmdArgs: []string{"project", "member", "delete", testresources.Project1Member().Id, "--project", testresources.Project1().Uuid},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceRemoveMemberRequest{
 							Project: testresources.Project1().Uuid,
-							Member:  testresources.Project1Members().Id,
+							Member:  testresources.Project1Member().Id,
 						},
 						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceRemoveMemberResponse{})
+							return connect.NewResponse(&apiv2.ProjectServiceRemoveMemberResponse{
+								ProjectMember: testresources.Project1Member(),
+							})
 						},
 					},
 				},
 			}),
-			WantDefault: new(fmt.Sprintf("✔ successfully removed member \"%s\"", testresources.Project1Members().Id)),
+			WantTable: new(`
+            ID                                    ROLE                INHERITED  SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  PROJECT_ROLE_OWNER  false      now
+			`),
 		},
 	}
 	for _, tt := range tests {
@@ -613,24 +624,23 @@ func Test_ProjectCmd_UpdateMember(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ProjectServiceUpdateMemberResponse, *apiv2.ProjectMember]{
 		{
 			Name:    "update project member",
-			CmdArgs: []string{"project", "member", "update", testresources.Project1Members().Id, "--project", testresources.Project1().Uuid, "--role", testresources.Project1Members().Role.String()},
+			CmdArgs: []string{"project", "member", "update", testresources.Project1Member().Id, "--project", testresources.Project1().Uuid, "--role", testresources.Project1Member().Role.String()},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceUpdateMemberRequest{
 							Project: testresources.Project1().Uuid,
-							Member:  testresources.Project1Members().Id,
-							Role:    testresources.Project1Members().Role,
+							Member:  testresources.Project1Member().Id,
+							Role:    testresources.Project1Member().Role,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceUpdateMemberResponse{
-								ProjectMember: testresources.Project1Members(),
+								ProjectMember: testresources.Project1Member(),
 							})
 						},
 					},
 				},
 			}),
-			WantProtoObject: testresources.Project1Members(),
 			WantTable: new(`
 			ID                                    ROLE                INHERITED  SINCE
             16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  PROJECT_ROLE_OWNER  false      now

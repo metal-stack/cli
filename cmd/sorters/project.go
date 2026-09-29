@@ -2,6 +2,7 @@ package sorters
 
 import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	cliv2 "github.com/metal-stack/api/go/metalstack/cli/v2"
 	"github.com/metal-stack/metal-lib/pkg/multisort"
 )
 
@@ -36,25 +37,25 @@ func ProjectInviteSorter() *multisort.Sorter[*apiv2.ProjectInvite] {
 	}, multisort.Keys{{ID: "project"}, {ID: "role"}, {ID: "expiration"}})
 }
 
-func ProjectMemberSorter() *multisort.Sorter[*apiv2.ProjectMember] {
-	return multisort.New(multisort.FieldMap[*apiv2.ProjectMember]{
-		"id": func(a, b *apiv2.ProjectMember, descending bool) multisort.CompareResult {
-			return multisort.Compare(a.Id, b.Id, descending)
+func ProjectMemberSorter() *multisort.Sorter[*cliv2.ProjectMember] {
+	return multisort.New(multisort.FieldMap[*cliv2.ProjectMember]{
+		"id": func(a, b *cliv2.ProjectMember, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.ProjectMember.Id, b.ProjectMember.Id, descending)
 		},
-		"role": func(a, b *apiv2.ProjectMember, descending bool) multisort.CompareResult {
-			return multisort.Compare(a.Role, b.Role, descending)
+		"role": func(a, b *cliv2.ProjectMember, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.ProjectMember.Role, b.ProjectMember.Role, descending)
 		},
-		"created": func(a, b *apiv2.ProjectMember, descending bool) multisort.CompareResult {
-			return multisort.Compare(a.CreatedAt.AsTime().UnixMilli(), b.CreatedAt.AsTime().UnixMilli(), descending)
+		"created": func(a, b *cliv2.ProjectMember, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.ProjectMember.CreatedAt.AsTime().UnixMilli(), b.ProjectMember.CreatedAt.AsTime().UnixMilli(), descending)
 		},
-		"inherited": func(a, b *apiv2.ProjectMember, descending bool) multisort.CompareResult {
+		"inherited": func(a, b *cliv2.ProjectMember, descending bool) multisort.CompareResult {
 			boolToInt := func(in bool) int {
 				if in {
 					return 1
 				}
 				return 0
 			}
-			return multisort.Compare(boolToInt(a.InheritedMembership), boolToInt(b.InheritedMembership), descending)
+			return multisort.Compare(boolToInt(a.ProjectMember.InheritedMembership), boolToInt(b.ProjectMember.InheritedMembership), descending)
 		},
 	}, multisort.Keys{{ID: "inherited", Descending: false}, {ID: "role"}, {ID: "id"}})
 }

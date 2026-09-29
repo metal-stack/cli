@@ -8,6 +8,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	cliv2 "github.com/metal-stack/api/go/metalstack/cli/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
@@ -143,7 +144,7 @@ func Test_TenantCmd_Create(t *testing.T) {
 							Name:        testresources.Tenant1().Name,
 							Description: &testresources.Tenant1().Description,
 							Email:       &testresources.Tenant1().Email,
-							AvatarUrl:   new(""),
+							AvatarUrl:   nil,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
@@ -170,7 +171,7 @@ func Test_TenantCmd_Create(t *testing.T) {
 						WantRequest: &apiv2.TenantServiceCreateRequest{
 							Name:        testresources.Tenant1().Name,
 							Description: &testresources.Tenant1().Description,
-							AvatarUrl:   new(""),
+							AvatarUrl:   nil,
 							Email:       &testresources.Tenant1().Email,
 						},
 						WantResponse: func() connect.AnyResponse {
@@ -184,7 +185,7 @@ func Test_TenantCmd_Create(t *testing.T) {
 							Name:        testresources.Tenant2().Name,
 							Description: &testresources.Tenant2().Description,
 							Email:       &testresources.Tenant2().Email,
-							AvatarUrl:   new(""),
+							AvatarUrl:   nil,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
@@ -295,6 +296,9 @@ func Test_TenantCmd_Update(t *testing.T) {
 							Name:        new(testresources.Tenant1().Name),
 							Email:       new(testresources.Tenant1().Email),
 							Description: new(testresources.Tenant1().Description),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{
@@ -331,7 +335,7 @@ func Test_TenantCmd_Apply(t *testing.T) {
 								Email:       new(testresources.Tenant1().Email),
 								Description: new(testresources.Tenant1().Description),
 								Name:        testresources.Tenant1().Name,
-								AvatarUrl:   new(""),
+								AvatarUrl:   nil,
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
@@ -361,7 +365,7 @@ func Test_TenantCmd_Apply(t *testing.T) {
 								Email:       new(testresources.Tenant1().Email),
 								Description: new(testresources.Tenant1().Description),
 								Name:        testresources.Tenant1().Name,
-								AvatarUrl:   new(""),
+								AvatarUrl:   nil,
 							},
 							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
 						},
@@ -371,6 +375,9 @@ func Test_TenantCmd_Apply(t *testing.T) {
 								Email:       new(testresources.Tenant1().Email),
 								Description: new(testresources.Tenant1().Description),
 								Name:        new(testresources.Tenant1().Name),
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{
@@ -407,7 +414,7 @@ func Test_TenantCmd_ListMembers(t *testing.T) {
 							return connect.NewResponse(&apiv2.TenantServiceGetResponse{
 								Tenant: testresources.Tenant1(),
 								TenantMembers: []*apiv2.TenantMember{
-									testresources.Tenant1Members(), testresources.Tenant2Members(),
+									testresources.Tenant1Member(), testresources.Tenant2Member(),
 								},
 							})
 						},
@@ -424,7 +431,7 @@ func Test_TenantCmd_ListMembers(t *testing.T) {
             16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER   now
             40c0da4b-9eb9-4371-91aa-1ae62193fa54  TENANT_ROLE_EDITOR  now
 			`),
-			Template: new("{{ .id }} {{ .role }} {{ .projects }}"),
+			Template: new("{{ .tenant_member.id }} {{ .tenant_member.role }} {{ .tenant_member.projects }}"),
 			WantTemplate: new(`
 16d6e8ba-f574-494f-8d5e-74f6cb2d8db0 1 [0d81bca7-73f6-4da3-8397-4a8c52a0c583 f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c]
 40c0da4b-9eb9-4371-91aa-1ae62193fa54 2 [0d81bca7-73f6-4da3-8397-4a8c52a0c583]
@@ -446,21 +453,26 @@ func Test_TenantCmd_DeleteMember(t *testing.T) {
 	tests := []*e2e.Test[apiv2.TenantServiceRemoveMemberResponse, string]{
 		{
 			Name:    "delete tenant member",
-			CmdArgs: []string{"tenant", "member", "remove", testresources.Tenant1Members().Id, "--tenant", testresources.Tenant1().Login},
+			CmdArgs: []string{"tenant", "member", "remove", testresources.Tenant1Member().Id, "--tenant", testresources.Tenant1().Login},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceRemoveMemberRequest{
 							Login:  testresources.Tenant1().Login,
-							Member: testresources.Tenant1Members().Id,
+							Member: testresources.Tenant1Member().Id,
 						},
 						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceRemoveMemberResponse{})
+							return connect.NewResponse(&apiv2.TenantServiceRemoveMemberResponse{
+								TenantMember: testresources.Tenant1Member(),
+							})
 						},
 					},
 				},
 			}),
-			WantDefault: new(fmt.Sprintf("✔ successfully removed member \"%s\"", testresources.Tenant1Members().Id)),
+			WantTable: new(`
+            ID                                    ROLE               SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER  now
+			`),
 		},
 	}
 	for _, tt := range tests {
@@ -469,27 +481,106 @@ func Test_TenantCmd_DeleteMember(t *testing.T) {
 }
 
 func Test_TenantCmd_UpdateMember(t *testing.T) {
-	tests := []*e2e.Test[apiv2.TenantServiceUpdateMemberResponse, *apiv2.TenantMember]{
+	tests := []*e2e.Test[apiv2.TenantServiceUpdateMemberResponse, *cliv2.TenantMember]{
 		{
 			Name:    "update tenant member",
-			CmdArgs: []string{"tenant", "member", "update", testresources.Tenant1Members().Id, "--tenant", testresources.Tenant1().Login, "--role", testresources.Tenant1Members().Role.String()},
+			CmdArgs: []string{"tenant", "member", "update", testresources.Tenant1Member().Id, "--tenant", testresources.Tenant1().Login, "--role", testresources.Tenant1Member().Role.String()},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceUpdateMemberRequest{
 							Login:  testresources.Tenant1().Login,
-							Member: testresources.Tenant1Members().Id,
-							Role:   testresources.Tenant1Members().Role,
+							Member: testresources.Tenant1Member().Id,
+							Role:   testresources.Tenant1Member().Role,
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceUpdateMemberResponse{
-								TenantMember: testresources.Tenant1Members(),
+								TenantMember: testresources.Tenant1Member(),
 							})
 						},
 					},
 				},
 			}),
-			WantProtoObject: testresources.Tenant1Members(),
+			WantTable: new(`
+            ID                                    ROLE               SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER  now
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_TenantCmd_ApplyMember(t *testing.T) {
+	tests := []*e2e.Test[apiv2.TenantServiceUpdateMemberResponse, *cliv2.TenantMember]{
+		{
+			Name:    "apply",
+			CmdArgs: append([]string{"tenant", "member", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, &cliv2.TenantMember{
+							Tenant:       testresources.Tenant1().Login,
+							TenantMember: testresources.Tenant1Member(),
+						}), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &apiv2.TenantServiceAddMemberRequest{
+								Login:  testresources.Tenant1().Login,
+								Member: testresources.Tenant1Member().Id,
+								Role:   testresources.Tenant1Member().Role,
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&apiv2.TenantServiceAddMemberResponse{
+									TenantMember: testresources.Tenant1Member(),
+								})
+							},
+						},
+					},
+				},
+			),
+			WantTable: new(`
+            ID                                    ROLE               SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER  now
+			`),
+		},
+		{
+			Name:    "apply already exists",
+			CmdArgs: append([]string{"tenant", "member", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, &cliv2.TenantMember{
+							Tenant:       testresources.Tenant1().Login,
+							TenantMember: testresources.Tenant1Member(),
+						}), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &apiv2.TenantServiceAddMemberRequest{
+								Login:  testresources.Tenant1().Login,
+								Member: testresources.Tenant1Member().Id,
+								Role:   testresources.Tenant1Member().Role,
+							},
+							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
+						},
+						{
+							WantRequest: &apiv2.TenantServiceUpdateMemberRequest{
+								Login:  testresources.Tenant1().Login,
+								Member: testresources.Tenant1Member().Id,
+								Role:   testresources.Tenant1Member().Role,
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&apiv2.TenantServiceUpdateMemberResponse{
+									TenantMember: testresources.Tenant1Member(),
+								})
+							},
+						},
+					},
+				},
+			),
 			WantTable: new(`
             ID                                    ROLE               SINCE
             16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER  now

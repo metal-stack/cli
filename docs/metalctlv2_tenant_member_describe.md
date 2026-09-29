@@ -1,18 +1,16 @@
-## metalctlv2 tenant member list
+## metalctlv2 tenant member describe
 
-list all members
+describes the member
 
 ```
-metalctlv2 tenant member list [flags]
+metalctlv2 tenant member describe <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help              help for list
-      --role string       the role of the member
-      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: created|id|role
-      --tenant string     the tenant to list the tenant members of, defaults to tenant of the default project
+  -h, --help            help for describe
+      --tenant string   the tenant to describe the tenant members of, defaults to tenant of the default project
 ```
 
 ### Options inherited from parent commands

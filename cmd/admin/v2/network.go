@@ -205,6 +205,7 @@ func (c *networkCmd) Create(rq *adminv2.NetworkServiceCreateRequest) (*apiv2.Net
 		if errorutil.IsConflict(err) {
 			return nil, genericcli.AlreadyExistsError()
 		}
+
 		return nil, err
 	}
 

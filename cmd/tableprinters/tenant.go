@@ -4,6 +4,7 @@ import (
 	"github.com/dustin/go-humanize"
 
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	cliv2 "github.com/metal-stack/api/go/metalstack/cli/v2"
 )
 
 func (t *TablePrinter) TenantTable(data []*apiv2.Tenant, wide bool) ([]string, [][]string, error) {
@@ -24,7 +25,7 @@ func (t *TablePrinter) TenantTable(data []*apiv2.Tenant, wide bool) ([]string, [
 	return header, rows, nil
 }
 
-func (t *TablePrinter) TenantMemberTable(data []*apiv2.TenantMember, _ bool) ([]string, [][]string, error) {
+func (t *TablePrinter) TenantMemberTable(data []*cliv2.TenantMember, _ bool) ([]string, [][]string, error) {
 	var (
 		rows [][]string
 	)
@@ -32,9 +33,9 @@ func (t *TablePrinter) TenantMemberTable(data []*apiv2.TenantMember, _ bool) ([]
 
 	for _, member := range data {
 		row := []string{
-			member.Id,
-			member.Role.String(),
-			humanize.Time(member.CreatedAt.AsTime()),
+			member.TenantMember.Id,
+			member.TenantMember.Role.String(),
+			humanize.Time(member.TenantMember.CreatedAt.AsTime()),
 		}
 
 		rows = append(rows, row)

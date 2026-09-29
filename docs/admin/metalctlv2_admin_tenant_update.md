@@ -1,9 +1,9 @@
-## metalctlv2 project member update
+## metalctlv2 admin tenant update
 
-updates the member
+updates the tenant
 
 ```
-metalctlv2 project member update <id> [flags]
+metalctlv2 admin tenant update [flags]
 ```
 
 ### Options
@@ -13,18 +13,16 @@ metalctlv2 project member update <id> [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 member describe member-1 -o yaml > member.yaml
-                                $ vi member.yaml
+                                $ metalctlv2 tenant describe tenant-1 -o yaml > tenant.yaml
+                                $ vi tenant.yaml
                                 $ # either via stdin
-                                $ cat member.yaml | metalctlv2 member update <id> -f -
+                                $ cat tenant.yaml | metalctlv2 tenant update -f -
                                 $ # or via file
-                                $ metalctlv2 member update <id> -f member.yaml
+                                $ metalctlv2 tenant update -f tenant.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
   -h, --help                    help for update
-      --project string          the project for which to update a project member, defaults to project of the default project
-      --role string             the role of the member
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -44,5 +42,5 @@ metalctlv2 project member update <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage member entities
+* [metalctlv2 admin tenant](metalctlv2_admin_tenant.md)	 - manage tenant entities
 

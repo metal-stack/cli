@@ -6,6 +6,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	cliv2 "github.com/metal-stack/api/go/metalstack/cli/v2"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 )
 
@@ -54,7 +55,7 @@ func (t *TablePrinter) ProjectInviteTable(data []*apiv2.ProjectInvite, _ bool) (
 	return header, rows, nil
 }
 
-func (t *TablePrinter) ProjectMemberTable(data []*apiv2.ProjectMember, _ bool) ([]string, [][]string, error) {
+func (t *TablePrinter) ProjectMemberTable(data []*cliv2.ProjectMember, _ bool) ([]string, [][]string, error) {
 	var (
 		rows [][]string
 	)
@@ -62,10 +63,10 @@ func (t *TablePrinter) ProjectMemberTable(data []*apiv2.ProjectMember, _ bool) (
 
 	for _, member := range data {
 		row := []string{
-			member.Id,
-			member.Role.String(),
-			strconv.FormatBool(member.InheritedMembership),
-			humanize.Time(member.CreatedAt.AsTime()),
+			member.ProjectMember.Id,
+			member.ProjectMember.Role.String(),
+			strconv.FormatBool(member.ProjectMember.InheritedMembership),
+			humanize.Time(member.ProjectMember.CreatedAt.AsTime()),
 		}
 
 		rows = append(rows, row)

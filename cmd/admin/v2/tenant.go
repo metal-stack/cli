@@ -25,7 +25,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		c: c,
 	}
 
-	cmdsConfig := &genericcli.CmdsConfig[*adminv2.TenantServiceCreateRequest, any, *apiv2.Tenant]{
+	cmdsConfig := &genericcli.CmdsConfig[*adminv2.TenantServiceCreateRequest, *apiv2.TenantServiceUpdateRequest, *apiv2.Tenant]{
 		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "tenant",
@@ -54,7 +54,6 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 				AvatarUrl:   pointer.PointerOrNil(viper.GetString("avatar-url")),
 			}, nil
 		},
-		OnlyCmds:    genericcli.OnlyCmds(genericcli.ListCmd, genericcli.CreateCmd),
 		ValidArgsFn: w.c.Completion.AdminTenant,
 	}
 
@@ -62,7 +61,19 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 }
 
 func (c *tenant) Get(id string) (*apiv2.Tenant, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	req := &apiv2.TenantServiceGetRequest{
+		Login: id,
+	}
+
+	resp, err := c.c.Client.Apiv2().Tenant().Get(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tenant: %w", err)
+	}
+
+	return resp.GetTenant(), nil
 }
 
 func (c *tenant) List() ([]*apiv2.Tenant, error) {
@@ -110,15 +121,50 @@ func (c *tenant) Create(rq *adminv2.TenantServiceCreateRequest) (*apiv2.Tenant, 
 }
 
 func (c *tenant) Delete(id string) (*apiv2.Tenant, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Apiv2().Tenant().Delete(ctx, &apiv2.TenantServiceDeleteRequest{
+		Login: id,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete tenant: %w", err)
+	}
+
+	return resp.Tenant, nil
 }
 
-func (c *tenant) Convert(r *apiv2.Tenant) (string, *adminv2.TenantServiceCreateRequest, any, error) {
-	panic("unimplemented")
+func (c *tenant) Convert(r *apiv2.Tenant) (string, *adminv2.TenantServiceCreateRequest, *apiv2.TenantServiceUpdateRequest, error) {
+	return r.Login, &adminv2.TenantServiceCreateRequest{
+			Name:        r.Name,
+			Description: pointer.PointerOrNil(r.Description),
+			Email:       pointer.PointerOrNil(r.Email),
+			AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
+			Labels:      pointer.SafeDeref(r.Meta).Labels,
+			Login:       pointer.PointerOrNil(r.Login),
+		},
+		&apiv2.TenantServiceUpdateRequest{
+			Login:       r.Login,
+			Name:        pointer.PointerOrNil(r.Name),
+			Email:       pointer.PointerOrNil(r.Email),
+			Description: pointer.PointerOrNil(r.Description),
+			AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
+			UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
+			Labels:      helpers.UpdateLabelsFromMeta(r.Meta),
+		},
+		nil
 }
 
-func (c *tenant) Update(rq any) (*apiv2.Tenant, error) {
-	panic("unimplemented")
+func (c *tenant) Update(rq *apiv2.TenantServiceUpdateRequest) (*apiv2.Tenant, error) {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Apiv2().Tenant().Update(ctx, rq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update tenant: %w", err)
+	}
+
+	return resp.Tenant, nil
 }
 
 func newAddMemberCmd(c *config.Config) *cobra.Command {

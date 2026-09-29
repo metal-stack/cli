@@ -2,6 +2,7 @@ package sorters
 
 import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	cliv2 "github.com/metal-stack/api/go/metalstack/cli/v2"
 	"github.com/metal-stack/metal-lib/pkg/multisort"
 )
 
@@ -36,16 +37,16 @@ func TenantInviteSorter() *multisort.Sorter[*apiv2.TenantInvite] {
 	}, multisort.Keys{{ID: "tenant"}, {ID: "role"}, {ID: "expiration"}})
 }
 
-func TenantMemberSorter() *multisort.Sorter[*apiv2.TenantMember] {
-	return multisort.New(multisort.FieldMap[*apiv2.TenantMember]{
-		"id": func(a, b *apiv2.TenantMember, descending bool) multisort.CompareResult {
-			return multisort.Compare(a.Id, b.Id, descending)
+func TenantMemberSorter() *multisort.Sorter[*cliv2.TenantMember] {
+	return multisort.New(multisort.FieldMap[*cliv2.TenantMember]{
+		"id": func(a, b *cliv2.TenantMember, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.TenantMember.Id, b.TenantMember.Id, descending)
 		},
-		"role": func(a, b *apiv2.TenantMember, descending bool) multisort.CompareResult {
-			return multisort.Compare(a.Role, b.Role, descending)
+		"role": func(a, b *cliv2.TenantMember, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.TenantMember.Role, b.TenantMember.Role, descending)
 		},
-		"created": func(a, b *apiv2.TenantMember, descending bool) multisort.CompareResult {
-			return multisort.Compare(a.CreatedAt.AsTime().UnixMilli(), b.CreatedAt.AsTime().UnixMilli(), descending)
+		"created": func(a, b *cliv2.TenantMember, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.TenantMember.CreatedAt.AsTime().UnixMilli(), b.TenantMember.CreatedAt.AsTime().UnixMilli(), descending)
 		},
 	}, multisort.Keys{{ID: "role"}, {ID: "id"}})
 }
