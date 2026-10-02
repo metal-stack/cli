@@ -265,8 +265,10 @@ func (t *TablePrinter) getMachineStatusEmojis(m *apiv2.Machine) string {
 
 		}
 
-		if time.Since(events.LastErrorEvent.Time.AsTime()) < t.lastEventErrorThreshold {
-			emojis = append(emojis, helpers.Exclamation)
+		if events.LastErrorEvent != nil {
+			if time.Since(events.LastErrorEvent.Time.AsTime()) < t.lastEventErrorThreshold {
+				emojis = append(emojis, helpers.Exclamation)
+			}
 		}
 	}
 
