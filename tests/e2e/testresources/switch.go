@@ -85,7 +85,7 @@ var (
 				},
 			},
 			BgpPortState: &apiv2.SwitchBGPPortState{
-				Neighbor:              "10.0.0.2",
+				Neighbor:              new("10.0.0.2"),
 				PeerGroup:             "TOR-LEAFS",
 				VrfName:               "default",
 				BgpState:              apiv2.BGPState_BGP_STATE_ESTABLISHED,
@@ -109,7 +109,7 @@ var (
 				Vnis:  []string{"20001"},
 			},
 			BgpPortState: &apiv2.SwitchBGPPortState{
-				Neighbor:              "10.1.0.2",
+				Neighbor:              new("10.1.0.2"),
 				PeerGroup:             "TOR-LEAFS",
 				VrfName:               "default",
 				BgpState:              apiv2.BGPState_BGP_STATE_IDLE,
