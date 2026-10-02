@@ -113,6 +113,6 @@ The configuration file is by default written to `~/.metal-stack/config.yaml`.
 
 ## Environment Variables
 
-All flags can also be provided as environment variables prefixed with `METAL_STACK_`. The flag name is uppercased and dashes are replaced by underscores, e.g. `--api-url` becomes `METAL_STACK_API_URL`.
+Important flags can also be provided as environment variables prefixed with `METAL_STACK_`. The flag name is uppercased and dashes are replaced by underscores, e.g. `--api-url` becomes `METAL_STACK_API_URL`.
 
 An explicitly provided flag takes precedence over an environment variable, which in turn takes precedence over the context in `~/.metal-stack/config.yaml`.
