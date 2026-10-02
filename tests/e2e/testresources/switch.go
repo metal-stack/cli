@@ -68,7 +68,6 @@ var (
 		return &apiv2.SwitchNic{
 			Name:       "Ethernet0",
 			Identifier: "oid:0x1000000000001",
-			Mac:        new("52:54:00:ab:cd:01"),
 			Vrf:        new("default"),
 			State: &apiv2.NicState{
 				Desired: new(apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UP),
@@ -85,7 +84,7 @@ var (
 				},
 			},
 			BgpPortState: &apiv2.SwitchBGPPortState{
-				Neighbor:              "10.0.0.2",
+				Neighbor:              new("10.0.0.2"),
 				PeerGroup:             "TOR-LEAFS",
 				VrfName:               "default",
 				BgpState:              apiv2.BGPState_BGP_STATE_ESTABLISHED,
@@ -99,7 +98,6 @@ var (
 		return &apiv2.SwitchNic{
 			Name:       "Ethernet4",
 			Identifier: "oid:0x1000000000002",
-			Mac:        new("52:54:00:ab:cd:02"),
 			State: &apiv2.NicState{
 				Desired: new(apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UP),
 				Actual:  apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_DOWN,
@@ -109,7 +107,7 @@ var (
 				Vnis:  []string{"20001"},
 			},
 			BgpPortState: &apiv2.SwitchBGPPortState{
-				Neighbor:              "10.1.0.2",
+				Neighbor:              new("10.1.0.2"),
 				PeerGroup:             "TOR-LEAFS",
 				VrfName:               "default",
 				BgpState:              apiv2.BGPState_BGP_STATE_IDLE,
