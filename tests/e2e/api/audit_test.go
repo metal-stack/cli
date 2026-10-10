@@ -4,12 +4,12 @@ import (
 	"testing"
 	"time"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -25,13 +25,13 @@ func Test_AuditCmd_List(t *testing.T) {
 							Login: testresources.Trace1().Tenant,
 							Query: &apiv2.AuditQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.AuditServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.AuditServiceListResponse{
 								Traces: []*apiv2.AuditTrace{
 									testresources.Trace1(),
 									testresources.Trace2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -71,12 +71,12 @@ d1ff7267-2fbb-4a63-a7c1-44f1a83381a7 me 2`),
 								To:   timestamppb.New(time.Date(2001, 1, 2, 0, 0, 0, 0, time.UTC)),
 							},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.AuditServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.AuditServiceListResponse{
 								Traces: []*apiv2.AuditTrace{
 									testresources.Trace3(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -110,10 +110,10 @@ d1ff7267-2fbb-4a63-a7c1-44f1a83381a7 me 2`),
 							Login: "notExisting",
 							Query: &apiv2.AuditQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.AuditServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.AuditServiceListResponse{
 								Traces: []*apiv2.AuditTrace{},
-							})
+							}
 						},
 					},
 				},
@@ -149,10 +149,10 @@ func Test_AuditCmd_Describe(t *testing.T) {
 							Login: testresources.Trace1().Tenant,
 							Uuid:  testresources.Trace1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.AuditServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.AuditServiceGetResponse{
 								Trace: testresources.Trace1(),
-							})
+							}
 						},
 					},
 				},

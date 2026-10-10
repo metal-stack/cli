@@ -2,12 +2,11 @@ package admin_e2e
 
 import (
 	"encoding/base64"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -17,6 +16,7 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_MachineCmd_List(t *testing.T) {
@@ -146,13 +146,13 @@ func Test_MachineCmd_List(t *testing.T) {
 								},
 							},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.MachineServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.MachineServiceListResponse{
 								Machines: []*apiv2.Machine{
 									testresources.Machine2(),
 									testresources.Machine1(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -189,13 +189,13 @@ func Test_MachineCmd_List(t *testing.T) {
 						WantRequest: &adminv2.MachineServiceListRequest{
 							Query: &apiv2.MachineQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.MachineServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.MachineServiceListResponse{
 								Machines: []*apiv2.Machine{
 									testresources.Machine2(),
 									testresources.Machine1(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -223,10 +223,10 @@ func Test_MachineCmd_Describe(t *testing.T) {
 						WantRequest: &adminv2.MachineServiceGetRequest{
 							Uuid: testresources.Machine2().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.MachineServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.MachineServiceGetResponse{
 								Machine: testresources.Machine2(),
-							})
+							}
 						},
 					},
 				},
@@ -340,10 +340,10 @@ func Test_MachineCmd_Create(t *testing.T) {
 							AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
 							FirewallSpec:   nil,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.MachineServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.MachineServiceCreateResponse{
 								Machine: testresources.Machine2(),
-							})
+							}
 						},
 					},
 				},
@@ -384,10 +384,10 @@ func Test_MachineCmd_Create(t *testing.T) {
 								AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
 								FirewallSpec:   nil,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.MachineServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.MachineServiceCreateResponse{
 									Machine: testresources.Machine2(),
-								})
+								}
 							},
 						},
 					},
@@ -414,10 +414,10 @@ func Test_MachineCmd_Delete(t *testing.T) {
 						WantRequest: &adminv2.MachineServiceDeleteRequest{
 							Uuid: testresources.Machine2().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.MachineServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.MachineServiceDeleteResponse{
 								Machine: testresources.Machine2(),
-							})
+							}
 						},
 					},
 				},
@@ -437,10 +437,10 @@ func Test_MachineCmd_Delete(t *testing.T) {
 							WantRequest: &adminv2.MachineServiceDeleteRequest{
 								Uuid: testresources.Machine2().Uuid,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.MachineServiceDeleteResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.MachineServiceDeleteResponse{
 									Machine: testresources.Machine2(),
-								})
+								}
 							},
 						},
 					},
@@ -495,10 +495,10 @@ func Test_MachineCmd_Update(t *testing.T) {
 								},
 								SshPublicKeys: []string{"12345"},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.MachineServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.MachineServiceUpdateResponse{
 									Machine: testresources.Machine2(),
-								})
+								}
 							},
 						},
 					},
@@ -530,10 +530,10 @@ func Test_MachineCmd_Update(t *testing.T) {
 								},
 								SshPublicKeys: []string{},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.MachineServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.MachineServiceUpdateResponse{
 									Machine: testresources.Machine2(),
-								})
+								}
 							},
 						},
 					},
@@ -586,10 +586,10 @@ func Test_MachineCmd_Apply(t *testing.T) {
 								AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
 								FirewallSpec:   nil,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.MachineServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.MachineServiceCreateResponse{
 									Machine: testresources.Machine2(),
-								})
+								}
 							},
 						},
 					},
@@ -634,7 +634,7 @@ func Test_MachineCmd_Apply(t *testing.T) {
 								AllocationType: apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_MACHINE,
 								FirewallSpec:   nil,
 							},
-							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
+							WantError: connect.Errorf(connect.CodeAlreadyExists, "already exists"),
 						},
 						{
 							WantRequest: &apiv2.MachineServiceUpdateRequest{
@@ -651,10 +651,10 @@ func Test_MachineCmd_Apply(t *testing.T) {
 								},
 								SshPublicKeys: []string{},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.MachineServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.MachineServiceUpdateResponse{
 									Machine: testresources.Machine2(),
-								})
+								}
 							},
 						},
 					},
@@ -798,13 +798,13 @@ func Test_MachineCmd_BmcList(t *testing.T) {
 								},
 							},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.MachineServiceListBMCResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.MachineServiceListBMCResponse{
 								BmcDetails: []*apiv2.MachineBMCDetails{
 									testresources.Machine2BmcDetails,
 									testresources.Machine1BmcDetails,
 								},
-							})
+							}
 						},
 					},
 				},
@@ -848,10 +848,10 @@ func Test_MachineCmd_BmcDescribe(t *testing.T) {
 						WantRequest: &adminv2.MachineServiceGetBMCRequest{
 							Uuid: testresources.Machine1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.MachineServiceGetBMCResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.MachineServiceGetBMCResponse{
 								BmcDetails: testresources.Machine1BmcDetails,
-							})
+							}
 						},
 					},
 				},
@@ -892,8 +892,8 @@ func Test_MachineCmd_BmcCommand(t *testing.T) {
 							Uuid:    testresources.Machine1().Uuid,
 							Command: apiv2.MachineBMCCommand_MACHINE_BMC_COMMAND_ON,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.MachineServiceBMCCommandResponse{})
+						WantResponse: func() proto.Message {
+							return &adminv2.MachineServiceBMCCommandResponse{}
 						},
 					},
 				},

@@ -3,12 +3,12 @@ package api_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_SizeCmd_List(t *testing.T) {
@@ -22,13 +22,13 @@ func Test_SizeCmd_List(t *testing.T) {
 						WantRequest: &apiv2.SizeServiceListRequest{
 							Query: &apiv2.SizeQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.SizeServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.SizeServiceListResponse{
 								Sizes: []*apiv2.Size{
 									testresources.Size2(),
 									testresources.Size1(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -72,10 +72,10 @@ func Test_SizeCmd_Describe(t *testing.T) {
 						WantRequest: &apiv2.SizeServiceGetRequest{
 							Id: testresources.Size1().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.SizeServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.SizeServiceGetResponse{
 								Size: testresources.Size1(),
-							})
+							}
 						},
 					},
 				},

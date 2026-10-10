@@ -3,13 +3,13 @@ package admin_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_AdminAuditCmd_List(t *testing.T) {
@@ -23,14 +23,14 @@ func Test_AdminAuditCmd_List(t *testing.T) {
 						WantRequest: &adminv2.AuditServiceListRequest{
 							Query: &apiv2.AuditQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.AuditServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.AuditServiceListResponse{
 								Traces: []*apiv2.AuditTrace{
 									testresources.Trace1(),
 									testresources.Trace2(),
 									testresources.Trace3(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -77,10 +77,10 @@ func Test_AuditCmd_Describe(t *testing.T) {
 						WantRequest: &adminv2.AuditServiceGetRequest{
 							Uuid: testresources.Trace1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.AuditServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.AuditServiceGetResponse{
 								Trace: testresources.Trace1(),
-							})
+							}
 						},
 					},
 				},

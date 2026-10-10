@@ -3,7 +3,6 @@ package admin_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -12,6 +11,7 @@ import (
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_AdminSwitchCmd_Describe(t *testing.T) {
@@ -25,10 +25,10 @@ func Test_AdminSwitchCmd_Describe(t *testing.T) {
 						WantRequest: &adminv2.SwitchServiceGetRequest{
 							Id: testresources.Switch2().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SwitchServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.SwitchServiceGetResponse{
 								Switch: testresources.Switch2(),
-							})
+							}
 						},
 					},
 				},
@@ -72,13 +72,13 @@ func Test_AdminSwitchCmd_List(t *testing.T) {
 								Os: &apiv2.SwitchOSQuery{},
 							},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SwitchServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.SwitchServiceListResponse{
 								Switches: []*apiv2.Switch{
 									testresources.Switch1(),
 									testresources.Switch2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -122,10 +122,10 @@ func Test_AdminSwitchCmd_Delete(t *testing.T) {
 						WantRequest: &adminv2.SwitchServiceDeleteRequest{
 							Id: testresources.Switch2().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SwitchServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.SwitchServiceDeleteResponse{
 								Switch: testresources.Switch2(),
-							})
+							}
 						},
 					},
 				},
@@ -158,10 +158,10 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 								Os:             testresources.Switch2().Os,
 								ReplaceMode:    new(testresources.Switch2().ReplaceMode),
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.SwitchServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.SwitchServiceUpdateResponse{
 									Switch: testresources.Switch2(),
-								})
+								}
 							},
 						},
 					},
@@ -200,10 +200,10 @@ func Test_AdminSwitchCmd_ConnectedMachines(t *testing.T) {
 							Query:        &apiv2.SwitchQuery{},
 							MachineQuery: &apiv2.MachineQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SwitchServiceConnectedMachinesResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.SwitchServiceConnectedMachinesResponse{
 								SwitchesWithMachines: []*apiv2.SwitchWithMachines{testresources.SwitchWithMachines1()},
-							})
+							}
 						},
 					},
 				},
@@ -233,12 +233,12 @@ func Test_AdminSwitchCmd_Detail(t *testing.T) {
 								Os: &apiv2.SwitchOSQuery{},
 							},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SwitchServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.SwitchServiceListResponse{
 								Switches: []*apiv2.Switch{
 									testresources.Switch1(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -275,10 +275,10 @@ func Test_AdminSwitchCmd_Migrate(t *testing.T) {
 							OldSwitch: testresources.Switch1().Id,
 							NewSwitch: testresources.Switch2().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SwitchServiceMigrateResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.SwitchServiceMigrateResponse{
 								Switch: testresources.Switch2(),
-							})
+							}
 						},
 					},
 				},
@@ -322,10 +322,10 @@ func Test_AdminSwitchCmd_Port(t *testing.T) {
 							NicName: testresources.Nic1().Name,
 							Status:  apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_UP,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SwitchServicePortResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.SwitchServicePortResponse{
 								Switch: testresources.Switch1(),
-							})
+							}
 						},
 					},
 				},
@@ -395,10 +395,10 @@ Desired:
 							NicName: testresources.Nic1().Name,
 							Status:  apiv2.SwitchPortStatus_SWITCH_PORT_STATUS_DOWN,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SwitchServicePortResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.SwitchServicePortResponse{
 								Switch: testresources.Switch1(),
-							})
+							}
 						},
 					},
 				},

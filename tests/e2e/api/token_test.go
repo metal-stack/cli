@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
@@ -12,6 +12,7 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
@@ -26,10 +27,10 @@ func Test_TokenCmd_Describe(t *testing.T) {
 						WantRequest: &apiv2.TokenServiceGetRequest{
 							Uuid: testresources.Token1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TokenServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TokenServiceGetResponse{
 								Token: testresources.Token1(),
-							})
+							}
 						},
 					},
 				},
@@ -68,13 +69,13 @@ func Test_TokenCmd_List(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TokenServiceListRequest{},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TokenServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TokenServiceListResponse{
 								Tokens: []*apiv2.Token{
 									testresources.Token1(),
 									testresources.Token2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -118,8 +119,8 @@ func Test_TokenCmd_Delete(t *testing.T) {
 						WantRequest: &apiv2.TokenServiceRevokeRequest{
 							Uuid: testresources.Token1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TokenServiceRevokeResponse{})
+						WantResponse: func() proto.Message {
+							return &apiv2.TokenServiceRevokeResponse{}
 						},
 					},
 				},
@@ -139,8 +140,8 @@ func Test_TokenCmd_Delete(t *testing.T) {
 							WantRequest: &apiv2.TokenServiceRevokeRequest{
 								Uuid: testresources.Token1().Uuid,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.TokenServiceRevokeResponse{})
+							WantResponse: func() proto.Message {
+								return &apiv2.TokenServiceRevokeResponse{}
 							},
 						},
 					},
@@ -169,11 +170,11 @@ func Test_TokenCmd_Create(t *testing.T) {
 							Description: testresources.Token1().Description,
 							Expires:     durationpb.New(testresources.Token1().Expires.AsTime().Sub(e2e.TimeBubbleStartTime())),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TokenServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TokenServiceCreateResponse{
 								Token:  testresources.Token1(),
 								Secret: "token-secret",
-							})
+							}
 						},
 					},
 				},
@@ -202,11 +203,11 @@ func Test_TokenCmd_Create(t *testing.T) {
 								Description: testresources.Token1().Description,
 								Expires:     durationpb.New(testresources.Token1().Expires.AsTime().Sub(e2e.TimeBubbleStartTime())),
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.TokenServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.TokenServiceCreateResponse{
 									Token:  testresources.Token1(),
 									Secret: "token-secret",
-								})
+								}
 							},
 						},
 					},
@@ -265,10 +266,10 @@ func Test_TokenCmd_Update(t *testing.T) {
 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.TokenServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.TokenServiceUpdateResponse{
 									Token: testresources.Token2(),
-								})
+								}
 							},
 						},
 					},
@@ -305,10 +306,10 @@ func Test_TokenCmd_Apply(t *testing.T) {
 								Expires:     durationpb.New(testresources.Token1().Expires.AsTime().Sub(e2e.TimeBubbleStartTime())),
 								// Permissions: testresources.Token1().Permissions,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.TokenServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.TokenServiceCreateResponse{
 									Token: testresources.Token1(),
-								})
+								}
 							},
 						},
 					},
@@ -339,7 +340,7 @@ func Test_TokenCmd_Apply(t *testing.T) {
 								Expires:     durationpb.New(testresources.Token1().Expires.AsTime().Sub(e2e.TimeBubbleStartTime())),
 								// Permissions: testresources.Token1().Permissions,
 							},
-							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already_exists")),
+							WantError: connect.Errorf(connect.CodeAlreadyExists, "already_exists"),
 						},
 					},
 				},

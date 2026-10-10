@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"github.com/dustin/go-humanize"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -13,6 +13,7 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_TenantCmd_Describe(t *testing.T) {
@@ -26,10 +27,10 @@ func Test_TenantCmd_Describe(t *testing.T) {
 						WantRequest: &apiv2.TenantServiceGetRequest{
 							Login: testresources.Tenant1().Login,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceGetResponse{
 								Tenant: testresources.Tenant1(),
-							})
+							}
 						},
 					},
 				},
@@ -68,13 +69,13 @@ func Test_TenantCmd_List(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceListRequest{Query: &apiv2.TenantQuery{}},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceListResponse{
 								Tenants: []*apiv2.Tenant{
 									testresources.Tenant1(),
 									testresources.Tenant2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -120,10 +121,10 @@ func Test_TenantCmd_Create(t *testing.T) {
 							Name:        testresources.Tenant1().Name,
 							Email:       &testresources.Tenant1().Email,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceCreateResponse{
 								Tenant: testresources.Tenant1(),
-							})
+							}
 						},
 					},
 				},
@@ -145,10 +146,10 @@ func Test_TenantCmd_Create(t *testing.T) {
 							Email:       &testresources.Tenant1().Email,
 							AvatarUrl:   new(""),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceCreateResponse{
 								Tenant: testresources.Tenant1(),
-							})
+							}
 						},
 					},
 				},
@@ -173,10 +174,10 @@ func Test_TenantCmd_Create(t *testing.T) {
 							AvatarUrl:   new(""),
 							Email:       &testresources.Tenant1().Email,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceCreateResponse{
 								Tenant: testresources.Tenant1(),
-							})
+							}
 						},
 					},
 					{
@@ -186,10 +187,10 @@ func Test_TenantCmd_Create(t *testing.T) {
 							Email:       &testresources.Tenant2().Email,
 							AvatarUrl:   new(""),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceCreateResponse{
 								Tenant: testresources.Tenant2(),
-							})
+							}
 						},
 					},
 				},
@@ -217,10 +218,10 @@ func Test_TenantCmd_Delete(t *testing.T) {
 						WantRequest: &apiv2.TenantServiceDeleteRequest{
 							Login: testresources.Tenant1().Login,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceDeleteResponse{
 								Tenant: testresources.Tenant1(),
-							})
+							}
 						},
 					},
 				},
@@ -239,10 +240,10 @@ func Test_TenantCmd_Delete(t *testing.T) {
 						WantRequest: &apiv2.TenantServiceDeleteRequest{
 							Login: testresources.Tenant1().Login,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceDeleteResponse{
 								Tenant: testresources.Tenant1(),
-							})
+							}
 						},
 					},
 				},
@@ -271,10 +272,10 @@ func Test_TenantCmd_Update(t *testing.T) {
 							Name:        new("new-name"),
 							Description: new("new-desc"),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceUpdateResponse{
 								Tenant: testresources.Tenant1(),
-							})
+							}
 						},
 					},
 				},
@@ -296,10 +297,10 @@ func Test_TenantCmd_Update(t *testing.T) {
 							Email:       new(testresources.Tenant1().Email),
 							Description: new(testresources.Tenant1().Description),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceUpdateResponse{
 								Tenant: testresources.Tenant1(),
-							})
+							}
 						},
 					},
 				},
@@ -333,10 +334,10 @@ func Test_TenantCmd_Apply(t *testing.T) {
 								Name:        testresources.Tenant1().Name,
 								AvatarUrl:   new(""),
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.TenantServiceCreateResponse{
 									Tenant: testresources.Tenant1(),
-								})
+								}
 							},
 						},
 					},
@@ -363,7 +364,7 @@ func Test_TenantCmd_Apply(t *testing.T) {
 								Name:        testresources.Tenant1().Name,
 								AvatarUrl:   new(""),
 							},
-							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
+							WantError: connect.Errorf(connect.CodeAlreadyExists, "already exists"),
 						},
 						{
 							WantRequest: &apiv2.TenantServiceUpdateRequest{
@@ -372,10 +373,10 @@ func Test_TenantCmd_Apply(t *testing.T) {
 								Description: new(testresources.Tenant1().Description),
 								Name:        new(testresources.Tenant1().Name),
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.TenantServiceUpdateResponse{
 									Tenant: testresources.Tenant1(),
-								})
+								}
 							},
 						},
 					},
@@ -403,13 +404,13 @@ func Test_TenantCmd_ListMembers(t *testing.T) {
 						WantRequest: &apiv2.TenantServiceGetRequest{
 							Login: testresources.Tenant1().Login,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceGetResponse{
 								Tenant: testresources.Tenant1(),
 								TenantMembers: []*apiv2.TenantMember{
 									testresources.Tenant1Members(), testresources.Tenant2Members(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -454,8 +455,8 @@ func Test_TenantCmd_DeleteMember(t *testing.T) {
 							Login:  testresources.Tenant1().Login,
 							Member: testresources.Tenant1Members().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceRemoveMemberResponse{})
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceRemoveMemberResponse{}
 						},
 					},
 				},
@@ -481,10 +482,10 @@ func Test_TenantCmd_UpdateMember(t *testing.T) {
 							Member: testresources.Tenant1Members().Id,
 							Role:   testresources.Tenant1Members().Role,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceUpdateMemberResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceUpdateMemberResponse{
 								TenantMember: testresources.Tenant1Members(),
-							})
+							}
 						},
 					},
 				},
@@ -512,13 +513,13 @@ func Test_TenantCmd_ListInvites(t *testing.T) {
 						WantRequest: &apiv2.TenantServiceInvitesListRequest{
 							Login: testresources.Tenant2().Login,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceInvitesListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceInvitesListResponse{
 								Invites: []*apiv2.TenantInvite{
 									testresources.Tenant1Invite(),
 									testresources.Tenant2Invite(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -563,8 +564,8 @@ func Test_TenantCmd_DeleteInvite(t *testing.T) {
 							Login:  testresources.Tenant1().Login,
 							Secret: testresources.Tenant1Invite().Secret,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceInviteDeleteResponse{})
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceInviteDeleteResponse{}
 						},
 					},
 				},
@@ -589,10 +590,10 @@ func Test_TenantCmd_CreateInvite(t *testing.T) {
 							Login: testresources.Tenant1().Login,
 							Role:  testresources.Tenant1Invite().Role,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceInviteResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceInviteResponse{
 								Invite: testresources.Tenant1Invite(),
-							})
+							}
 						},
 					},
 				},
@@ -620,21 +621,21 @@ func Test_TenantCmd_Join(t *testing.T) {
 						WantRequest: &apiv2.TenantServiceInviteGetRequest{
 							Secret: testresources.Tenant1Invite().Secret,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceInviteGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceInviteGetResponse{
 								Invite: testresources.Tenant1Invite(),
-							})
+							}
 						},
 					},
 					{
 						WantRequest: &apiv2.TenantServiceInviteAcceptRequest{
 							Secret: testresources.Tenant1Invite().Secret,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.TenantServiceInviteAcceptResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.TenantServiceInviteAcceptResponse{
 								Tenant:     testresources.Tenant1().Login,
 								TenantName: testresources.Tenant1Invite().TargetTenantName,
-							})
+							}
 						},
 					},
 				},

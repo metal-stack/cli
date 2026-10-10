@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"connectrpc.com/validate"
 	client "github.com/metal-stack/api/go/client"
 	"github.com/metal-stack/cli/cmd"
@@ -27,9 +27,9 @@ type TestConfig struct {
 
 func NewRootCmd(t *testing.T, c *TestConfig) e2e_test.NewRootCmdFunc {
 	return func() (*cobra.Command, *bytes.Buffer) {
-		interceptors := []connect.Interceptor{
+		interceptors := []connect.ClientInterceptor{
 			client.NewTestInterceptor(t, c.ClientCalls),
-			validate.NewInterceptor(),
+			validate.NewClientInterceptor(),
 		}
 
 		cl, err := client.New(&client.DialConfig{

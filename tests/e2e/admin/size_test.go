@@ -3,7 +3,6 @@ package admin_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -12,6 +11,7 @@ import (
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_AdminSizeCmd_Delete(t *testing.T) {
@@ -25,10 +25,10 @@ func Test_AdminSizeCmd_Delete(t *testing.T) {
 						WantRequest: &adminv2.SizeServiceDeleteRequest{
 							Id: testresources.Size1().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SizeServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.SizeServiceDeleteResponse{
 								Size: testresources.Size1(),
-							})
+							}
 						},
 					},
 				},
@@ -69,13 +69,13 @@ func Test_AdminSizeCmd_List(t *testing.T) {
 						WantRequest: &apiv2.SizeServiceListRequest{
 							Query: &apiv2.SizeQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.SizeServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.SizeServiceListResponse{
 								Sizes: []*apiv2.Size{
 									testresources.Size2(),
 									testresources.Size1(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -123,10 +123,10 @@ func Test_AdminSizeCmd_Create(t *testing.T) {
 							WantRequest: &adminv2.SizeServiceCreateRequest{
 								Size: testresources.Size1(),
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.SizeServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.SizeServiceCreateResponse{
 									Size: testresources.Size1(),
-								})
+								}
 							},
 						},
 					},
@@ -181,10 +181,10 @@ func Test_AdminSizeCmd_Update(t *testing.T) {
 								},
 								Constraints: testresources.Size1().Constraints,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.SizeServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.SizeServiceUpdateResponse{
 									Size: testresources.Size1(),
-								})
+								}
 							},
 						},
 					},
