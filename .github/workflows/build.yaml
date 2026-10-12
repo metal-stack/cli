@@ -25,7 +25,8 @@ jobs:
           {"platform": "linux/arm64", "goos": "linux", "goarch": "arm64", "runner": "ubuntu-26.04-arm"},
           {"platform": "linux/arm/v7", "goos": "linux", "goarch": "arm", "runner": "ubuntu-26.04-arm"},
           {"build_only": true, "goos": "windows", "goarch": "amd64", "runner": "ubuntu-latest"},
-          {"build_only": true, "goos": "darwin", "goarch": "amd64", "runner": "ubuntu-latest"}
+          {"build_only": true, "goos": "darwin", "goarch": "amd64", "runner": "ubuntu-latest"},
+          {"build_only": true, "goos": "darwin", "goarch": "arm64", "runner": "ubuntu-26.04-arm"}
         ]
       build-command: make cli GOARCH=$GOARCH GOOS=$GOOS
       artifact-files: |
