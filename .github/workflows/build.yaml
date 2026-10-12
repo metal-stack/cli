@@ -15,6 +15,9 @@ jobs:
   draft:
     uses: metal-stack/actions-common/.github/workflows/release-drafter.yaml@v1
 
+  spell-check:
+    uses: metal-stack/actions-common/.github/workflows/spell-check.yaml@v1
+
   go-build:
     uses: metal-stack/actions-common/.github/workflows/go-build-multiarch.yaml@v1
     secrets: inherit
