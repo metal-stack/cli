@@ -28,7 +28,7 @@ jobs:
           {"build_only": true, "goos": "darwin", "goarch": "amd64", "runner": "ubuntu-latest"},
           {"build_only": true, "goos": "darwin", "goarch": "arm64", "runner": "ubuntu-26.04-arm"}
         ]
-      build-command: make cli GOARCH=$GOARCH GOOS=$GOOS
+      build-command: make cli
       artifact-files: |
         bin/metal*
 
