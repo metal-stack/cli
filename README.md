@@ -13,6 +13,8 @@ This is the official V2 CLI for accessing the API of [metal-stack.io](https://me
 Download locations:
 
 - [metalctlv2-linux-amd64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-linux-amd64)
+- [metalctlv2-linux-arm64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-linux-arm64)
+- [metalctlv2-linux-arm](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-linux-arm) (32-bit ARM, armv7)
 - [metalctlv2-darwin-amd64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-darwin-amd64)
 - [metalctlv2-darwin-arm64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-darwin-arm64)
 - [metalctlv2-windows-amd64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-windows-amd64)
@@ -24,6 +26,8 @@ curl -LO https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-
 chmod +x metalctlv2-linux-amd64
 sudo mv metalctlv2-linux-amd64 /usr/local/bin/metalctlv2
 ```
+
+Choose according to your processor architecture: For ARM systems use `metalctlv2-linux-arm64`, for ARM V7 systems (e.g. Raspberry Pi) use `metalctlv2-linux-arm` instead of `metalctlv2-linux-amd64`.
 
 ### Installation on MacOS
 
