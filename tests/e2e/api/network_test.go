@@ -1,12 +1,11 @@
 package api_e2e
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
@@ -15,6 +14,7 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_NetworkCmd_List(t *testing.T) {
@@ -61,13 +61,13 @@ func Test_NetworkCmd_List(t *testing.T) {
 								},
 							},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.NetworkServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.NetworkServiceListResponse{
 								Networks: []*apiv2.Network{
 									testresources.Network1(),
 									testresources.Network2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -112,10 +112,10 @@ func Test_NetworkCmd_Describe(t *testing.T) {
 							Id:      testresources.Network1().Id,
 							Project: "",
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.NetworkServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.NetworkServiceGetResponse{
 								Network: testresources.Network1(),
-							})
+							}
 						},
 					},
 				},
@@ -163,10 +163,10 @@ func Test_NetworkCmd_Create(t *testing.T) {
 							Partition: testresources.Network1().Partition,
 							Length:    &apiv2.ChildPrefixLength{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.NetworkServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.NetworkServiceCreateResponse{
 								Network: testresources.Network1(),
-							})
+							}
 						},
 					},
 				},
@@ -192,10 +192,10 @@ func Test_NetworkCmd_Create(t *testing.T) {
 								ParentNetwork: testresources.Network1().ParentNetwork,
 								AddressFamily: apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.NetworkServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.NetworkServiceCreateResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},
@@ -223,10 +223,10 @@ func Test_NetworkCmd_Delete(t *testing.T) {
 							Id:      testresources.Network1().Id,
 							Project: *testresources.Network1().Project,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.NetworkServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.NetworkServiceDeleteResponse{
 								Network: testresources.Network1(),
-							})
+							}
 						},
 					},
 				},
@@ -247,10 +247,10 @@ func Test_NetworkCmd_Delete(t *testing.T) {
 								Id:      testresources.Network1().Id,
 								Project: *testresources.Network1().Project,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.NetworkServiceDeleteResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.NetworkServiceDeleteResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},
@@ -283,10 +283,10 @@ func Test_NetworkCmd_Update(t *testing.T) {
 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.NetworkServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.NetworkServiceUpdateResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},
@@ -327,10 +327,10 @@ func Test_NetworkCmd_Update(t *testing.T) {
 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.NetworkServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.NetworkServiceUpdateResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},
@@ -367,10 +367,10 @@ func Test_NetworkCmd_Apply(t *testing.T) {
 								ParentNetwork: testresources.Network1().ParentNetwork,
 								AddressFamily: apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.NetworkServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.NetworkServiceCreateResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},
@@ -399,7 +399,7 @@ func Test_NetworkCmd_Apply(t *testing.T) {
 								ParentNetwork: testresources.Network1().ParentNetwork,
 								AddressFamily: apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
 							},
-							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
+							WantError: connect.Errorf(connect.CodeAlreadyExists, "already exists"),
 						},
 						{
 							WantRequest: &apiv2.NetworkServiceUpdateRequest{
@@ -418,10 +418,10 @@ func Test_NetworkCmd_Apply(t *testing.T) {
 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.NetworkServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.NetworkServiceUpdateResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},

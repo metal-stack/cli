@@ -3,12 +3,12 @@ package admin_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_AdminTaskCmd_List(t *testing.T) {
@@ -20,13 +20,13 @@ func Test_AdminTaskCmd_List(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TaskServiceListRequest{},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.TaskServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.TaskServiceListResponse{
 								Tasks: []*adminv2.TaskInfo{
 									testresources.Task1(),
 									testresources.Task2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -62,12 +62,12 @@ func Test_AdminTaskCmd_List(t *testing.T) {
 						WantRequest: &adminv2.TaskServiceListRequest{
 							Queue: func() *string { s := "high-priority"; return &s }(),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.TaskServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.TaskServiceListResponse{
 								Tasks: []*adminv2.TaskInfo{
 									testresources.Task3(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -95,10 +95,10 @@ func Test_AdminTaskCmd_Describe(t *testing.T) {
 							TaskId: testresources.Task1().Id,
 							Queue:  "default",
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.TaskServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.TaskServiceGetResponse{
 								Task: testresources.Task1(),
-							})
+							}
 						},
 					},
 				},
@@ -119,10 +119,10 @@ func Test_AdminTaskCmd_Describe(t *testing.T) {
 							TaskId: testresources.Task3().Id,
 							Queue:  "high-priority",
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.TaskServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.TaskServiceGetResponse{
 								Task: testresources.Task3(),
-							})
+							}
 						},
 					},
 				},
@@ -161,10 +161,10 @@ func Test_AdminTaskQueuesCmd(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TaskServiceQueuesRequest{},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.TaskServiceQueuesResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.TaskServiceQueuesResponse{
 								Queues: []string{"default", "high-priority", "low-priority"},
-							})
+							}
 						},
 					},
 				},

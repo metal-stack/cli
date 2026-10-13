@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"github.com/dustin/go-humanize"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -13,6 +13,7 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_ProjectCmd_Describe(t *testing.T) {
@@ -26,10 +27,10 @@ func Test_ProjectCmd_Describe(t *testing.T) {
 						WantRequest: &apiv2.ProjectServiceGetRequest{
 							Project: testresources.Project1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceGetResponse{
 								Project: testresources.Project1(),
-							})
+							}
 						},
 					},
 				},
@@ -72,10 +73,10 @@ func Test_ProjectCmd_Create(t *testing.T) {
 							Name:        testresources.Project1().Name,
 							Description: testresources.Project1().Description,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceCreateResponse{
 								Project: testresources.Project1(),
-							})
+							}
 						},
 					},
 				},
@@ -96,10 +97,10 @@ func Test_ProjectCmd_Create(t *testing.T) {
 							Name:        testresources.Project1().Name,
 							Description: testresources.Project1().Description,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceCreateResponse{
 								Project: testresources.Project1(),
-							})
+							}
 						},
 					},
 				},
@@ -123,10 +124,10 @@ func Test_ProjectCmd_Create(t *testing.T) {
 							Name:        testresources.Project1().Name,
 							Description: testresources.Project1().Description,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceCreateResponse{
 								Project: testresources.Project1(),
-							})
+							}
 						},
 					},
 					{
@@ -135,10 +136,10 @@ func Test_ProjectCmd_Create(t *testing.T) {
 							Name:        testresources.Project2().Name,
 							Description: testresources.Project2().Description,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceCreateResponse{
 								Project: testresources.Project2(),
-							})
+							}
 						},
 					},
 				},
@@ -166,10 +167,10 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 						WantRequest: &apiv2.ProjectServiceDeleteRequest{
 							Project: testresources.Project1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceDeleteResponse{
 								Project: testresources.Project1(),
-							})
+							}
 						},
 					},
 				},
@@ -188,10 +189,10 @@ func Test_ProjectCmd_Delete(t *testing.T) {
 						WantRequest: &apiv2.ProjectServiceDeleteRequest{
 							Project: testresources.Project1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceDeleteResponse{
 								Project: testresources.Project1(),
-							})
+							}
 						},
 					},
 				},
@@ -220,10 +221,10 @@ func Test_ProjectCmd_Update(t *testing.T) {
 							Name:        new("new-name"),
 							Description: new("new-desc"),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceUpdateResponse{
 								Project: testresources.Project1(),
-							})
+							}
 						},
 					},
 				},
@@ -244,10 +245,10 @@ func Test_ProjectCmd_Update(t *testing.T) {
 							Name:        new(testresources.Project1().Name),
 							Description: new(testresources.Project1().Description),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceUpdateResponse{
 								Project: testresources.Project1(),
-							})
+							}
 						},
 					},
 				},
@@ -272,13 +273,13 @@ func Test_ProjectCmd_List(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceListRequest{Query: &apiv2.ProjectQuery{}},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceListResponse{
 								Projects: []*apiv2.Project{
 									testresources.Project1(),
 									testresources.Project2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -329,10 +330,10 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 								Description: testresources.Project1().Description,
 								Labels:      testresources.Project1().Meta.Labels,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.ProjectServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.ProjectServiceCreateResponse{
 									Project: testresources.Project1(),
-								})
+								}
 							},
 						},
 					},
@@ -358,7 +359,7 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 								Name:        testresources.Project1().Name,
 								Description: testresources.Project1().Description,
 							},
-							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
+							WantError: connect.Errorf(connect.CodeAlreadyExists, "already exists"),
 						},
 						{
 							WantRequest: &apiv2.ProjectServiceUpdateRequest{
@@ -366,10 +367,10 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 								Description: &testresources.Project1().Description,
 								Name:        &testresources.Project1().Name,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &apiv2.ProjectServiceUpdateResponse{
 									Project: testresources.Project1(),
-								})
+								}
 							},
 						},
 					},
@@ -395,13 +396,13 @@ func Test_ProjectCmd_ListInvites(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.ProjectServiceInvitesListRequest{},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceInvitesListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceInvitesListResponse{
 								Invites: []*apiv2.ProjectInvite{
 									testresources.Project1Invite(),
 									testresources.Project2Invite(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -446,8 +447,8 @@ func Test_ProjectCmd_DeleteInvite(t *testing.T) {
 							Project: testresources.Project1().Uuid,
 							Secret:  testresources.Project1Invite().Secret,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceInviteDeleteResponse{})
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceInviteDeleteResponse{}
 						},
 					},
 				},
@@ -472,10 +473,10 @@ func Test_ProjectCmd_CreateInvite(t *testing.T) {
 							Project: testresources.Project1().Uuid,
 							Role:    testresources.Project1Invite().Role,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceInviteResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceInviteResponse{
 								Invite: testresources.Project1Invite(),
-							})
+							}
 						},
 					},
 				},
@@ -503,21 +504,21 @@ func Test_ProjectCmd_Join(t *testing.T) {
 						WantRequest: &apiv2.ProjectServiceInviteGetRequest{
 							Secret: testresources.Project1Invite().Secret,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceInviteGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceInviteGetResponse{
 								Invite: testresources.Project1Invite(),
-							})
+							}
 						},
 					},
 					{
 						WantRequest: &apiv2.ProjectServiceInviteAcceptRequest{
 							Secret: testresources.Project1Invite().Secret,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceInviteAcceptResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceInviteAcceptResponse{
 								Project:     testresources.Project1().Uuid,
 								ProjectName: testresources.Project1Invite().ProjectName,
-							})
+							}
 						},
 					},
 				},
@@ -544,13 +545,13 @@ func Test_ProjectCmd_ListMembers(t *testing.T) {
 						WantRequest: &apiv2.ProjectServiceGetRequest{
 							Project: testresources.Project1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceGetResponse{
 								Project: testresources.Project1(),
 								ProjectMembers: []*apiv2.ProjectMember{
 									testresources.Project1Members(), testresources.Project2Members(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -595,8 +596,8 @@ func Test_ProjectCmd_DeleteMember(t *testing.T) {
 							Project: testresources.Project1().Uuid,
 							Member:  testresources.Project1Members().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceRemoveMemberResponse{})
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceRemoveMemberResponse{}
 						},
 					},
 				},
@@ -622,10 +623,10 @@ func Test_ProjectCmd_UpdateMember(t *testing.T) {
 							Member:  testresources.Project1Members().Id,
 							Role:    testresources.Project1Members().Role,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ProjectServiceUpdateMemberResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ProjectServiceUpdateMemberResponse{
 								ProjectMember: testresources.Project1Members(),
-							})
+							}
 						},
 					},
 				},

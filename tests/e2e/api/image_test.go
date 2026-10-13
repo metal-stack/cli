@@ -3,12 +3,12 @@ package api_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_ImageCmd_List(t *testing.T) {
@@ -22,13 +22,13 @@ func Test_ImageCmd_List(t *testing.T) {
 						WantRequest: &apiv2.ImageServiceListRequest{
 							Query: &apiv2.ImageQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ImageServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ImageServiceListResponse{
 								Images: []*apiv2.Image{
 									testresources.Image1(),
 									testresources.Image2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -73,10 +73,10 @@ func Test_ImageCmd_Describe(t *testing.T) {
 						WantRequest: &apiv2.ImageServiceGetRequest{
 							Id: testresources.Image1().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ImageServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ImageServiceGetResponse{
 								Image: testresources.Image1(),
-							})
+							}
 						},
 					},
 				},
@@ -117,10 +117,10 @@ func Test_ImageCmd_Latest(t *testing.T) {
 						WantRequest: &apiv2.ImageServiceLatestRequest{
 							Os: testresources.Image1().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.ImageServiceLatestResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.ImageServiceLatestResponse{
 								Image: testresources.Image1(),
-							})
+							}
 						},
 					},
 				},

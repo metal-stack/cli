@@ -4,13 +4,13 @@ import (
 	"testing"
 	"time"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -24,13 +24,13 @@ func Test_AdminVpnCmd_List(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.VPNServiceListNodesRequest{},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.VPNServiceListNodesResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.VPNServiceListNodesResponse{
 								Nodes: []*apiv2.VPNNode{
 									testresources.VpnNode2(),
 									testresources.VpnNode1(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -72,14 +72,14 @@ func Test_AdminVpnCmd_AuthKey(t *testing.T) {
 							Expires:   durationpb.New(1 * time.Hour),
 							Reason:    "",
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.VPNServiceAuthKeyResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.VPNServiceAuthKeyResponse{
 								Address:   "1.2.3.4",
 								AuthKey:   "abcdefghikl",
 								Ephemeral: true,
 								ExpiresAt: timestamppb.New(e2e.TimeBubbleStartTime().Add(1 * time.Hour)),
 								CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
-							})
+							}
 						},
 					},
 				},

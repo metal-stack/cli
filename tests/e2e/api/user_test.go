@@ -3,12 +3,12 @@ package api_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_UserCmd_Describe(t *testing.T) {
@@ -20,10 +20,10 @@ func Test_UserCmd_Describe(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.UserServiceGetRequest{},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.UserServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.UserServiceGetResponse{
 								User: testresources.User(),
-							})
+							}
 						},
 					},
 				},
