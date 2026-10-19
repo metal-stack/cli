@@ -1,6 +1,6 @@
 GOOS ?= linux
 GOARCH ?= amd64
-BINARY := metalctlv2-$(GOOS)-$(GOARCH)
+BINARY := metalctlv2-$(GOOS)-$(GOARCH)$(if $(GOARM),-v$(GOARM))
 TAGS := -tags 'netgo'
 SHA := $(shell git rev-parse --short=8 HEAD)
 GITVERSION := $(shell git describe --long --all)
