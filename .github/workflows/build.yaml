@@ -42,7 +42,7 @@ jobs:
     with:
       artifact-ids: ${{ needs.go-build.outputs.go-build-artifacts }}
       files: |
-        ./bin/*
+        ./*
 
   gcp-bucket-push:
     uses: metal-stack/actions-common/.github/workflows/gcp-bucket-push.yaml@v1
