@@ -549,7 +549,7 @@ func AddMachineCreateFlags(cmd *cobra.Command, name string, completion *completi
 	cmd.Flags().String("allocation-type", "machine", "allocation type, can be either machine|firewall")
 	cmd.Flags().StringArrayP("ssh-public-key", "i", []string{},
 		`SSH public key for access via ssh and console. [optional]
-		Multiple keys can be passed by doing -i [key] -i [key] ...
+Multiple keys can be passed by doing -i [key] -i [key] ...
 Can be either the public keys as strings, or pointing to the public keys file to use e.g.: "@~/.ssh/id_rsa.pub".
 If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picked as default, matching the first one in this order.`)
 	cmd.Flags().StringSlice("labels", []string{}, "labels to add to the "+name+", use it like: --labels \"a=b\" or --labels \"a=\".")
