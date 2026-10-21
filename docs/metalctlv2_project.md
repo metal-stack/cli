@@ -36,6 +36,6 @@ manage api projects
 * [metalctlv2 project invite](metalctlv2_project_invite.md)	 - manage project invites
 * [metalctlv2 project join](metalctlv2_project_join.md)	 - join a project of someone who shared an invite secret with you
 * [metalctlv2 project list](metalctlv2_project_list.md)	 - list all projects
-* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage project members
+* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage member entities
 * [metalctlv2 project update](metalctlv2_project_update.md)	 - updates the project
 

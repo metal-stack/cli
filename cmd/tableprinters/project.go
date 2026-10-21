@@ -6,6 +6,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 )
 
@@ -62,10 +63,10 @@ func (t *TablePrinter) ProjectMemberTable(data []*apiv2.ProjectMember, _ bool) (
 
 	for _, member := range data {
 		row := []string{
-			member.Id,
+			member.Member,
 			member.Role.String(),
 			strconv.FormatBool(member.InheritedMembership),
-			humanize.Time(member.CreatedAt.AsTime()),
+			humanize.Time(member.Meta.CreatedAt.AsTime()),
 		}
 
 		rows = append(rows, row)

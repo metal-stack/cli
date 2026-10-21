@@ -32,9 +32,9 @@ func (t *TablePrinter) TenantMemberTable(data []*apiv2.TenantMember, _ bool) ([]
 
 	for _, member := range data {
 		row := []string{
-			member.Id,
+			member.Member,
 			member.Role.String(),
-			humanize.Time(member.CreatedAt.AsTime()),
+			humanize.Time(member.Meta.CreatedAt.AsTime()),
 		}
 
 		rows = append(rows, row)
