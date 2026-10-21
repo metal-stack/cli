@@ -105,15 +105,7 @@ func MachineCreateRequestFromCLI(c *config.Config) (*apiv2.MachineServiceCreateR
 		}
 		keys = append(keys, k)
 	}
-	/*
-		if strings.HasPrefix(sshPublicKeyArgument, "@") {
-			var err error
-			sshPublicKeyArgument, err = readFromFile(c.Fs, sshPublicKeyArgument[1:])
-			if err != nil {
-				return nil, err
-			}
-		}
-	*/
+
 	if len(keys) == 0 {
 		sshKey, err := SearchSSHKey()
 		if err != nil {
@@ -127,11 +119,6 @@ func MachineCreateRequestFromCLI(c *config.Config) (*apiv2.MachineServiceCreateR
 		keys = append(keys, key)
 	}
 
-	/*
-		if sshPublicKeyArgument != "" {
-			keys = append(keys, sshPublicKeyArgument)
-		}
-	*/
 	userDataArgument := viper.GetString("userdata")
 	if strings.HasPrefix(userDataArgument, "@") {
 		var err error
