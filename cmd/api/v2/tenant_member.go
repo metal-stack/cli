@@ -5,11 +5,12 @@ import (
 
 	"github.com/metal-stack/api/go/errorutil"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
-	cliv2 "github.com/metal-stack/api/go/metalstack/cli/v2"
+
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -23,7 +24,7 @@ func newTenantMemberCmd(c *config.Config) *cobra.Command {
 		c: c,
 	}
 
-	cmdsConfig := &genericcli.CmdsConfig[*apiv2.TenantServiceAddMemberRequest, *apiv2.TenantServiceUpdateMemberRequest, *cliv2.TenantMember]{
+	cmdsConfig := &genericcli.CmdsConfig[*apiv2.TenantMemberServiceCreateRequest, *apiv2.TenantMemberServiceUpdateRequest, *apiv2.TenantMember]{
 		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "member",
@@ -75,7 +76,7 @@ func newTenantMemberCmd(c *config.Config) *cobra.Command {
 	return genericcli.NewCmds(cmdsConfig)
 }
 
-func (c *tenantMember) Get(id string) (*cliv2.TenantMember, error) {
+func (c *tenantMember) Get(id string) (*apiv2.TenantMember, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
@@ -84,26 +85,17 @@ func (c *tenantMember) Get(id string) (*cliv2.TenantMember, error) {
 		return nil, err
 	}
 
-	resp, err := c.c.Client.Apiv2().Tenant().Get(ctx, &apiv2.TenantServiceGetRequest{
+	resp, err := c.c.Client.Apiv2().TenantMember().Get(ctx, &apiv2.TenantMemberServiceGetRequest{
 		Login: tenant,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get tenant: %w", err)
+		return nil, err
 	}
 
-	for _, member := range resp.GetTenantMembers() {
-		if member.Id == id {
-			return &cliv2.TenantMember{
-				Tenant:       tenant,
-				TenantMember: member,
-			}, nil
-		}
-	}
-
-	return nil, fmt.Errorf("unable to find tenant members %q in tenant %q", id, tenant)
+	return resp.Member, nil
 }
 
-func (c *tenantMember) List() ([]*cliv2.TenantMember, error) {
+func (c *tenantMember) List() ([]*apiv2.TenantMember, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
@@ -112,30 +104,21 @@ func (c *tenantMember) List() ([]*cliv2.TenantMember, error) {
 		return nil, err
 	}
 
-	resp, err := c.c.Client.Apiv2().Tenant().Get(ctx, &apiv2.TenantServiceGetRequest{
+	resp, err := c.c.Client.Apiv2().TenantMember().List(ctx, &apiv2.TenantMemberServiceListRequest{
 		Login: tenant,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get tenant: %w", err)
+		return nil, nil
 	}
 
-	var res []*cliv2.TenantMember
-
-	for _, member := range resp.GetTenantMembers() {
-		res = append(res, &cliv2.TenantMember{
-			Tenant:       tenant,
-			TenantMember: member,
-		})
-	}
-
-	return res, nil
+	return resp.Members, nil
 }
 
-func (c *tenantMember) Create(rq *apiv2.TenantServiceAddMemberRequest) (*cliv2.TenantMember, error) {
+func (c *tenantMember) Create(rq *apiv2.TenantMemberServiceCreateRequest) (*apiv2.TenantMember, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Tenant().AddMember(ctx, rq)
+	resp, err := c.c.Client.Apiv2().TenantMember().Create(ctx, rq)
 	if err != nil {
 		if errorutil.IsConflict(err) {
 			return nil, genericcli.AlreadyExistsError()
@@ -144,13 +127,10 @@ func (c *tenantMember) Create(rq *apiv2.TenantServiceAddMemberRequest) (*cliv2.T
 		return nil, err
 	}
 
-	return &cliv2.TenantMember{
-		Tenant:       rq.Login,
-		TenantMember: resp.TenantMember,
-	}, nil
+	return resp.Member, nil
 }
 
-func (c *tenantMember) Delete(id string) (*cliv2.TenantMember, error) {
+func (c *tenantMember) Delete(id string) (*apiv2.TenantMember, error) {
 	tenant, err := c.c.GetTenant()
 	if err != nil {
 		return nil, err
@@ -159,7 +139,7 @@ func (c *tenantMember) Delete(id string) (*cliv2.TenantMember, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Tenant().RemoveMember(ctx, &apiv2.TenantServiceRemoveMemberRequest{
+	resp, err := c.c.Client.Apiv2().TenantMember().Delete(ctx, &apiv2.TenantMemberServiceDeleteRequest{
 		Login:  tenant,
 		Member: id,
 	})
@@ -167,42 +147,36 @@ func (c *tenantMember) Delete(id string) (*cliv2.TenantMember, error) {
 		return nil, fmt.Errorf("failed to remove member from tenant: %w", err)
 	}
 
-	return &cliv2.TenantMember{
-		Tenant:       tenant,
-		TenantMember: resp.TenantMember,
-	}, nil
+	return resp.Member, nil
 }
 
-func (c *tenantMember) Convert(r *cliv2.TenantMember) (string, *apiv2.TenantServiceAddMemberRequest, *apiv2.TenantServiceUpdateMemberRequest, error) {
-	return r.TenantMember.Id, &apiv2.TenantServiceAddMemberRequest{
+func (c *tenantMember) Convert(r *apiv2.TenantMember) (string, *apiv2.TenantMemberServiceCreateRequest, *apiv2.TenantMemberServiceUpdateRequest, error) {
+	return r.Member, &apiv2.TenantMemberServiceCreateRequest{
 			Login:  r.Tenant,
-			Member: r.TenantMember.Id,
-			Role:   r.TenantMember.Role,
+			Member: r.Member,
+			Role:   r.Role,
 		},
-		&apiv2.TenantServiceUpdateMemberRequest{
+		&apiv2.TenantMemberServiceUpdateRequest{
 			Login:  r.Tenant,
-			Member: r.TenantMember.Id,
-			Role:   r.TenantMember.Role,
+			Member: r.Member,
+			Role:   pointer.PointerOrNil(r.Role),
 		},
 		nil
 }
 
-func (c *tenantMember) Update(rq *apiv2.TenantServiceUpdateMemberRequest) (*cliv2.TenantMember, error) {
+func (c *tenantMember) Update(rq *apiv2.TenantMemberServiceUpdateRequest) (*apiv2.TenantMember, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	resp, err := c.c.Client.Apiv2().Tenant().UpdateMember(ctx, rq)
+	resp, err := c.c.Client.Apiv2().TenantMember().Update(ctx, rq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update member: %w", err)
 	}
 
-	return &cliv2.TenantMember{
-		Tenant:       rq.Login,
-		TenantMember: resp.TenantMember,
-	}, nil
+	return resp.Member, nil
 }
 
-func (c *tenantMember) updateRequestFromCLI(args []string) (*apiv2.TenantServiceUpdateMemberRequest, error) {
+func (c *tenantMember) updateRequestFromCLI(args []string) (*apiv2.TenantMemberServiceUpdateRequest, error) {
 	member, err := genericcli.GetExactlyOneArg(args)
 	if err != nil {
 		return nil, err
@@ -213,22 +187,24 @@ func (c *tenantMember) updateRequestFromCLI(args []string) (*apiv2.TenantService
 		return nil, err
 	}
 
-	return &apiv2.TenantServiceUpdateMemberRequest{
+	return &apiv2.TenantMemberServiceUpdateRequest{
 		Login:  tenant,
 		Member: member,
-		Role:   apiv2.TenantRole(apiv2.TenantRole_value[viper.GetString("role")]),
+		Role:   pointer.PointerOrNil(apiv2.TenantRole(apiv2.TenantRole_value[viper.GetString("role")])),
 	}, nil
 }
 
-func (c *tenantMember) createRequestFromCLI() (*apiv2.TenantServiceAddMemberRequest, error) {
+func (c *tenantMember) createRequestFromCLI() (*apiv2.TenantMemberServiceCreateRequest, error) {
 	tenant, err := c.c.GetTenant()
 	if err != nil {
 		return nil, err
 	}
 
-	return &apiv2.TenantServiceAddMemberRequest{
+	return &apiv2.TenantMemberServiceCreateRequest{
 		Login:  tenant,
 		Member: viper.GetString("id"),
 		Role:   apiv2.TenantRole(apiv2.TenantRole_value[viper.GetString("role")]),
 	}, nil
 }
+
+// TODO: implement Leave

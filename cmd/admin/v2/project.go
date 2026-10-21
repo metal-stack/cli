@@ -118,12 +118,14 @@ func (c *project) Delete(id string) (*apiv2.Project, error) {
 
 func (c *project) Convert(r *apiv2.Project) (string, *adminv2.ProjectServiceCreateRequest, *apiv2.ProjectServiceUpdateRequest, error) {
 	return r.Uuid, &adminv2.ProjectServiceCreateRequest{
-		Login:       r.Tenant,
-		Name:        r.Name,
-		Description: r.Description,
-		AvatarUrl:   r.AvatarUrl,
-		Labels:      pointer.SafeDeref(r.Meta).Labels,
-		Project:     pointer.PointerOrNil(r.Uuid),
+		Id: pointer.PointerOrNil(r.Uuid),
+		Project: &apiv2.ProjectServiceCreateRequest{
+			Login:       r.Tenant,
+			Name:        r.Name,
+			Description: r.Description,
+			AvatarUrl:   r.AvatarUrl,
+			Labels:      pointer.SafeDeref(r.Meta).Labels,
+		},
 	}, &apiv2.ProjectServiceUpdateRequest{
 		Project:     r.Uuid,
 		Name:        pointer.PointerOrNil(r.Name),

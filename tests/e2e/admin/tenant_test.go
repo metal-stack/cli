@@ -46,9 +46,11 @@ func Test_AdminTenantCmd_Create(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TenantServiceCreateRequest{
-							Name:        adminTenant1().Name,
-							Description: new(adminTenant1().Description),
-							Email:       new(adminTenant1().Email),
+							Tenant: &apiv2.TenantServiceCreateRequest{
+								Name:        adminTenant1().Name,
+								Description: new(adminTenant1().Description),
+								Email:       new(adminTenant1().Email),
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.TenantServiceCreateResponse{

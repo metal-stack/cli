@@ -41,6 +41,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("labels", nil, "lists only tenant with the given labels")
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("login", "", "the login id of the tenant to create")
 			cmd.Flags().String("name", "", "the name of the tenant to create")
 			cmd.Flags().String("description", "", "the description of the tenant to create")
 			cmd.Flags().String("email", "", "the email of the tenant to create")
@@ -48,10 +49,13 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		},
 		CreateRequestFromCLI: func() (*adminv2.TenantServiceCreateRequest, error) {
 			return &adminv2.TenantServiceCreateRequest{
-				Name:        viper.GetString("name"),
-				Description: pointer.PointerOrNil(viper.GetString("description")),
-				Email:       pointer.PointerOrNil(viper.GetString("email")),
-				AvatarUrl:   pointer.PointerOrNil(viper.GetString("avatar-url")),
+				Login: pointer.PointerOrNil(viper.GetString("login")),
+				Tenant: &apiv2.TenantServiceCreateRequest{
+					Name:        viper.GetString("name"),
+					Description: pointer.PointerOrNil(viper.GetString("description")),
+					Email:       pointer.PointerOrNil(viper.GetString("email")),
+					AvatarUrl:   pointer.PointerOrNil(viper.GetString("avatar-url")),
+				},
 			}, nil
 		},
 		ValidArgsFn: w.c.Completion.AdminTenant,
@@ -136,12 +140,14 @@ func (c *tenant) Delete(id string) (*apiv2.Tenant, error) {
 
 func (c *tenant) Convert(r *apiv2.Tenant) (string, *adminv2.TenantServiceCreateRequest, *apiv2.TenantServiceUpdateRequest, error) {
 	return r.Login, &adminv2.TenantServiceCreateRequest{
-			Name:        r.Name,
-			Description: pointer.PointerOrNil(r.Description),
-			Email:       pointer.PointerOrNil(r.Email),
-			AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
-			Labels:      pointer.SafeDeref(r.Meta).Labels,
-			Login:       pointer.PointerOrNil(r.Login),
+			Login: pointer.PointerOrNil(r.Login),
+			Tenant: &apiv2.TenantServiceCreateRequest{
+				Name:        r.Name,
+				Description: pointer.PointerOrNil(r.Description),
+				Email:       pointer.PointerOrNil(r.Email),
+				AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
+				Labels:      pointer.SafeDeref(r.Meta).Labels,
+			},
 		},
 		&apiv2.TenantServiceUpdateRequest{
 			Login:       r.Login,

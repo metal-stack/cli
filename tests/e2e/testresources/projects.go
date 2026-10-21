@@ -57,18 +57,22 @@ var (
 
 	Project1Member = func() *apiv2.ProjectMember {
 		return &apiv2.ProjectMember{
-			Id:                  "16d6e8ba-f574-494f-8d5e-74f6cb2d8db0",
+			Member:              "16d6e8ba-f574-494f-8d5e-74f6cb2d8db0",
 			Role:                apiv2.ProjectRole_PROJECT_ROLE_OWNER,
 			InheritedMembership: false,
-			CreatedAt:           timestamppb.New(e2e.TimeBubbleStartTime()),
+			Meta: &apiv2.Meta{
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
+			},
 		}
 	}
 	Project2Member = func() *apiv2.ProjectMember {
 		return &apiv2.ProjectMember{
-			Id:                  "40c0da4b-9eb9-4371-91aa-1ae62193fa54",
+			Member:              "40c0da4b-9eb9-4371-91aa-1ae62193fa54",
 			Role:                apiv2.ProjectRole_PROJECT_ROLE_EDITOR,
 			InheritedMembership: true,
-			CreatedAt:           timestamppb.New(e2e.TimeBubbleStartTime()),
+			Meta: &apiv2.Meta{
+				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
+			},
 		}
 	}
 )
