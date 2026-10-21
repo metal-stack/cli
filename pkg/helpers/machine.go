@@ -91,33 +91,32 @@ func MachineCreateRequestFromCLI(c *config.Config) (*apiv2.MachineServiceCreateR
 		allocationType apiv2.MachineAllocationType
 		firewallSpec   *apiv2.FirewallSpec
 
-		sshPublicKeyArgument = viper.GetString("ssh-public-key")
+		sshPublicKeyArgument = viper.GetStringSlice("ssh-public-key")
 		dnsServersArgument   = viper.GetStringSlice("dns-servers")
 		ntpServersArgument   = viper.GetStringSlice("ntp-servers")
 	)
-
-	if strings.HasPrefix(sshPublicKeyArgument, "@") {
-		var err error
-		sshPublicKeyArgument, err = readFromFile(c.Fs, sshPublicKeyArgument[1:])
-		if err != nil {
-			return nil, err
+	for _, k := range sshPublicKeyArgument {
+		if strings.HasPrefix(k, "@") {
+			var err error
+			k, err = readFromFile(c.Fs, k[1:])
+			if err != nil {
+				return nil, err
+			}
 		}
+		keys = append(keys, k)
 	}
 
-	if len(sshPublicKeyArgument) == 0 {
+	if len(keys) == 0 {
 		sshKey, err := SearchSSHKey()
 		if err != nil {
 			return nil, err
 		}
 		sshPublicKey := sshKey + ".pub"
-		sshPublicKeyArgument, err = readFromFile(c.Fs, sshPublicKey)
+		key, err := readFromFile(c.Fs, sshPublicKey)
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	if sshPublicKeyArgument != "" {
-		keys = append(keys, sshPublicKeyArgument)
+		keys = append(keys, key)
 	}
 
 	userDataArgument := viper.GetString("userdata")
@@ -548,9 +547,10 @@ func AddMachineCreateFlags(cmd *cobra.Command, name string, completion *completi
 	cmd.Flags().StringP("project", "p", "", "Project where the "+name+" should belong to. [required]")
 	cmd.Flags().String("size", "", "Size of the "+name+". [required, except for reserved machines]")
 	cmd.Flags().String("allocation-type", "machine", "allocation type, can be either machine|firewall")
-	cmd.Flags().StringP("ssh-public-key", "i", "",
+	cmd.Flags().StringArrayP("ssh-public-key", "i", []string{},
 		`SSH public key for access via ssh and console. [optional]
-Can be either the public key as string, or pointing to the public key file to use e.g.: "@~/.ssh/id_rsa.pub".
+Multiple keys can be passed by doing -i [key] -i [key] ...
+Can be either the public keys as strings, or pointing to the public keys file to use e.g.: "@~/.ssh/id_rsa.pub".
 If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picked as default, matching the first one in this order.`)
 	cmd.Flags().StringSlice("labels", []string{}, "labels to add to the "+name+", use it like: --labels \"a=b\" or --labels \"a=\".")
 	cmd.Flags().String("userdata", "", `cloud-init.io compatible userdata. [optional]
