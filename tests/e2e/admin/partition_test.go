@@ -3,8 +3,8 @@ package admin_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
+	"google.golang.org/protobuf/proto"
 
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -24,13 +24,13 @@ func Test_AdminPartitionCmd_List(t *testing.T) {
 						WantRequest: &apiv2.PartitionServiceListRequest{
 							Query: &apiv2.PartitionQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.PartitionServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.PartitionServiceListResponse{
 								Partitions: []*apiv2.Partition{
 									testresources.Partition1(),
 									testresources.Partition2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -74,10 +74,10 @@ func Test_AdminPartitionCmd_Describe(t *testing.T) {
 						WantRequest: &apiv2.PartitionServiceGetRequest{
 							Id: testresources.Partition1().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&apiv2.PartitionServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &apiv2.PartitionServiceGetResponse{
 								Partition: testresources.Partition1(),
-							})
+							}
 						},
 					},
 				},
@@ -99,8 +99,8 @@ func Test_AdminPartitionCmd_Capacity(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.PartitionServiceCapacityRequest{},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.PartitionServiceCapacityResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.PartitionServiceCapacityResponse{
 								PartitionCapacity: []*adminv2.PartitionCapacity{
 									{
 										Partition: "partition-1",
@@ -117,7 +117,7 @@ func Test_AdminPartitionCmd_Capacity(t *testing.T) {
 										},
 									},
 								},
-							})
+							}
 						},
 					},
 				},
@@ -154,8 +154,8 @@ partition-1 size-1
 							Size:    new("size-1"),
 							Project: new("project-123"),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.PartitionServiceCapacityResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.PartitionServiceCapacityResponse{
 								PartitionCapacity: []*adminv2.PartitionCapacity{
 									{
 										Partition: "partition-1",
@@ -172,7 +172,7 @@ partition-1 size-1
 										},
 									},
 								},
-							})
+							}
 						},
 					},
 				},

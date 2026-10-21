@@ -3,12 +3,12 @@ package admin_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -50,10 +50,10 @@ func Test_AdminTenantCmd_Create(t *testing.T) {
 							Description: new(adminTenant1().Description),
 							Email:       new(adminTenant1().Email),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.TenantServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.TenantServiceCreateResponse{
 								Tenant: adminTenant1(),
-							})
+							}
 						},
 					},
 				},
@@ -75,13 +75,13 @@ func Test_AdminTenantCmd_List(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TenantServiceListRequest{Query: &apiv2.TenantQuery{}},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.TenantServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.TenantServiceListResponse{
 								Tenants: []*apiv2.Tenant{
 									adminTenant1(),
 									adminTenant2(),
 								},
-							})
+							}
 						},
 					},
 				},

@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -15,6 +14,7 @@ import (
 	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_AdminNetworkCmd_List(t *testing.T) {
@@ -61,13 +61,13 @@ func Test_AdminNetworkCmd_List(t *testing.T) {
 								},
 							},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.NetworkServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.NetworkServiceListResponse{
 								Networks: []*apiv2.Network{
 									testresources.Network2(),
 									testresources.Network1(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -111,10 +111,10 @@ func Test_AdminNetworkCmd_Describe(t *testing.T) {
 						WantRequest: &adminv2.NetworkServiceGetRequest{
 							Id: testresources.Network1().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.NetworkServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.NetworkServiceGetResponse{
 								Network: testresources.Network1(),
-							})
+							}
 						},
 					},
 				},
@@ -205,10 +205,10 @@ func Test_AdminNetworkCmd_Create(t *testing.T) {
 								Ipv6: new(uint32(65)),
 							},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.NetworkServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.NetworkServiceCreateResponse{
 								Network: testresources.Network1(),
-							})
+							}
 						},
 					},
 				},
@@ -239,10 +239,10 @@ func Test_AdminNetworkCmd_Create(t *testing.T) {
 								Labels:                     testresources.Network1().Meta.Labels,
 								AddressFamily:              apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.NetworkServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.NetworkServiceCreateResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},
@@ -269,10 +269,10 @@ func Test_AdminNetworkCmd_Delete(t *testing.T) {
 						WantRequest: &adminv2.NetworkServiceDeleteRequest{
 							Id: testresources.Network1().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.NetworkServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.NetworkServiceDeleteResponse{
 								Network: testresources.Network1(),
-							})
+							}
 						},
 					},
 				},
@@ -296,10 +296,10 @@ func Test_AdminNetworkCmd_Delete(t *testing.T) {
 							WantRequest: &adminv2.NetworkServiceDeleteRequest{
 								Id: testresources.Network1().Id,
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.NetworkServiceDeleteResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.NetworkServiceDeleteResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},
@@ -331,10 +331,10 @@ func Test_AdminNetworkCmd_Update(t *testing.T) {
 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.NetworkServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.NetworkServiceUpdateResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},
@@ -372,10 +372,10 @@ func Test_AdminNetworkCmd_Update(t *testing.T) {
 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.NetworkServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.NetworkServiceUpdateResponse{
 									Network: testresources.Network1(),
-								})
+								}
 							},
 						},
 					},

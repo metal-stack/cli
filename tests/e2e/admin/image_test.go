@@ -3,7 +3,6 @@ package admin_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -12,6 +11,7 @@ import (
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_AdminImageCmd_Delete(t *testing.T) {
@@ -25,10 +25,10 @@ func Test_AdminImageCmd_Delete(t *testing.T) {
 						WantRequest: &adminv2.ImageServiceDeleteRequest{
 							Id: testresources.Image1().Id,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.ImageServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.ImageServiceDeleteResponse{
 								Image: testresources.Image1(),
-							})
+							}
 						},
 					},
 				},
@@ -75,10 +75,10 @@ func Test_AdminImageCmd_Create(t *testing.T) {
 						WantRequest: &adminv2.ImageServiceCreateRequest{
 							Image: testresources.Image1(),
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.ImageServiceCreateResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.ImageServiceCreateResponse{
 								Image: testresources.Image1(),
-							})
+							}
 						},
 					},
 				},
@@ -102,10 +102,10 @@ func Test_AdminImageCmd_Create(t *testing.T) {
 							WantRequest: &adminv2.ImageServiceCreateRequest{
 								Image: testresources.Image1(),
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.ImageServiceCreateResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.ImageServiceCreateResponse{
 									Image: testresources.Image1(),
-								})
+								}
 							},
 						},
 					},
@@ -149,10 +149,10 @@ func Test_AdminImageCmd_Update(t *testing.T) {
 								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 							},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.ImageServiceUpdateResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.ImageServiceUpdateResponse{
 								Image: testresources.Image1(),
-							})
+							}
 						},
 					},
 				},
@@ -185,10 +185,10 @@ func Test_AdminImageCmd_Update(t *testing.T) {
 									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 								},
 							},
-							WantResponse: func() connect.AnyResponse {
-								return connect.NewResponse(&adminv2.ImageServiceUpdateResponse{
+							WantResponse: func() proto.Message {
+								return &adminv2.ImageServiceUpdateResponse{
 									Image: testresources.Image1(),
-								})
+								}
 							},
 						},
 					},
@@ -228,15 +228,15 @@ func Test_AdminImageCmd_Usage(t *testing.T) {
 						WantRequest: &adminv2.ImageServiceUsageRequest{
 							Query: &apiv2.ImageQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.ImageServiceUsageResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.ImageServiceUsageResponse{
 								ImageUsage: []*apiv2.ImageUsage{
 									{
 										Image:  testresources.Image1(),
 										UsedBy: []string{"machine-a", "machine-b"},
 									},
 								},
-							})
+							}
 						},
 					},
 				},

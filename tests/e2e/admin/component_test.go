@@ -3,13 +3,13 @@ package admin_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_AdminComponentCmd_Describe(t *testing.T) {
@@ -23,10 +23,10 @@ func Test_AdminComponentCmd_Describe(t *testing.T) {
 						WantRequest: &adminv2.ComponentServiceGetRequest{
 							Uuid: testresources.Component1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.ComponentServiceGetResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.ComponentServiceGetResponse{
 								Component: testresources.Component1(),
-							})
+							}
 						},
 					},
 				},
@@ -67,13 +67,13 @@ func Test_AdminComponentCmd_List(t *testing.T) {
 						WantRequest: &adminv2.ComponentServiceListRequest{
 							Query: &apiv2.ComponentQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.ComponentServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.ComponentServiceListResponse{
 								Components: []*apiv2.Component{
 									testresources.Component1(),
 									testresources.Component2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -117,24 +117,24 @@ func Test_AdminComponentCmd_Prune(t *testing.T) {
 						WantRequest: &adminv2.ComponentServiceListRequest{
 							Query: &apiv2.ComponentQuery{},
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.ComponentServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.ComponentServiceListResponse{
 								Components: []*apiv2.Component{
 									testresources.Component1(),
 									testresources.Component2(),
 									testresources.Component3(),
 								},
-							})
+							}
 						},
 					},
 					{
 						WantRequest: &adminv2.ComponentServiceDeleteRequest{
 							Uuid: testresources.Component3().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.ComponentServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.ComponentServiceDeleteResponse{
 								Component: testresources.Component3(),
-							})
+							}
 						},
 					},
 				},
@@ -174,10 +174,10 @@ func Test_AdminComponentCmd_Delete(t *testing.T) {
 						WantRequest: &adminv2.ComponentServiceDeleteRequest{
 							Uuid: testresources.Component1().Uuid,
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.ComponentServiceDeleteResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.ComponentServiceDeleteResponse{
 								Component: testresources.Component1(),
-							})
+							}
 						},
 					},
 				},

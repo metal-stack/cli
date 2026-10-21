@@ -3,13 +3,13 @@ package admin_e2e
 import (
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/metal-stack/api/go/client"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_AdminTokenCmd_List(t *testing.T) {
@@ -21,13 +21,13 @@ func Test_AdminTokenCmd_List(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.TokenServiceListRequest{},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.TokenServiceListResponse{
+						WantResponse: func() proto.Message {
+							return &adminv2.TokenServiceListResponse{
 								Tokens: []*apiv2.Token{
 									testresources.Token1(),
 									testresources.Token2(),
 								},
-							})
+							}
 						},
 					},
 				},
@@ -72,8 +72,8 @@ func Test_AdminTokenCmd_Delete(t *testing.T) {
 							Uuid: testresources.Token1().Uuid,
 							User: "user-123",
 						},
-						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.TokenServiceRevokeResponse{})
+						WantResponse: func() proto.Message {
+							return &adminv2.TokenServiceRevokeResponse{}
 						},
 					},
 				},
