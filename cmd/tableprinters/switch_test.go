@@ -274,7 +274,7 @@ func TestTablePrinter_SwitchTable(t *testing.T) {
 				{"r02leaf01", "partition-a", "rack02", apiv2.SwitchOSVendor_SWITCH_OS_VENDOR_UNSPECIFIED.String(), "", color.RedString(dot), "1h ago"}, // status red because last error came later than last sync
 				{"r02leaf02", "partition-a", "rack02", "", "", color.RedString(dot), "10m ago"},                                                        // status red because last sync is too long ago
 				{"r03leaf01", "partition-a", "rack03", "", "", color.YellowString(dot), "0s ago"},                                                      // status yellow because last sync duration was too long
-				{"r03leaf02", "partition-a", "rack03", "", "", color.YellowString(dot), ""},                                                            // status yellow because not all connceted ports are up
+				{"r03leaf02", "partition-a", "rack03", "", "", color.YellowString(dot), ""},                                                            // status yellow because not all connected ports are up
 			},
 		},
 		{

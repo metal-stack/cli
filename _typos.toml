@@ -1,0 +1,7 @@
+[files]
+extend-exclude = ["go.mod", "go.sum"]
+
+[default.extend-words]
+leafs = "leafs"
+PN = "PN"
+HPE = "HPE"
