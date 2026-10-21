@@ -141,6 +141,7 @@ func Test_MachineCmd_Create(t *testing.T) {
 				"--partition", testresources.Machine2().Partition.Id,
 				"--size", testresources.Machine2().Size.Id,
 				"--ssh-public-key", "@.ssh/id_rsa.pub",
+				"--ssh-public-key", "ssh-ed25519 AAAA test",
 				"--labels", "a=b",
 				"--userdata", "@ignition.json",
 				"--placement-labels", "cluster-id=cluster-uuid",
@@ -163,7 +164,7 @@ func Test_MachineCmd_Create(t *testing.T) {
 							Size:             &testresources.Machine2().Size.Id,
 							Image:            testresources.Machine2().Allocation.Image.Id,
 							FilesystemLayout: new("fsl1"),
-							SshPublicKeys:    []string{"12345"},
+							SshPublicKeys:    []string{"12345", "ssh-ed25519 AAAA test"},
 							Userdata:         new(base64.StdEncoding.EncodeToString([]byte("{}"))),
 							Labels: &apiv2.Labels{
 								Labels: map[string]string{
