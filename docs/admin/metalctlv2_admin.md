@@ -30,6 +30,7 @@ these commands utilize the admin api, which can only be accessed by metal-stack 
 * [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
 * [metalctlv2 admin audit](metalctlv2_admin_audit.md)	 - manage audit entities
 * [metalctlv2 admin component](metalctlv2_admin_component.md)	 - manage component entities
+* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
 * [metalctlv2 admin image](metalctlv2_admin_image.md)	 - manage image entities
 * [metalctlv2 admin ip](metalctlv2_admin_ip.md)	 - manage ip entities
 * [metalctlv2 admin machine](metalctlv2_admin_machine.md)	 - manage machine entities
