@@ -7,6 +7,7 @@ import (
 
 func AddCmds(cmd *cobra.Command, c *config.Config) {
 	cmd.AddCommand(newAuditCmd(c))
+	cmd.AddCommand(newFilesystemCmd(c))
 	cmd.AddCommand(newHealthCmd(c))
 	cmd.AddCommand(newImageCmd(c))
 	cmd.AddCommand(newIPCmd(c))

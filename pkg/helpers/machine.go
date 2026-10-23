@@ -575,6 +575,5 @@ IPs can be added per network colon separated, these ips must be already allocate
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("size", completion.Size))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("project", completion.Project))
 	genericcli.Must(cmd.RegisterFlagCompletionFunc("image", completion.Image))
-	// FIXME implement
-	// genericcli.Must(cmd.RegisterFlagCompletionFunc("filesystem-layout", c.c.Completion.FilesystemLayoutListCompletion))
+	genericcli.Must(cmd.RegisterFlagCompletionFunc("filesystem-layout", completion.FilesystemLayout))
 }

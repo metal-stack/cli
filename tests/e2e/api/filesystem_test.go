@@ -1,0 +1,104 @@
+package api_e2e
+
+import (
+	"testing"
+
+	"connectrpc.com/connect"
+	"github.com/metal-stack/api/go/client"
+	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
+	"github.com/metal-stack/cli/tests/e2e/testresources"
+	"github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+)
+
+func Test_FileSystemCmd_List(t *testing.T) {
+	tests := []*e2e.Test[apiv2.FilesystemServiceListResponse, *apiv2.FilesystemLayout]{
+		{
+			Name:    "list",
+			CmdArgs: []string{"filesystem", "list"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &apiv2.FilesystemServiceListRequest{},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.FilesystemServiceListResponse{
+								FilesystemLayouts: []*apiv2.FilesystemLayout{
+									testresources.FilesystemLayout1(),
+									testresources.FilesystemLayout2(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  
+			ubuntu-raid1    Ubuntu Raid1    Raid1 layout for ubuntu machines    m2.large  ubuntu:>= 24.0  
+			`),
+			WantWideTable: new(`
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES  
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0                
+			ubuntu-raid1    Ubuntu Raid1    Raid1 layout for ubuntu machines    m2.large  ubuntu:>= 24.0  0            0      1     1              1                
+			`),
+			Template: new("{{ .id }} {{ .name }}"),
+			WantTemplate: new(`
+debian-default Debian Default
+ubuntu-raid1 Ubuntu Raid1
+`),
+			WantMarkdown: new(`
+			| ID             | NAME           | DESCRIPTION                        | SIZES    | IMAGES         |
+			|----------------|----------------|------------------------------------|----------|----------------|
+			| debian-default | Debian Default | Default layout for debian machines | m2.small | debian:>= 12.0 |
+			| ubuntu-raid1   | Ubuntu Raid1   | Raid1 layout for ubuntu machines   | m2.large | ubuntu:>= 24.0 |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_FileSystemCmd_Describe(t *testing.T) {
+	tests := []*e2e.Test[apiv2.FilesystemServiceGetResponse, *apiv2.FilesystemLayout]{
+		{
+			Name:    "describe",
+			CmdArgs: []string{"filesystem", "describe", testresources.FilesystemLayout1().Id},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &apiv2.FilesystemServiceGetRequest{
+							Id: testresources.FilesystemLayout1().Id,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.FilesystemServiceGetResponse{
+								FilesystemLayout: testresources.FilesystemLayout1(),
+							})
+						},
+					},
+				},
+			}),
+			WantProtoObject: testresources.FilesystemLayout1(),
+			WantTable: new(`
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  
+			`),
+			WantWideTable: new(`
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES  
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0                
+			`),
+			Template: new("{{ .id }} {{ .name }}"),
+			WantTemplate: new(`
+debian-default Debian Default
+`),
+			WantMarkdown: new(`
+			| ID             | NAME           | DESCRIPTION                        | SIZES    | IMAGES         |
+			|----------------|----------------|------------------------------------|----------|----------------|
+			| debian-default | Debian Default | Default layout for debian machines | m2.small | debian:>= 12.0 |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
