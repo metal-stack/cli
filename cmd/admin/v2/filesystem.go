@@ -52,12 +52,12 @@ or checks whether a given filesystem layout matches a given machine.`,
 	matchCmd.Flags().String("size", "", "machine size to match against a filesystem layout")
 	matchCmd.Flags().String("image", "", "machine image to match against a filesystem layout")
 	matchCmd.Flags().String("machine", "", "uuid of the machine to check against a filesystem layout")
-	matchCmd.Flags().String("filesystem-layout", "", "id of the filesystem layout to check against a machine")
+	matchCmd.Flags().String("id", "", "id of the filesystem layout to check against a machine")
 
 	genericcli.Must(matchCmd.RegisterFlagCompletionFunc("size", c.Completion.Size))
 	genericcli.Must(matchCmd.RegisterFlagCompletionFunc("image", c.Completion.Image))
 	genericcli.Must(matchCmd.RegisterFlagCompletionFunc("machine", c.Completion.Machine))
-	genericcli.Must(matchCmd.RegisterFlagCompletionFunc("filesystem-layout", c.Completion.FilesystemLayout))
+	genericcli.Must(matchCmd.RegisterFlagCompletionFunc("id", c.Completion.FilesystemLayout))
 
 	return genericcli.NewCmds(cmdsConfig, matchCmd)
 }
@@ -157,7 +157,7 @@ func (w *filesystem) match(_ *cobra.Command) error {
 		sizeSet    = viper.IsSet("size")
 		imageSet   = viper.IsSet("image")
 		machineSet = viper.IsSet("machine")
-		layoutSet  = viper.IsSet("filesystem-layout")
+		layoutSet  = viper.IsSet("id")
 		req        *adminv2.FilesystemServiceMatchRequest
 	)
 
@@ -176,12 +176,12 @@ func (w *filesystem) match(_ *cobra.Command) error {
 			Match: &adminv2.FilesystemServiceMatchRequest_MachineAndFilesystemlayout{
 				MachineAndFilesystemlayout: &adminv2.MatchMachineAndFilesystemLayout{
 					Machine:          viper.GetString("machine"),
-					FilesystemLayout: viper.GetString("filesystem-layout"),
+					FilesystemLayout: viper.GetString("id"),
 				},
 			},
 		}
 	default:
-		return fmt.Errorf("either both --size and --image or both --machine and --filesystem-layout must be set")
+		return fmt.Errorf("either both --size and --image or both --machine and --id must be set")
 	}
 
 	ctx, cancel := w.c.NewRequestContext()

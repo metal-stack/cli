@@ -310,7 +310,7 @@ func Test_AdminFileSystemCmd_Match_MachineAndLayout(t *testing.T) {
 	tests := []*e2e.Test[adminv2.FilesystemServiceMatchResponse, *apiv2.FilesystemLayout]{
 		{
 			Name:    "match machine and filesystem layout",
-			CmdArgs: []string{"admin", "filesystem", "match", "--machine", machineUUID, "--filesystem-layout", testresources.FilesystemLayout1().Id},
+			CmdArgs: []string{"admin", "filesystem", "match", "--machine", machineUUID, "--id", testresources.FilesystemLayout1().Id},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -360,13 +360,13 @@ func Test_AdminFileSystemCmd_Match_InvalidFlags(t *testing.T) {
 			Name:       "match without flags fails",
 			CmdArgs:    []string{"admin", "filesystem", "match"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{}),
-			WantErr:    fmt.Errorf("either both --size and --image or both --machine and --filesystem-layout must be set"),
+			WantErr:    fmt.Errorf("either both --size and --image or both --machine and --id must be set"),
 		},
 		{
 			Name:       "match with only size fails",
 			CmdArgs:    []string{"admin", "filesystem", "match", "--size", "m2.small"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{}),
-			WantErr:    fmt.Errorf("either both --size and --image or both --machine and --filesystem-layout must be set"),
+			WantErr:    fmt.Errorf("either both --size and --image or both --machine and --id must be set"),
 		},
 	}
 	for _, tt := range tests {
