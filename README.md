@@ -13,6 +13,8 @@ This is the official V2 CLI for accessing the API of [metal-stack.io](https://me
 Download locations:
 
 - [metalctlv2-linux-amd64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-linux-amd64)
+- [metalctlv2-linux-arm64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-linux-arm64)
+- [metalctlv2-linux-arm-v7](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-linux-arm-v7) (32-bit ARM, armv7)
 - [metalctlv2-darwin-amd64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-darwin-amd64)
 - [metalctlv2-darwin-arm64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-darwin-arm64)
 - [metalctlv2-windows-amd64](https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-windows-amd64)
@@ -24,6 +26,8 @@ curl -LO https://github.com/metal-stack/cli/releases/latest/download/metalctlv2-
 chmod +x metalctlv2-linux-amd64
 sudo mv metalctlv2-linux-amd64 /usr/local/bin/metalctlv2
 ```
+
+Choose according to your processor architecture: For ARM systems use `metalctlv2-linux-arm64`, for ARM V7 systems (e.g. Raspberry Pi) use `metalctlv2-linux-arm-v7` instead of `metalctlv2-linux-amd64`.
 
 ### Installation on MacOS
 
@@ -110,3 +114,9 @@ $ metalctlv2 ctx add <context-name> --activate --default-project <project-uuid> 
 ```
 
 The configuration file is by default written to `~/.metal-stack/config.yaml`.
+
+## Environment Variables
+
+Important flags can also be provided as environment variables prefixed with `METAL_STACK_`. The flag name is uppercased and dashes are replaced by underscores, e.g. `--api-url` becomes `METAL_STACK_API_URL`.
+
+An explicitly provided flag takes precedence over an environment variable, which in turn takes precedence over the context in `~/.metal-stack/config.yaml`.

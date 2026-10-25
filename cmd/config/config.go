@@ -21,7 +21,7 @@ const (
 	// BinaryName is the name of the cli in all help texts
 	BinaryName = "metalctlv2"
 	// ConfigDir is the directory in either the homedir or in /etc where the cli searches for a file config.yaml
-	// also used as prefix for environment based configuration, e.g. METAL_STACK_CLOUD_ will be the variable prefix.
+	// also used as prefix for environment based configuration, e.g. METAL_STACK_ will be the variable prefix.
 	ConfigDir = "metal-stack"
 )
 

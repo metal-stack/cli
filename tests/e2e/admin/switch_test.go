@@ -84,8 +84,8 @@ func Test_AdminSwitchCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID      PARTITION  RACK    OS  METALCORE         STATUS  LAST SYNC  
-            leaf01  fra-equ01  rack-1  🦔  v0.9.1 (abc1234)  ●                  
+            ID      PARTITION  RACK    OS  METALCORE         STATUS  LAST SYNC
+            leaf01  fra-equ01  rack-1  🦔  v0.9.1 (abc1234)  ●
             leaf02  fra-equ01  rack-1  🦔  v0.9.1 (abc1234)  ●
             `),
 			WantWideTable: new(`
@@ -167,7 +167,7 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-            ID      PARTITION  RACK    OS  METALCORE         STATUS  LAST SYNC  
+            ID      PARTITION  RACK    OS  METALCORE         STATUS  LAST SYNC
             leaf02  fra-equ01  rack-1  🦔  v0.9.1 (abc1234)  ●
                     `),
 			WantWideTable: new(`
@@ -354,7 +354,6 @@ Actual:
       sent_prefix_counter: 120
       vrf_name: default
     identifier: oid:0x1000000000001
-    mac: 52:54:00:ab:cd:01
     name: Ethernet0
     state:
       actual: 1
@@ -378,7 +377,6 @@ Desired:
     sent_prefix_counter: 120
     vrf_name: default
   identifier: oid:0x1000000000001
-  mac: 52:54:00:ab:cd:01
   name: Ethernet0
   state:
     actual: 1
@@ -429,7 +427,6 @@ Actual:
       sent_prefix_counter: 120
       vrf_name: default
     identifier: oid:0x1000000000001
-    mac: 52:54:00:ab:cd:01
     name: Ethernet0
     state:
       actual: 1
@@ -453,7 +450,6 @@ Desired:
     sent_prefix_counter: 120
     vrf_name: default
   identifier: oid:0x1000000000001
-  mac: 52:54:00:ab:cd:01
   name: Ethernet0
   state:
     actual: 1

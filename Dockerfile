@@ -1,4 +1,6 @@
 FROM alpine:3.24
+ARG TARGETARCH
+ARG TARGETVARIANT
 LABEL maintainer="metal-stack authors <info@metal-stack.io>"
-COPY bin/metalctlv2-linux-amd64 /metalctl
+COPY --chmod=0755 bin/metalctlv2-linux-${TARGETARCH}${TARGETVARIANT:+-${TARGETVARIANT}} /metalctl
 ENTRYPOINT ["/metalctl"]

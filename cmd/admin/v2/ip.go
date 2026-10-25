@@ -81,13 +81,14 @@ func (c *ip) Get(id string) (*apiv2.IP, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	switch len(resp.Ips) {
 	case 0:
-		return nil, fmt.Errorf("no ip found for ip:%s", id)
+		return nil, fmt.Errorf("no ip found for ip: %s", id)
 	case 1:
 		return resp.Ips[0], nil
 	default:
-		return nil, fmt.Errorf("more than one ip found for ip:%s", id)
+		return nil, fmt.Errorf("more than one ip found for ip: %s", id)
 	}
 }
 
