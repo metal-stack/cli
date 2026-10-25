@@ -14,11 +14,11 @@ metalctlv2 admin filesystem match [flags]
 ### Options
 
 ```
-      --filesystem-layout string   id of the filesystem layout to check against a machine
-  -h, --help                       help for match
-      --image string               machine image to match against a filesystem layout
-      --machine string             uuid of the machine to check against a filesystem layout
-      --size string                machine size to match against a filesystem layout
+  -h, --help             help for match
+      --id string        id of the filesystem layout to check against a machine
+      --image string     machine image to match against a filesystem layout
+      --machine string   uuid of the machine to check against a filesystem layout
+      --size string      machine size to match against a filesystem layout
 ```
 
 ### Options inherited from parent commands
