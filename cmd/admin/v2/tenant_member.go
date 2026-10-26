@@ -9,6 +9,7 @@ import (
 
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -158,9 +159,11 @@ func (c *tenantMember) Convert(r *apiv2.TenantMember) (string, *adminv2.TenantSe
 			Role:   r.Role,
 		},
 		&apiv2.TenantMemberServiceUpdateRequest{
-			Login:  r.Tenant,
-			Member: r.Member,
-			Role:   pointer.PointerOrNil(r.Role),
+			Login:      r.Tenant,
+			Member:     r.Member,
+			Role:       pointer.PointerOrNil(r.Role),
+			UpdateMeta: helpers.UpdateMetaFromMeta(r.Meta),
+			Labels:     helpers.UpdateLabelsFromMeta(r.Meta),
 		},
 		nil
 }
