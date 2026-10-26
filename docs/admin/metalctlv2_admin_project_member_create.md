@@ -1,9 +1,9 @@
-## metalctlv2 admin filesystem create
+## metalctlv2 admin project member create
 
-creates the filesystem
+creates the member
 
 ```
-metalctlv2 admin filesystem create [flags]
+metalctlv2 admin project member create [flags]
 ```
 
 ### Options
@@ -13,16 +13,17 @@ metalctlv2 admin filesystem create [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 filesystem describe filesystem-1 -o yaml > filesystem.yaml
-                                $ vi filesystem.yaml
+                                $ metalctlv2 member describe member-1 -o yaml > member.yaml
+                                $ vi member.yaml
                                 $ # either via stdin
-                                $ cat filesystem.yaml | metalctlv2 filesystem create -f -
+                                $ cat member.yaml | metalctlv2 member create -f -
                                 $ # or via file
-                                $ metalctlv2 filesystem create -f filesystem.yaml
+                                $ metalctlv2 member create -f member.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
   -h, --help                    help for create
+      --project string          the project for which to create a project member, defaults to project of the default project
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -42,5 +43,5 @@ metalctlv2 admin filesystem create [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin project member](metalctlv2_admin_project_member.md)	 - manage member entities
 

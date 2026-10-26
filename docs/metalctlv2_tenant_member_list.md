@@ -1,6 +1,6 @@
 ## metalctlv2 tenant member list
 
-lists members of a tenant
+list all members
 
 ```
 metalctlv2 tenant member list [flags]
@@ -10,8 +10,9 @@ metalctlv2 tenant member list [flags]
 
 ```
   -h, --help              help for list
+      --role string       the role of the member
       --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: created|id|role
-      --tenant string     the tenant in which to remove the member
+      --tenant string     the tenant to list the tenant members of, defaults to tenant of the default project
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +30,5 @@ metalctlv2 tenant member list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage tenant members
+* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage member entities
 

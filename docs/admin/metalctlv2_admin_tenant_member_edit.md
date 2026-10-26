@@ -1,24 +1,16 @@
-## metalctlv2 admin filesystem match
+## metalctlv2 admin tenant member edit
 
-matches a filesystem layout to a size and image or to a machine
-
-### Synopsis
-
-matches a filesystem layout either to a given size and image combination,
-or checks whether a given filesystem layout matches a given machine.
+edit the member through an editor and update
 
 ```
-metalctlv2 admin filesystem match [flags]
+metalctlv2 admin tenant member edit <id> [flags]
 ```
 
 ### Options
 
 ```
-      --filesystem-layout string   id of the filesystem layout to check against a machine
-  -h, --help                       help for match
-      --image string               machine image to match against a filesystem layout
-      --machine string             uuid of the machine to check against a filesystem layout
-      --size string                machine size to match against a filesystem layout
+  -h, --help            help for edit
+      --tenant string   the tenant from which to edit a tenant member, defaults to tenant of the default project
 ```
 
 ### Options inherited from parent commands
@@ -36,5 +28,5 @@ metalctlv2 admin filesystem match [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin tenant member](metalctlv2_admin_tenant_member.md)	 - manage member entities
 

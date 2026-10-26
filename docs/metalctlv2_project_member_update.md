@@ -1,17 +1,32 @@
 ## metalctlv2 project member update
 
-update member from a project
+updates the member
 
 ```
-metalctlv2 project member update <member> [flags]
+metalctlv2 project member update <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help             help for update
-  -p, --project string   the project in which to remove the member
-      --role string      the role of the member
+      --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
+  -f, --file string             filename of the create or update request in yaml format, or - for stdin.
+                                
+                                Example:
+                                $ metalctlv2 member describe member-1 -o yaml > member.yaml
+                                $ vi member.yaml
+                                $ # either via stdin
+                                $ cat member.yaml | metalctlv2 member update <id> -f -
+                                $ # or via file
+                                $ metalctlv2 member update <id> -f member.yaml
+                                
+                                the file can also contain multiple documents and perform a bulk operation.
+                                	
+  -h, --help                    help for update
+      --project string          the project for which to update a project member, defaults to project of the default project
+      --role string             the role of the member
+      --skip-security-prompts   skips security prompt for bulk operations
+      --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +44,5 @@ metalctlv2 project member update <member> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage project members
+* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage member entities
 

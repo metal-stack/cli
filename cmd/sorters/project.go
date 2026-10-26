@@ -2,6 +2,7 @@ package sorters
 
 import (
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+
 	"github.com/metal-stack/metal-lib/pkg/multisort"
 )
 
@@ -39,13 +40,13 @@ func ProjectInviteSorter() *multisort.Sorter[*apiv2.ProjectInvite] {
 func ProjectMemberSorter() *multisort.Sorter[*apiv2.ProjectMember] {
 	return multisort.New(multisort.FieldMap[*apiv2.ProjectMember]{
 		"id": func(a, b *apiv2.ProjectMember, descending bool) multisort.CompareResult {
-			return multisort.Compare(a.Id, b.Id, descending)
+			return multisort.Compare(a.Member, b.Member, descending)
 		},
 		"role": func(a, b *apiv2.ProjectMember, descending bool) multisort.CompareResult {
 			return multisort.Compare(a.Role, b.Role, descending)
 		},
 		"created": func(a, b *apiv2.ProjectMember, descending bool) multisort.CompareResult {
-			return multisort.Compare(a.CreatedAt.AsTime().UnixMilli(), b.CreatedAt.AsTime().UnixMilli(), descending)
+			return multisort.Compare(a.Meta.CreatedAt.AsTime().UnixMilli(), b.Meta.CreatedAt.AsTime().UnixMilli(), descending)
 		},
 		"inherited": func(a, b *apiv2.ProjectMember, descending bool) multisort.CompareResult {
 			boolToInt := func(in bool) int {

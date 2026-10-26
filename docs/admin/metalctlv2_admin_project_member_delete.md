@@ -1,9 +1,9 @@
-## metalctlv2 admin filesystem apply
+## metalctlv2 admin project member delete
 
-applies one or more filesystems from a given file
+deletes the member
 
 ```
-metalctlv2 admin filesystem apply [flags]
+metalctlv2 admin project member delete <id> [flags]
 ```
 
 ### Options
@@ -13,16 +13,17 @@ metalctlv2 admin filesystem apply [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 filesystem describe filesystem-1 -o yaml > filesystem.yaml
-                                $ vi filesystem.yaml
+                                $ metalctlv2 member describe member-1 -o yaml > member.yaml
+                                $ vi member.yaml
                                 $ # either via stdin
-                                $ cat filesystem.yaml | metalctlv2 filesystem apply -f -
+                                $ cat member.yaml | metalctlv2 member delete <id> -f -
                                 $ # or via file
-                                $ metalctlv2 filesystem apply -f filesystem.yaml
+                                $ metalctlv2 member delete <id> -f member.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for apply
+  -h, --help                    help for delete
+      --project string          the project from which to delete a project member, defaults to project of the default project
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -42,5 +43,5 @@ metalctlv2 admin filesystem apply [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin project member](metalctlv2_admin_project_member.md)	 - manage member entities
 

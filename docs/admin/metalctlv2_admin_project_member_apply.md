@@ -1,9 +1,9 @@
-## metalctlv2 admin filesystem update
+## metalctlv2 admin project member apply
 
-updates the filesystem
+applies one or more members from a given file
 
 ```
-metalctlv2 admin filesystem update [flags]
+metalctlv2 admin project member apply [flags]
 ```
 
 ### Options
@@ -13,16 +13,16 @@ metalctlv2 admin filesystem update [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 filesystem describe filesystem-1 -o yaml > filesystem.yaml
-                                $ vi filesystem.yaml
+                                $ metalctlv2 member describe member-1 -o yaml > member.yaml
+                                $ vi member.yaml
                                 $ # either via stdin
-                                $ cat filesystem.yaml | metalctlv2 filesystem update -f -
+                                $ cat member.yaml | metalctlv2 member apply -f -
                                 $ # or via file
-                                $ metalctlv2 filesystem update -f filesystem.yaml
+                                $ metalctlv2 member apply -f member.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for update
+  -h, --help                    help for apply
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -42,5 +42,5 @@ metalctlv2 admin filesystem update [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin project member](metalctlv2_admin_project_member.md)	 - manage member entities
 

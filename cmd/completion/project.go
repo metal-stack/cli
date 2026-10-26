@@ -53,7 +53,7 @@ func (c *Completion) ProjectInvite(cmd *cobra.Command, args []string, toComplete
 }
 
 func (c *Completion) ProjectMember(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.Client.Apiv2().Project().Get(cmd.Context(), &apiv2.ProjectServiceGetRequest{
+	resp, err := c.Client.Apiv2().ProjectMember().List(cmd.Context(), &apiv2.ProjectMemberServiceListRequest{
 		Project: c.Proj,
 	})
 	if err != nil {
@@ -62,8 +62,8 @@ func (c *Completion) ProjectMember(cmd *cobra.Command, args []string, toComplete
 
 	var names []string
 
-	for _, member := range resp.ProjectMembers {
-		names = append(names, member.Id+"\t"+member.Role.String())
+	for _, member := range resp.Members {
+		names = append(names, member.Member+"\t"+member.Role.String())
 	}
 
 	return names, cobra.ShellCompDirectiveNoFileComp

@@ -34,5 +34,6 @@ manage api projects
 * [metalctlv2 admin project describe](metalctlv2_admin_project_describe.md)	 - describes the project
 * [metalctlv2 admin project edit](metalctlv2_admin_project_edit.md)	 - edit the project through an editor and update
 * [metalctlv2 admin project list](metalctlv2_admin_project_list.md)	 - list all projects
+* [metalctlv2 admin project member](metalctlv2_admin_project_member.md)	 - manage member entities
 * [metalctlv2 admin project update](metalctlv2_admin_project_update.md)	 - updates the project
 

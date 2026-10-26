@@ -25,7 +25,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		c: c,
 	}
 
-	cmdsConfig := &genericcli.CmdsConfig[*adminv2.TenantServiceCreateRequest, any, *apiv2.Tenant]{
+	cmdsConfig := &genericcli.CmdsConfig[*adminv2.TenantServiceCreateRequest, *apiv2.TenantServiceUpdateRequest, *apiv2.Tenant]{
 		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
 		Singular:        "tenant",
@@ -41,6 +41,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringSlice("labels", nil, "lists only tenant with the given labels")
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("login", "", "the login id of the tenant to create")
 			cmd.Flags().String("name", "", "the name of the tenant to create")
 			cmd.Flags().String("description", "", "the description of the tenant to create")
 			cmd.Flags().String("email", "", "the email of the tenant to create")
@@ -48,21 +49,35 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		},
 		CreateRequestFromCLI: func() (*adminv2.TenantServiceCreateRequest, error) {
 			return &adminv2.TenantServiceCreateRequest{
-				Name:        viper.GetString("name"),
-				Description: pointer.PointerOrNil(viper.GetString("description")),
-				Email:       pointer.PointerOrNil(viper.GetString("email")),
-				AvatarUrl:   pointer.PointerOrNil(viper.GetString("avatar-url")),
+				Login: pointer.PointerOrNil(viper.GetString("login")),
+				Tenant: &apiv2.TenantServiceCreateRequest{
+					Name:        viper.GetString("name"),
+					Description: pointer.PointerOrNil(viper.GetString("description")),
+					Email:       pointer.PointerOrNil(viper.GetString("email")),
+					AvatarUrl:   pointer.PointerOrNil(viper.GetString("avatar-url")),
+				},
 			}, nil
 		},
-		OnlyCmds:    genericcli.OnlyCmds(genericcli.ListCmd, genericcli.CreateCmd),
 		ValidArgsFn: w.c.Completion.AdminTenant,
 	}
 
-	return genericcli.NewCmds(cmdsConfig, newAddMemberCmd(c))
+	return genericcli.NewCmds(cmdsConfig, newTenantMemberCmd(c))
 }
 
 func (c *tenant) Get(id string) (*apiv2.Tenant, error) {
-	panic("unimplemented")
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	req := &apiv2.TenantServiceGetRequest{
+		Login: id,
+	}
+
+	resp, err := c.c.Client.Apiv2().Tenant().Get(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tenant: %w", err)
+	}
+
+	return resp.GetTenant(), nil
 }
 
 func (c *tenant) List() ([]*apiv2.Tenant, error) {
@@ -110,59 +125,50 @@ func (c *tenant) Create(rq *adminv2.TenantServiceCreateRequest) (*apiv2.Tenant, 
 }
 
 func (c *tenant) Delete(id string) (*apiv2.Tenant, error) {
-	panic("unimplemented")
-}
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
 
-func (c *tenant) Convert(r *apiv2.Tenant) (string, *adminv2.TenantServiceCreateRequest, any, error) {
-	panic("unimplemented")
-}
-
-func (c *tenant) Update(rq any) (*apiv2.Tenant, error) {
-	panic("unimplemented")
-}
-
-func newAddMemberCmd(c *config.Config) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "add-member",
-		Short: "Add a new member to a tenant",
-		Long:  `Add a new member to an existing tenant by specifying the tenant ID, member's ID, and role.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, cancel := c.NewRequestContext()
-			defer cancel()
-
-			var (
-				tenantId   = viper.GetString("tenant-id")
-				memberId   = viper.GetString("member-id")
-				memberRole = viper.GetString("role")
-			)
-
-			if tenantId == "" || memberId == "" || memberRole == "" {
-				return fmt.Errorf("tenant ID, member ID, and role must all be specified")
-			}
-
-			_, err := c.Client.Adminv2().Tenant().AddMember(ctx, &adminv2.TenantServiceAddMemberRequest{
-				Role:   apiv2.TenantRole(apiv2.TenantRole_value[memberRole]),
-				Tenant: tenantId,
-				Member: memberId,
-			})
-			if err != nil {
-				return fmt.Errorf("failed to add member to tenant: %w", err)
-			}
-
-			return nil
-		},
+	resp, err := c.c.Client.Apiv2().Tenant().Delete(ctx, &apiv2.TenantServiceDeleteRequest{
+		Login: id,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete tenant: %w", err)
 	}
 
-	cmd.Flags().String("tenant-id", "", "ID of the tenant where the member is added")
-	cmd.Flags().String("member-id", "", "ID of the member to be added")
-	cmd.Flags().String("role", "", "Role of the member within the tenant")
-	genericcli.Must(cmd.MarkFlagRequired("tenant-id"))
-	genericcli.Must(cmd.MarkFlagRequired("member-id"))
-	genericcli.Must(cmd.MarkFlagRequired("role"))
+	return resp.Tenant, nil
+}
 
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-id", c.Completion.AdminTenant))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("member-id", c.Completion.AdminTenant))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRole))
+func (c *tenant) Convert(r *apiv2.Tenant) (string, *adminv2.TenantServiceCreateRequest, *apiv2.TenantServiceUpdateRequest, error) {
+	return r.Login, &adminv2.TenantServiceCreateRequest{
+			Login: pointer.PointerOrNil(r.Login),
+			Tenant: &apiv2.TenantServiceCreateRequest{
+				Name:        r.Name,
+				Description: pointer.PointerOrNil(r.Description),
+				Email:       pointer.PointerOrNil(r.Email),
+				AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
+				Labels:      pointer.SafeDeref(r.Meta).Labels,
+			},
+		},
+		&apiv2.TenantServiceUpdateRequest{
+			Login:       r.Login,
+			Name:        pointer.PointerOrNil(r.Name),
+			Email:       pointer.PointerOrNil(r.Email),
+			Description: pointer.PointerOrNil(r.Description),
+			AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
+			UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
+			Labels:      helpers.UpdateLabelsFromMeta(r.Meta),
+		},
+		nil
+}
 
-	return cmd
+func (c *tenant) Update(rq *apiv2.TenantServiceUpdateRequest) (*apiv2.Tenant, error) {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Apiv2().Tenant().Update(ctx, rq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update tenant: %w", err)
+	}
+
+	return resp.Tenant, nil
 }

@@ -205,6 +205,7 @@ func (c *networkCmd) Create(rq *adminv2.NetworkServiceCreateRequest) (*apiv2.Net
 		if errorutil.IsConflict(err) {
 			return nil, genericcli.AlreadyExistsError()
 		}
+
 		return nil, err
 	}
 
@@ -223,13 +224,13 @@ func (c *networkCmd) Update(rq *adminv2.NetworkServiceUpdateRequest) (*apiv2.Net
 	return resp.Network, nil
 }
 
-func (c *networkCmd) Convert(r *apiv2.Network) (string, *adminv2.NetworkServiceCreateRequest, *adminv2.NetworkServiceUpdateRequest, error) {
-	addressFamily, err := helpers.AddressFamilyFromPrefixes(r.Prefixes...)
+func (c *networkCmd) Convert(n *apiv2.Network) (string, *adminv2.NetworkServiceCreateRequest, *adminv2.NetworkServiceUpdateRequest, error) {
+	addressFamily, err := helpers.AddressFamilyFromPrefixes(n)
 	if err != nil {
 		return "", nil, nil, err
 	}
 
-	return r.Id, networkResponseToCreate(r, addressFamily), networkResponseToUpdate(r), nil
+	return n.Id, networkResponseToCreate(n, addressFamily), networkResponseToUpdate(n), nil
 }
 
 func networkResponseToCreate(r *apiv2.Network, addressFamily *apiv2.NetworkAddressFamily) *adminv2.NetworkServiceCreateRequest {

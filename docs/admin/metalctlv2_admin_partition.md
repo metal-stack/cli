@@ -28,6 +28,7 @@ manage partitions
 ### SEE ALSO
 
 * [metalctlv2 admin](metalctlv2_admin.md)	 - admin commands
+* [metalctlv2 admin partition apply](metalctlv2_admin_partition_apply.md)	 - applies one or more partitions from a given file
 * [metalctlv2 admin partition capacity](metalctlv2_admin_partition_capacity.md)	 - show partition capacity
 * [metalctlv2 admin partition create](metalctlv2_admin_partition_create.md)	 - creates the partition
 * [metalctlv2 admin partition delete](metalctlv2_admin_partition_delete.md)	 - deletes the partition

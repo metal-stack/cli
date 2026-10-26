@@ -1,9 +1,9 @@
-## metalctlv2 filesystem describe
+## metalctlv2 admin tenant describe
 
-describes the filesystem
+describes the tenant
 
 ```
-metalctlv2 filesystem describe <id> [flags]
+metalctlv2 admin tenant describe <id> [flags]
 ```
 
 ### Options
@@ -27,5 +27,5 @@ metalctlv2 filesystem describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 filesystem](metalctlv2_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin tenant](metalctlv2_admin_tenant.md)	 - manage tenant entities
 

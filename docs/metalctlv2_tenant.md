@@ -36,6 +36,6 @@ manage api tenants
 * [metalctlv2 tenant invite](metalctlv2_tenant_invite.md)	 - manage tenant invites
 * [metalctlv2 tenant join](metalctlv2_tenant_join.md)	 - join a tenant of someone who shared an invite secret with you
 * [metalctlv2 tenant list](metalctlv2_tenant_list.md)	 - list all tenants
-* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage tenant members
+* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage member entities
 * [metalctlv2 tenant update](metalctlv2_tenant_update.md)	 - updates the tenant
 

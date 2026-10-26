@@ -1,16 +1,15 @@
-## metalctlv2 tenant member remove
+## metalctlv2 admin filesystemlayout edit
 
-remove member from a tenant
+edit the filesystemlayout through an editor and update
 
 ```
-metalctlv2 tenant member remove <member> [flags]
+metalctlv2 admin filesystemlayout edit <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help            help for remove
-      --tenant string   the tenant in which to remove the member
+  -h, --help   help for edit
 ```
 
 ### Options inherited from parent commands
@@ -28,5 +27,5 @@ metalctlv2 tenant member remove <member> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage tenant members
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 

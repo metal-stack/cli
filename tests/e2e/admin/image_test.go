@@ -1,6 +1,7 @@
 package admin_e2e
 
 import (
+	"fmt"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -246,9 +247,83 @@ func Test_AdminImageCmd_Usage(t *testing.T) {
             ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported  2
 			`),
 			WantWideTable: new(`
-            ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS     USAGE
-            ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported  machine-a
-                                                                                           machine-b
+             ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS     USAGE
+             ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported  machine-a
+                                                                                            machine-b
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_AdminImageCmd_Apply(t *testing.T) {
+	tests := []*e2e.Test[adminv2.ImageServiceUpdateResponse, *apiv2.Image]{
+		{
+			Name:    "apply",
+			CmdArgs: append([]string{"admin", "image", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Image1()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &adminv2.ImageServiceCreateRequest{
+								Image: testresources.Image1(),
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&adminv2.ImageServiceCreateResponse{
+									Image: testresources.Image1(),
+								})
+							},
+						},
+					},
+				}),
+			WantTable: new(`
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
+			`),
+		},
+		{
+			Name:    "apply already exists",
+			CmdArgs: append([]string{"admin", "image", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Image1()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &adminv2.ImageServiceCreateRequest{
+								Image: testresources.Image1(),
+							},
+							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
+						},
+						{
+							WantRequest: &adminv2.ImageServiceUpdateRequest{
+								Id:             testresources.Image1().Id,
+								Url:            new(testresources.Image1().Url),
+								Name:           testresources.Image1().Name,
+								Description:    testresources.Image1().Description,
+								Features:       testresources.Image1().Features,
+								Classification: testresources.Image1().Classification,
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&adminv2.ImageServiceUpdateResponse{
+									Image: testresources.Image1(),
+								})
+							},
+						},
+					},
+				}),
+			WantTable: new(`
+			ID            NAME          DESCRIPTION       FEATURES  EXPIRATION  STATUS
+			ubuntu-24.04  Ubuntu 24.04  Ubuntu 24.04 LTS  machine               supported
 			`),
 		},
 	}

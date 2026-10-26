@@ -1,15 +1,16 @@
-## metalctlv2 filesystem
+## metalctlv2 admin project member edit
 
-manage filesystem entities
+edit the member through an editor and update
 
-### Synopsis
-
-a filesystem layout defines how disks, raid arrays and volumes are set up on a machine during installation
+```
+metalctlv2 admin project member edit <id> [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for filesystem
+  -h, --help             help for edit
+      --project string   the project from which to edit a project member, defaults to project of the default project
 ```
 
 ### Options inherited from parent commands
@@ -27,7 +28,5 @@ a filesystem layout defines how disks, raid arrays and volumes are set up on a m
 
 ### SEE ALSO
 
-* [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
-* [metalctlv2 filesystem describe](metalctlv2_filesystem_describe.md)	 - describes the filesystem
-* [metalctlv2 filesystem list](metalctlv2_filesystem_list.md)	 - list all filesystems
+* [metalctlv2 admin project member](metalctlv2_admin_project_member.md)	 - manage member entities
 

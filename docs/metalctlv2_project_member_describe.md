@@ -1,17 +1,16 @@
-## metalctlv2 filesystem list
+## metalctlv2 project member describe
 
-list all filesystems
+describes the member
 
 ```
-metalctlv2 filesystem list [flags]
+metalctlv2 project member describe <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help              help for list
-      --id string         id of the filesystem layout which should be listed
-      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: description|id|name
+  -h, --help             help for describe
+      --project string   the project to describe the project members of, defaults to project of the default project
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +28,5 @@ metalctlv2 filesystem list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 filesystem](metalctlv2_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage member entities
 
