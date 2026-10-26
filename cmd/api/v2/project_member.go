@@ -56,7 +56,6 @@ func newProjectMemberCmd(c *config.Config) *cobra.Command {
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("role", c.Completion.ProjectRole))
-
 		},
 		DeleteCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().String("project", "", "the project from which to delete a project member, defaults to project of the default project")
@@ -73,7 +72,17 @@ func newProjectMemberCmd(c *config.Config) *cobra.Command {
 		ValidArgsFn:          w.c.Completion.ProjectMember,
 	}
 
-	return genericcli.NewCmds(cmdsConfig)
+	leaveCmd := &cobra.Command{
+		Use:   "leave",
+		Short: "leave the given project",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return w.leave()
+		},
+	}
+	leaveCmd.Flags().String("project", "", "the project to leave, defaults to project of the default project")
+	genericcli.Must(leaveCmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+
+	return genericcli.NewCmds(cmdsConfig, leaveCmd)
 }
 
 func (c *projectMember) Get(id string) (*apiv2.ProjectMember, error) {
@@ -193,4 +202,16 @@ func (c *projectMember) createRequestFromCLI() (*apiv2.ProjectMemberServiceCreat
 	}, nil
 }
 
-// TODO: implement Leave
+func (c *projectMember) leave() error {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	resp, err := c.c.Client.Apiv2().ProjectMember().Leave(ctx, &apiv2.ProjectMemberServiceLeaveRequest{
+		Project: c.c.GetProject(),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to leave project: %w", err)
+	}
+
+	return c.c.DescribePrinter.Print(resp.Member)
+}

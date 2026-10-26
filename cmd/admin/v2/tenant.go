@@ -61,7 +61,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		ValidArgsFn: w.c.Completion.AdminTenant,
 	}
 
-	return genericcli.NewCmds(cmdsConfig, newAddMemberCmd(c))
+	return genericcli.NewCmds(cmdsConfig, newTenantMemberCmd(c))
 }
 
 func (c *tenant) Get(id string) (*apiv2.Tenant, error) {
@@ -171,50 +171,4 @@ func (c *tenant) Update(rq *apiv2.TenantServiceUpdateRequest) (*apiv2.Tenant, er
 	}
 
 	return resp.Tenant, nil
-}
-
-func newAddMemberCmd(c *config.Config) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "add-member",
-		Short: "Add a new member to a tenant",
-		Long:  `Add a new member to an existing tenant by specifying the tenant ID, member's ID, and role.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, cancel := c.NewRequestContext()
-			defer cancel()
-
-			var (
-				tenantId   = viper.GetString("tenant-id")
-				memberId   = viper.GetString("member-id")
-				memberRole = viper.GetString("role")
-			)
-
-			if tenantId == "" || memberId == "" || memberRole == "" {
-				return fmt.Errorf("tenant ID, member ID, and role must all be specified")
-			}
-
-			_, err := c.Client.Adminv2().Tenant().AddMember(ctx, &adminv2.TenantServiceAddMemberRequest{
-				Role:   apiv2.TenantRole(apiv2.TenantRole_value[memberRole]),
-				Tenant: tenantId,
-				Member: memberId,
-			})
-			if err != nil {
-				return fmt.Errorf("failed to add member to tenant: %w", err)
-			}
-
-			return nil
-		},
-	}
-
-	cmd.Flags().String("tenant-id", "", "ID of the tenant where the member is added")
-	cmd.Flags().String("member-id", "", "ID of the member to be added")
-	cmd.Flags().String("role", "", "Role of the member within the tenant")
-	genericcli.Must(cmd.MarkFlagRequired("tenant-id"))
-	genericcli.Must(cmd.MarkFlagRequired("member-id"))
-	genericcli.Must(cmd.MarkFlagRequired("role"))
-
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("tenant-id", c.Completion.AdminTenant))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("member-id", c.Completion.AdminTenant))
-	genericcli.Must(cmd.RegisterFlagCompletionFunc("role", c.Completion.TenantRole))
-
-	return cmd
 }

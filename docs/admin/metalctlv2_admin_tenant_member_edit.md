@@ -1,22 +1,16 @@
-## metalctlv2 admin tenant add-member
+## metalctlv2 admin tenant member edit
 
-Add a new member to a tenant
-
-### Synopsis
-
-Add a new member to an existing tenant by specifying the tenant ID, member's ID, and role.
+edit the member through an editor and update
 
 ```
-metalctlv2 admin tenant add-member [flags]
+metalctlv2 admin tenant member edit <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help               help for add-member
-      --member-id string   ID of the member to be added
-      --role string        Role of the member within the tenant
-      --tenant-id string   ID of the tenant where the member is added
+  -h, --help            help for edit
+      --tenant string   the tenant from which to edit a tenant member, defaults to tenant of the default project
 ```
 
 ### Options inherited from parent commands
@@ -34,5 +28,5 @@ metalctlv2 admin tenant add-member [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin tenant](metalctlv2_admin_tenant.md)	 - manage tenant entities
+* [metalctlv2 admin tenant member](metalctlv2_admin_tenant_member.md)	 - manage member entities
 

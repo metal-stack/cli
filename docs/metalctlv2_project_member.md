@@ -33,6 +33,7 @@ manage api project members
 * [metalctlv2 project member delete](metalctlv2_project_member_delete.md)	 - deletes the member
 * [metalctlv2 project member describe](metalctlv2_project_member_describe.md)	 - describes the member
 * [metalctlv2 project member edit](metalctlv2_project_member_edit.md)	 - edit the member through an editor and update
+* [metalctlv2 project member leave](metalctlv2_project_member_leave.md)	 - leave the given project
 * [metalctlv2 project member list](metalctlv2_project_member_list.md)	 - list all members
 * [metalctlv2 project member update](metalctlv2_project_member_update.md)	 - updates the member
 

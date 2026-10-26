@@ -73,7 +73,17 @@ func newTenantMemberCmd(c *config.Config) *cobra.Command {
 		ValidArgsFn:          w.c.Completion.TenantMember,
 	}
 
-	return genericcli.NewCmds(cmdsConfig)
+	leaveCmd := &cobra.Command{
+		Use:   "leave",
+		Short: "leave the given tenant",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return w.leave()
+		},
+	}
+	leaveCmd.Flags().String("tenant", "", "the tenant to leave, defaults to tenant of the default project")
+	genericcli.Must(leaveCmd.RegisterFlagCompletionFunc("tenant", c.Completion.Tenant))
+
+	return genericcli.NewCmds(cmdsConfig, leaveCmd)
 }
 
 func (c *tenantMember) Get(id string) (*apiv2.TenantMember, error) {
@@ -207,4 +217,21 @@ func (c *tenantMember) createRequestFromCLI() (*apiv2.TenantMemberServiceCreateR
 	}, nil
 }
 
-// TODO: implement Leave
+func (c *tenantMember) leave() error {
+	ctx, cancel := c.c.NewRequestContext()
+	defer cancel()
+
+	tenant, err := c.c.GetTenant()
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.c.Client.Apiv2().TenantMember().Leave(ctx, &apiv2.TenantMemberServiceLeaveRequest{
+		Login: tenant,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to leave project: %w", err)
+	}
+
+	return c.c.DescribePrinter.Print(resp.Member)
+}

@@ -33,6 +33,7 @@ manage api tenant members
 * [metalctlv2 tenant member delete](metalctlv2_tenant_member_delete.md)	 - deletes the member
 * [metalctlv2 tenant member describe](metalctlv2_tenant_member_describe.md)	 - describes the member
 * [metalctlv2 tenant member edit](metalctlv2_tenant_member_edit.md)	 - edit the member through an editor and update
+* [metalctlv2 tenant member leave](metalctlv2_tenant_member_leave.md)	 - leave the given tenant
 * [metalctlv2 tenant member list](metalctlv2_tenant_member_list.md)	 - list all members
 * [metalctlv2 tenant member update](metalctlv2_tenant_member_update.md)	 - updates the member
 
