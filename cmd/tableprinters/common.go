@@ -57,6 +57,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Component:
 		return t.ComponentTable(d, wide)
 
+	case *apiv2.FilesystemLayout:
+		return t.FilesystemTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.FilesystemLayout:
+		return t.FilesystemTable(d, wide)
+
 	case *apiv2.Network:
 		return t.NetworkTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Network:
