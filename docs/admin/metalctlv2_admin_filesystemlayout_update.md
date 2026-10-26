@@ -1,9 +1,9 @@
-## metalctlv2 admin filesystem apply
+## metalctlv2 admin filesystemlayout update
 
-applies one or more filesystems from a given file
+updates the filesystemlayout
 
 ```
-metalctlv2 admin filesystem apply [flags]
+metalctlv2 admin filesystemlayout update [flags]
 ```
 
 ### Options
@@ -13,16 +13,16 @@ metalctlv2 admin filesystem apply [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 filesystem describe filesystem-1 -o yaml > filesystem.yaml
-                                $ vi filesystem.yaml
+                                $ metalctlv2 filesystemlayout describe filesystemlayout-1 -o yaml > filesystemlayout.yaml
+                                $ vi filesystemlayout.yaml
                                 $ # either via stdin
-                                $ cat filesystem.yaml | metalctlv2 filesystem apply -f -
+                                $ cat filesystemlayout.yaml | metalctlv2 filesystemlayout update -f -
                                 $ # or via file
-                                $ metalctlv2 filesystem apply -f filesystem.yaml
+                                $ metalctlv2 filesystemlayout update -f filesystemlayout.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for apply
+  -h, --help                    help for update
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -42,5 +42,5 @@ metalctlv2 admin filesystem apply [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 

@@ -1,15 +1,15 @@
-## metalctlv2 filesystem
+## metalctlv2 admin filesystemlayout describe
 
-manage filesystem entities
+describes the filesystemlayout
 
-### Synopsis
-
-a filesystem layout defines how disks, raid arrays and volumes are set up on a machine during installation
+```
+metalctlv2 admin filesystemlayout describe <id> [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for filesystem
+  -h, --help   help for describe
 ```
 
 ### Options inherited from parent commands
@@ -27,7 +27,5 @@ a filesystem layout defines how disks, raid arrays and volumes are set up on a m
 
 ### SEE ALSO
 
-* [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
-* [metalctlv2 filesystem describe](metalctlv2_filesystem_describe.md)	 - describes the filesystem
-* [metalctlv2 filesystem list](metalctlv2_filesystem_list.md)	 - list all filesystems
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 

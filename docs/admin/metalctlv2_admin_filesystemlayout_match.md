@@ -1,15 +1,24 @@
-## metalctlv2 filesystem describe
+## metalctlv2 admin filesystemlayout match
 
-describes the filesystem
+matches a filesystem layout to a size and image or to a machine
+
+### Synopsis
+
+matches a filesystem layout either to a given size and image combination,
+or checks whether a given filesystem layout matches a given machine.
 
 ```
-metalctlv2 filesystem describe <id> [flags]
+metalctlv2 admin filesystemlayout match [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for describe
+  -h, --help             help for match
+      --id string        id of the filesystem layout to check against a machine
+      --image string     machine image to match against a filesystem layout
+      --machine string   uuid of the machine to check against a filesystem layout
+      --size string      machine size to match against a filesystem layout
 ```
 
 ### Options inherited from parent commands
@@ -27,5 +36,5 @@ metalctlv2 filesystem describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 filesystem](metalctlv2_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 

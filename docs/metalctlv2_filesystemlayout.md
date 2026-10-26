@@ -1,17 +1,15 @@
-## metalctlv2 filesystem list
+## metalctlv2 filesystemlayout
 
-list all filesystems
+manage filesystemlayout entities
 
-```
-metalctlv2 filesystem list [flags]
-```
+### Synopsis
+
+a filesystem layout defines how disks, raid arrays and volumes are set up on a machine during installation
 
 ### Options
 
 ```
-  -h, --help              help for list
-      --id string         id of the filesystem layout which should be listed
-      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: description|id|name
+  -h, --help   help for filesystemlayout
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +27,7 @@ metalctlv2 filesystem list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 filesystem](metalctlv2_filesystem.md)	 - manage filesystem entities
+* [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
+* [metalctlv2 filesystemlayout describe](metalctlv2_filesystemlayout_describe.md)	 - describes the filesystemlayout
+* [metalctlv2 filesystemlayout list](metalctlv2_filesystemlayout_list.md)	 - list all filesystemlayouts
 

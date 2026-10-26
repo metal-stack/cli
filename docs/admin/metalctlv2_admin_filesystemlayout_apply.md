@@ -1,9 +1,9 @@
-## metalctlv2 admin filesystem delete
+## metalctlv2 admin filesystemlayout apply
 
-deletes the filesystem
+applies one or more filesystemlayouts from a given file
 
 ```
-metalctlv2 admin filesystem delete <id> [flags]
+metalctlv2 admin filesystemlayout apply [flags]
 ```
 
 ### Options
@@ -13,16 +13,16 @@ metalctlv2 admin filesystem delete <id> [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 filesystem describe filesystem-1 -o yaml > filesystem.yaml
-                                $ vi filesystem.yaml
+                                $ metalctlv2 filesystemlayout describe filesystemlayout-1 -o yaml > filesystemlayout.yaml
+                                $ vi filesystemlayout.yaml
                                 $ # either via stdin
-                                $ cat filesystem.yaml | metalctlv2 filesystem delete <id> -f -
+                                $ cat filesystemlayout.yaml | metalctlv2 filesystemlayout apply -f -
                                 $ # or via file
-                                $ metalctlv2 filesystem delete <id> -f filesystem.yaml
+                                $ metalctlv2 filesystemlayout apply -f filesystemlayout.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for delete
+  -h, --help                    help for apply
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -42,5 +42,5 @@ metalctlv2 admin filesystem delete <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 

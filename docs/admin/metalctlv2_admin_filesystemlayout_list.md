@@ -1,15 +1,17 @@
-## metalctlv2 admin filesystem describe
+## metalctlv2 admin filesystemlayout list
 
-describes the filesystem
+list all filesystemlayouts
 
 ```
-metalctlv2 admin filesystem describe <id> [flags]
+metalctlv2 admin filesystemlayout list [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for describe
+  -h, --help              help for list
+      --id string         id of the filesystem layout to filter for
+      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: description|id|name
 ```
 
 ### Options inherited from parent commands
@@ -27,5 +29,5 @@ metalctlv2 admin filesystem describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 
