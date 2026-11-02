@@ -40,7 +40,7 @@ func newProjectCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	return genericcli.NewCmds(cmdsConfig, newProjectMemberCmd(c))
+	return genericcli.NewCmds(cmdsConfig)
 }
 
 func (c *project) Get(id string) (*apiv2.Project, error) {

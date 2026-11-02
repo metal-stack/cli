@@ -61,7 +61,7 @@ func newTenantCmd(c *config.Config) *cobra.Command {
 		ValidArgsFn: w.c.Completion.AdminTenant,
 	}
 
-	return genericcli.NewCmds(cmdsConfig, newTenantMemberCmd(c))
+	return genericcli.NewCmds(cmdsConfig)
 }
 
 func (c *tenant) Get(id string) (*apiv2.Tenant, error) {
