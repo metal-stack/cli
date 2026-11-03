@@ -97,7 +97,8 @@ func (c *tenantMember) Get(id string) (*apiv2.TenantMember, error) {
 	}
 
 	resp, err := c.c.Client.Apiv2().TenantMember().Get(ctx, &apiv2.TenantMemberServiceGetRequest{
-		Login: tenant,
+		Login:  tenant,
+		Member: id,
 	})
 	if err != nil {
 		return nil, err
