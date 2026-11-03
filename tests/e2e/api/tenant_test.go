@@ -399,6 +399,55 @@ func Test_TenantCmd_Apply(t *testing.T) {
 	}
 }
 
+func Test_TenantCmd_ListMembers(t *testing.T) {
+	tests := []*e2e.Test[apiv2.TenantMemberServiceListResponse, *apiv2.TenantMember]{
+		{
+			Name:    "list tenant members",
+			CmdArgs: []string{"tenant", "member", "list", "--tenant", testresources.Tenant1().Login},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &apiv2.TenantMemberServiceListRequest{
+							Login: testresources.Tenant1().Login,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&apiv2.TenantMemberServiceListResponse{
+								Members: []*apiv2.TenantMember{
+									testresources.Tenant1Member(), testresources.Tenant2Member(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                    ROLE                SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER   now
+            40c0da4b-9eb9-4371-91aa-1ae62193fa54  TENANT_ROLE_EDITOR  now
+			`),
+			WantWideTable: new(`
+            ID                                    ROLE                SINCE
+            16d6e8ba-f574-494f-8d5e-74f6cb2d8db0  TENANT_ROLE_OWNER   now
+            40c0da4b-9eb9-4371-91aa-1ae62193fa54  TENANT_ROLE_EDITOR  now
+			`),
+			Template: new("{{ .member }} {{ .role }} {{ .projects }}"),
+			WantTemplate: new(`
+16d6e8ba-f574-494f-8d5e-74f6cb2d8db0 1 [0d81bca7-73f6-4da3-8397-4a8c52a0c583 f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c]
+40c0da4b-9eb9-4371-91aa-1ae62193fa54 2 [0d81bca7-73f6-4da3-8397-4a8c52a0c583]
+			`),
+			WantMarkdown: new(`
+            | ID                                   | ROLE               | SINCE |
+            |--------------------------------------|--------------------|-------|
+            | 16d6e8ba-f574-494f-8d5e-74f6cb2d8db0 | TENANT_ROLE_OWNER  | now   |
+            | 40c0da4b-9eb9-4371-91aa-1ae62193fa54 | TENANT_ROLE_EDITOR | now   |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
 func Test_TenantCmd_ListInvites(t *testing.T) {
 	tests := []*e2e.Test[apiv2.TenantServiceInvitesListResponse, apiv2.TenantInvite]{
 		{
