@@ -1,6 +1,7 @@
 package admin_e2e
 
 import (
+	"fmt"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -11,6 +12,8 @@ import (
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"github.com/spf13/afero"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_AdminPartitionCmd_List(t *testing.T) {
@@ -181,6 +184,83 @@ partition-1 size-1
 			PARTITION    SIZE    ALLOCATED  FREE  UNAVAILABLE  RESERVATIONS  |  TOTAL  |  FAULTY
 			partition-1  size-1  1          3     0            2 (1/3 used)  |  5      |  2
 			Total                1          3     0            2             |  5      |  2
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_AdminPartitionCmd_Apply(t *testing.T) {
+	tests := []*e2e.Test[adminv2.PartitionServiceUpdateResponse, *apiv2.Partition]{
+		{
+			Name:    "apply",
+			CmdArgs: append([]string{"admin", "partition", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Partition1()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &adminv2.PartitionServiceCreateRequest{
+								Partition: testresources.Partition1(),
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&adminv2.PartitionServiceCreateResponse{
+									Partition: testresources.Partition1(),
+								})
+							},
+						},
+					},
+				}),
+			WantTable: new(`
+			ID           DESCRIPTION
+			partition-1  partition 1
+			`),
+		},
+		{
+			Name:    "apply already exists",
+			CmdArgs: append([]string{"admin", "partition", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Partition1()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &adminv2.PartitionServiceCreateRequest{
+								Partition: testresources.Partition1(),
+							},
+							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
+						},
+						{
+							WantRequest: &adminv2.PartitionServiceUpdateRequest{
+								Id:                   testresources.Partition1().Id,
+								Description:          new(testresources.Partition1().Description),
+								BootConfiguration:    testresources.Partition1().BootConfiguration,
+								MgmtServiceAddresses: testresources.Partition1().MgmtServiceAddresses,
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
+								Labels: &apiv2.UpdateLabels{
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: testresources.Partition1().Meta.Labels,
+									},
+								},
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&adminv2.PartitionServiceUpdateResponse{
+									Partition: testresources.Partition1(),
+								})
+							},
+						},
+					},
+				}),
+			WantTable: new(`
+			ID           DESCRIPTION
+			partition-1  partition 1
 			`),
 		},
 	}

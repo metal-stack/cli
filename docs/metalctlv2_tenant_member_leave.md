@@ -1,16 +1,16 @@
-## metalctlv2 tenant member remove
+## metalctlv2 tenant member leave
 
-remove member from a tenant
+leave the given tenant
 
 ```
-metalctlv2 tenant member remove <member> [flags]
+metalctlv2 tenant member leave [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help            help for remove
-      --tenant string   the tenant in which to remove the member
+  -h, --help            help for leave
+      --tenant string   the tenant to leave, defaults to tenant of the default project
 ```
 
 ### Options inherited from parent commands
@@ -28,5 +28,5 @@ metalctlv2 tenant member remove <member> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage tenant members
+* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage member entities
 

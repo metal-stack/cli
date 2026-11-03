@@ -201,8 +201,8 @@ github.com/mdlayher/sdnotify v1.0.0 h1:Ma9XeLVN/l0qpyx1tNeMSeTjCPH6NtuD6/N9XdTlQ
 github.com/mdlayher/sdnotify v1.0.0/go.mod h1:HQUmpM4XgYkhDLtd+Uad8ZFK1T9D5+pNxnXQjCeJlGE=
 github.com/mdlayher/socket v0.8.0 h1:1lIVvHAs3sT623kPkPDa+I0nLVusskwnpWzp6ZUcNyc=
 github.com/mdlayher/socket v0.8.0/go.mod h1:EhNb63aXqexVoTJDblxvDOSuIGIJinC4H5ZktnaJ6Rk=
-github.com/metal-stack/api v0.8.4-0.20261025095643-0e308423a337 h1:ltqoK3EKJm9IvQMTp/5qtS5NoWo518o9otLhWZLNqvQ=
-github.com/metal-stack/api v0.8.4-0.20261025095643-0e308423a337/go.mod h1:Hn3fmlPcK6B86pYq80xr05ovF4XQBI3Q4dFLfLhykfI=
+github.com/metal-stack/api v0.9.1-0.20261103113945-0b3ebefa8943 h1:br0DI98/wbo9ygAJP5Le6DeqhPt/vFO2r5/kjP5sSuU=
+github.com/metal-stack/api v0.9.1-0.20261103113945-0b3ebefa8943/go.mod h1:Hn3fmlPcK6B86pYq80xr05ovF4XQBI3Q4dFLfLhykfI=
 github.com/metal-stack/metal-console v0.8.2 h1:Y86penzEROJKcLica1PeE2ddtr9G0/u16HiCAYXaxxU=
 github.com/metal-stack/metal-console v0.8.2/go.mod h1:ZkselOaxF/iELFL9Tku3maXgpX4DM0CHjoG7CGuky6E=
 github.com/metal-stack/metal-lib v0.26.4 h1:Qg+JorX0AgQCkrCK07wvstGEoRcm/Y97E2UG5ZBAXjo=

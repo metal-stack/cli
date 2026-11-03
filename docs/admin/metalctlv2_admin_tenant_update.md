@@ -1,9 +1,9 @@
-## metalctlv2 admin filesystem apply
+## metalctlv2 admin tenant update
 
-applies one or more filesystems from a given file
+updates the tenant
 
 ```
-metalctlv2 admin filesystem apply [flags]
+metalctlv2 admin tenant update [flags]
 ```
 
 ### Options
@@ -13,16 +13,16 @@ metalctlv2 admin filesystem apply [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 filesystem describe filesystem-1 -o yaml > filesystem.yaml
-                                $ vi filesystem.yaml
+                                $ metalctlv2 tenant describe tenant-1 -o yaml > tenant.yaml
+                                $ vi tenant.yaml
                                 $ # either via stdin
-                                $ cat filesystem.yaml | metalctlv2 filesystem apply -f -
+                                $ cat tenant.yaml | metalctlv2 tenant update -f -
                                 $ # or via file
-                                $ metalctlv2 filesystem apply -f filesystem.yaml
+                                $ metalctlv2 tenant update -f tenant.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
-  -h, --help                    help for apply
+  -h, --help                    help for update
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
@@ -42,5 +42,5 @@ metalctlv2 admin filesystem apply [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin tenant](metalctlv2_admin_tenant.md)	 - manage tenant entities
 

@@ -19,7 +19,7 @@ func Test_AdminFileSystemCmd_List(t *testing.T) {
 	tests := []*e2e.Test[apiv2.FilesystemServiceListResponse, *apiv2.FilesystemLayout]{
 		{
 			Name:    "list",
-			CmdArgs: []string{"admin", "filesystem", "list"},
+			CmdArgs: []string{"admin", "filesystemlayout", "list"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -36,14 +36,14 @@ func Test_AdminFileSystemCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  
-			ubuntu-raid1    Ubuntu Raid1    Raid1 layout for ubuntu machines    m2.large  ubuntu:>= 24.0  
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0
+			ubuntu-raid1    Ubuntu Raid1    Raid1 layout for ubuntu machines    m2.large  ubuntu:>= 24.0
 			`),
 			WantWideTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES  
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0                
-			ubuntu-raid1    Ubuntu Raid1    Raid1 layout for ubuntu machines    m2.large  ubuntu:>= 24.0  0            0      1     1              1                
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0
+			ubuntu-raid1    Ubuntu Raid1    Raid1 layout for ubuntu machines    m2.large  ubuntu:>= 24.0  0            0      1     1              1
 			`),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
@@ -67,7 +67,7 @@ func Test_AdminFileSystemCmd_Describe(t *testing.T) {
 	tests := []*e2e.Test[apiv2.FilesystemServiceGetResponse, *apiv2.FilesystemLayout]{
 		{
 			Name:    "describe",
-			CmdArgs: []string{"admin", "filesystem", "describe", testresources.FilesystemLayout1().Id},
+			CmdArgs: []string{"admin", "filesystemlayout", "describe", testresources.FilesystemLayout1().Id},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -84,12 +84,12 @@ func Test_AdminFileSystemCmd_Describe(t *testing.T) {
 			}),
 			WantProtoObject: testresources.FilesystemLayout1(),
 			WantTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0
 			`),
 			WantWideTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES  
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0                
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0
 			`),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
@@ -111,7 +111,7 @@ func Test_AdminFileSystemCmd_Create(t *testing.T) {
 	tests := []*e2e.Test[adminv2.FilesystemServiceCreateResponse, *apiv2.FilesystemLayout]{
 		{
 			Name:    "create from file",
-			CmdArgs: append([]string{"admin", "filesystem", "create"}, e2e.AppendFromFileCommonArgs()...),
+			CmdArgs: append([]string{"admin", "filesystemlayout", "create"}, e2e.AppendFromFileCommonArgs()...),
 			NewRootCmd: e2erootcmd.NewRootCmd(t,
 				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
@@ -131,12 +131,12 @@ func Test_AdminFileSystemCmd_Create(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0
 			`),
 			WantWideTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES  
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0                
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0
 			`),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
@@ -160,7 +160,7 @@ func Test_AdminFileSystemCmd_Update(t *testing.T) {
 	tests := []*e2e.Test[adminv2.FilesystemServiceUpdateResponse, *apiv2.FilesystemLayout]{
 		{
 			Name:    "update from file",
-			CmdArgs: append([]string{"admin", "filesystem", "update"}, e2e.AppendFromFileCommonArgs()...),
+			CmdArgs: append([]string{"admin", "filesystemlayout", "update"}, e2e.AppendFromFileCommonArgs()...),
 			NewRootCmd: e2erootcmd.NewRootCmd(t,
 				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
@@ -189,12 +189,12 @@ func Test_AdminFileSystemCmd_Update(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0
 			`),
 			WantWideTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES  
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0                
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0
 			`),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
@@ -216,7 +216,7 @@ func Test_AdminFileSystemCmd_Delete(t *testing.T) {
 	tests := []*e2e.Test[adminv2.FilesystemServiceDeleteResponse, *apiv2.FilesystemLayout]{
 		{
 			Name:    "delete",
-			CmdArgs: []string{"admin", "filesystem", "delete", testresources.FilesystemLayout1().Id},
+			CmdArgs: []string{"admin", "filesystemlayout", "delete", testresources.FilesystemLayout1().Id},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -233,12 +233,12 @@ func Test_AdminFileSystemCmd_Delete(t *testing.T) {
 			}),
 			WantProtoObject: testresources.FilesystemLayout1(),
 			WantTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0
 			`),
 			WantWideTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES  
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0                
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0
 			`),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
@@ -260,7 +260,7 @@ func Test_AdminFileSystemCmd_Match_SizeAndImage(t *testing.T) {
 	tests := []*e2e.Test[adminv2.FilesystemServiceMatchResponse, *apiv2.FilesystemLayout]{
 		{
 			Name:    "match size and image",
-			CmdArgs: []string{"admin", "filesystem", "match", "--size", "m2.small", "--image", "debian"},
+			CmdArgs: []string{"admin", "filesystemlayout", "match", "--size", "m2.small", "--image", "debian"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -281,12 +281,12 @@ func Test_AdminFileSystemCmd_Match_SizeAndImage(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0
 			`),
 			WantWideTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES  
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0                
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0
 			`),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
@@ -310,7 +310,7 @@ func Test_AdminFileSystemCmd_Match_MachineAndLayout(t *testing.T) {
 	tests := []*e2e.Test[adminv2.FilesystemServiceMatchResponse, *apiv2.FilesystemLayout]{
 		{
 			Name:    "match machine and filesystem layout",
-			CmdArgs: []string{"admin", "filesystem", "match", "--machine", machineUUID, "--id", testresources.FilesystemLayout1().Id},
+			CmdArgs: []string{"admin", "filesystemlayout", "match", "--machine", machineUUID, "--id", testresources.FilesystemLayout1().Id},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -331,12 +331,12 @@ func Test_AdminFileSystemCmd_Match_MachineAndLayout(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0
 			`),
 			WantWideTable: new(`
-			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES  
-			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0                
+			ID              NAME            DESCRIPTION                         SIZES     IMAGES          FILESYSTEMS  DISKS  RAID  VOLUME GROUPS  LOGICAL VOLUMES
+			debian-default  Debian Default  Default layout for debian machines  m2.small  debian:>= 12.0  1            1      0     0              0
 			`),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
@@ -358,13 +358,13 @@ func Test_AdminFileSystemCmd_Match_InvalidFlags(t *testing.T) {
 	tests := []*e2e.Test[any, any]{
 		{
 			Name:       "match without flags fails",
-			CmdArgs:    []string{"admin", "filesystem", "match"},
+			CmdArgs:    []string{"admin", "filesystemlayout", "match"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{}),
 			WantErr:    fmt.Errorf("either both --size and --image or both --machine and --id must be set"),
 		},
 		{
 			Name:       "match with only size fails",
-			CmdArgs:    []string{"admin", "filesystem", "match", "--size", "m2.small"},
+			CmdArgs:    []string{"admin", "filesystemlayout", "match", "--size", "m2.small"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{}),
 			WantErr:    fmt.Errorf("either both --size and --image or both --machine and --id must be set"),
 		},

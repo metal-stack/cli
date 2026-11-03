@@ -1,17 +1,15 @@
-## metalctlv2 admin filesystem list
+## metalctlv2 admin filesystemlayout edit
 
-list all filesystems
+edit the filesystemlayout through an editor and update
 
 ```
-metalctlv2 admin filesystem list [flags]
+metalctlv2 admin filesystemlayout edit <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help              help for list
-      --id string         id of the filesystem layout to filter for
-      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: description|id|name
+  -h, --help   help for edit
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +27,5 @@ metalctlv2 admin filesystem list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 

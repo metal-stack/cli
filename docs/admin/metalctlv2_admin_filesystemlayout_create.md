@@ -1,9 +1,9 @@
-## metalctlv2 admin filesystem create
+## metalctlv2 admin filesystemlayout create
 
-creates the filesystem
+creates the filesystemlayout
 
 ```
-metalctlv2 admin filesystem create [flags]
+metalctlv2 admin filesystemlayout create [flags]
 ```
 
 ### Options
@@ -13,12 +13,12 @@ metalctlv2 admin filesystem create [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 filesystem describe filesystem-1 -o yaml > filesystem.yaml
-                                $ vi filesystem.yaml
+                                $ metalctlv2 filesystemlayout describe filesystemlayout-1 -o yaml > filesystemlayout.yaml
+                                $ vi filesystemlayout.yaml
                                 $ # either via stdin
-                                $ cat filesystem.yaml | metalctlv2 filesystem create -f -
+                                $ cat filesystemlayout.yaml | metalctlv2 filesystemlayout create -f -
                                 $ # or via file
-                                $ metalctlv2 filesystem create -f filesystem.yaml
+                                $ metalctlv2 filesystemlayout create -f filesystemlayout.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
@@ -42,5 +42,5 @@ metalctlv2 admin filesystem create [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 

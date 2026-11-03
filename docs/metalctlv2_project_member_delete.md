@@ -1,16 +1,31 @@
 ## metalctlv2 project member delete
 
-remove member from a project
+deletes the member
 
 ```
-metalctlv2 project member delete <member> [flags]
+metalctlv2 project member delete <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help             help for delete
-  -p, --project string   the project in which to remove the member
+      --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
+  -f, --file string             filename of the create or update request in yaml format, or - for stdin.
+                                
+                                Example:
+                                $ metalctlv2 member describe member-1 -o yaml > member.yaml
+                                $ vi member.yaml
+                                $ # either via stdin
+                                $ cat member.yaml | metalctlv2 member delete <id> -f -
+                                $ # or via file
+                                $ metalctlv2 member delete <id> -f member.yaml
+                                
+                                the file can also contain multiple documents and perform a bulk operation.
+                                	
+  -h, --help                    help for delete
+      --project string          the project from which to delete a project member, defaults to project of the default project
+      --skip-security-prompts   skips security prompt for bulk operations
+      --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
 
 ### Options inherited from parent commands
@@ -28,5 +43,5 @@ metalctlv2 project member delete <member> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage project members
+* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage member entities
 

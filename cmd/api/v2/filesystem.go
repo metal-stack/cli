@@ -25,8 +25,9 @@ func newFilesystemCmd(c *config.Config) *cobra.Command {
 	cmdsConfig := &genericcli.CmdsConfig[any, any, *apiv2.FilesystemLayout]{
 		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
-		Singular:        "filesystem",
-		Plural:          "filesystems",
+		Singular:        "filesystemlayout",
+		Plural:          "filesystemlayouts",
+		Aliases:         []string{"fsl"},
 		Description:     "a filesystem layout defines how disks, raid arrays and volumes are set up on a machine during installation",
 		Sorter:          sorters.FilesystemSorter(),
 		OnlyCmds:        genericcli.OnlyCmds(genericcli.ListCmd, genericcli.DescribeCmd),

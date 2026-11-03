@@ -1,9 +1,9 @@
-## metalctlv2 admin filesystem delete
+## metalctlv2 admin filesystemlayout delete
 
-deletes the filesystem
+deletes the filesystemlayout
 
 ```
-metalctlv2 admin filesystem delete <id> [flags]
+metalctlv2 admin filesystemlayout delete <id> [flags]
 ```
 
 ### Options
@@ -13,12 +13,12 @@ metalctlv2 admin filesystem delete <id> [flags]
   -f, --file string             filename of the create or update request in yaml format, or - for stdin.
                                 
                                 Example:
-                                $ metalctlv2 filesystem describe filesystem-1 -o yaml > filesystem.yaml
-                                $ vi filesystem.yaml
+                                $ metalctlv2 filesystemlayout describe filesystemlayout-1 -o yaml > filesystemlayout.yaml
+                                $ vi filesystemlayout.yaml
                                 $ # either via stdin
-                                $ cat filesystem.yaml | metalctlv2 filesystem delete <id> -f -
+                                $ cat filesystemlayout.yaml | metalctlv2 filesystemlayout delete <id> -f -
                                 $ # or via file
-                                $ metalctlv2 filesystem delete <id> -f filesystem.yaml
+                                $ metalctlv2 filesystemlayout delete <id> -f filesystemlayout.yaml
                                 
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
@@ -42,5 +42,5 @@ metalctlv2 admin filesystem delete <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 

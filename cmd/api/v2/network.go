@@ -218,13 +218,13 @@ func (c *networkCmd) Update(rq *apiv2.NetworkServiceUpdateRequest) (*apiv2.Netwo
 	return resp.Network, nil
 }
 
-func (c *networkCmd) Convert(r *apiv2.Network) (string, *apiv2.NetworkServiceCreateRequest, *apiv2.NetworkServiceUpdateRequest, error) {
-	addressFamily, err := helpers.AddressFamilyFromPrefixes(r.Prefixes...)
+func (c *networkCmd) Convert(n *apiv2.Network) (string, *apiv2.NetworkServiceCreateRequest, *apiv2.NetworkServiceUpdateRequest, error) {
+	addressFamily, err := helpers.AddressFamilyFromPrefixes(n)
 	if err != nil {
 		return "", nil, nil, err
 	}
 
-	return helpers.EncodeProject(r.Id, pointer.SafeDeref(r.Project)), networkResponseToCreate(r, addressFamily), networkResponseToUpdate(r), nil
+	return helpers.EncodeProject(n.Id, pointer.SafeDeref(n.Project)), networkResponseToCreate(n, addressFamily), networkResponseToUpdate(n), nil
 }
 
 func networkResponseToCreate(r *apiv2.Network, addressFamily *apiv2.NetworkAddressFamily) *apiv2.NetworkServiceCreateRequest {

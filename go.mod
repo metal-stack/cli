@@ -9,7 +9,7 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/metal-stack/api v0.8.4-0.20261025095643-0e308423a337
+	github.com/metal-stack/api v0.9.1-0.20261103113945-0b3ebefa8943
 	github.com/metal-stack/metal-console v0.8.2
 	github.com/metal-stack/metal-lib v0.26.4
 	github.com/metal-stack/v v1.0.3
