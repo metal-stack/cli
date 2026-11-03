@@ -66,7 +66,7 @@ func (c *Completion) TenantMember(cmd *cobra.Command, args []string, toComplete 
 		return nil, cobra.ShellCompDirectiveError
 	}
 
-	resp, err := c.Client.Apiv2().Tenant().Get(cmd.Context(), &apiv2.TenantServiceGetRequest{
+	resp, err := c.Client.Apiv2().TenantMember().List(cmd.Context(), &apiv2.TenantMemberServiceListRequest{
 		Login: projectResp.Project.Tenant,
 	})
 	if err != nil {
@@ -75,8 +75,8 @@ func (c *Completion) TenantMember(cmd *cobra.Command, args []string, toComplete 
 
 	var names []string
 
-	for _, member := range resp.TenantMembers {
-		names = append(names, member.Id+"\t"+member.Role.String())
+	for _, member := range resp.Members {
+		names = append(names, member.Member+"\t"+member.Role.String())
 	}
 
 	return names, cobra.ShellCompDirectiveNoFileComp

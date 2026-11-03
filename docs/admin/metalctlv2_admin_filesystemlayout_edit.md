@@ -1,15 +1,15 @@
-## metalctlv2 filesystem describe
+## metalctlv2 admin filesystemlayout edit
 
-describes the filesystem
+edit the filesystemlayout through an editor and update
 
 ```
-metalctlv2 filesystem describe <id> [flags]
+metalctlv2 admin filesystemlayout edit <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for describe
+  -h, --help   help for edit
 ```
 
 ### Options inherited from parent commands
@@ -27,5 +27,5 @@ metalctlv2 filesystem describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 filesystem](metalctlv2_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin filesystemlayout](metalctlv2_admin_filesystemlayout.md)	 - manage filesystemlayout entities
 

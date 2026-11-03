@@ -1,16 +1,15 @@
-## metalctlv2 tenant member remove
+## metalctlv2 filesystemlayout
 
-remove member from a tenant
+manage filesystemlayout entities
 
-```
-metalctlv2 tenant member remove <member> [flags]
-```
+### Synopsis
+
+a filesystem layout defines how disks, raid arrays and volumes are set up on a machine during installation
 
 ### Options
 
 ```
-  -h, --help            help for remove
-      --tenant string   the tenant in which to remove the member
+  -h, --help   help for filesystemlayout
 ```
 
 ### Options inherited from parent commands
@@ -28,5 +27,7 @@ metalctlv2 tenant member remove <member> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage tenant members
+* [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
+* [metalctlv2 filesystemlayout describe](metalctlv2_filesystemlayout_describe.md)	 - describes the filesystemlayout
+* [metalctlv2 filesystemlayout list](metalctlv2_filesystemlayout_list.md)	 - list all filesystemlayouts
 

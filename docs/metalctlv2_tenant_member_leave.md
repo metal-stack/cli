@@ -1,24 +1,16 @@
-## metalctlv2 admin filesystem match
+## metalctlv2 tenant member leave
 
-matches a filesystem layout to a size and image or to a machine
-
-### Synopsis
-
-matches a filesystem layout either to a given size and image combination,
-or checks whether a given filesystem layout matches a given machine.
+leave the given tenant
 
 ```
-metalctlv2 admin filesystem match [flags]
+metalctlv2 tenant member leave [flags]
 ```
 
 ### Options
 
 ```
-      --filesystem-layout string   id of the filesystem layout to check against a machine
-  -h, --help                       help for match
-      --image string               machine image to match against a filesystem layout
-      --machine string             uuid of the machine to check against a filesystem layout
-      --size string                machine size to match against a filesystem layout
+  -h, --help            help for leave
+      --tenant string   the tenant to leave, defaults to tenant of the default project
 ```
 
 ### Options inherited from parent commands
@@ -36,5 +28,5 @@ metalctlv2 admin filesystem match [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage member entities
 

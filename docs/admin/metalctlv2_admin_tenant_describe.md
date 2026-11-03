@@ -1,17 +1,15 @@
-## metalctlv2 admin filesystem list
+## metalctlv2 admin tenant describe
 
-list all filesystems
+describes the tenant
 
 ```
-metalctlv2 admin filesystem list [flags]
+metalctlv2 admin tenant describe <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help              help for list
-      --id string         id of the filesystem layout to filter for
-      --sort-by strings   sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: description|id|name
+  -h, --help   help for describe
 ```
 
 ### Options inherited from parent commands
@@ -29,5 +27,5 @@ metalctlv2 admin filesystem list [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 admin tenant](metalctlv2_admin_tenant.md)	 - manage tenant entities
 

@@ -1,15 +1,16 @@
-## metalctlv2 admin filesystem describe
+## metalctlv2 tenant member describe
 
-describes the filesystem
+describes the member
 
 ```
-metalctlv2 admin filesystem describe <id> [flags]
+metalctlv2 tenant member describe <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for describe
+  -h, --help            help for describe
+      --tenant string   the tenant to describe the tenant members of, defaults to tenant of the default project
 ```
 
 ### Options inherited from parent commands
@@ -27,5 +28,5 @@ metalctlv2 admin filesystem describe <id> [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin filesystem](metalctlv2_admin_filesystem.md)	 - manage filesystem entities
+* [metalctlv2 tenant member](metalctlv2_tenant_member.md)	 - manage member entities
 
