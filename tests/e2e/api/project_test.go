@@ -219,6 +219,9 @@ func Test_ProjectCmd_Update(t *testing.T) {
 							Project:     testresources.Project1().Uuid,
 							Name:        new("new-name"),
 							Description: new("new-desc"),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
@@ -243,6 +246,9 @@ func Test_ProjectCmd_Update(t *testing.T) {
 							Project:     testresources.Project1().Uuid,
 							Name:        new(testresources.Project1().Name),
 							Description: new(testresources.Project1().Description),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
@@ -363,8 +369,11 @@ func Test_ProjectCmd_Apply(t *testing.T) {
 						{
 							WantRequest: &apiv2.ProjectServiceUpdateRequest{
 								Project:     testresources.Project1().Uuid,
-								Description: &testresources.Project1().Description,
-								Name:        &testresources.Project1().Name,
+								Description: new(testresources.Project1().Description),
+								Name:        new(testresources.Project1().Name),
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.ProjectServiceUpdateResponse{
@@ -390,11 +399,13 @@ func Test_ProjectCmd_ListInvites(t *testing.T) {
 	tests := []*e2e.Test[apiv2.ProjectServiceInvitesListResponse, apiv2.ProjectInvite]{
 		{
 			Name:    "list invites",
-			CmdArgs: []string{"project", "invite", "list", testresources.Project1().Uuid},
+			CmdArgs: []string{"project", "invite", "list", "--project", testresources.Project1().Uuid},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
-						WantRequest: &apiv2.ProjectServiceInvitesListRequest{},
+						WantRequest: &apiv2.ProjectServiceInvitesListRequest{
+							Project: testresources.Project1().Uuid,
+						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectServiceInvitesListResponse{
 								Invites: []*apiv2.ProjectInvite{

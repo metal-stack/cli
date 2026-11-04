@@ -254,6 +254,7 @@ func (c *tenant) Convert(r *apiv2.Tenant) (string, *apiv2.TenantServiceCreateReq
 			Email:       pointer.PointerOrNil(r.Email),
 			Description: pointer.PointerOrNil(r.Description),
 			AvatarUrl:   pointer.PointerOrNil(r.AvatarUrl),
+			UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
 		},
 		nil
 }

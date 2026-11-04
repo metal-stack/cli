@@ -116,9 +116,9 @@ func Test_TenantCmd_Create(t *testing.T) {
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &apiv2.TenantServiceCreateRequest{
-							Description: &testresources.Tenant1().Description,
 							Name:        testresources.Tenant1().Name,
-							Email:       &testresources.Tenant1().Email,
+							Description: new(testresources.Tenant1().Description),
+							Email:       new(testresources.Tenant1().Email),
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
@@ -141,9 +141,9 @@ func Test_TenantCmd_Create(t *testing.T) {
 					{
 						WantRequest: &apiv2.TenantServiceCreateRequest{
 							Name:        testresources.Tenant1().Name,
-							Description: &testresources.Tenant1().Description,
-							Email:       &testresources.Tenant1().Email,
-							AvatarUrl:   new(""),
+							Description: new(testresources.Tenant1().Description),
+							Email:       new(testresources.Tenant1().Email),
+							AvatarUrl:   new(testresources.Tenant1().AvatarUrl),
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
@@ -169,9 +169,9 @@ func Test_TenantCmd_Create(t *testing.T) {
 					{
 						WantRequest: &apiv2.TenantServiceCreateRequest{
 							Name:        testresources.Tenant1().Name,
-							Description: &testresources.Tenant1().Description,
-							AvatarUrl:   new(""),
-							Email:       &testresources.Tenant1().Email,
+							Description: new(testresources.Tenant1().Description),
+							Email:       new(testresources.Tenant1().Email),
+							AvatarUrl:   new(testresources.Tenant1().AvatarUrl),
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
@@ -182,9 +182,9 @@ func Test_TenantCmd_Create(t *testing.T) {
 					{
 						WantRequest: &apiv2.TenantServiceCreateRequest{
 							Name:        testresources.Tenant2().Name,
-							Description: &testresources.Tenant2().Description,
-							Email:       &testresources.Tenant2().Email,
-							AvatarUrl:   new(""),
+							Description: new(testresources.Tenant2().Description),
+							Email:       new(testresources.Tenant2().Email),
+							AvatarUrl:   new(testresources.Tenant2().AvatarUrl),
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
@@ -270,6 +270,9 @@ func Test_TenantCmd_Update(t *testing.T) {
 							Login:       testresources.Tenant1().Login,
 							Name:        new("new-name"),
 							Description: new("new-desc"),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{
@@ -295,6 +298,10 @@ func Test_TenantCmd_Update(t *testing.T) {
 							Name:        new(testresources.Tenant1().Name),
 							Email:       new(testresources.Tenant1().Email),
 							Description: new(testresources.Tenant1().Description),
+							AvatarUrl:   new(testresources.Tenant1().AvatarUrl),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{
@@ -328,10 +335,10 @@ func Test_TenantCmd_Apply(t *testing.T) {
 					ClientCalls: []client.ClientCall{
 						{
 							WantRequest: &apiv2.TenantServiceCreateRequest{
+								Name:        testresources.Tenant1().Name,
 								Email:       new(testresources.Tenant1().Email),
 								Description: new(testresources.Tenant1().Description),
-								Name:        testresources.Tenant1().Name,
-								AvatarUrl:   new(""),
+								AvatarUrl:   new(testresources.Tenant1().AvatarUrl),
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.TenantServiceCreateResponse{
@@ -361,7 +368,7 @@ func Test_TenantCmd_Apply(t *testing.T) {
 								Email:       new(testresources.Tenant1().Email),
 								Description: new(testresources.Tenant1().Description),
 								Name:        testresources.Tenant1().Name,
-								AvatarUrl:   new(""),
+								AvatarUrl:   new(testresources.Tenant1().AvatarUrl),
 							},
 							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
 						},
@@ -371,6 +378,10 @@ func Test_TenantCmd_Apply(t *testing.T) {
 								Email:       new(testresources.Tenant1().Email),
 								Description: new(testresources.Tenant1().Description),
 								Name:        new(testresources.Tenant1().Name),
+								AvatarUrl:   new(testresources.Tenant1().AvatarUrl),
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.TenantServiceUpdateResponse{

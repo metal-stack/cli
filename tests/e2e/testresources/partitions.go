@@ -7,7 +7,7 @@ import (
 var (
 	Partition1 = func() *apiv2.Partition {
 		return &apiv2.Partition{
-			Id:          "partition-1",
+			Id:          "5711axzf0-4218-p7x9-3f8f-d34912dx190q",
 			Description: "partition 1",
 			MgmtServiceAddresses: []string{
 				"192.168.1.1:1234",
@@ -28,7 +28,7 @@ var (
 	}
 	Partition2 = func() *apiv2.Partition {
 		return &apiv2.Partition{
-			Id:          "partition-2",
+			Id:          "d34912dx1-90qe-3jf8-1kd0-5711axzf08sj",
 			Description: "partition 2",
 			MgmtServiceAddresses: []string{
 				"192.168.1.2:1234",

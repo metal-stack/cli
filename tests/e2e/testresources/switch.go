@@ -19,7 +19,7 @@ var (
 			ManagementIp:   "10.0.0.1",
 			ManagementUser: new("admin"),
 			MachineConnections: []*apiv2.MachineConnection{
-				&apiv2.MachineConnection{
+				{
 					MachineId: "id1",
 					Nic:       Nic1(),
 				},

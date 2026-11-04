@@ -62,7 +62,7 @@ func Test_AdminVpnCmd_AuthKey(t *testing.T) {
 	tests := []*e2e.Test[any, any]{
 		{
 			Name:    "list",
-			CmdArgs: []string{"admin", "vpn", "auth-key", "--project", testresources.Project1().Uuid},
+			CmdArgs: []string{"admin", "vpn", "auth-key", "--reason", "some reason", "--project", testresources.Project1().Uuid},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -70,7 +70,7 @@ func Test_AdminVpnCmd_AuthKey(t *testing.T) {
 							Project:   testresources.Project1().Uuid,
 							Ephemeral: true,
 							Expires:   durationpb.New(1 * time.Hour),
-							Reason:    "",
+							Reason:    "some reason",
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.VPNServiceAuthKeyResponse{

@@ -242,14 +242,15 @@ func (c *project) Delete(id string) (*apiv2.Project, error) {
 
 func (c *project) Convert(r *apiv2.Project) (string, *apiv2.ProjectServiceCreateRequest, *apiv2.ProjectServiceUpdateRequest, error) {
 	return r.Uuid, &apiv2.ProjectServiceCreateRequest{
-			Login:       r.Tenant,
-			Name:        r.Name,
-			Description: r.Description,
-		}, &apiv2.ProjectServiceUpdateRequest{
-			Project:     r.Uuid,
-			Name:        new(r.Name),
-			Description: new(r.Description),
-		}, nil
+		Login:       r.Tenant,
+		Name:        r.Name,
+		Description: r.Description,
+	}, &apiv2.ProjectServiceUpdateRequest{
+		Project:     r.Uuid,
+		Name:        new(r.Name),
+		Description: new(r.Description),
+		UpdateMeta:  helpers.UpdateMetaFromMeta(r.Meta),
+	}, nil
 }
 
 func (c *project) Update(rq *apiv2.ProjectServiceUpdateRequest) (*apiv2.Project, error) {
@@ -300,6 +301,7 @@ func (c *project) updateRequestFromCLI(args []string) (*apiv2.ProjectServiceUpda
 		Project:     id,
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
+		UpdateMeta:  &apiv2.UpdateMeta{LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER},
 	}, nil
 }
 

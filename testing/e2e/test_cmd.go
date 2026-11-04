@@ -28,8 +28,8 @@ type TestConfig struct {
 func NewRootCmd(t *testing.T, c *TestConfig) e2e_test.NewRootCmdFunc {
 	return func() (*cobra.Command, *bytes.Buffer) {
 		interceptors := []connect.Interceptor{
-			client.NewTestInterceptor(t, c.ClientCalls),
 			validate.NewInterceptor(),
+			client.NewTestInterceptor(t, c.ClientCalls),
 		}
 
 		cl, err := client.New(&client.DialConfig{
