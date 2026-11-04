@@ -185,20 +185,20 @@ func (c *token) Convert(r *apiv2.Token) (string, *apiv2.TokenServiceCreateReques
 	}
 
 	return r.Uuid, &apiv2.TokenServiceCreateRequest{
-			Description:  r.GetDescription(),
-			Permissions:  perms,
-			ProjectRoles: r.GetProjectRoles(),
-			TenantRoles:  r.GetTenantRoles(),
-			Expires:      durationpb.New(time.Until(r.GetExpires().AsTime())),
-			Labels:       pointer.SafeDeref(r.Meta).Labels,
-		}, &apiv2.TokenServiceUpdateRequest{
-			Uuid:         r.Uuid,
-			Description:  pointer.PointerOrNil(r.Description),
-			Permissions:  perms,
-			ProjectRoles: r.ProjectRoles,
-			TenantRoles:  r.TenantRoles,
-			AdminRole:    r.AdminRole,
-			Labels:       helpers.UpdateLabelsFromMeta(r.Meta),
-			UpdateMeta:   helpers.UpdateMetaFromMeta(r.Meta),
-		}, nil
+		Description:  r.GetDescription(),
+		Permissions:  perms,
+		ProjectRoles: r.GetProjectRoles(),
+		TenantRoles:  r.GetTenantRoles(),
+		Expires:      durationpb.New(time.Until(r.GetExpires().AsTime())),
+		Labels:       pointer.SafeDeref(r.Meta).Labels,
+	}, &apiv2.TokenServiceUpdateRequest{
+		Uuid:         r.Uuid,
+		Description:  pointer.PointerOrNil(r.Description),
+		Permissions:  perms,
+		ProjectRoles: r.ProjectRoles,
+		TenantRoles:  r.TenantRoles,
+		AdminRole:    r.AdminRole,
+		Labels:       helpers.UpdateLabelsFromMeta(r.Meta),
+		UpdateMeta:   helpers.UpdateMetaFromMeta(r.Meta),
+	}, nil
 }

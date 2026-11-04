@@ -3,6 +3,7 @@ package cmd
 import (
 	"log/slog"
 	"os"
+	"strings"
 
 	client "github.com/metal-stack/api/go/client"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
@@ -20,10 +21,13 @@ import (
 
 func Execute() {
 	cfg := &config.Config{
-		Fs:        afero.NewOsFs(),
-		Out:       os.Stdout,
-		PromptOut: os.Stdout,
-		In:        os.Stdin,
+		Fs: &afero.Afero{
+			Fs: afero.NewOsFs(),
+		},
+		Out:        os.Stdout,
+		PromptOut:  os.Stdout,
+		In:         os.Stdin,
+		Completion: &completion.Completion{},
 	}
 
 	cmd := NewRootCmd(cfg)
@@ -39,6 +43,9 @@ func Execute() {
 }
 
 func NewRootCmd(c *config.Config) *cobra.Command {
+	viper.SetEnvPrefix(strings.ToUpper(config.ConfigDir))
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+
 	rootCmd := &cobra.Command{
 		Use:          config.BinaryName,
 		Aliases:      []string{"m"},
@@ -68,6 +75,13 @@ func NewRootCmd(c *config.Config) *cobra.Command {
 	rootCmd.PersistentFlags().String("api-token", "", "the token used for api requests")
 
 	genericcli.Must(viper.BindPFlags(rootCmd.PersistentFlags()))
+
+	viper.MustBindEnv("config")
+	viper.MustBindEnv("force-color")
+	viper.MustBindEnv("debug")
+	viper.MustBindEnv("timeout")
+	viper.MustBindEnv("api-url")
+	viper.MustBindEnv("api-token")
 
 	markdownCmd := &cobra.Command{
 		Use:   "markdown",
@@ -127,7 +141,8 @@ func initConfigWithViperCtx(c *config.Config) error {
 	}
 
 	c.Client = mc
-	c.Completion = completion.New(mc, c.GetProject())
+	c.Completion.Client = mc
+	c.Completion.Proj = c.GetProject()
 	return nil
 }
 

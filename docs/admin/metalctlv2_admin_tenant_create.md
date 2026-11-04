@@ -26,6 +26,7 @@ metalctlv2 admin tenant create [flags]
                                 the file can also contain multiple documents and perform a bulk operation.
                                 	
   -h, --help                    help for create
+      --login string            the login id of the tenant to create
       --name string             the name of the tenant to create
       --skip-security-prompts   skips security prompt for bulk operations
       --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations

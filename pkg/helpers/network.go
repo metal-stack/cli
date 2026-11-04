@@ -3,8 +3,17 @@ package helpers
 import (
 	"net/netip"
 
+	"github.com/metal-stack/api/go/enum"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
 )
+
+func IPTypeToType(t string) *apiv2.IPType {
+	ipt, err := enum.GetEnum[apiv2.IPType](t)
+	if err != nil {
+		return nil
+	}
+	return &ipt
+}
 
 func IPAddressFamilyToType(af string) *apiv2.IPAddressFamily {
 	switch af {
@@ -34,14 +43,20 @@ func NetworkAddressFamilyToType(af string) *apiv2.NetworkAddressFamily {
 	}
 }
 
-func AddressFamilyFromPrefixes(prefixes ...string) (*apiv2.NetworkAddressFamily, error) {
+func AddressFamilyFromPrefixes(n *apiv2.Network) (*apiv2.NetworkAddressFamily, error) {
+	switch n.Type {
+	case apiv2.NetworkType_NETWORK_TYPE_EXTERNAL, apiv2.NetworkType_NETWORK_TYPE_SUPER, apiv2.NetworkType_NETWORK_TYPE_UNDERLAY:
+		// will be derived by metal-apiserver
+		return nil, nil
+	}
+
 	var (
 		addressFamily *apiv2.NetworkAddressFamily
 		isIPv4        bool
 		isIPv6        bool
 	)
 
-	for _, pfx := range prefixes {
+	for _, pfx := range n.Prefixes {
 		p, err := netip.ParsePrefix(pfx)
 		if err != nil {
 			return nil, err

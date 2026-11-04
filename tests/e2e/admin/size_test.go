@@ -1,6 +1,7 @@
 package admin_e2e
 
 import (
+	"fmt"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -147,6 +148,83 @@ func Test_AdminSizeCmd_Create(t *testing.T) {
             | ID            | NAME          | DESCRIPTION               | CPU RANGE | MEMORY RANGE    | STORAGE RANGE   | GPU RANGE |
             |---------------|---------------|---------------------------|-----------|-----------------|-----------------|-----------|
             | v1-medium-x86 | v1-medium-x86 | Virtual size for mini-lab | 4 - 4     | 500 MB - 4.0 GB | 1.0 GB - 100 GB |           |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
+func Test_AdminSizeCmd_Apply(t *testing.T) {
+	tests := []*e2e.Test[adminv2.SizeServiceUpdateResponse, *apiv2.Size]{
+		{
+			Name:    "apply",
+			CmdArgs: append([]string{"admin", "size", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Size1()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &adminv2.SizeServiceCreateRequest{
+								Size: testresources.Size1(),
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&adminv2.SizeServiceCreateResponse{
+									Size: testresources.Size1(),
+								})
+							},
+						},
+					},
+				}),
+			WantTable: new(`
+            ID             NAME           DESCRIPTION                CPU RANGE  MEMORY RANGE     STORAGE RANGE    GPU RANGE
+            v1-medium-x86  v1-medium-x86  Virtual size for mini-lab  4 - 4      500 MB - 4.0 GB  1.0 GB - 100 GB
+			`),
+		},
+		{
+			Name:    "apply already exists",
+			CmdArgs: append([]string{"admin", "size", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			NewRootCmd: e2erootcmd.NewRootCmd(t,
+				&e2erootcmd.TestConfig{
+					FsMocks: func(fs *afero.Afero) {
+						require.NoError(t, fs.WriteFile(e2e.InputFilePath, e2e.MustMarshal(t, testresources.Size1()), 0755))
+					},
+					ClientCalls: []client.ClientCall{
+						{
+							WantRequest: &adminv2.SizeServiceCreateRequest{
+								Size: testresources.Size1(),
+							},
+							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
+						},
+						{
+							WantRequest: &adminv2.SizeServiceUpdateRequest{
+								Id:          testresources.Size1().Id,
+								Name:        testresources.Size1().Name,
+								Description: testresources.Size1().Description,
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
+								Labels: &apiv2.UpdateLabels{
+									Strategy: &apiv2.UpdateLabels_Replace{
+										Replace: testresources.Size1().Meta.Labels,
+									},
+								},
+								Constraints: testresources.Size1().Constraints,
+							},
+							WantResponse: func() connect.AnyResponse {
+								return connect.NewResponse(&adminv2.SizeServiceUpdateResponse{
+									Size: testresources.Size1(),
+								})
+							},
+						},
+					},
+				}),
+			WantTable: new(`
+            ID             NAME           DESCRIPTION                CPU RANGE  MEMORY RANGE     STORAGE RANGE    GPU RANGE
+            v1-medium-x86  v1-medium-x86  Virtual size for mini-lab  4 - 4      500 MB - 4.0 GB  1.0 GB - 100 GB
 			`),
 		},
 	}

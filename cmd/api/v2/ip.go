@@ -33,8 +33,20 @@ func newIPCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ListCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project from where ips should be listed")
+			cmd.Flags().String("ip", "", "ip which should be listed")
+			cmd.Flags().String("uuid", "", "allocation uuid of ip which should be listed")
+			cmd.Flags().String("name", "", "name from ips which should be listed")
+			cmd.Flags().String("network", "", "network from where ips should be listed")
+			cmd.Flags().String("machine", "", "machine where ips are attached to")
+			cmd.Flags().StringSlice("labels", nil, "lists only ips with the given labels")
+			cmd.Flags().String("addressfamily", "", "addressfamily of ips which should be listed")
+			cmd.Flags().String("type", "", "type of ips which should be listed")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("network", c.Completion.Network))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("machine", c.Completion.Machine))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.AddressFamily))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("type", c.Completion.IPType))
 		},
 		CreateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
@@ -46,13 +58,16 @@ func newIPCmd(c *config.Config) *cobra.Command {
 			cmd.Flags().StringP("addressfamily", "", "", "addressfamily, can be either IPv4|IPv6, defaults to IPv4 (optional)")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("network", c.Completion.Network))
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("addressfamily", c.Completion.AddressFamily))
 		},
 		UpdateCmdMutateFn: func(cmd *cobra.Command) {
 			cmd.Flags().StringP("project", "p", "", "project of the ip")
 			cmd.Flags().String("name", "", "name of the ip")
 			cmd.Flags().String("description", "", "description of the ip")
-			cmd.Flags().StringArray("labels", nil, "adds (or edits) the volume labels in the form of <key>=<value>")
-			cmd.Flags().StringArray("remove-labels", nil, "removes the volume labels with the given key")
+			cmd.Flags().StringSlice("labels", nil, "labels to replace for the ip")
+			cmd.Flags().StringSlice("add-labels", nil, "labels to add to the ip")
+			cmd.Flags().StringSlice("remove-labels", nil, "labels to remove to the ip")
 			cmd.Flags().Bool("static", false, "make this ip static")
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
@@ -88,12 +103,17 @@ func (c *ip) createFromCLI() (*apiv2.IPServiceCreateRequest, error) {
 		Description:   pointer.PointerOrNil(viper.GetString("description")),
 		Labels:        labels,
 		Type:          new(ipStaticToType(viper.GetBool("static"))),
-		AddressFamily: addressFamilyToType(viper.GetString("addressfamily")),
+		AddressFamily: helpers.IPAddressFamilyToType(viper.GetString("addressfamily")),
 	}, nil
 }
 
 func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error) {
 	uuid, err := genericcli.GetExactlyOneArg(args)
+	if err != nil {
+		return nil, err
+	}
+
+	updateLabels, err := helpers.UpdateLabelsFromCLI()
 	if err != nil {
 		return nil, err
 	}
@@ -104,6 +124,7 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 		UpdateMeta: &apiv2.UpdateMeta{
 			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
 		},
+		Labels: updateLabels,
 	}
 
 	if viper.IsSet("name") {
@@ -114,27 +135,6 @@ func (c *ip) updateFromCLI(args []string) (*apiv2.IPServiceUpdateRequest, error)
 	}
 	if viper.IsSet("static") {
 		req.Type = pointer.PointerOrNil(ipStaticToType(viper.GetBool("static")))
-	}
-	if viper.IsSet("remove-labels") || viper.IsSet("labels") {
-		updates := &apiv2.LabelsPatch{}
-
-		if viper.IsSet("remove-labels") {
-			updates.Remove = viper.GetStringSlice("remove-labels")
-		}
-
-		if viper.IsSet("labels") {
-			labels, err := genericcli.LabelsToMap(viper.GetStringSlice("labels"))
-			if err != nil {
-				return nil, err
-			}
-			updates.Update = &apiv2.Labels{Labels: labels}
-		}
-
-		req.Labels = &apiv2.UpdateLabels{
-			Strategy: &apiv2.UpdateLabels_Patch{
-				Patch: updates,
-			},
-		}
 	}
 
 	return req, nil
@@ -200,8 +200,28 @@ func (c *ip) List() ([]*apiv2.IP, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
+	var labels *apiv2.Labels
+	if labelSlice := viper.GetStringSlice("labels"); len(labelSlice) > 0 {
+		var err error
+
+		labels, err = helpers.LabelsFromSlice(labelSlice)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	resp, err := c.c.Client.Apiv2().IP().List(ctx, &apiv2.IPServiceListRequest{
 		Project: c.c.GetProject(),
+		Query: &apiv2.IPQuery{
+			Ip:            pointer.PointerOrNil(viper.GetString("ip")),
+			Uuid:          pointer.PointerOrNil(viper.GetString("uuid")),
+			Network:       pointer.PointerOrNil(viper.GetString("network")),
+			Name:          pointer.PointerOrNil(viper.GetString("name")),
+			Machine:       pointer.PointerOrNil(viper.GetString("machine")),
+			Labels:        labels,
+			Type:          helpers.IPTypeToType(viper.GetString("type")),
+			AddressFamily: helpers.IPAddressFamilyToType(viper.GetString("addressfamily")),
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -256,17 +276,4 @@ func ipStaticToType(b bool) apiv2.IPType {
 		return apiv2.IPType_IP_TYPE_STATIC
 	}
 	return apiv2.IPType_IP_TYPE_EPHEMERAL
-}
-
-func addressFamilyToType(af string) *apiv2.IPAddressFamily {
-	switch af {
-	case "":
-		return nil
-	case "ipv4", "IPv4":
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V4.Enum()
-	case "ipv6", "IPv6":
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_V6.Enum()
-	default:
-		return apiv2.IPAddressFamily_IP_ADDRESS_FAMILY_UNSPECIFIED.Enum()
-	}
 }

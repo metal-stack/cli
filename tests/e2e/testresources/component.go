@@ -44,4 +44,21 @@ var (
 			},
 		}
 	}
+	Component3 = func() *apiv2.Component {
+		return &apiv2.Component{
+			Uuid:       "d2b3c4e5-f6a7-8901-bcde-f12345678903",
+			Type:       apiv2.ComponentType_COMPONENT_TYPE_METAL_CONSOLE,
+			Identifier: "metal-console-1",
+			StartedAt:  timestamppb.New(e2e.TimeBubbleStartTime()),
+			ReportedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
+			Interval:   durationpb.New(10 * time.Second),
+			Version: &apiv2.Version{
+				Version: "v2.0.0",
+			},
+			Token: &apiv2.Token{
+				Uuid:    "t2b3c4e5-f6a7-8901-bcde-f12345678903",
+				Expires: timestamppb.New(e2e.TimeBubbleStartTime().Add(-48 * time.Hour)),
+			},
+		}
+	}
 )

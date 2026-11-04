@@ -57,12 +57,16 @@ func NewRootCmd(t *testing.T, c *TestConfig) e2e_test.NewRootCmdFunc {
 		viper.Reset()
 
 		return cmd.NewRootCmd(&config.Config{
-			Fs:         fs,
-			Out:        &out,
-			In:         in,
-			PromptOut:  io.Discard,
-			Completion: completion.New(cl, ""),
-			Client:     cl,
+			Fs: &afero.Afero{
+				Fs: fs,
+			},
+			Out:       &out,
+			In:        in,
+			PromptOut: io.Discard,
+			Completion: &completion.Completion{
+				Client: cl,
+			},
+			Client: cl,
 		}), &out
 	}
 }

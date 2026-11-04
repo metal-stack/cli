@@ -6,17 +6,24 @@ import (
 )
 
 type Completion struct {
-	client  client.Client
-	project string
-}
-
-func New(c client.Client, project string) *Completion {
-	return &Completion{
-		client:  c,
-		project: project,
-	}
+	Client client.Client
+	Proj   string
 }
 
 func OutputFormat(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return []string{"table", "wide", "markdown", "json", "yaml", "template"}, cobra.ShellCompDirectiveNoFileComp
+}
+
+func (c *Completion) genericEnums(enums map[int32]string) ([]string, cobra.ShellCompDirective) {
+	var names []string
+
+	for id, name := range enums {
+		if id == 0 {
+			// skip UNSPECIFIED
+			continue
+		}
+		names = append(names, name)
+	}
+
+	return names, cobra.ShellCompDirectiveNoFileComp
 }

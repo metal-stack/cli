@@ -106,6 +106,63 @@ d2b3c4e5-f6a7-8901-bcde-f12345678901 pixiecore-1
 	}
 }
 
+func Test_AdminComponentCmd_Prune(t *testing.T) {
+	tests := []*e2e.Test[adminv2.ComponentServiceListResponse, apiv2.Component]{
+		{
+			Name:    "prune",
+			CmdArgs: []string{"admin", "component", "prune"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.ComponentServiceListRequest{
+							Query: &apiv2.ComponentQuery{},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ComponentServiceListResponse{
+								Components: []*apiv2.Component{
+									testresources.Component1(),
+									testresources.Component2(),
+									testresources.Component3(),
+								},
+							})
+						},
+					},
+					{
+						WantRequest: &adminv2.ComponentServiceDeleteRequest{
+							Uuid: testresources.Component3().Uuid,
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.ComponentServiceDeleteResponse{
+								Component: testresources.Component3(),
+							})
+						},
+					},
+				},
+			}),
+			WantTable: new(`
+            ID                                    TYPE           IDENTIFIER       STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN  
+            d2b3c4e5-f6a7-8901-bcde-f12345678903  metal-console  metal-console-1  0s       0s   v2.0.0   t2b3c4e5-f6a7-8901-bcde-f12345678903  -2d
+			`),
+			WantWideTable: new(`
+            ID                                    TYPE           IDENTIFIER       STARTED  AGE  VERSION  TOKEN                                 TOKEN EXPIRES IN  
+            d2b3c4e5-f6a7-8901-bcde-f12345678903  metal-console  metal-console-1  0s       0s   v2.0.0   t2b3c4e5-f6a7-8901-bcde-f12345678903  -2d
+			`),
+			Template: new("{{ .uuid }} {{ .identifier }}"),
+			WantTemplate: new(`
+d2b3c4e5-f6a7-8901-bcde-f12345678903 metal-console-1
+`),
+			WantMarkdown: new(`
+            | ID                                   | TYPE          | IDENTIFIER      | STARTED | AGE | VERSION | TOKEN                                | TOKEN EXPIRES IN |
+            |--------------------------------------|---------------|-----------------|---------|-----|---------|--------------------------------------|------------------|
+            | d2b3c4e5-f6a7-8901-bcde-f12345678903 | metal-console | metal-console-1 | 0s      | 0s  | v2.0.0  | t2b3c4e5-f6a7-8901-bcde-f12345678903 | -2d              |
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}
+
 func Test_AdminComponentCmd_Delete(t *testing.T) {
 	tests := []*e2e.Test[adminv2.ComponentServiceDeleteResponse, *apiv2.Component]{
 		{

@@ -1,22 +1,16 @@
-## metalctlv2 admin tenant add-member
+## metalctlv2 project member describe
 
-Add a new member to a tenant
-
-### Synopsis
-
-Add a new member to an existing tenant by specifying the tenant ID, member's ID, and role.
+describes the member
 
 ```
-metalctlv2 admin tenant add-member [flags]
+metalctlv2 project member describe <id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help               help for add-member
-      --member-id string   ID of the member to be added
-      --role string        Role of the member within the tenant
-      --tenant-id string   ID of the tenant where the member is added
+  -h, --help             help for describe
+      --project string   the project to describe the project members of, defaults to project of the default project
 ```
 
 ### Options inherited from parent commands
@@ -34,5 +28,5 @@ metalctlv2 admin tenant add-member [flags]
 
 ### SEE ALSO
 
-* [metalctlv2 admin tenant](metalctlv2_admin_tenant.md)	 - manage tenant entities
+* [metalctlv2 project member](metalctlv2_project_member.md)	 - manage member entities
 

@@ -160,7 +160,6 @@ func Test_AdminNetworkCmd_Create(t *testing.T) {
 				"--prefixes", "10.0.0.0/16,2001:db8::/32",
 				"--destination-prefixes", strings.Join(testresources.Network1().DestinationPrefixes, ","),
 				"--additional-announcable-cidrs", "1.2.3.4/32",
-				"--addressfamily", "ipv4",
 				"--default-ipv4-prefix-length", "17",
 				"--default-ipv6-prefix-length", "64",
 				"--ipv4-prefix-length", "18",
@@ -171,7 +170,7 @@ func Test_AdminNetworkCmd_Create(t *testing.T) {
 				"--vrf", strconv.Itoa(int(pointer.SafeDeref(testresources.Network1().Vrf))),
 			},
 			AssertExhaustiveArgs:     true,
-			AssertExhaustiveExcludes: e2e.CommonExcludedFileArgs(),
+			AssertExhaustiveExcludes: append(e2e.CommonExcludedFileArgs(), "addressfamily"),
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -188,7 +187,7 @@ func Test_AdminNetworkCmd_Create(t *testing.T) {
 							DestinationPrefixes:        testresources.Network1().DestinationPrefixes,
 							Vrf:                        new(uint32(0)),
 							ParentNetwork:              testresources.Network2().ParentNetwork,
-							AddressFamily:              apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_V4.Enum(),
+							AddressFamily:              nil,
 							Labels: &apiv2.Labels{
 								Labels: map[string]string{"a": "b"},
 							},
@@ -237,7 +236,7 @@ func Test_AdminNetworkCmd_Create(t *testing.T) {
 								ParentNetwork:              testresources.Network1().ParentNetwork,
 								AdditionalAnnouncableCidrs: testresources.Network1().AdditionalAnnouncableCidrs,
 								Labels:                     testresources.Network1().Meta.Labels,
-								AddressFamily:              apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
+								AddressFamily:              nil,
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&adminv2.NetworkServiceCreateResponse{

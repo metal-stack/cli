@@ -8,6 +8,7 @@ import (
 
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
+
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -18,15 +19,9 @@ const (
 	nbr             = " "
 	halfpie         = "◒"
 	threequarterpie = "◕"
-
-	ambulance   = "🚑"
-	exclamation = "❗"
-	bark        = "🚧"
-	loop        = "⭕"
-	lock        = "🔒"
-	question    = "❓"
-	skull       = "💀"
-	vpn         = "🛡"
+	poweron         = "⏻"
+	powersleep      = "⏾"
+	ledon           = "🟒"
 )
 
 type TablePrinter struct {
@@ -62,10 +57,25 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Component:
 		return t.ComponentTable(d, wide)
 
+	case *apiv2.FilesystemLayout:
+		return t.FilesystemTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.FilesystemLayout:
+		return t.FilesystemTable(d, wide)
+
 	case *apiv2.Network:
 		return t.NetworkTable(pointer.WrapInSlice(d), wide)
 	case []*apiv2.Network:
 		return t.NetworkTable(d, wide)
+
+	case *apiv2.Machine:
+		return t.MachineTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.Machine:
+		return t.MachineTable(d, wide)
+
+	case *apiv2.MachineBMCDetails:
+		return t.MachineBMCTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.MachineBMCDetails:
+		return t.MachineBMCTable(d, wide)
 
 	case *apiv2.IP:
 		return t.IPTable(pointer.WrapInSlice(d), wide)

@@ -7,7 +7,7 @@ import (
 )
 
 func (c *Completion) Switch(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
+	resp, err := c.Client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -21,7 +21,7 @@ func (c *Completion) Switch(cmd *cobra.Command, args []string, toComplete string
 }
 
 func (c *Completion) SwitchPartition(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
+	resp, err := c.Client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -35,7 +35,7 @@ func (c *Completion) SwitchPartition(cmd *cobra.Command, args []string, toComple
 }
 
 func (c *Completion) SwitchRack(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
+	resp, err := c.Client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -48,8 +48,22 @@ func (c *Completion) SwitchRack(cmd *cobra.Command, args []string, toComplete st
 	return racks, cobra.ShellCompDirectiveNoFileComp
 }
 
+func (c *Completion) SwitchRoom(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	resp, err := c.Client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	var rooms []string
+	for _, s := range resp.Switches {
+		rooms = append(rooms, pointer.SafeDeref(s.Room))
+	}
+
+	return rooms, cobra.ShellCompDirectiveNoFileComp
+}
+
 func (c *Completion) SwitchOSVendor(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
+	resp, err := c.Client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -63,7 +77,7 @@ func (c *Completion) SwitchOSVendor(cmd *cobra.Command, args []string, toComplet
 }
 
 func (c *Completion) SwitchOSVersion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
+	resp, err := c.Client.Adminv2().Switch().List(cmd.Context(), &adminv2.SwitchServiceListRequest{})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -82,7 +96,7 @@ func (c *Completion) SwitchPorts(cmd *cobra.Command, args []string, toComplete s
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
-	resp, err := c.client.Adminv2().Switch().Get(cmd.Context(), &adminv2.SwitchServiceGetRequest{
+	resp, err := c.Client.Adminv2().Switch().Get(cmd.Context(), &adminv2.SwitchServiceGetRequest{
 		Id: args[0],
 	})
 	if err != nil {

@@ -190,7 +190,7 @@ func Test_NetworkCmd_Create(t *testing.T) {
 								Partition:     testresources.Network1().Partition,
 								Labels:        testresources.Network1().Meta.Labels,
 								ParentNetwork: testresources.Network1().ParentNetwork,
-								AddressFamily: apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
+								AddressFamily: nil,
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.NetworkServiceCreateResponse{
@@ -365,7 +365,7 @@ func Test_NetworkCmd_Apply(t *testing.T) {
 								Partition:     testresources.Network1().Partition,
 								Labels:        testresources.Network1().Meta.Labels,
 								ParentNetwork: testresources.Network1().ParentNetwork,
-								AddressFamily: apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
+								AddressFamily: nil,
 							},
 							WantResponse: func() connect.AnyResponse {
 								return connect.NewResponse(&apiv2.NetworkServiceCreateResponse{
@@ -397,7 +397,7 @@ func Test_NetworkCmd_Apply(t *testing.T) {
 								Partition:     testresources.Network1().Partition,
 								Labels:        testresources.Network1().Meta.Labels,
 								ParentNetwork: testresources.Network1().ParentNetwork,
-								AddressFamily: apiv2.NetworkAddressFamily_NETWORK_ADDRESS_FAMILY_DUAL_STACK.Enum(),
+								AddressFamily: nil,
 							},
 							WantError: connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("already exists")),
 						},
