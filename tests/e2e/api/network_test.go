@@ -73,26 +73,26 @@ func Test_NetworkCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID                                       NAME      TYPE      PROJECT                               PARTITION                              NAT        PREFIXES                   PREFIX USAGE  IP USAGE
-            6988ebb0-9531-4f9b-a893-d7868258e2ef     internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none       10.0.0.0/16,2001:db8::/32
-            └─╴d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0  private   child     f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  5711axzf0-4218-p7x9-3f8f-d34912dx190q  ipv4-masq  192.168.1.0/24
-			`),
+            ID                                       NAME      TYPE      PROJECT                               PARTITION    NAT        PREFIXES                   PREFIX USAGE  IP USAGE  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef     internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none       10.0.0.0/16,2001:db8::/32                          
+            └─╴d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0  private   child     f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  partition-1  ipv4-masq  192.168.1.0/24
+            `),
 			WantWideTable: new(`
-            ID                                       DESCRIPTION       NAME      TYPE      PROJECT                               PARTITION                              NAT        PREFIXES                   ANNOTATIONS
-            6988ebb0-9531-4f9b-a893-d7868258e2ef     internet network  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none       10.0.0.0/16,2001:db8::/32  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
-            └─╴d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0  private network   private   child     f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  5711axzf0-4218-p7x9-3f8f-d34912dx190q  ipv4-masq  192.168.1.0/24             a=b
-			`),
+            ID                                       DESCRIPTION       NAME      TYPE      PROJECT                               PARTITION    NAT        PREFIXES                   ANNOTATIONS                                                                  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef     internet network  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none       10.0.0.0/16,2001:db8::/32  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx  
+            └─╴d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0  private network   private   child     f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  partition-1  ipv4-masq  192.168.1.0/24             a=b
+            `),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
 6988ebb0-9531-4f9b-a893-d7868258e2ef internet
 d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0 private
 			`),
 			WantMarkdown: new(`
-            | ID                                      | NAME     | TYPE     | PROJECT                              | PARTITION                             | NAT       | PREFIXES                  | PREFIX USAGE | IP USAGE |
-            |-----------------------------------------|----------|----------|--------------------------------------|---------------------------------------|-----------|---------------------------|--------------|----------|
-            | 6988ebb0-9531-4f9b-a893-d7868258e2ef    | internet | external | 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | 5711axzf0-4218-p7x9-3f8f-d34912dx190q | none      | 10.0.0.0/16,2001:db8::/32 |              |          |
-            | └─╴d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0 | private  | child    | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | 5711axzf0-4218-p7x9-3f8f-d34912dx190q | ipv4-masq | 192.168.1.0/24            |              |          |
-			`),
+            | ID                                      | NAME     | TYPE     | PROJECT                              | PARTITION   | NAT       | PREFIXES                  | PREFIX USAGE | IP USAGE |
+            |-----------------------------------------|----------|----------|--------------------------------------|-------------|-----------|---------------------------|--------------|----------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef    | internet | external | 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | partition-1 | none      | 10.0.0.0/16,2001:db8::/32 |              |          |
+            | └─╴d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0 | private  | child    | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | partition-1 | ipv4-masq | 192.168.1.0/24            |              |          |
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -122,22 +122,22 @@ func Test_NetworkCmd_Describe(t *testing.T) {
 			}),
 			WantProtoObject: testresources.Network1(),
 			WantTable: new(`
-			ID                                    NAME      TYPE      PROJECT                               PARTITION                              NAT   PREFIXES                   PREFIX USAGE  IP USAGE
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none  10.0.0.0/16,2001:db8::/32
-			`),
+            ID                                    NAME      TYPE      PROJECT                               PARTITION    NAT   PREFIXES                   PREFIX USAGE  IP USAGE  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none  10.0.0.0/16,2001:db8::/32
+            `),
 			WantWideTable: new(`
-			ID                                    DESCRIPTION       NAME      TYPE      PROJECT                               PARTITION                              NAT   PREFIXES                   ANNOTATIONS
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet network  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none  10.0.0.0/16,2001:db8::/32  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
-			`),
+            ID                                    DESCRIPTION       NAME      TYPE      PROJECT                               PARTITION    NAT   PREFIXES                   ANNOTATIONS                                                                  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet network  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none  10.0.0.0/16,2001:db8::/32  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+            `),
 			Template: new("{{ .id }} {{ .name }}"),
 			WantTemplate: new(`
 			6988ebb0-9531-4f9b-a893-d7868258e2ef internet
 			`),
 			WantMarkdown: new(`
-            | ID                                   | NAME     | TYPE     | PROJECT                              | PARTITION                             | NAT  | PREFIXES                  | PREFIX USAGE | IP USAGE |
-            |--------------------------------------|----------|----------|--------------------------------------|---------------------------------------|------|---------------------------|--------------|----------|
-            | 6988ebb0-9531-4f9b-a893-d7868258e2ef | internet | external | 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | 5711axzf0-4218-p7x9-3f8f-d34912dx190q | none | 10.0.0.0/16,2001:db8::/32 |              |          |
-			`),
+            | ID                                   | NAME     | TYPE     | PROJECT                              | PARTITION   | NAT  | PREFIXES                  | PREFIX USAGE | IP USAGE |
+            |--------------------------------------|----------|----------|--------------------------------------|-------------|------|---------------------------|--------------|----------|
+            | 6988ebb0-9531-4f9b-a893-d7868258e2ef | internet | external | 0d81bca7-73f6-4da3-8397-4a8c52a0c583 | partition-1 | none | 10.0.0.0/16,2001:db8::/32 |              |          |
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -201,9 +201,9 @@ func Test_NetworkCmd_Create(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID                                    NAME      TYPE      PROJECT                               PARTITION                              NAT   PREFIXES                   PREFIX USAGE  IP USAGE
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none  10.0.0.0/16,2001:db8::/32
-			`),
+            ID                                    NAME      TYPE      PROJECT                               PARTITION    NAT   PREFIXES                   PREFIX USAGE  IP USAGE  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none  10.0.0.0/16,2001:db8::/32
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -256,9 +256,9 @@ func Test_NetworkCmd_Delete(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID                                    NAME      TYPE      PROJECT                               PARTITION                              NAT   PREFIXES                   PREFIX USAGE  IP USAGE
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none  10.0.0.0/16,2001:db8::/32
-			`),
+            ID                                    NAME      TYPE      PROJECT                               PARTITION    NAT   PREFIXES                   PREFIX USAGE  IP USAGE  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none  10.0.0.0/16,2001:db8::/32
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -293,13 +293,13 @@ func Test_NetworkCmd_Update(t *testing.T) {
 				}),
 			WantProtoObject: testresources.Network1(),
 			WantTable: new(`
-			ID                                    NAME      TYPE      PROJECT                               PARTITION                              NAT   PREFIXES                   PREFIX USAGE  IP USAGE
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none  10.0.0.0/16,2001:db8::/32
-			`),
+            ID                                    NAME      TYPE      PROJECT                               PARTITION    NAT   PREFIXES                   PREFIX USAGE  IP USAGE  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none  10.0.0.0/16,2001:db8::/32
+            `),
 			WantWideTable: new(`
-			ID                                    DESCRIPTION       NAME      TYPE      PROJECT                               PARTITION                              NAT   PREFIXES                   ANNOTATIONS
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet network  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none  10.0.0.0/16,2001:db8::/32  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
-			`),
+            ID                                    DESCRIPTION       NAME      TYPE      PROJECT                               PARTITION    NAT   PREFIXES                   ANNOTATIONS                                                                  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet network  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none  10.0.0.0/16,2001:db8::/32  cluster.metal-stack.io/id/namespace/service=<cluster>/default/ingress-nginx
+            `),
 		},
 		{
 			Name:    "update from file",
@@ -336,9 +336,9 @@ func Test_NetworkCmd_Update(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID                                    NAME      TYPE      PROJECT                               PARTITION                              NAT   PREFIXES                   PREFIX USAGE  IP USAGE
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none  10.0.0.0/16,2001:db8::/32
-			`),
+            ID                                    NAME      TYPE      PROJECT                               PARTITION    NAT   PREFIXES                   PREFIX USAGE  IP USAGE  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none  10.0.0.0/16,2001:db8::/32
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -376,9 +376,9 @@ func Test_NetworkCmd_Apply(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID                                    NAME      TYPE      PROJECT                               PARTITION                              NAT   PREFIXES                   PREFIX USAGE  IP USAGE
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none  10.0.0.0/16,2001:db8::/32
-			`),
+            ID                                    NAME      TYPE      PROJECT                               PARTITION    NAT   PREFIXES                   PREFIX USAGE  IP USAGE  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none  10.0.0.0/16,2001:db8::/32
+            `),
 		},
 		{
 			Name:    "apply already exists",
@@ -427,9 +427,9 @@ func Test_NetworkCmd_Apply(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID                                    NAME      TYPE      PROJECT                               PARTITION                              NAT   PREFIXES                   PREFIX USAGE  IP USAGE
-			6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  5711axzf0-4218-p7x9-3f8f-d34912dx190q  none  10.0.0.0/16,2001:db8::/32
-			`),
+            ID                                    NAME      TYPE      PROJECT                               PARTITION    NAT   PREFIXES                   PREFIX USAGE  IP USAGE  
+            6988ebb0-9531-4f9b-a893-d7868258e2ef  internet  external  0d81bca7-73f6-4da3-8397-4a8c52a0c583  partition-1  none  10.0.0.0/16,2001:db8::/32
+            `),
 		},
 	}
 	for _, tt := range tests {
