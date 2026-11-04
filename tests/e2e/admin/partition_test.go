@@ -216,8 +216,8 @@ func Test_AdminPartitionCmd_Apply(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID           DESCRIPTION
-			partition-1  partition 1
+			ID                                     DESCRIPTION
+			5711axzf0-4218-p7x9-3f8f-d34912dx190q  partition 1
 			`),
 		},
 		{
@@ -259,8 +259,8 @@ func Test_AdminPartitionCmd_Apply(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID           DESCRIPTION
-			partition-1  partition 1
+			ID                                     DESCRIPTION
+			5711axzf0-4218-p7x9-3f8f-d34912dx190q  partition 1
 			`),
 		},
 	}

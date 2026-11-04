@@ -28,14 +28,14 @@ func Test_MachineCmd_List(t *testing.T) {
 				"--hostname", "hostname",
 				"--image", "image",
 				"--partition", "partition",
-				"--project", "project",
+				"--project", "0d81bca7-73f6-4da3-8397-4a8c52a0c583",
 				"--size", "size",
-				"--id", "uuid",
+				"--id", "5fa2bbe1-407c-4142-92d5-e4419daf9646",
 				"--rack", "rack",
 				"--labels", "a=b",
 				"--state", "available",
-				"--bmc-address", "bmc-address",
-				"--bmc-mac", "bmc-mac",
+				"--bmc-address", "1.2.3.4",
+				"--bmc-mac", "00:00:00:00:00:03",
 				"--bmc-user", "bmc-user",
 				"--bmc-interface", "bmc-interface",
 				"--chassis-part-number", "chassis-part-number",
@@ -59,14 +59,14 @@ func Test_MachineCmd_List(t *testing.T) {
 				"--preallocated",
 				"--not-allocated",
 				"--network-names", "network-name",
-				"--network-prefixes", "network-prefix",
-				"--network-destination-prefixes", "network-dest-prefix",
+				"--network-prefixes", "0.0.0.0/24",
+				"--network-destination-prefixes", "0.0.0.0/0",
 				"--network-ips", "1.2.3.4",
 				"--network-vrfs", "1",
 				"--network-asns", "2",
-				"--nic-macs", "nic-mac",
+				"--nic-macs", "00:00:00:00:00:01",
 				"--nic-names", "nic-name",
-				"--nic-neighbor-macs", "nic-neighbor-mac",
+				"--nic-neighbor-macs", "00:00:00:00:00:02",
 				"--nic-neighbor-names", "nic-neighbor-name",
 				"--disk-names", "disk-name",
 				"--disk-sizes", "1024",
@@ -82,7 +82,7 @@ func Test_MachineCmd_List(t *testing.T) {
 									Hostname:         new("hostname"),
 									Name:             new("name"),
 									Image:            new("image"),
-									Project:          new("project"),
+									Project:          new("0d81bca7-73f6-4da3-8397-4a8c52a0c583"),
 									FilesystemLayout: new("fsl"),
 									AllocationType:   apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL.Enum(),
 									Vpn: &apiv2.MachineVPN{
@@ -94,7 +94,7 @@ func Test_MachineCmd_List(t *testing.T) {
 								},
 								Partition: new("partition"),
 								Size:      new("size"),
-								Uuid:      new("uuid"),
+								Uuid:      new("5fa2bbe1-407c-4142-92d5-e4419daf9646"),
 								Rack:      new("rack"),
 								Room:      new("room"),
 								Labels: &apiv2.Labels{
@@ -108,16 +108,16 @@ func Test_MachineCmd_List(t *testing.T) {
 								NotAllocated: new(true),
 								Network: &apiv2.MachineNetworkQuery{
 									Networks:            []string{"network-name"},
-									Prefixes:            []string{"network-prefix"},
-									DestinationPrefixes: []string{"network-dest-prefix"},
+									Prefixes:            []string{"0.0.0.0/24"},
+									DestinationPrefixes: []string{"0.0.0.0/0"},
 									Ips:                 []string{"1.2.3.4"},
 									Vrfs:                []uint64{1},
 									Asns:                []uint32{2},
 								},
 								Nic: &apiv2.MachineNicQuery{
-									Macs:          []string{"nic-mac"},
+									Macs:          []string{"00:00:00:00:00:01"},
 									Names:         []string{"nic-name"},
-									NeighborMacs:  []string{"nic-neighbor-mac"},
+									NeighborMacs:  []string{"00:00:00:00:00:02"},
 									NeighborNames: []string{"nic-neighbor-name"},
 								},
 								Disk: &apiv2.MachineDiskQuery{
@@ -125,8 +125,8 @@ func Test_MachineCmd_List(t *testing.T) {
 									Sizes: []uint64{1024},
 								},
 								Bmc: &apiv2.MachineBMCQuery{
-									Address:   new("bmc-address"),
-									Mac:       new("bmc-mac"),
+									Address:   new("1.2.3.4"),
+									Mac:       new("00:00:00:00:00:03"),
 									User:      new("bmc-user"),
 									Interface: new("bmc-interface"),
 								},
@@ -158,14 +158,14 @@ func Test_MachineCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
-            5fa2bbe1-407c-4142-92d5-e4419daf9646      Alive        1m                                                          v1-medium-x86                partition-1  rack-1
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            ID                                       LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION                              RACK
+            5fa2bbe1-407c-4142-92d5-e4419daf9646     Alive        1m                                                          v1-medium-x86                5711axzf0-4218-p7x9-3f8f-d34912dx190q  rack-1
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1
             	`),
 			WantWideTable: new(`
-            ID                                     LAST EVENT   WHEN  AGE  DESCRIPTION  NAME       HOSTNAME   PROJECT                               IPS        SIZE           IMAGE         PARTITION    RACK    STARTED               TAGS  STATE
-            5fa2bbe1-407c-4142-92d5-e4419daf9646   Alive        1m                                                                                             v1-medium-x86                partition-1  rack-1                        a=b   available
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  Phoned Home  1m    1m   machine 2    machine-2  machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  4.5.6.7    v1-medium-x86  Ubuntu 24.04  partition-2  rack-1  1999-12-31T23:59:00Z  c=d   available
+            ID                                    LAST EVENT   WHEN  AGE  DESCRIPTION  NAME       HOSTNAME   PROJECT                               IPS        SIZE           IMAGE         PARTITION                              RACK    STARTED               TAGS  STATE
+            5fa2bbe1-407c-4142-92d5-e4419daf9646  Alive        1m                                                                                             v1-medium-x86                5711axzf0-4218-p7x9-3f8f-d34912dx190q  rack-1                        a=b   available
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  Phoned Home  1m    1m   machine 2    machine-2  machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  4.5.6.7    v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1  1999-12-31T23:59:00Z  c=d   available
                                                                                                                                                     192.1.1.1
 			`),
 			Template: new("{{ .allocation.uuid }} {{ .allocation.project }}"),
@@ -174,10 +174,10 @@ func Test_MachineCmd_List(t *testing.T) {
 4f94e87b-b08f-4f82-b053-9b8305de60ad f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c
 			`),
 			WantMarkdown: new(`
-            | ID                                    |   | LAST EVENT  | WHEN | AGE | HOSTNAME  | PROJECT                              | SIZE          | IMAGE        | PARTITION   | RACK   |
-            |---------------------------------------|---|-------------|------|-----|-----------|--------------------------------------|---------------|--------------|-------------|--------|
-            | 5fa2bbe1-407c-4142-92d5-e4419daf9646  |   | Alive       | 1m   |     |           |                                      | v1-medium-x86 |              | partition-1 | rack-1 |
-            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6fd | 🛡 | Phoned Home | 1m   | 1m  | machine-2 | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | v1-medium-x86 | Ubuntu 24.04 | partition-2 | rack-1 |
+            | ID                                   |   | LAST EVENT  | WHEN | AGE | HOSTNAME  | PROJECT                              | SIZE          | IMAGE        | PARTITION                             | RACK   |
+            |--------------------------------------|---|-------------|------|-----|-----------|--------------------------------------|---------------|--------------|---------------------------------------|--------|
+            | 5fa2bbe1-407c-4142-92d5-e4419daf9646 |   | Alive       | 1m   |     |           |                                      | v1-medium-x86 |              | 5711axzf0-4218-p7x9-3f8f-d34912dx190q | rack-1 |
+            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6f | 🛡 | Phoned Home | 1m   | 1m  | machine-2 | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | v1-medium-x86 | Ubuntu 24.04 | d34912dx1-90qe-3jf8-1kd0-5711axzf08sj | rack-1 |
 			`),
 		},
 		{
@@ -201,9 +201,9 @@ func Test_MachineCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
-            5fa2bbe1-407c-4142-92d5-e4419daf9646      Alive        1m                                                          v1-medium-x86                partition-1  rack-1
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            ID                                       LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION                              RACK
+            5fa2bbe1-407c-4142-92d5-e4419daf9646     Alive        1m                                                          v1-medium-x86                5711axzf0-4218-p7x9-3f8f-d34912dx190q  rack-1
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1
             `),
 		},
 	}
@@ -233,12 +233,12 @@ func Test_MachineCmd_Describe(t *testing.T) {
 			}),
 			WantProtoObject: testresources.Machine2(),
 			WantTable: new(`
-            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            ID                                       LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION                              RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1
 			`),
 			WantWideTable: new(`
-            ID                                     LAST EVENT   WHEN  AGE  DESCRIPTION  NAME       HOSTNAME   PROJECT                               IPS        SIZE           IMAGE         PARTITION    RACK    STARTED               TAGS  STATE
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  Phoned Home  1m    1m   machine 2    machine-2  machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  4.5.6.7    v1-medium-x86  Ubuntu 24.04  partition-2  rack-1  1999-12-31T23:59:00Z  c=d   available
+            ID                                    LAST EVENT   WHEN  AGE  DESCRIPTION  NAME       HOSTNAME   PROJECT                               IPS        SIZE           IMAGE         PARTITION                              RACK    STARTED               TAGS  STATE
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  Phoned Home  1m    1m   machine 2    machine-2  machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  4.5.6.7    v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1  1999-12-31T23:59:00Z  c=d   available
                                                                                                                                                     192.1.1.1
 			`),
 			Template: new("{{ .allocation.uuid }} {{ .allocation.project }}"),
@@ -246,9 +246,9 @@ func Test_MachineCmd_Describe(t *testing.T) {
 			4f94e87b-b08f-4f82-b053-9b8305de60ad f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c
 			`),
 			WantMarkdown: new(`
-            | ID                                    |   | LAST EVENT  | WHEN | AGE | HOSTNAME  | PROJECT                              | SIZE          | IMAGE        | PARTITION   | RACK   |
-            |---------------------------------------|---|-------------|------|-----|-----------|--------------------------------------|---------------|--------------|-------------|--------|
-            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6fd | 🛡 | Phoned Home | 1m   | 1m  | machine-2 | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | v1-medium-x86 | Ubuntu 24.04 | partition-2 | rack-1 |
+            | ID                                   |   | LAST EVENT  | WHEN | AGE | HOSTNAME  | PROJECT                              | SIZE          | IMAGE        | PARTITION                             | RACK   |
+            |--------------------------------------|---|-------------|------|-----|-----------|--------------------------------------|---------------|--------------|---------------------------------------|--------|
+            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6f | 🛡 | Phoned Home | 1m   | 1m  | machine-2 | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | v1-medium-x86 | Ubuntu 24.04 | d34912dx1-90qe-3jf8-1kd0-5711axzf08sj | rack-1 |
 			`),
 		},
 	}
@@ -394,8 +394,8 @@ func Test_MachineCmd_Create(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-		    ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
-		    673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+		    ID                                       LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION                              RACK
+		    673fc473-63ca-4ea4-b9dd-b45cb2127a6f  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1
 			`),
 		},
 	}
@@ -448,8 +448,8 @@ func Test_MachineCmd_Delete(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            ID                                       LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION                              RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1
 			`),
 		},
 	}
@@ -541,8 +541,8 @@ func Test_MachineCmd_Update(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            ID                                       LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION                              RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1
 			`),
 		},
 	}
@@ -597,8 +597,8 @@ func Test_MachineCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            ID                                       LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION                              RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1
 			`),
 		},
 		{
@@ -662,8 +662,8 @@ func Test_MachineCmd_Apply(t *testing.T) {
 				},
 			),
 			WantTable: new(`
-            ID                                        LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION    RACK
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  partition-2  rack-1
+            ID                                       LAST EVENT   WHEN  AGE  HOSTNAME   PROJECT                               SIZE           IMAGE         PARTITION                              RACK
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  🛡  Phoned Home  1m    1m   machine-2  f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c  v1-medium-x86  Ubuntu 24.04  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1
             `),
 		},
 	}
@@ -681,14 +681,14 @@ func Test_MachineCmd_BmcList(t *testing.T) {
 				"--hostname", "hostname",
 				"--image", "image",
 				"--partition", "partition",
-				"--project", "project",
+				"--project", "0d81bca7-73f6-4da3-8397-4a8c52a0c583",
 				"--size", "size",
-				"--id", "uuid",
+				"--id", "5fa2bbe1-407c-4142-92d5-e4419daf9646",
 				"--rack", "rack",
 				"--labels", "a=b",
 				"--state", "available",
-				"--bmc-address", "bmc-address",
-				"--bmc-mac", "bmc-mac",
+				"--bmc-address", "1.2.3.4",
+				"--bmc-mac", "00:00:00:00:00:03",
 				"--bmc-user", "bmc-user",
 				"--bmc-interface", "bmc-interface",
 				"--chassis-part-number", "chassis-part-number",
@@ -712,14 +712,14 @@ func Test_MachineCmd_BmcList(t *testing.T) {
 				"--preallocated",
 				"--not-allocated",
 				"--network-names", "network-name",
-				"--network-prefixes", "network-prefix",
-				"--network-destination-prefixes", "network-dest-prefix",
+				"--network-prefixes", "0.0.0.0/24",
+				"--network-destination-prefixes", "0.0.0.0/0",
 				"--network-ips", "1.2.3.4",
 				"--network-vrfs", "1",
 				"--network-asns", "2",
-				"--nic-macs", "nic-mac",
+				"--nic-macs", "00:00:00:00:00:01",
 				"--nic-names", "nic-name",
-				"--nic-neighbor-macs", "nic-neighbor-mac",
+				"--nic-neighbor-macs", "00:00:00:00:00:02",
 				"--nic-neighbor-names", "nic-neighbor-name",
 				"--disk-names", "disk-name",
 				"--disk-sizes", "1024",
@@ -735,7 +735,7 @@ func Test_MachineCmd_BmcList(t *testing.T) {
 									Hostname:         new("hostname"),
 									Name:             new("name"),
 									Image:            new("image"),
-									Project:          new("project"),
+									Project:          new("0d81bca7-73f6-4da3-8397-4a8c52a0c583"),
 									FilesystemLayout: new("fsl"),
 									AllocationType:   apiv2.MachineAllocationType_MACHINE_ALLOCATION_TYPE_FIREWALL.Enum(),
 									Vpn: &apiv2.MachineVPN{
@@ -747,7 +747,7 @@ func Test_MachineCmd_BmcList(t *testing.T) {
 								},
 								Partition: new("partition"),
 								Size:      new("size"),
-								Uuid:      new("uuid"),
+								Uuid:      new("5fa2bbe1-407c-4142-92d5-e4419daf9646"),
 								Rack:      new("rack"),
 								Room:      new("room"),
 								Labels: &apiv2.Labels{
@@ -761,16 +761,16 @@ func Test_MachineCmd_BmcList(t *testing.T) {
 								NotAllocated: new(true),
 								Network: &apiv2.MachineNetworkQuery{
 									Networks:            []string{"network-name"},
-									Prefixes:            []string{"network-prefix"},
-									DestinationPrefixes: []string{"network-dest-prefix"},
+									Prefixes:            []string{"0.0.0.0/24"},
+									DestinationPrefixes: []string{"0.0.0.0/0"},
 									Ips:                 []string{"1.2.3.4"},
 									Vrfs:                []uint64{1},
 									Asns:                []uint32{2},
 								},
 								Nic: &apiv2.MachineNicQuery{
-									Macs:          []string{"nic-mac"},
+									Macs:          []string{"00:00:00:00:00:01"},
 									Names:         []string{"nic-name"},
-									NeighborMacs:  []string{"nic-neighbor-mac"},
+									NeighborMacs:  []string{"00:00:00:00:00:02"},
 									NeighborNames: []string{"nic-neighbor-name"},
 								},
 								Disk: &apiv2.MachineDiskQuery{
@@ -778,8 +778,8 @@ func Test_MachineCmd_BmcList(t *testing.T) {
 									Sizes: []uint64{1024},
 								},
 								Bmc: &apiv2.MachineBMCQuery{
-									Address:   new("bmc-address"),
-									Mac:       new("bmc-mac"),
+									Address:   new("1.2.3.4"),
+									Mac:       new("00:00:00:00:00:03"),
 									User:      new("bmc-user"),
 									Interface: new("bmc-interface"),
 								},
@@ -811,25 +811,25 @@ func Test_MachineCmd_BmcList(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID                                        POWER   IP            MAC                BOARD PART NUMBER  BIOS   BMC    SIZE           PARTITION    RACK    UPDATED
-            5fa2bbe1-407c-4142-92d5-e4419daf9646   🟒  ⏾ 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         1.5.6  3.1.1  v1-medium-x86  partition-1  rack-1  1m ago
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd     ⏾ 0W    10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         2.0.0  2.4.0  v1-medium-x86  partition-2  rack-1  2m ago
+            ID                                       POWER   IP            MAC                BOARD PART NUMBER  BIOS   BMC    SIZE           PARTITION                              RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646  🟒  ⏾ 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         1.5.6  3.1.1  v1-medium-x86  5711axzf0-4218-p7x9-3f8f-d34912dx190q  rack-1  1m ago
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f     ⏾ 0W    10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         2.0.0  2.4.0  v1-medium-x86  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1  2m ago
             `),
 			WantWideTable: new(`
-            ID                                     LED      POWER                               IP            MAC                BOARD PART NUMBER  CHASSIS SERIAL  PRODUCT SERIAL  BIOS VERSION  BMC VERSION  SIZE           PARTITION    RACK    UPDATED
-            5fa2bbe1-407c-4142-92d5-e4419daf9646   LED-ON   on On On 120W                       10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         Chassis-SN-1    Product-SN-1    1.5.6         3.1.1        v1-medium-x86  partition-1  rack-1  1m ago
-            673fc473-63ca-4ea4-b9dd-b45cb2127a6fd  LED-OFF  off Power Supply Warning Absent 0W  10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         Chassis-SN-2    Product-SN-2    2.0.0         2.4.0        v1-medium-x86  partition-2  rack-1  2m ago
+            ID                                    LED      POWER                               IP            MAC                BOARD PART NUMBER  CHASSIS SERIAL  PRODUCT SERIAL  BIOS VERSION  BMC VERSION  SIZE           PARTITION                              RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646  LED-ON   on On On 120W                       10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         Chassis-SN-1    Product-SN-1    1.5.6         3.1.1        v1-medium-x86  5711axzf0-4218-p7x9-3f8f-d34912dx190q  rack-1  1m ago
+            673fc473-63ca-4ea4-b9dd-b45cb2127a6f  LED-OFF  off Power Supply Warning Absent 0W  10.0.0.2:623  02:00:00:00:00:02  Board-PN-2         Chassis-SN-2    Product-SN-2    2.0.0         2.4.0        v1-medium-x86  d34912dx1-90qe-3jf8-1kd0-5711axzf08sj  rack-1  2m ago
 			`),
 			Template: new("{{ .uuid }} {{ .bmc_report.bmc.address }}"),
 			WantTemplate: new(`
 5fa2bbe1-407c-4142-92d5-e4419daf9646 10.0.0.1:623
-673fc473-63ca-4ea4-b9dd-b45cb2127a6fd 10.0.0.2:623
+673fc473-63ca-4ea4-b9dd-b45cb2127a6f 10.0.0.2:623
 			`),
 			WantMarkdown: new(`
-            | ID                                    |   | POWER  | IP           | MAC               | BOARD PART NUMBER | BIOS  | BMC   | SIZE          | PARTITION   | RACK   | UPDATED |
-            |---------------------------------------|---|--------|--------------|-------------------|-------------------|-------|-------|---------------|-------------|--------|---------|
-            | 5fa2bbe1-407c-4142-92d5-e4419daf9646  | 🟒 | ⏾ 120W | 10.0.0.1:623 | 02:00:00:00:00:01 | Board-PN-1        | 1.5.6 | 3.1.1 | v1-medium-x86 | partition-1 | rack-1 | 1m ago  |
-            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6fd |   | ⏾ 0W   | 10.0.0.2:623 | 02:00:00:00:00:02 | Board-PN-2        | 2.0.0 | 2.4.0 | v1-medium-x86 | partition-2 | rack-1 | 2m ago  |
+            | ID                                   |   | POWER  | IP           | MAC               | BOARD PART NUMBER | BIOS  | BMC   | SIZE          | PARTITION                             | RACK   | UPDATED |
+            |--------------------------------------|---|--------|--------------|-------------------|-------------------|-------|-------|---------------|---------------------------------------|--------|---------|
+            | 5fa2bbe1-407c-4142-92d5-e4419daf9646 | 🟒 | ⏾ 120W | 10.0.0.1:623 | 02:00:00:00:00:01 | Board-PN-1        | 1.5.6 | 3.1.1 | v1-medium-x86 | 5711axzf0-4218-p7x9-3f8f-d34912dx190q | rack-1 | 1m ago  |
+            | 673fc473-63ca-4ea4-b9dd-b45cb2127a6f |   | ⏾ 0W   | 10.0.0.2:623 | 02:00:00:00:00:02 | Board-PN-2        | 2.0.0 | 2.4.0 | v1-medium-x86 | d34912dx1-90qe-3jf8-1kd0-5711axzf08sj | rack-1 | 2m ago  |
             `),
 		},
 	}
@@ -858,21 +858,21 @@ func Test_MachineCmd_BmcDescribe(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID                                       POWER   IP            MAC                BOARD PART NUMBER  BIOS   BMC    SIZE           PARTITION    RACK    UPDATED
-            5fa2bbe1-407c-4142-92d5-e4419daf9646  🟒  ⏾ 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         1.5.6  3.1.1  v1-medium-x86  partition-1  rack-1  1m ago
+            ID                                       POWER   IP            MAC                BOARD PART NUMBER  BIOS   BMC    SIZE           PARTITION                              RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646  🟒  ⏾ 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         1.5.6  3.1.1  v1-medium-x86  5711axzf0-4218-p7x9-3f8f-d34912dx190q  rack-1  1m ago
             `),
 			WantWideTable: new(`
-            ID                                    LED     POWER          IP            MAC                BOARD PART NUMBER  CHASSIS SERIAL  PRODUCT SERIAL  BIOS VERSION  BMC VERSION  SIZE           PARTITION    RACK    UPDATED
-            5fa2bbe1-407c-4142-92d5-e4419daf9646  LED-ON  on On On 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         Chassis-SN-1    Product-SN-1    1.5.6         3.1.1        v1-medium-x86  partition-1  rack-1  1m ago
+            ID                                    LED     POWER          IP            MAC                BOARD PART NUMBER  CHASSIS SERIAL  PRODUCT SERIAL  BIOS VERSION  BMC VERSION  SIZE           PARTITION                              RACK    UPDATED
+            5fa2bbe1-407c-4142-92d5-e4419daf9646  LED-ON  on On On 120W  10.0.0.1:623  02:00:00:00:00:01  Board-PN-1         Chassis-SN-1    Product-SN-1    1.5.6         3.1.1        v1-medium-x86  5711axzf0-4218-p7x9-3f8f-d34912dx190q  rack-1  1m ago
 			`),
 			Template: new("{{ .uuid }} {{ .bmc_report.bmc.address }}"),
 			WantTemplate: new(`
             5fa2bbe1-407c-4142-92d5-e4419daf9646 10.0.0.1:623
 			`),
 			WantMarkdown: new(`
-            | ID                                   |   | POWER  | IP           | MAC               | BOARD PART NUMBER | BIOS  | BMC   | SIZE          | PARTITION   | RACK   | UPDATED |
-            |--------------------------------------|---|--------|--------------|-------------------|-------------------|-------|-------|---------------|-------------|--------|---------|
-            | 5fa2bbe1-407c-4142-92d5-e4419daf9646 | 🟒 | ⏾ 120W | 10.0.0.1:623 | 02:00:00:00:00:01 | Board-PN-1        | 1.5.6 | 3.1.1 | v1-medium-x86 | partition-1 | rack-1 | 1m ago  |
+            | ID                                   |   | POWER  | IP           | MAC               | BOARD PART NUMBER | BIOS  | BMC   | SIZE          | PARTITION                             | RACK   | UPDATED |
+            |--------------------------------------|---|--------|--------------|-------------------|-------------------|-------|-------|---------------|---------------------------------------|--------|---------|
+            | 5fa2bbe1-407c-4142-92d5-e4419daf9646 | 🟒 | ⏾ 120W | 10.0.0.1:623 | 02:00:00:00:00:01 | Board-PN-1        | 1.5.6 | 3.1.1 | v1-medium-x86 | 5711axzf0-4218-p7x9-3f8f-d34912dx190q | rack-1 | 1m ago  |
             `),
 		},
 	}
