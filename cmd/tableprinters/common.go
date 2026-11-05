@@ -77,9 +77,9 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.MachineBMCDetails:
 		return t.MachineBMCTable(d, wide)
 
-	case *adminv2.HousekeepingServiceMachineLivelinessResponse:
+	case *adminv2.MachineWithLiveliness:
 		return t.HousekeepingMachineLivelinessTable(pointer.WrapInSlice(d), wide)
-	case []*adminv2.HousekeepingServiceMachineLivelinessResponse:
+	case []*adminv2.MachineWithLiveliness:
 		return t.HousekeepingMachineLivelinessTable(d, wide)
 
 	case *apiv2.IP:

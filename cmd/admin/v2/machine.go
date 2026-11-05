@@ -228,17 +228,7 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	firewallSSHCmd.Flags().StringP("identity", "i", "~/.ssh/id_rsa", "specify identity file to SSH to the firewall like: -i path/to/id_rsa")
 	firewallSSHCmd.Flags().String("reason", "", "the reason why to connect to the firewall through SSH")
 
-	housekeepingCmd := &cobra.Command{
-		Use:   "housekeeping",
-		Short: "start a specific housekeeping action on machines",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.housekeeping(cmd.Context())
-		},
-		ValidArgsFunction: c.Completion.Machine,
-	}
-	housekeepingCmd.Flags().String("action", "", "the housekeeping action to perform on all machines")
-
-	return genericcli.NewCmds(cmdsConfig, bmcCmd, lockCmd, taintCmd, consoleCmd, consolePasswordCmd, firewallSSHCmd, housekeepingCmd)
+	return genericcli.NewCmds(cmdsConfig, bmcCmd, lockCmd, taintCmd, consoleCmd, consolePasswordCmd, firewallSSHCmd)
 }
 
 func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine, error) {
@@ -601,13 +591,4 @@ func (c *machine) firewallSSH(ctx context.Context, args []string) (err error) {
 		return err
 	}
 	return s.Connect(nil)
-}
-
-func (c *machine) housekeeping(ctx context.Context) (err error) {
-	result, err := c.c.Client.Adminv2().Housekeeping().MachineLiveliness(ctx, &adminv2.HousekeepingServiceMachineLivelinessRequest{})
-	if err != nil {
-		return err
-	}
-
-	return c.c.DescribePrinter.Print(result)
 }
