@@ -13,6 +13,7 @@ import (
 	"github.com/metal-stack/cli/cmd/config"
 	"github.com/metal-stack/cli/cmd/sorters"
 	"github.com/metal-stack/cli/cmd/tableprinters"
+	"github.com/metal-stack/cli/pkg/helpers"
 	"github.com/metal-stack/metal-lib/pkg/genericcli"
 	"github.com/metal-stack/metal-lib/pkg/genericcli/printers"
 	"github.com/metal-stack/metal-lib/pkg/pointer"
@@ -276,6 +277,7 @@ func (c *switchCmd) Convert(sw *apiv2.Switch) (string, any, *adminv2.SwitchServi
 		ConsoleCommand: sw.ConsoleCommand,
 		Nics:           sw.Nics,
 		Os:             sw.Os,
+		UpdateMeta:     helpers.UpdateMetaFromMeta(sw.Meta),
 	}, nil
 }
 

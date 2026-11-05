@@ -134,7 +134,10 @@ func Test_ProjectMemberCmd_Update(t *testing.T) {
 						WantRequest: &apiv2.ProjectMemberServiceUpdateRequest{
 							Project: testresources.Project1().Uuid,
 							Member:  testresources.Project1Member().Member,
-							Role:    &testresources.Project1Member().Role,
+							Role:    new(testresources.Project1Member().Role),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.ProjectMemberServiceUpdateResponse{

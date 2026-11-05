@@ -193,6 +193,9 @@ func (c *projectMember) updateRequestFromCLI(args []string) (*apiv2.ProjectMembe
 		Project: project,
 		Member:  member,
 		Role:    pointer.PointerOrNil(apiv2.ProjectRole(apiv2.ProjectRole_value[viper.GetString("role")])),
+		UpdateMeta: &apiv2.UpdateMeta{
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+		},
 	}, nil
 }
 

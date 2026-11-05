@@ -256,6 +256,7 @@ func (c *project) updateRequestFromCLI(args []string) (*apiv2.ProjectServiceUpda
 		Project:     id,
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
+		UpdateMeta:  &apiv2.UpdateMeta{LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER},
 	}, nil
 }
 

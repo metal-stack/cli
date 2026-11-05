@@ -14,8 +14,8 @@ var (
 			},
 			BootConfiguration: &apiv2.PartitionBootConfiguration{
 				Commandline: "commandline",
-				ImageUrl:    "imageurl",
-				KernelUrl:   "kernelurl",
+				ImageUrl:    "https://images.metal-stack.io/os/image.tar.lz4",
+				KernelUrl:   "https://images.metal-stack.io/os/kernel",
 			},
 			Meta: &apiv2.Meta{
 				Labels: &apiv2.Labels{
@@ -35,8 +35,8 @@ var (
 			},
 			BootConfiguration: &apiv2.PartitionBootConfiguration{
 				Commandline: "commandline",
-				ImageUrl:    "imageurl",
-				KernelUrl:   "kernelurl",
+				ImageUrl:    "https://images.metal-stack.io/os/image.tar.lz4",
+				KernelUrl:   "https://images.metal-stack.io/os/kernel",
 			},
 			Meta: &apiv2.Meta{
 				Labels: &apiv2.Labels{

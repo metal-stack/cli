@@ -39,26 +39,26 @@ func Test_AdminPartitionCmd_List(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			ID           DESCRIPTION
-			partition-1  partition 1
-			partition-2  partition 2
-			`),
+            ID           DESCRIPTION  
+            partition-1  partition 1  
+            partition-2  partition 2
+            `),
 			WantWideTable: new(`
-			ID           DESCRIPTION  LABELS
-			partition-1  partition 1  a=b
-			partition-2  partition 2
-			`),
+            ID           DESCRIPTION  LABELS  
+            partition-1  partition 1  a=b     
+            partition-2  partition 2
+            `),
 			Template: new("{{ .id }} {{ .description }}"),
 			WantTemplate: new(`
 partition-1 partition 1
 partition-2 partition 2
 			`),
 			WantMarkdown: new(`
-			| ID          | DESCRIPTION |
-			|-------------|-------------|
-			| partition-1 | partition 1 |
-			| partition-2 | partition 2 |
-			`),
+            | ID          | DESCRIPTION |
+            |-------------|-------------|
+            | partition-1 | partition 1 |
+            | partition-2 | partition 2 |
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -126,36 +126,36 @@ func Test_AdminPartitionCmd_Capacity(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-			PARTITION    SIZE    ALLOCATED  FREE  UNAVAILABLE  RESERVATIONS  |  TOTAL  |  FAULTY
-			partition-1  size-1  1          3     0            2 (1/3 used)  |  5      |  2
-			Total                1          3     0            2             |  5      |  2
-			`),
+            PARTITION    SIZE    ALLOCATED  FREE  UNAVAILABLE  RESERVATIONS  |  TOTAL  |  FAULTY  
+            partition-1  size-1  1          3     0            2 (1/3 used)  |  5      |  2       
+            Total                1          3     0            2             |  5      |  2
+            `),
 			WantWideTable: new(`
-			PARTITION    SIZE    ALLOCATED  FREE  UNAVAILABLE  RESERVATIONS  |  TOTAL  |  FAULTY  PHONED HOME  WAITING  OTHER
-			partition-1  size-1  1          3     0            2 (1/3 used)  |  5      |  2       0            0        0
-			Total                1          3     0            2             |  5      |  2       0            0        0
-			`),
+            PARTITION    SIZE    ALLOCATED  FREE  UNAVAILABLE  RESERVATIONS  |  TOTAL  |  FAULTY  PHONED HOME  WAITING  OTHER  
+            partition-1  size-1  1          3     0            2 (1/3 used)  |  5      |  2       0            0        0      
+            Total                1          3     0            2             |  5      |  2       0            0        0
+            `),
 			Template: new("{{ .partition }} {{ (index .machine_size_capacities 0).size }}"),
 			WantTemplate: new(`
 partition-1 size-1
 			`),
 			WantMarkdown: new(`
-			| PARTITION   | SIZE   | ALLOCATED | FREE | UNAVAILABLE | RESERVATIONS | | | TOTAL | | | FAULTY |
-			|-------------|--------|-----------|------|-------------|--------------|---|-------|---|--------|
-			| partition-1 | size-1 | 1         | 3    | 0           | 2 (1/3 used) | | | 5     | | | 2      |
-			| Total       |        | 1         | 3    | 0           | 2            | | | 5     | | | 2      |
-			`),
+            | PARTITION   | SIZE   | ALLOCATED | FREE | UNAVAILABLE | RESERVATIONS | | | TOTAL | | | FAULTY |
+            |-------------|--------|-----------|------|-------------|--------------|---|-------|---|--------|
+            | partition-1 | size-1 | 1         | 3    | 0           | 2 (1/3 used) | | | 5     | | | 2      |
+            | Total       |        | 1         | 3    | 0           | 2            | | | 5     | | | 2      |
+            `),
 		},
 		{
 			Name:    "capacity with filters",
-			CmdArgs: []string{"admin", "partition", "capacity", "--id", "partition-1", "--size", "size-1", "--project", "project-123"},
+			CmdArgs: []string{"admin", "partition", "capacity", "--id", "partition-1", "--size", "size-1", "--project", "0d81bca7-73f6-4da3-8397-4a8c52a0c583"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.PartitionServiceCapacityRequest{
 							Id:      new("partition-1"),
 							Size:    new("size-1"),
-							Project: new("project-123"),
+							Project: new("0d81bca7-73f6-4da3-8397-4a8c52a0c583"),
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.PartitionServiceCapacityResponse{
@@ -181,10 +181,10 @@ partition-1 size-1
 				},
 			}),
 			WantTable: new(`
-			PARTITION    SIZE    ALLOCATED  FREE  UNAVAILABLE  RESERVATIONS  |  TOTAL  |  FAULTY
-			partition-1  size-1  1          3     0            2 (1/3 used)  |  5      |  2
-			Total                1          3     0            2             |  5      |  2
-			`),
+            PARTITION    SIZE    ALLOCATED  FREE  UNAVAILABLE  RESERVATIONS  |  TOTAL  |  FAULTY  
+            partition-1  size-1  1          3     0            2 (1/3 used)  |  5      |  2       
+            Total                1          3     0            2             |  5      |  2
+            `),
 		},
 	}
 	for _, tt := range tests {
@@ -216,9 +216,9 @@ func Test_AdminPartitionCmd_Apply(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID           DESCRIPTION
-			partition-1  partition 1
-			`),
+            ID           DESCRIPTION  
+            partition-1  partition 1
+            `),
 		},
 		{
 			Name:    "apply already exists",
@@ -259,9 +259,9 @@ func Test_AdminPartitionCmd_Apply(t *testing.T) {
 					},
 				}),
 			WantTable: new(`
-			ID           DESCRIPTION
-			partition-1  partition 1
-			`),
+            ID           DESCRIPTION  
+            partition-1  partition 1
+            `),
 		},
 	}
 	for _, tt := range tests {
