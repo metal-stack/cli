@@ -237,8 +237,6 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 		ValidArgsFunction: c.Completion.Machine,
 	}
 	housekeepingCmd.Flags().String("action", "", "the housekeeping action to perform on all machines")
-	genericcli.Must(housekeepingCmd.RegisterFlagCompletionFunc("action", c.Completion.MachineHousekeepingActions))
-	genericcli.Must(housekeepingCmd.MarkFlagRequired("action"))
 
 	return genericcli.NewCmds(cmdsConfig, bmcCmd, lockCmd, taintCmd, consoleCmd, consolePasswordCmd, firewallSSHCmd, housekeepingCmd)
 }
@@ -606,21 +604,10 @@ func (c *machine) firewallSSH(ctx context.Context, args []string) (err error) {
 }
 
 func (c *machine) housekeeping(ctx context.Context) (err error) {
-	actionString := viper.GetString("action")
-
-	action, ok := adminv2.MachineHousekeepingAction_value[actionString]
-	if !ok {
-		return fmt.Errorf("unknown housekeeping action: %s", actionString)
-	}
-
-	result, err := c.c.Client.Adminv2().Housekeeping().Machine(ctx, &adminv2.HousekeepingServiceMachineRequest{
-		Action: adminv2.MachineHousekeepingAction(action),
-	})
+	result, err := c.c.Client.Adminv2().Housekeeping().MachineLiveliness(ctx, &adminv2.HousekeepingServiceMachineLivelinessRequest{})
 	if err != nil {
 		return err
 	}
 
-	fmt.Fprintf(c.c.Out, "housekeeping action:%s finished on these machines:%v", actionString, result.ModifiedMachineIds)
-
-	return nil
+	return c.c.DescribePrinter.Print(result)
 }
