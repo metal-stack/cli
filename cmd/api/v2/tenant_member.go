@@ -206,6 +206,9 @@ func (c *tenantMember) updateRequestFromCLI(args []string) (*apiv2.TenantMemberS
 		Login:  tenant,
 		Member: member,
 		Role:   pointer.PointerOrNil(apiv2.TenantRole(apiv2.TenantRole_value[viper.GetString("role")])),
+		UpdateMeta: &apiv2.UpdateMeta{
+			LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+		},
 	}, nil
 }
 

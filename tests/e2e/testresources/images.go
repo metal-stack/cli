@@ -11,6 +11,7 @@ var (
 			Features:       []apiv2.ImageFeature{apiv2.ImageFeature_IMAGE_FEATURE_MACHINE},
 			Classification: apiv2.ImageClassification_IMAGE_CLASSIFICATION_SUPPORTED,
 			Meta:           &apiv2.Meta{},
+			Url:            "https://first-image-metal-stack.io",
 		}
 	}
 	Image2 = func() *apiv2.Image {
@@ -21,6 +22,7 @@ var (
 			Features:       []apiv2.ImageFeature{apiv2.ImageFeature_IMAGE_FEATURE_FIREWALL},
 			Classification: apiv2.ImageClassification_IMAGE_CLASSIFICATION_PREVIEW,
 			Meta:           &apiv2.Meta{},
+			Url:            "https://second-image-metal-stack.io",
 		}
 	}
 )

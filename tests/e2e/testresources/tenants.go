@@ -18,6 +18,7 @@ var (
 			Meta: &apiv2.Meta{
 				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
+			AvatarUrl: "https://first-tenant-avater.io",
 		}
 	}
 	Tenant2 = func() *apiv2.Tenant {
@@ -29,6 +30,7 @@ var (
 			Meta: &apiv2.Meta{
 				CreatedAt: timestamppb.New(e2e.TimeBubbleStartTime()),
 			},
+			AvatarUrl: "https://second-tenant-avater.io",
 		}
 	}
 

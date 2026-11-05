@@ -74,7 +74,7 @@ var (
 	}
 	Machine2 = func() *apiv2.Machine {
 		return &apiv2.Machine{
-			Uuid: "673fc473-63ca-4ea4-b9dd-b45cb2127a6fd",
+			Uuid: "673fc473-63ca-4ea4-b9dd-b45cb2127a6f",
 			Meta: &apiv2.Meta{
 				Labels: &apiv2.Labels{
 					Labels: map[string]string{
