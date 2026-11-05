@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/metal-stack/api/go/enum"
 	"github.com/metal-stack/api/go/errorutil"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -609,12 +608,12 @@ func (c *machine) firewallSSH(ctx context.Context, args []string) (err error) {
 func (c *machine) housekeeping(ctx context.Context) (err error) {
 	actionString := viper.GetString("action")
 
-	action, err := enum.GetEnum[adminv2.MachineHousekeepingAction](actionString)
-	if err != nil {
+	action, ok := adminv2.MachineHousekeepingAction_value[actionString]
+	if !ok {
 		return fmt.Errorf("unknown housekeeping action: %s", actionString)
 	}
 
-	result, err := c.c.Client.Adminv2().Machine().Housekeeping(ctx, &adminv2.MachineServiceHousekeepingRequest{
+	result, err := c.c.Client.Adminv2().Housekeeping().Machine(ctx, &adminv2.HousekeepingServiceMachineRequest{
 		Action: adminv2.MachineHousekeepingAction(action),
 	})
 	if err != nil {
