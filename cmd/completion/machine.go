@@ -79,3 +79,6 @@ func (c *Completion) MachineState(cmd *cobra.Command, args []string, toComplete 
 func (c *Completion) MachineAllocationType(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return c.genericEnums(apiv2.MachineAllocationType_name)
 }
+func (c *Completion) MachineHousekeepingActions(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return c.genericEnums(adminv2.MachineHousekeepingAction_name)
+}

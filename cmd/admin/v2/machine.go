@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/metal-stack/api/go/enum"
 	"github.com/metal-stack/api/go/errorutil"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	apiv2 "github.com/metal-stack/api/go/metalstack/api/v2"
@@ -228,7 +229,19 @@ If ~/.ssh/[id_ed25519.pub | id_rsa.pub | id_dsa.pub] is present it will be picke
 	firewallSSHCmd.Flags().StringP("identity", "i", "~/.ssh/id_rsa", "specify identity file to SSH to the firewall like: -i path/to/id_rsa")
 	firewallSSHCmd.Flags().String("reason", "", "the reason why to connect to the firewall through SSH")
 
-	return genericcli.NewCmds(cmdsConfig, bmcCmd, lockCmd, taintCmd, consoleCmd, consolePasswordCmd, firewallSSHCmd)
+	housekeepingCmd := &cobra.Command{
+		Use:   "housekeeping",
+		Short: "start a specific housekeeping action on machines",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.housekeeping(cmd.Context())
+		},
+		ValidArgsFunction: c.Completion.Machine,
+	}
+	housekeepingCmd.Flags().String("action", "", "the housekeeping action to perform on all machines")
+	genericcli.Must(housekeepingCmd.RegisterFlagCompletionFunc("action", c.Completion.MachineHousekeepingActions))
+	genericcli.Must(housekeepingCmd.MarkFlagRequired("action"))
+
+	return genericcli.NewCmds(cmdsConfig, bmcCmd, lockCmd, taintCmd, consoleCmd, consolePasswordCmd, firewallSSHCmd, housekeepingCmd)
 }
 
 func (c *machine) Create(rq *apiv2.MachineServiceCreateRequest) (*apiv2.Machine, error) {
@@ -591,4 +604,24 @@ func (c *machine) firewallSSH(ctx context.Context, args []string) (err error) {
 		return err
 	}
 	return s.Connect(nil)
+}
+
+func (c *machine) housekeeping(ctx context.Context) (err error) {
+	actionString := viper.GetString("action")
+
+	action, err := enum.GetEnum[adminv2.MachineHousekeepingAction](actionString)
+	if err != nil {
+		return fmt.Errorf("unknown housekeeping action: %s", actionString)
+	}
+
+	result, err := c.c.Client.Adminv2().Machine().Housekeeping(ctx, &adminv2.MachineServiceHousekeepingRequest{
+		Action: adminv2.MachineHousekeepingAction(action),
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(c.c.Out, "housekeeping action:%s finished on these machines:%v", actionString, result.ModifiedMachineIds)
+
+	return nil
 }
