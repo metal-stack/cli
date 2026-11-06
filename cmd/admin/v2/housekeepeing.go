@@ -83,27 +83,3 @@ func (h *housekeeping) machineResurrect(ctx context.Context) (err error) {
 
 	return h.c.ListPrinter.Print(result.ModifiedMachines)
 }
-
-func (h *housekeeping) Get(id string) (any, error) {
-	panic("unimplemented")
-}
-
-func (h *housekeeping) List() (any, error) {
-	panic("unimplemented")
-}
-
-func (h *housekeeping) Create(rq any) (any, error) {
-	panic("unimplemented")
-}
-
-func (h *housekeeping) Delete(id string) (any, error) {
-	panic("unimplemented")
-}
-
-func (h *housekeeping) Convert(r any) (string, any, any, error) {
-	panic("unimplemented")
-}
-
-func (h *housekeeping) Update(rq any) (any, error) {
-	panic("unimplemented")
-}
