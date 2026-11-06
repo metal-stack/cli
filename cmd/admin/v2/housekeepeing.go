@@ -20,11 +20,13 @@ func newHousekeepingCmd(c *config.Config) *cobra.Command {
 	housekeepingCmd := &cobra.Command{
 		Use:   "housekeeping",
 		Short: "execute housekeeping commands",
+		Long:  "housekeeping commands are usually as cronjobs in the control-plane",
 	}
 
 	machineLivelinessCmd := &cobra.Command{
 		Use:   "machine-liveliness",
 		Short: "execute machine liveliness housekeeping",
+		Long:  "updates the liveleness of all machines, only the modified machines are returned",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.machineLiveliness(cmd.Context())
 		},
@@ -33,6 +35,7 @@ func newHousekeepingCmd(c *config.Config) *cobra.Command {
 	machineVPNConnectedCmd := &cobra.Command{
 		Use:   "machine-vpn-connected",
 		Short: "execute machine vpn connected housekeeping",
+		Long:  "updates the vpn connection details of machines which have vpn configured, only the modified machines are returned",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.machineVPNConnected(cmd.Context())
 		},
@@ -41,6 +44,7 @@ func newHousekeepingCmd(c *config.Config) *cobra.Command {
 	machineResurrectCmd := &cobra.Command{
 		Use:   "machine-resurrect",
 		Short: "execute machine resurrect housekeeping",
+		Long:  "tries to resurrect machines which are not allocated but not in waiting state by forcing a restart, only machines where a restart was triggered are returned",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return w.machineResurrect(cmd.Context())
 		},
