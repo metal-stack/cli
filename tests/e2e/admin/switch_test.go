@@ -151,6 +151,9 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 					ClientCalls: []client.ClientCall{
 						{
 							WantRequest: &adminv2.SwitchServiceUpdateRequest{
+								UpdateMeta: &apiv2.UpdateMeta{
+									LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+								},
 								Id:             testresources.Switch2().Id,
 								Description:    new(testresources.Switch2().Description),
 								ManagementIp:   new(testresources.Switch2().ManagementIp),

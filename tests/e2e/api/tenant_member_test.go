@@ -139,6 +139,9 @@ func Test_TenantMemberCmd_Update(t *testing.T) {
 							Login:  testresources.Tenant1().Login,
 							Member: testresources.Tenant1Member().Member,
 							Role:   pointer.PointerOrNil(testresources.Tenant1Member().Role),
+							UpdateMeta: &apiv2.UpdateMeta{
+								LockingStrategy: apiv2.OptimisticLockingStrategy_OPTIMISTIC_LOCKING_STRATEGY_SERVER,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&apiv2.TenantMemberServiceUpdateResponse{

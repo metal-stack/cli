@@ -9,6 +9,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	adminCmd := &cobra.Command{
 		Use:          "admin",
 		Short:        "admin commands",
+		Aliases:      []string{"a", "adm"},
 		Long:         "these commands utilize the admin api, which can only be accessed by metal-stack operators.",
 		SilenceUsage: true,
 		Hidden:       true,
@@ -17,6 +18,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	adminCmd.AddCommand(newAuditCmd(c))
 	adminCmd.AddCommand(newComponentCmd(c))
 	adminCmd.AddCommand(newFilesystemCmd(c))
+	adminCmd.AddCommand(newHousekeepingCmd(c))
 	adminCmd.AddCommand(newImageCmd(c))
 	adminCmd.AddCommand(newIPCmd(c))
 	adminCmd.AddCommand(newMachineCmd(c))
