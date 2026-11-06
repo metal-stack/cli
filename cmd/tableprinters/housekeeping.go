@@ -12,12 +12,13 @@ func (t *TablePrinter) HousekeepingMachineLivelinessTable(data []*adminv2.Machin
 	)
 
 	for _, ms := range data {
-		var lvl = "unknown"
+		var lvl string
 		lvlString, err := enum.GetStringValue(ms.Liveliness)
 		if err != nil {
 			lvl = "unknown"
+		} else {
+			lvl = *lvlString
 		}
-		lvl = *lvlString
 
 		rows = append(rows, []string{ms.Uuid, lvl})
 	}
