@@ -79,18 +79,14 @@ func newSwitchCmd(c *config.Config) *cobra.Command {
 	switchConnectedMachinesCmd.Flags().String("partition", "", "Partition of this switch.")
 	switchConnectedMachinesCmd.Flags().String("rack", "", "Rack of this switch.")
 	switchConnectedMachinesCmd.Flags().Duration("last-event-error-threshold", 1*time.Hour, "the duration up to how long in the past a machine last event error will be counted as an issue [optional]")
-
-	// TODO: add once size and machine completion are implemented
-	// switchMachinesCmd.Flags().String("size", "", "Size of the connected machines.")
-	// switchMachinesCmd.Flags().String("machine-id", "", "The id of the connected machine, ignores size flag if set.")
+	switchConnectedMachinesCmd.Flags().String("machine-id", "", "ID of the connected machine.")
+	switchConnectedMachinesCmd.Flags().String("size", "", "Size of the connected machines.")
 
 	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("id", c.Completion.Switch))
 	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("partition", c.Completion.SwitchPartition))
 	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("rack", c.Completion.SwitchRack))
-
-	// TODO: add once size and machine completion are implemented
-	// genericcli.Must(switchMachinesCmd.RegisterFlagCompletionFunc("size", c.Completion.SizeListCompletion))
-	// genericcli.Must(switchMachinesCmd.RegisterFlagCompletionFunc("machine-id", c.Completion.MachineListCompletion))
+	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("machine-id", c.Completion.AdminMachine))
+	genericcli.Must(switchConnectedMachinesCmd.RegisterFlagCompletionFunc("size", c.Completion.Size))
 
 	switchConsoleCmd := &cobra.Command{
 		Use:   "console <id>",

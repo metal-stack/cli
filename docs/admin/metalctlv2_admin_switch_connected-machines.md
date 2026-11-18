@@ -18,8 +18,10 @@ The command will show the machines connected to the switch ports.
   -h, --help                                  help for connected-machines
       --id string                             ID of the switch.
       --last-event-error-threshold duration   the duration up to how long in the past a machine last event error will be counted as an issue [optional] (default 1h0m0s)
+      --machine-id string                     ID of the connected machine.
       --partition string                      Partition of this switch.
       --rack string                           Rack of this switch.
+      --size string                           Size of the connected machines.
 ```
 
 ### Options inherited from parent commands
