@@ -28,7 +28,16 @@ func (c *Completion) Machine(cmd *cobra.Command, args []string, toComplete strin
 }
 
 func (c *Completion) AdminMachine(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.Client.Adminv2().Machine().List(cmd.Context(), &adminv2.MachineServiceListRequest{})
+	q := &adminv2.MachineServiceListRequest{}
+
+	// this is a bit rough from the approach, but I have no better idea
+	if partitionID, _ := cmd.Flags().GetString("partition"); partitionID != "" {
+		q.Query = &apiv2.MachineQuery{
+			Partition: &partitionID,
+		}
+	}
+
+	resp, err := c.Client.Adminv2().Machine().List(cmd.Context(), q)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
