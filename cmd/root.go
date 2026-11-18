@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"strings"
 
@@ -178,13 +179,14 @@ func newApiClient(apiURL, token, apiCA string) (client.Client, error) {
 		if ok := pool.AppendCertsFromPEM(caPEM); ok != true {
 			return nil, fmt.Errorf("failed to append pem certificate: %q", apiCA)
 		}
-
 		tlsConfig := &tls.Config{
 			RootCAs: pool,
 		}
+		transport := http.DefaultTransport.(*http.Transport).Clone()
+		transport.TLSClientConfig = tlsConfig
 
+		dialConfig.Transport = transport
 	}
-
 	return client.New(dialConfig)
 }
 
