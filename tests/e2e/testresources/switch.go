@@ -126,7 +126,7 @@ var (
 				{
 					Nic: Switch1().Nics[0],
 					Machine: &apiv2.Machine{
-						Uuid: "id1",
+						Uuid: "d1a30c48-f2a7-4b6b-955c-579d93c67677",
 						Partition: &apiv2.Partition{
 							Id: Switch1().Partition,
 						},

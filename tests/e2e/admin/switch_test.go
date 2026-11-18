@@ -10,6 +10,7 @@ import (
 	e2erootcmd "github.com/metal-stack/cli/testing/e2e"
 	"github.com/metal-stack/cli/tests/e2e/testresources"
 	e2e "github.com/metal-stack/metal-lib/pkg/genericcli/e2e"
+	"github.com/metal-stack/metal-lib/pkg/pointer"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -194,14 +195,35 @@ func Test_AdminSwitchCmd_Update(t *testing.T) {
 func Test_AdminSwitchCmd_ConnectedMachines(t *testing.T) {
 	tests := []*e2e.Test[adminv2.SwitchServiceConnectedMachinesResponse, *apiv2.Switch]{
 		{
-			Name:    "connected machines",
-			CmdArgs: []string{"admin", "switch", "connected-machines"},
+			Name: "connected machines",
+			CmdArgs: []string{
+				"admin",
+				"switch",
+				"connected-machines",
+				"--id", testresources.Switch1().Id,
+				"--machine-id", testresources.SwitchWithMachines1().Connections[0].Machine.Uuid,
+				"--partition", testresources.Switch1().Partition,
+				"--rack", pointer.SafeDeref(testresources.Switch1().Rack),
+				"--size", testresources.SwitchWithMachines1().Connections[0].Machine.Size.Id,
+				"--last-event-error-threshold=8h",
+			},
+			AssertExhaustiveArgs: true,
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
 						WantRequest: &adminv2.SwitchServiceConnectedMachinesRequest{
-							Query:        &apiv2.SwitchQuery{},
-							MachineQuery: &apiv2.MachineQuery{},
+							Query: &apiv2.SwitchQuery{
+								Partition:          &testresources.Switch1().Partition,
+								Id:                 &testresources.Switch1().Id,
+								Rack:               testresources.Switch1().Rack,
+								ConnectedMachineId: nil, // TODO: Clarify if this can be used (?)
+							},
+							MachineQuery: &apiv2.MachineQuery{
+								Uuid:      &testresources.SwitchWithMachines1().Connections[0].Machine.Uuid,
+								Partition: &testresources.Switch1().Partition,
+								Size:      &testresources.SwitchWithMachines1().Connections[0].Machine.Size.Id,
+								Rack:      testresources.Switch1().Rack,
+							},
 						},
 						WantResponse: func() connect.AnyResponse {
 							return connect.NewResponse(&adminv2.SwitchServiceConnectedMachinesResponse{
@@ -212,9 +234,9 @@ func Test_AdminSwitchCmd_ConnectedMachines(t *testing.T) {
 				},
 			}),
 			WantTable: new(`
-            ID      NIC NAME        IDENTIFIER           PARTITION  RACK    SIZE      PRODUCT SERIAL  CHASSIS SERIAL
-            leaf01                                       fra-equ01  rack-1
-            └─╴id1  Ethernet0 (up)  oid:0x1000000000001  fra-equ01  rack-1  m1-small  ps-1            cs-1
+            ID                                       NIC NAME        IDENTIFIER           PARTITION  RACK    SIZE      PRODUCT SERIAL  CHASSIS SERIAL
+            leaf01                                                                        fra-equ01  rack-1
+            └─╴d1a30c48-f2a7-4b6b-955c-579d93c67677  Ethernet0 (up)  oid:0x1000000000001  fra-equ01  rack-1  m1-small  ps-1            cs-1
             `),
 		},
 	}
