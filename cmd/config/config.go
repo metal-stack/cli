@@ -119,6 +119,18 @@ func (c *Config) GetApiURL() string {
 	return viper.GetString("api-url")
 }
 
+func (c *Config) GetApiCA() string {
+	if viper.GetString("api-ca") != "" {
+		return viper.GetString("api-ca")
+	}
+	if c.Context.ApiCA != nil {
+		return *c.Context.ApiCA
+	}
+
+	// fallback to the default specified by viper
+	return viper.GetString("api-ca")
+}
+
 func (c *Config) GetProvider() string {
 	if viper.GetString("provider") != "" {
 		return viper.GetString("provider")

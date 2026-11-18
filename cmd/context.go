@@ -87,6 +87,7 @@ func newContextCmd(c *config.Config) *cobra.Command {
 		},
 	}
 	contextAddCmd.Flags().String("api-url", "", "sets the api-url for this context")
+	contextAddCmd.Flags().String("api-ca", "", "sets the api-ca for this context")
 	contextAddCmd.Flags().String("api-token", "", "sets the api-token for this context")
 	contextAddCmd.Flags().String("default-project", "", "sets a default project to act on")
 	contextAddCmd.Flags().Duration("timeout", 0, "sets a default request timeout")
@@ -104,6 +105,7 @@ func newContextCmd(c *config.Config) *cobra.Command {
 		ValidArgsFunction: c.ContextListCompletion,
 	}
 	contextUpdateCmd.Flags().String("api-url", "", "sets the api-url for this context")
+	contextUpdateCmd.Flags().String("api-ca", "", "sets the api-ca for this context")
 	contextUpdateCmd.Flags().String("api-token", "", "sets the api-token for this context")
 	contextUpdateCmd.Flags().String("default-project", "", "sets a default project to act on")
 	contextUpdateCmd.Flags().Duration("timeout", 0, "sets a default request timeout")
@@ -169,6 +171,7 @@ func (c *ctx) add(args []string) error {
 	ctx := &config.Context{
 		Name:           name,
 		ApiURL:         pointer.PointerOrNil(viper.GetString("api-url")),
+		ApiCA:          pointer.PointerOrNil(viper.GetString("api-ca")),
 		Token:          viper.GetString("api-token"),
 		DefaultProject: viper.GetString("default-project"),
 		Timeout:        pointer.PointerOrNil(viper.GetDuration("timeout")),
@@ -210,6 +213,9 @@ func (c *ctx) update(args []string) error {
 
 	if viper.IsSet("api-url") {
 		ctx.ApiURL = pointer.PointerOrNil(viper.GetString("api-url"))
+	}
+	if viper.IsSet("api-ca") {
+		ctx.ApiCA = pointer.PointerOrNil(viper.GetString("api-ca"))
 	}
 	if viper.IsSet("api-token") {
 		ctx.Token = viper.GetString("api-token")

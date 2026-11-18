@@ -69,6 +69,7 @@ func (l *login) login() error {
 			newCtx.Name = viper.GetString("context")
 		}
 		newCtx.ApiURL = new(l.c.GetApiURL())
+		newCtx.ApiCA = new(l.c.GetApiCA())
 		ctxs.Contexts = append(ctxs.Contexts, &newCtx)
 		ctx = &newCtx
 	}
