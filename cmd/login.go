@@ -123,7 +123,7 @@ func (l *login) login() error {
 	}
 
 	if viper.IsSet("admin-role") {
-		mc, err := newApiClient(l.c.GetApiURL(), token)
+		mc, err := newApiClient(l.c.GetApiURL(), token, l.c.GetApiCA())
 		if err != nil {
 			return err
 		}
@@ -143,7 +143,7 @@ func (l *login) login() error {
 	ctx.Token = token
 
 	if ctx.DefaultProject == "" {
-		mc, err := newApiClient(l.c.GetApiURL(), token)
+		mc, err := newApiClient(l.c.GetApiURL(), token, l.c.GetApiCA())
 		if err != nil {
 			return err
 		}

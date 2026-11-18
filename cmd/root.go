@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -137,7 +140,7 @@ func initConfigWithViperCtx(c *config.Config) error {
 		return nil
 	}
 
-	mc, err := newApiClient(c.GetApiURL(), c.GetToken())
+	mc, err := newApiClient(c.GetApiURL(), c.GetToken(), c.GetApiCA())
 	if err != nil {
 		return err
 	}
@@ -148,7 +151,7 @@ func initConfigWithViperCtx(c *config.Config) error {
 	return nil
 }
 
-func newApiClient(apiURL, token string) (client.Client, error) {
+func newApiClient(apiURL, token, apiCA string) (client.Client, error) {
 	logLevel := slog.LevelInfo
 	if viper.GetBool("debug") {
 		logLevel = slog.LevelDebug
@@ -159,6 +162,27 @@ func newApiClient(apiURL, token string) (client.Client, error) {
 		Token:     token,
 		UserAgent: "metal-stack-cli",
 		Log:       slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel})),
+	}
+
+	if apiCA != "" {
+		caPEM, err := os.ReadFile(apiCA)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read file %q: %w", apiCA, err)
+		}
+		pool, err := x509.SystemCertPool()
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to load system certificate: %w", err)
+		}
+		if ok := pool.AppendCertsFromPEM(caPEM); ok != true {
+			return nil, fmt.Errorf("failed to append pem certificate: %q", apiCA)
+		}
+
+		tlsConfig := &tls.Config{
+			RootCAs: pool,
+		}
+
 	}
 
 	return client.New(dialConfig)
