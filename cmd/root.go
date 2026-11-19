@@ -176,7 +176,7 @@ func newApiClient(apiURL, token, apiCA string) (client.Client, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to load system certificate: %w", err)
 		}
-		if ok := pool.AppendCertsFromPEM(caPEM); ok != true {
+		if ok := pool.AppendCertsFromPEM(caPEM); !ok {
 			return nil, fmt.Errorf("failed to append pem certificate: %q", apiCA)
 		}
 		tlsConfig := &tls.Config{
