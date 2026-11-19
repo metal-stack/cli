@@ -26,6 +26,7 @@ func AddCmds(cmd *cobra.Command, c *config.Config) {
 	adminCmd.AddCommand(newPartitionCmd(c))
 	adminCmd.AddCommand(newProjectCmd(c))
 	adminCmd.AddCommand(newSizeCmd(c))
+	adminCmd.AddCommand(newSizeReservationCmd(c))
 	adminCmd.AddCommand(newSwitchCmd(c))
 	adminCmd.AddCommand(newTaskCmd(c))
 	adminCmd.AddCommand(newTenantCmd(c))
