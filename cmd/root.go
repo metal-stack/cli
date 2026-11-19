@@ -76,7 +76,7 @@ func NewRootCmd(c *config.Config) *cobra.Command {
 	rootCmd.PersistentFlags().Duration("timeout", 0, "request timeout used for api requests")
 
 	rootCmd.PersistentFlags().String("api-url", "", "the url to the metal-stack.io api")
-	rootCmd.PersistentFlags().String("api-ca", "", "the path to the certificate authority to trust for the api endpoint")
+	rootCmd.PersistentFlags().String("api-ca", "", "the path to a PEM file to trust for the api endpoint in addition to the system CAs")
 	rootCmd.PersistentFlags().String("api-token", "", "the token used for api requests")
 
 	genericcli.Must(viper.BindPFlags(rootCmd.PersistentFlags()))

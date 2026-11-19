@@ -87,7 +87,7 @@ func newContextCmd(c *config.Config) *cobra.Command {
 		},
 	}
 	contextAddCmd.Flags().String("api-url", "", "sets the api-url for this context")
-	contextAddCmd.Flags().String("api-ca", "", "sets the api-ca for this context")
+	contextAddCmd.Flags().String("api-ca", "", "sets the path to a PEM file with a CA in addition to the system CAs for this context")
 	contextAddCmd.Flags().String("api-token", "", "sets the api-token for this context")
 	contextAddCmd.Flags().String("default-project", "", "sets a default project to act on")
 	contextAddCmd.Flags().Duration("timeout", 0, "sets a default request timeout")
@@ -105,7 +105,7 @@ func newContextCmd(c *config.Config) *cobra.Command {
 		ValidArgsFunction: c.ContextListCompletion,
 	}
 	contextUpdateCmd.Flags().String("api-url", "", "sets the api-url for this context")
-	contextUpdateCmd.Flags().String("api-ca", "", "sets the api-ca for this context")
+	contextUpdateCmd.Flags().String("api-ca", "", "sets the path to a PEM file with a CA in addition to the system CAs for this context")
 	contextUpdateCmd.Flags().String("api-token", "", "sets the api-token for this context")
 	contextUpdateCmd.Flags().String("default-project", "", "sets a default project to act on")
 	contextUpdateCmd.Flags().Duration("timeout", 0, "sets a default request timeout")
