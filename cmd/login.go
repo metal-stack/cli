@@ -69,6 +69,7 @@ func (l *login) login() error {
 			newCtx.Name = viper.GetString("context")
 		}
 		newCtx.ApiURL = new(l.c.GetApiURL())
+		newCtx.ApiCA = new(l.c.GetApiCA())
 		ctxs.Contexts = append(ctxs.Contexts, &newCtx)
 		ctx = &newCtx
 	}
@@ -122,7 +123,7 @@ func (l *login) login() error {
 	}
 
 	if viper.IsSet("admin-role") {
-		mc, err := newApiClient(l.c.GetApiURL(), token)
+		mc, err := newApiClient(l.c, token)
 		if err != nil {
 			return err
 		}
@@ -142,7 +143,7 @@ func (l *login) login() error {
 	ctx.Token = token
 
 	if ctx.DefaultProject == "" {
-		mc, err := newApiClient(l.c.GetApiURL(), token)
+		mc, err := newApiClient(l.c, token)
 		if err != nil {
 			return err
 		}

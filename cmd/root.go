@@ -1,7 +1,11 @@
 package cmd
 
 import (
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"strings"
 
@@ -72,6 +76,7 @@ func NewRootCmd(c *config.Config) *cobra.Command {
 	rootCmd.PersistentFlags().Duration("timeout", 0, "request timeout used for api requests")
 
 	rootCmd.PersistentFlags().String("api-url", "", "the url to the metal-stack.io api")
+	rootCmd.PersistentFlags().String("api-ca", "", "the path to a PEM file to trust for the api endpoint in addition to the system CAs")
 	rootCmd.PersistentFlags().String("api-token", "", "the token used for api requests")
 
 	genericcli.Must(viper.BindPFlags(rootCmd.PersistentFlags()))
@@ -81,6 +86,7 @@ func NewRootCmd(c *config.Config) *cobra.Command {
 	viper.MustBindEnv("debug")
 	viper.MustBindEnv("timeout")
 	viper.MustBindEnv("api-url")
+	viper.MustBindEnv("api-ca")
 	viper.MustBindEnv("api-token")
 
 	markdownCmd := &cobra.Command{
@@ -135,7 +141,7 @@ func initConfigWithViperCtx(c *config.Config) error {
 		return nil
 	}
 
-	mc, err := newApiClient(c.GetApiURL(), c.GetToken())
+	mc, err := newApiClient(c, c.GetToken())
 	if err != nil {
 		return err
 	}
@@ -146,7 +152,10 @@ func initConfigWithViperCtx(c *config.Config) error {
 	return nil
 }
 
-func newApiClient(apiURL, token string) (client.Client, error) {
+func newApiClient(c *config.Config, token string) (client.Client, error) {
+	apiURL := c.GetApiURL()
+	apiCA := c.GetApiCA()
+
 	logLevel := slog.LevelInfo
 	if viper.GetBool("debug") {
 		logLevel = slog.LevelDebug
@@ -159,6 +168,28 @@ func newApiClient(apiURL, token string) (client.Client, error) {
 		Log:       slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel})),
 	}
 
+	if apiCA != "" {
+		caPEM, err := os.ReadFile(apiCA)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read file %q: %w", apiCA, err)
+		}
+		pool, err := x509.SystemCertPool()
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to load system certificate: %w", err)
+		}
+		if ok := pool.AppendCertsFromPEM(caPEM); !ok {
+			return nil, fmt.Errorf("failed to append pem certificate: %q", apiCA)
+		}
+		tlsConfig := &tls.Config{
+			RootCAs: pool,
+		}
+		transport := http.DefaultTransport.(*http.Transport).Clone()
+		transport.TLSClientConfig = tlsConfig
+
+		dialConfig.Transport = transport
+	}
 	return client.New(dialConfig)
 }
 
