@@ -22,5 +22,8 @@ func SizeReservationSorter() *multisort.Sorter[*apiv2.SizeReservation] {
 		"size": func(a, b *apiv2.SizeReservation, descending bool) multisort.CompareResult {
 			return multisort.Compare(a.Size, b.Size, descending)
 		},
+		"amount": func(a, b *apiv2.SizeReservation, descending bool) multisort.CompareResult {
+			return multisort.Compare(a.Amount, b.Amount, descending)
+		},
 	}, multisort.Keys{{ID: "id"}})
 }

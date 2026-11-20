@@ -28,8 +28,8 @@ func newSizeReservationCmd(c *config.Config) *cobra.Command {
 	cmdsConfig := &genericcli.CmdsConfig[*adminv2.SizeReservationServiceCreateRequest, *adminv2.SizeReservationServiceUpdateRequest, *apiv2.SizeReservation]{
 		BinaryName:      config.BinaryName,
 		GenericCLI:      genericcli.NewGenericCLI(w).WithFS(c.Fs),
-		Singular:        "size-reservation",
-		Plural:          "size-reservations",
+		Singular:        "reservation",
+		Plural:          "reservations",
 		Description:     "manage size reservations which reserve machine capacity for a project",
 		Sorter:          sorters.SizeReservationSorter(),
 		DescribePrinter: func() printers.Printer { return c.DescribePrinter },
@@ -231,7 +231,7 @@ func (c *sizeReservation) updateRequestFromCLI(args []string) (*adminv2.SizeRese
 		},
 		Name:        pointer.PointerOrNil(viper.GetString("name")),
 		Description: pointer.PointerOrNil(viper.GetString("description")),
-		Amount:      amountFromCLI(),
+		Amount:      pointer.PointerOrNil(viper.GetInt32("amount")),
 		Labels:      updateLabels,
 	}
 
@@ -240,13 +240,4 @@ func (c *sizeReservation) updateRequestFromCLI(args []string) (*adminv2.SizeRese
 	}
 
 	return req, nil
-}
-
-func amountFromCLI() *int32 {
-	amount := viper.GetInt32("amount")
-	if amount <= 0 {
-		return nil
-	}
-
-	return new(amount)
 }

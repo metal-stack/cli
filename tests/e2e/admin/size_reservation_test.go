@@ -19,7 +19,7 @@ func Test_AdminSizeReservationCmd_List(t *testing.T) {
 	tests := []*e2e.Test[adminv2.SizeReservationServiceListResponse, []*apiv2.SizeReservation]{
 		{
 			Name:    "list",
-			CmdArgs: []string{"admin", "size-reservation", "list"},
+			CmdArgs: []string{"admin", "size", "reservation", "list"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -69,7 +69,7 @@ func Test_AdminSizeReservationCmd_Describe(t *testing.T) {
 	tests := []*e2e.Test[adminv2.SizeReservationServiceListResponse, *apiv2.SizeReservation]{
 		{
 			Name:    "describe",
-			CmdArgs: []string{"admin", "size-reservation", "describe", testresources.SizeReservation1().Id},
+			CmdArgs: []string{"admin", "size", "reservation", "describe", testresources.SizeReservation1().Id},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -109,7 +109,7 @@ func Test_AdminSizeReservationCmd_Delete(t *testing.T) {
 	tests := []*e2e.Test[adminv2.SizeReservationServiceDeleteResponse, *apiv2.SizeReservation]{
 		{
 			Name:    "delete",
-			CmdArgs: []string{"admin", "size-reservation", "delete", testresources.SizeReservation1().Id},
+			CmdArgs: []string{"admin", "size", "reservation", "delete", testresources.SizeReservation1().Id},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
@@ -145,7 +145,7 @@ func Test_AdminSizeReservationCmd_Create(t *testing.T) {
 	tests := []*e2e.Test[adminv2.SizeReservationServiceCreateResponse, *apiv2.SizeReservation]{
 		{
 			Name:    "create from file",
-			CmdArgs: append([]string{"admin", "size-reservation", "create"}, e2e.AppendFromFileCommonArgs()...),
+			CmdArgs: append([]string{"admin", "size", "reservation", "create"}, e2e.AppendFromFileCommonArgs()...),
 			NewRootCmd: e2erootcmd.NewRootCmd(t,
 				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
@@ -176,7 +176,7 @@ func Test_AdminSizeReservationCmd_Create(t *testing.T) {
 		},
 		{
 			Name:    "create from flags",
-			CmdArgs: []string{"admin", "size-reservation", "create", "--name", "reservation-a", "--description", "first reservation", "--project", testresources.Project1().Uuid, "--size", testresources.Size1().Id, "--partitions", testresources.Partition1().Id, "--amount", "3", "--labels", "a=b"},
+			CmdArgs: []string{"admin", "size", "reservation", "create", "--name", "reservation-a", "--description", "first reservation", "--project", testresources.Project1().Uuid, "--size", testresources.Size1().Id, "--partitions", testresources.Partition1().Id, "--amount", "3", "--labels", "a=b"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t,
 				&e2erootcmd.TestConfig{
 					ClientCalls: []client.ClientCall{
@@ -218,7 +218,7 @@ func Test_AdminSizeReservationCmd_Update(t *testing.T) {
 	tests := []*e2e.Test[adminv2.SizeReservationServiceUpdateResponse, *apiv2.SizeReservation]{
 		{
 			Name:    "update from file",
-			CmdArgs: append([]string{"admin", "size-reservation", "update"}, e2e.AppendFromFileCommonArgs()...),
+			CmdArgs: append([]string{"admin", "size", "reservation", "update"}, e2e.AppendFromFileCommonArgs()...),
 			NewRootCmd: e2erootcmd.NewRootCmd(t,
 				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
@@ -256,7 +256,7 @@ func Test_AdminSizeReservationCmd_Update(t *testing.T) {
 		},
 		{
 			Name:    "update from flags",
-			CmdArgs: []string{"admin", "size-reservation", "update", testresources.SizeReservation1().Id, "--description", "updated reservation", "--amount", "5", "--partitions", testresources.Partition1().Id, "--add-labels", "x=y"},
+			CmdArgs: []string{"admin", "size", "reservation", "update", testresources.SizeReservation1().Id, "--description", "updated reservation", "--amount", "5", "--partitions", testresources.Partition1().Id, "--add-labels", "x=y"},
 			NewRootCmd: e2erootcmd.NewRootCmd(t,
 				&e2erootcmd.TestConfig{
 					ClientCalls: []client.ClientCall{
@@ -305,7 +305,7 @@ func Test_AdminSizeReservationCmd_Apply(t *testing.T) {
 	tests := []*e2e.Test[adminv2.SizeReservationServiceUpdateResponse, *apiv2.SizeReservation]{
 		{
 			Name:    "apply",
-			CmdArgs: append([]string{"admin", "size-reservation", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			CmdArgs: append([]string{"admin", "size", "reservation", "apply"}, e2e.AppendFromFileCommonArgs()...),
 			NewRootCmd: e2erootcmd.NewRootCmd(t,
 				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
@@ -331,7 +331,7 @@ func Test_AdminSizeReservationCmd_Apply(t *testing.T) {
 		},
 		{
 			Name:    "apply already exists",
-			CmdArgs: append([]string{"admin", "size-reservation", "apply"}, e2e.AppendFromFileCommonArgs()...),
+			CmdArgs: append([]string{"admin", "size", "reservation", "apply"}, e2e.AppendFromFileCommonArgs()...),
 			NewRootCmd: e2erootcmd.NewRootCmd(t,
 				&e2erootcmd.TestConfig{
 					FsMocks: func(fs *afero.Afero) {
