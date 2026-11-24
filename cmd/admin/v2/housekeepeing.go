@@ -104,21 +104,24 @@ func (h *housekeeping) networksConsistent(ctx context.Context) (err error) {
 	_ = h.c.DescribePrinter.Print(result)
 
 	if len(result.NetworksMissingInMetal) > 0 {
-		fmt.Fprintf(h.c.Out, "run the following command inside of a pod of the ipam deployment to get the list of existing prefixes:\n")
-		fmt.Fprintf(h.c.Out, "kubectl exec -it ipam-xxx-yyy -- /cli prefix list\n")
-		fmt.Fprintln(h.c.Out)
-		fmt.Fprintf(h.c.Out, "then select one of the networks listed in networksMissingInMetal and delete it in ipam with\n")
-		fmt.Fprintf(h.c.Out, "kubectl exec -it ipam-xxx-yyy -- /cli prefix delete --cidr 1.2.3.0/24 [--namespace optional-namespace]\n")
-		fmt.Fprintln(h.c.Out)
+		_, _ = fmt.Fprint(h.c.Out, `run the following command inside of a pod of the ipam deployment to get the list of existing prefixes:
+kubectl exec -it ipam-xxx-yyy -- /cli prefix list
+
+then select one of the networks listed in networksMissingInMetal and delete it in ipam with
+kubectl exec -it ipam-xxx-yyy -- /cli prefix delete --cidr 1.2.3.0/24 [--namespace optional-namespace]
+
+
+`)
 	}
 	if len(result.IpsMissingInMetal) > 0 {
-		fmt.Fprintln(h.c.Out)
-		fmt.Fprintf(h.c.Out, "run the following command inside of a pod of the ipam deployment to get the list of existing ips:\n")
-		fmt.Fprintf(h.c.Out, "kubectl exec -it ipam-xxx-yyy -- /cli ip list --prefix prefix-of-the-given-metal-network\n")
-		fmt.Fprintln(h.c.Out)
-		fmt.Fprintf(h.c.Out, "then select one of the ips listed in ipsMissingInMetal and delete it in ipam with\n")
-		fmt.Fprintf(h.c.Out, "kubectl exec -it ipam-xxx-yyy -- /cli ip release --ip 1.2.3.4 --prefix 1.2.3.0/24 [--namespace optional-namespace]\n")
-		fmt.Fprintln(h.c.Out)
+		_, _ = fmt.Fprint(h.c.Out, `run the following command inside of a pod of the ipam deployment to get the list of existing ips:
+kubectl exec -it ipam-xxx-yyy -- /cli ip list --prefix prefix-of-the-given-metal-network
+
+then select one of the ips listed in ipsMissingInMetal and delete it in ipam with
+kubectl exec -it ipam-xxx-yyy -- /cli ip release --ip 1.2.3.4 --prefix 1.2.3.0/24 [--namespace optional-namespace]
+
+
+`)
 	}
 
 	return

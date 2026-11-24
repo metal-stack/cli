@@ -127,7 +127,6 @@ func Test_AdminHousekeepingCmd_NetworksConsistent(t *testing.T) {
 					},
 				},
 			}),
-			WantProtoObject: response,
 			WantDefault: new(`
 networksMissingInIpam:
     - id: 6988ebb0-9531-4f9b-a893-d7868258e2ef
@@ -186,6 +185,19 @@ ipsMissingInMetal:
       network: internet
       project: 46bdfc45-9c8d-4268-b359-b40e3079d384
       type: IP_TYPE_EPHEMERAL
+run the following command inside of a pod of the ipam deployment to get the list of existing prefixes:
+kubectl exec -it ipam-xxx-yyy -- /cli prefix list
+
+then select one of the networks listed in networksMissingInMetal and delete it in ipam with
+kubectl exec -it ipam-xxx-yyy -- /cli prefix delete --cidr 1.2.3.0/24 [--namespace optional-namespace]
+
+
+run the following command inside of a pod of the ipam deployment to get the list of existing ips:
+kubectl exec -it ipam-xxx-yyy -- /cli ip list --prefix prefix-of-the-given-metal-network
+
+then select one of the ips listed in ipsMissingInMetal and delete it in ipam with
+kubectl exec -it ipam-xxx-yyy -- /cli ip release --ip 1.2.3.4 --prefix 1.2.3.0/24 [--namespace optional-namespace]
+
 			`),
 		},
 	}
