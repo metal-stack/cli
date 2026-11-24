@@ -50,9 +50,19 @@ func newHousekeepingCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
+	networksConsistentCmd := &cobra.Command{
+		Use:   "networks-consistent",
+		Short: "execute a read only check for network and ip inconsistencies",
+		Long:  "identifies inconsistencies between metal networks and ips and ipam networks and ips",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.networksConsistent(cmd.Context())
+		},
+	}
+
 	housekeepingCmd.AddCommand(machineLivelinessCmd)
 	housekeepingCmd.AddCommand(machineVPNConnectedCmd)
 	housekeepingCmd.AddCommand(machineResurrectCmd)
+	housekeepingCmd.AddCommand(networksConsistentCmd)
 
 	return housekeepingCmd
 }
@@ -82,4 +92,13 @@ func (h *housekeeping) machineResurrect(ctx context.Context) (err error) {
 	}
 
 	return h.c.ListPrinter.Print(result.ModifiedMachines)
+}
+
+func (h *housekeeping) networksConsistent(ctx context.Context) (err error) {
+	result, err := h.c.Client.Adminv2().Housekeeping().NetworksConsistent(ctx, &adminv2.HousekeepingServiceNetworksConsistentRequest{})
+	if err != nil {
+		return err
+	}
+
+	return h.c.DescribePrinter.Print(result)
 }
