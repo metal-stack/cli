@@ -28,6 +28,7 @@ metalctlv2 completion powershell [flags]
 ### Options inherited from parent commands
 
 ```
+      --api-ca string          the path to a PEM file to trust for the api endpoint in addition to the system CAs
       --api-token string       the token used for api requests
       --api-url string         the url to the metal-stack.io api
   -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)

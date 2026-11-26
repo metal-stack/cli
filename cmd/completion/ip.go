@@ -7,9 +7,15 @@ import (
 )
 
 func (c *Completion) Ip(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.Client.Apiv2().IP().List(cmd.Context(), &apiv2.IPServiceListRequest{
+	req := &apiv2.IPServiceListRequest{
 		Project: c.Proj,
-	})
+	}
+
+	if project, _ := cmd.Flags().GetString("project"); project != "" {
+		req.Project = project
+	}
+
+	resp, err := c.Client.Apiv2().IP().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
