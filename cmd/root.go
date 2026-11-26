@@ -172,7 +172,7 @@ func newApiClient(c *config.Config, token string) (client.Client, error) {
 		caPEM, err := os.ReadFile(apiCA)
 
 		if err != nil {
-			return nil, fmt.Errorf("failed to read file %q: %w", apiCA, err)
+			return nil, fmt.Errorf("failed to read api-ca file: %w", err)
 		}
 		pool, err := x509.SystemCertPool()
 
@@ -180,7 +180,7 @@ func newApiClient(c *config.Config, token string) (client.Client, error) {
 			return nil, fmt.Errorf("failed to load system certificate: %w", err)
 		}
 		if ok := pool.AppendCertsFromPEM(caPEM); !ok {
-			return nil, fmt.Errorf("failed to append pem certificate: %q", apiCA)
+			return nil, fmt.Errorf("no valid CA found: %q", apiCA)
 		}
 		tlsConfig := &tls.Config{
 			RootCAs: pool,
