@@ -141,7 +141,7 @@ func initConfigWithViperCtx(c *config.Config) error {
 		return nil
 	}
 
-	mc, err := newApiClient(c, c.GetToken())
+	mc, err := newApiClient(c)
 	if err != nil {
 		return err
 	}
@@ -152,9 +152,10 @@ func initConfigWithViperCtx(c *config.Config) error {
 	return nil
 }
 
-func newApiClient(c *config.Config, token string) (client.Client, error) {
+func newApiClient(c *config.Config) (client.Client, error) {
 	apiURL := c.GetApiURL()
 	apiCA := c.GetApiCA()
+	token := c.GetToken()
 
 	logLevel := slog.LevelInfo
 	if viper.GetBool("debug") {
