@@ -35,9 +35,15 @@ func (c *Completion) TenantRole(cmd *cobra.Command, args []string, toComplete st
 }
 
 func (c *Completion) TenantInvite(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	projectResp, err := c.Client.Apiv2().Project().Get(cmd.Context(), &apiv2.ProjectServiceGetRequest{
+	req := &apiv2.ProjectServiceGetRequest{
 		Project: c.Proj,
-	})
+	}
+
+	if project, _ := cmd.Flags().GetString("project"); project != "" {
+		req.Project = project
+	}
+
+	projectResp, err := c.Client.Apiv2().Project().Get(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -59,9 +65,15 @@ func (c *Completion) TenantInvite(cmd *cobra.Command, args []string, toComplete 
 }
 
 func (c *Completion) TenantMember(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	projectResp, err := c.Client.Apiv2().Project().Get(cmd.Context(), &apiv2.ProjectServiceGetRequest{
+	req := &apiv2.ProjectServiceGetRequest{
 		Project: c.Proj,
-	})
+	}
+
+	if project, _ := cmd.Flags().GetString("project"); project != "" {
+		req.Project = project
+	}
+
+	projectResp, err := c.Client.Apiv2().Project().Get(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}

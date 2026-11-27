@@ -15,6 +15,7 @@ manage sizes which defines the cpu, gpu, memory and storage properties of machin
 ### Options inherited from parent commands
 
 ```
+      --api-ca string              the path to a PEM file to trust for the api endpoint in addition to the system CAs
       --api-token string           the token used for api requests
       --api-url string             the url to the metal-stack.io api
   -c, --config string              alternative config file path, (default is ~/.metal-stack/config.yaml)
@@ -30,4 +31,5 @@ manage sizes which defines the cpu, gpu, memory and storage properties of machin
 * [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
 * [metalctlv2 size describe](metalctlv2_size_describe.md)	 - describes the size
 * [metalctlv2 size list](metalctlv2_size_list.md)	 - list all sizes
+* [metalctlv2 size reservation](metalctlv2_size_reservation.md)	 - manage reservation entities
 

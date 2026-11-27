@@ -26,6 +26,7 @@ type Contexts struct {
 type Context struct {
 	Name           string         `json:"name"`
 	ApiURL         *string        `json:"api-url,omitempty"`
+	ApiCA          *string        `json:"api-ca,omitempty"`
 	Token          string         `json:"api-token"`
 	DefaultProject string         `json:"default-project"`
 	Timeout        *time.Duration `json:"timeout,omitempty"`
@@ -133,6 +134,7 @@ func (c *Config) MustDefaultContext() Context {
 func defaultCtx() Context {
 	return Context{
 		ApiURL: pointer.PointerOrNil(viper.GetString("api-url")),
+		ApiCA:  pointer.PointerOrNil(viper.GetString("api-ca")),
 		Token:  viper.GetString("api-token"),
 	}
 }

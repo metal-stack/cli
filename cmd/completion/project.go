@@ -36,9 +36,15 @@ func (c *Completion) ProjectRole(cmd *cobra.Command, args []string, toComplete s
 }
 
 func (c *Completion) ProjectInvite(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.Client.Apiv2().Project().InvitesList(cmd.Context(), &apiv2.ProjectServiceInvitesListRequest{
+	req := &apiv2.ProjectServiceInvitesListRequest{
 		Project: c.Proj,
-	})
+	}
+
+	if project, _ := cmd.Flags().GetString("project"); project != "" {
+		req.Project = project
+	}
+
+	resp, err := c.Client.Apiv2().Project().InvitesList(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
@@ -53,9 +59,15 @@ func (c *Completion) ProjectInvite(cmd *cobra.Command, args []string, toComplete
 }
 
 func (c *Completion) ProjectMember(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.Client.Apiv2().ProjectMember().List(cmd.Context(), &apiv2.ProjectMemberServiceListRequest{
+	req := &apiv2.ProjectMemberServiceListRequest{
 		Project: c.Proj,
-	})
+	}
+
+	if project, _ := cmd.Flags().GetString("project"); project != "" {
+		req.Project = project
+	}
+
+	resp, err := c.Client.Apiv2().ProjectMember().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}

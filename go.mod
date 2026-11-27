@@ -1,6 +1,6 @@
 module github.com/metal-stack/cli
 
-go 1.27.3
+go 1.27.4
 
 require (
 	connectrpc.com/connect v1.21.1
@@ -88,7 +88,7 @@ require (
 	github.com/tailscale/hujson v0.0.0-20260727124030-b80ff77dac4f // indirect
 	github.com/tailscale/peercred v0.0.0-20250107143737-35a0c7bd7edc // indirect
 	github.com/tailscale/web-client-prebuilt v0.0.0-20260917222731-e0ed2d0d0fea // indirect
-	github.com/tailscale/wireguard-go v0.0.0-20260928213032-417aef361226 // indirect
+	github.com/tailscale/wireguard-go v0.0.0-20261106233718-9e0ab45c16ca // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/zeebo/xxh3 v1.1.1-0.20261118193009-e05079abbd7d // indirect
 	go.yaml.in/yaml/v2 v2.4.5 // indirect
@@ -113,5 +113,5 @@ require (
 	gvisor.dev/gvisor v0.0.0-20260915211658-a6f909f08a72 // indirect
 	k8s.io/apimachinery v0.37.2 // indirect
 	sigs.k8s.io/json v0.0.0-20260909141634-11ed52e25bc5 // indirect
-	tailscale.com v1.104.5 // indirect
+	tailscale.com v1.104.7 // indirect
 )

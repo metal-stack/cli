@@ -10,6 +10,7 @@ metalctlv2 context add <context-name> [flags]
 
 ```
       --activate[=true|false]    immediately switches to the new context
+      --api-ca string            sets the path to a PEM file with a CA in addition to the system CAs for this context
       --api-token string         sets the api-token for this context
       --api-url string           sets the api-url for this context
       --default-project string   sets a default project to act on
