@@ -10,6 +10,7 @@ import (
 
 func (c *Completion) Token(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	req := &apiv2.TokenServiceListRequest{}
+
 	resp, err := c.Client.Apiv2().Token().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError

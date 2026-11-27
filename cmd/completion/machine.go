@@ -7,9 +7,15 @@ import (
 )
 
 func (c *Completion) Machine(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	resp, err := c.Client.Apiv2().Machine().List(cmd.Context(), &apiv2.MachineServiceListRequest{
+	req := &apiv2.MachineServiceListRequest{
 		Project: c.Proj,
-	})
+	}
+
+	if project, _ := cmd.Flags().GetString("project"); project != "" {
+		req.Project = project
+	}
+
+	resp, err := c.Client.Apiv2().Machine().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}

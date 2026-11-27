@@ -9,15 +9,21 @@ import (
 )
 
 func (c *Completion) Network(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	ownNetworks, err := c.Client.Apiv2().Network().List(cmd.Context(), &apiv2.NetworkServiceListRequest{
+	req := &apiv2.NetworkServiceListRequest{
 		Project: c.Proj,
-	})
+	}
+
+	if project, _ := cmd.Flags().GetString("project"); project != "" {
+		req.Project = project
+	}
+
+	ownNetworks, err := c.Client.Apiv2().Network().List(cmd.Context(), req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
 	}
 
 	baseNetworks, err := c.Client.Apiv2().Network().ListBaseNetworks(cmd.Context(), &apiv2.NetworkServiceListBaseNetworksRequest{
-		Project: c.Proj,
+		Project: req.Project,
 	})
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveError
