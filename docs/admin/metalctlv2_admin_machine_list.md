@@ -39,7 +39,7 @@ metalctlv2 admin machine list [flags]
       --disk-names strings                     disk names which machines should have
       --disk-sizes ints                        disk sizes which machines should have
       --filesystem-layout string               filesystem layout from machines which should be listed
-  -h, --help                                   help for list
+  -h, --help[=true|false]                      help for list
       --hostname string                        hostname from machines which should be listed
       --id string                              id of machine which should be listed
       --image string                           image
@@ -56,9 +56,9 @@ metalctlv2 admin machine list [flags]
       --nic-names strings                      nic names which machines should have
       --nic-neighbor-macs strings              nic neighbor macs which machines should have
       --nic-neighbor-names strings             nic neighbor names which machines should have
-      --not-allocated                          only list not allocated machines. [admin only]
+      --not-allocated[=true|false]             only list not allocated machines. [admin only]
       --partition string                       partition from where machines should be listed
-      --preallocated                           only list preallocated machines. [admin only]
+      --preallocated[=true|false]              only list preallocated machines. [admin only]
       --product-manufacturer string            product manufacturer from machines which should be listed
       --product-part-number string             product part number from machines which should be listed
       --product-serial string                  product serial from machines which should be listed
@@ -69,24 +69,24 @@ metalctlv2 admin machine list [flags]
       --sort-by strings                        sort by (comma separated) column(s), sort direction can be changed by appending :asc or :desc behind the column identifier. possible values: age|image|partition|project|rack|size|uuid
       --state string                           state from machines which should be listed, e.g. available|tainted|locked
       --vpn-auth-key string                    vpn auth key from machines which should be listed
-      --vpn-connected                          only list machines which are connected to the vpn
+      --vpn-connected[=true|false]             only list machines which are connected to the vpn
       --vpn-control-plane-address string       vpn control plane address from machines which should be listed
       --vpn-ips strings                        vpn ips which machines should have
-      --waiting                                only list waiting machines. [admin only]
+      --waiting[=true|false]                   only list waiting machines. [admin only]
 ```
 
 ### Options inherited from parent commands
 
 ```
-      --api-ca string          the path to a PEM file to trust for the api endpoint in addition to the system CAs
-      --api-token string       the token used for api requests
-      --api-url string         the url to the metal-stack.io api
-  -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
-      --debug                  debug output
-      --force-color            force colored output even without tty
-  -o, --output-format string   output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
-      --template string        output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
-      --timeout duration       request timeout used for api requests
+      --api-ca string              the path to a PEM file to trust for the api endpoint in addition to the system CAs
+      --api-token string           the token used for api requests
+      --api-url string             the url to the metal-stack.io api
+  -c, --config string              alternative config file path, (default is ~/.metal-stack/config.yaml)
+      --debug[=true|false]         debug output
+      --force-color[=true|false]   force colored output even without tty
+  -o, --output-format string       output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
+      --template string            output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
+      --timeout duration           request timeout used for api requests
 ```
 
 ### SEE ALSO

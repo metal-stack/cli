@@ -15,7 +15,7 @@ The command will show the machines connected to the switch ports.
 ### Options
 
 ```
-  -h, --help                                  help for connected-machines
+  -h, --help[=true|false]                     help for connected-machines
       --id string                             ID of the switch.
       --last-event-error-threshold duration   the duration up to how long in the past a machine last event error will be counted as an issue [optional] (default 1h0m0s)
       --partition string                      Partition of this switch.
@@ -25,15 +25,15 @@ The command will show the machines connected to the switch ports.
 ### Options inherited from parent commands
 
 ```
-      --api-ca string          the path to a PEM file to trust for the api endpoint in addition to the system CAs
-      --api-token string       the token used for api requests
-      --api-url string         the url to the metal-stack.io api
-  -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
-      --debug                  debug output
-      --force-color            force colored output even without tty
-  -o, --output-format string   output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
-      --template string        output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
-      --timeout duration       request timeout used for api requests
+      --api-ca string              the path to a PEM file to trust for the api endpoint in addition to the system CAs
+      --api-token string           the token used for api requests
+      --api-url string             the url to the metal-stack.io api
+  -c, --config string              alternative config file path, (default is ~/.metal-stack/config.yaml)
+      --debug[=true|false]         debug output
+      --force-color[=true|false]   force colored output even without tty
+  -o, --output-format string       output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
+      --template string            output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
+      --timeout duration           request timeout used for api requests
 ```
 
 ### SEE ALSO

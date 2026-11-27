@@ -69,20 +69,17 @@ func Test_AdminSizeReservationCmd_Describe(t *testing.T) {
 	tests := []*e2e.Test[adminv2.SizeReservationServiceListResponse, *apiv2.SizeReservation]{
 		{
 			Name:    "describe",
-			CmdArgs: []string{"admin", "size", "reservation", "describe", testresources.SizeReservation1().Id},
+			CmdArgs: []string{"admin", "size", "reservation", "describe", testresources.SizeReservation1().Id, "--project", testresources.SizeReservation1().Project},
 			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
 				ClientCalls: []client.ClientCall{
 					{
-						WantRequest: &adminv2.SizeReservationServiceListRequest{
-							Query: &apiv2.SizeReservationQuery{
-								Id: new(testresources.SizeReservation1().Id),
-							},
+						WantRequest: &apiv2.SizeReservationServiceGetRequest{
+							Id:      testresources.SizeReservation1().Id,
+							Project: testresources.SizeReservation1().Project,
 						},
 						WantResponse: func() connect.AnyResponse {
-							return connect.NewResponse(&adminv2.SizeReservationServiceListResponse{
-								SizeReservations: []*apiv2.SizeReservation{
-									testresources.SizeReservation1(),
-								},
+							return connect.NewResponse(&apiv2.SizeReservationServiceGetResponse{
+								SizeReservation: testresources.SizeReservation1(),
 							})
 						},
 					},

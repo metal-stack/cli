@@ -72,6 +72,11 @@ func newSizeReservationCmd(c *config.Config) *cobra.Command {
 
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("partitions", c.Completion.Partition))
 		},
+		DescribeCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().StringP("project", "p", "", "project of the size reservation")
+
+			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
+		},
 		UpdateRequestFromCLI: w.updateRequestFromCLI,
 	}
 
@@ -82,23 +87,20 @@ func (c *sizeReservation) Get(id string) (*apiv2.SizeReservation, error) {
 	ctx, cancel := c.c.NewRequestContext()
 	defer cancel()
 
-	// the admin api does not offer a dedicated get call for size reservations,
-	// so we filter the list by the given id.
-	resp, err := c.c.Client.Adminv2().SizeReservation().List(ctx, &adminv2.SizeReservationServiceListRequest{
-		Query: &apiv2.SizeReservationQuery{
-			Id: new(id),
-		},
+	project := c.c.GetProject()
+	if project == "" {
+		return nil, fmt.Errorf("project must be given")
+	}
+
+	resp, err := c.c.Client.Apiv2().SizeReservation().Get(ctx, &apiv2.SizeReservationServiceGetRequest{
+		Id:      id,
+		Project: project,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get size reservation: %w", err)
 	}
 
-	reservations := resp.GetSizeReservations()
-	if len(reservations) == 0 {
-		return nil, fmt.Errorf("size reservation %q not found", id)
-	}
-
-	return reservations[0], nil
+	return resp.SizeReservation, nil
 }
 
 func (c *sizeReservation) List() ([]*apiv2.SizeReservation, error) {
