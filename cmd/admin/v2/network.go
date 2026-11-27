@@ -1,6 +1,9 @@
 package v2
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/metal-stack/api/go/enum"
 	"github.com/metal-stack/api/go/errorutil"
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
@@ -102,8 +105,16 @@ func newNetworkCmd(c *config.Config) *cobra.Command {
 			genericcli.Must(cmd.RegisterFlagCompletionFunc("project", c.Completion.Project))
 		},
 	}
+	issuesCmd := &cobra.Command{
+		Use:   "issues",
+		Short: "execute a read only check for network and ip inconsistencies",
+		Long:  "identifies inconsistencies between metal networks and ips and ipam networks and ips",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return w.issues(cmd.Context())
+		},
+	}
 
-	return genericcli.NewCmds(cmdsConfig)
+	return genericcli.NewCmds(cmdsConfig, issuesCmd)
 }
 
 func (c *networkCmd) Get(id string) (*apiv2.Network, error) {
@@ -435,4 +446,36 @@ func (c *networkCmd) updateRequestFromCLI(args []string) (*adminv2.NetworkServic
 	)
 
 	return ur, nil
+}
+
+func (c networkCmd) issues(ctx context.Context) (err error) {
+	result, err := c.c.Client.Adminv2().Network().Issues(ctx, &adminv2.NetworkServiceIssuesRequest{})
+	if err != nil {
+		return err
+	}
+
+	_ = c.c.DescribePrinter.Print(result)
+
+	if len(result.NetworksMissingInMetal) > 0 {
+		_, _ = fmt.Fprint(c.c.Out, `run the following command inside of a pod of the ipam deployment to get the list of existing prefixes:
+kubectl exec -it ipam-xxx-yyy -- /cli prefix list
+
+then select one of the networks listed in networksMissingInMetal and delete it in ipam with
+kubectl exec -it ipam-xxx-yyy -- /cli prefix delete --cidr 1.2.3.0/24 [--namespace optional-namespace]
+
+
+`)
+	}
+	if len(result.IpsMissingInMetal) > 0 {
+		_, _ = fmt.Fprint(c.c.Out, `run the following command inside of a pod of the ipam deployment to get the list of existing ips:
+kubectl exec -it ipam-xxx-yyy -- /cli ip list --prefix prefix-of-the-given-metal-network
+
+then select one of the ips listed in ipsMissingInMetal and delete it in ipam with
+kubectl exec -it ipam-xxx-yyy -- /cli ip release --ip 1.2.3.4 --prefix 1.2.3.0/24 [--namespace optional-namespace]
+
+
+`)
+	}
+
+	return
 }

@@ -389,3 +389,104 @@ func Test_AdminNetworkCmd_Update(t *testing.T) {
 		tt.TestCmd(t)
 	}
 }
+
+func Test_AdminNetwork_Issues(t *testing.T) {
+	response := &adminv2.NetworkServiceIssuesResponse{
+		NetworksMissingInIpam:  []*apiv2.Network{testresources.Network1()},
+		NetworksMissingInMetal: []*apiv2.Network{testresources.Network2()},
+		IpsMissingInIpam:       []*apiv2.IP{testresources.IP1()},
+		IpsMissingInMetal:      []*apiv2.IP{testresources.IP2()},
+	}
+
+	tests := []*e2e.Test[adminv2.NetworkServiceIssuesResponse, *adminv2.NetworkServiceIssuesResponse]{
+		{
+			Name:    "network-issues",
+			CmdArgs: []string{"admin", "network", "issues"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.NetworkServiceIssuesRequest{},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(response)
+						},
+					},
+				},
+			}),
+			WantDefault: new(`
+networksMissingInIpam:
+    - id: 6988ebb0-9531-4f9b-a893-d7868258e2ef
+      meta:
+        labels:
+            labels:
+                cluster.metal-stack.io/id/namespace/service: <cluster>/default/ingress-nginx
+        createdAt: "2000-01-01T00:00:00Z"
+      name: internet
+      description: internet network
+      partition: partition-1
+      project: 0d81bca7-73f6-4da3-8397-4a8c52a0c583
+      prefixes:
+        - 10.0.0.0/16
+        - 2001:db8::/32
+      type: NETWORK_TYPE_EXTERNAL
+      natType: NAT_TYPE_NONE
+networksMissingInMetal:
+    - id: d83ffb0a-7aa6-4a66-8e03-0b5ee8b718a0
+      meta:
+        labels:
+            labels:
+                a: b
+        createdAt: "2000-01-01T00:00:00Z"
+      name: private
+      description: private network
+      partition: partition-1
+      project: f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c
+      prefixes:
+        - 192.168.1.0/24
+      type: NETWORK_TYPE_CHILD
+      natType: NAT_TYPE_IPV4_MASQUERADE
+      vrf: 100
+      parentNetwork: 6988ebb0-9531-4f9b-a893-d7868258e2ef
+ipsMissingInIpam:
+    - uuid: 2e0144a2-09ef-42b7-b629-4263295db6e8
+      meta:
+        labels:
+            labels:
+                cluster.metal-stack.io/id/namespace/service: <cluster>/default/ingress-nginx
+      ip: 1.1.1.1
+      name: aa
+      description: a description
+      network: internet
+      project: ce19a655-7933-4745-8f3e-9592b4a90488
+      type: IP_TYPE_STATIC
+ipsMissingInMetal:
+    - uuid: 9cef40ec-29c6-4dfa-aee8-47ee1f49223d
+      meta:
+        labels:
+            labels:
+                a: b
+      ip: 4.3.2.1
+      name: bb
+      description: b description
+      network: internet
+      project: 46bdfc45-9c8d-4268-b359-b40e3079d384
+      type: IP_TYPE_EPHEMERAL
+run the following command inside of a pod of the ipam deployment to get the list of existing prefixes:
+kubectl exec -it ipam-xxx-yyy -- /cli prefix list
+
+then select one of the networks listed in networksMissingInMetal and delete it in ipam with
+kubectl exec -it ipam-xxx-yyy -- /cli prefix delete --cidr 1.2.3.0/24 [--namespace optional-namespace]
+
+
+run the following command inside of a pod of the ipam deployment to get the list of existing ips:
+kubectl exec -it ipam-xxx-yyy -- /cli ip list --prefix prefix-of-the-given-metal-network
+
+then select one of the ips listed in ipsMissingInMetal and delete it in ipam with
+kubectl exec -it ipam-xxx-yyy -- /cli ip release --ip 1.2.3.4 --prefix 1.2.3.0/24 [--namespace optional-namespace]
+
+			`),
+		},
+	}
+	for _, tt := range tests {
+		tt.TestCmd(t)
+	}
+}

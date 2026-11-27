@@ -34,6 +34,7 @@ networks can be attached to a machine or firewall such that they can communicate
 * [metalctlv2 admin network delete](metalctlv2_admin_network_delete.md)	 - deletes the network
 * [metalctlv2 admin network describe](metalctlv2_admin_network_describe.md)	 - describes the network
 * [metalctlv2 admin network edit](metalctlv2_admin_network_edit.md)	 - edit the network through an editor and update
+* [metalctlv2 admin network issues](metalctlv2_admin_network_issues.md)	 - execute a read only check for network and ip inconsistencies
 * [metalctlv2 admin network list](metalctlv2_admin_network_list.md)	 - list all networks
 * [metalctlv2 admin network update](metalctlv2_admin_network_update.md)	 - updates the network
 
