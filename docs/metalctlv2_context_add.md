@@ -9,11 +9,11 @@ metalctlv2 context add <context-name> [flags]
 ### Options
 
 ```
-      --activate                 immediately switches to the new context
+      --activate[=true|false]    immediately switches to the new context
       --api-token string         sets the api-token for this context
       --api-url string           sets the api-url for this context
       --default-project string   sets a default project to act on
-  -h, --help                     help for add
+  -h, --help[=true|false]        help for add
       --provider string          sets the login provider for this context
       --timeout duration         sets a default request timeout
 ```
@@ -21,11 +21,11 @@ metalctlv2 context add <context-name> [flags]
 ### Options inherited from parent commands
 
 ```
-  -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
-      --debug                  debug output
-      --force-color            force colored output even without tty
-  -o, --output-format string   output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
-      --template string        output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
+  -c, --config string              alternative config file path, (default is ~/.metal-stack/config.yaml)
+      --debug[=true|false]         debug output
+      --force-color[=true|false]   force colored output even without tty
+  -o, --output-format string       output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
+      --template string            output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
 ```
 
 ### SEE ALSO

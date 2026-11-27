@@ -2,7 +2,6 @@ package v2
 
 import (
 	"context"
-	"fmt"
 
 	adminv2 "github.com/metal-stack/api/go/metalstack/admin/v2"
 	"github.com/metal-stack/cli/cmd/config"
@@ -51,19 +50,9 @@ func newHousekeepingCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	networksConsistentCmd := &cobra.Command{
-		Use:   "networks-consistent",
-		Short: "execute a read only check for network and ip inconsistencies",
-		Long:  "identifies inconsistencies between metal networks and ips and ipam networks and ips",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return w.networksConsistent(cmd.Context())
-		},
-	}
-
 	housekeepingCmd.AddCommand(machineLivelinessCmd)
 	housekeepingCmd.AddCommand(machineVPNConnectedCmd)
 	housekeepingCmd.AddCommand(machineResurrectCmd)
-	housekeepingCmd.AddCommand(networksConsistentCmd)
 
 	return housekeepingCmd
 }
@@ -93,36 +82,4 @@ func (h *housekeeping) machineResurrect(ctx context.Context) (err error) {
 	}
 
 	return h.c.ListPrinter.Print(result.ModifiedMachines)
-}
-
-func (h *housekeeping) networksConsistent(ctx context.Context) (err error) {
-	result, err := h.c.Client.Adminv2().Housekeeping().NetworksConsistent(ctx, &adminv2.HousekeepingServiceNetworksConsistentRequest{})
-	if err != nil {
-		return err
-	}
-
-	_ = h.c.DescribePrinter.Print(result)
-
-	if len(result.NetworksMissingInMetal) > 0 {
-		_, _ = fmt.Fprint(h.c.Out, `run the following command inside of a pod of the ipam deployment to get the list of existing prefixes:
-kubectl exec -it ipam-xxx-yyy -- /cli prefix list
-
-then select one of the networks listed in networksMissingInMetal and delete it in ipam with
-kubectl exec -it ipam-xxx-yyy -- /cli prefix delete --cidr 1.2.3.0/24 [--namespace optional-namespace]
-
-
-`)
-	}
-	if len(result.IpsMissingInMetal) > 0 {
-		_, _ = fmt.Fprint(h.c.Out, `run the following command inside of a pod of the ipam deployment to get the list of existing ips:
-kubectl exec -it ipam-xxx-yyy -- /cli ip list --prefix prefix-of-the-given-metal-network
-
-then select one of the ips listed in ipsMissingInMetal and delete it in ipam with
-kubectl exec -it ipam-xxx-yyy -- /cli ip release --ip 1.2.3.4 --prefix 1.2.3.0/24 [--namespace optional-namespace]
-
-
-`)
-	}
-
-	return
 }

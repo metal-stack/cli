@@ -9,7 +9,7 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/metal-stack/api v0.10.1-0.20261124151059-2485f175e693
+	github.com/metal-stack/api v0.10.2-0.20261127171451-01b7a0c979ba
 	github.com/metal-stack/metal-console v0.8.2
 	github.com/metal-stack/metal-lib v0.26.4
 	github.com/metal-stack/v v1.0.3
@@ -67,7 +67,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.31 // indirect
 	github.com/mdlayher/netlink v1.11.2 // indirect
 	github.com/mdlayher/socket v0.8.0 // indirect
-	github.com/minio/minlz v1.3.0 // indirect
+	github.com/minio/minlz v1.3.1 // indirect
 	github.com/mitchellh/go-ps v1.0.0 // indirect
 	github.com/oklog/ulid/v2 v2.1.2 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect
@@ -90,7 +90,7 @@ require (
 	github.com/tailscale/web-client-prebuilt v0.0.0-20260917222731-e0ed2d0d0fea // indirect
 	github.com/tailscale/wireguard-go v0.0.0-20260928213032-417aef361226 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	github.com/zeebo/xxh3 v1.1.1-0.20260908150653-f7225998cebf // indirect
+	github.com/zeebo/xxh3 v1.1.1-0.20261118193009-e05079abbd7d // indirect
 	go.yaml.in/yaml/v2 v2.4.5 // indirect
 	go.yaml.in/yaml/v3 v3.0.6 // indirect
 	go4.org/mem v0.0.0-20240501181205-ae6ca9944745 // indirect

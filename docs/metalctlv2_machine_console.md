@@ -9,8 +9,8 @@ metalctlv2 machine console [flags]
 ### Options
 
 ```
-  -h, --help                     help for console
-      --ipmi                     if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present and the machine bmc being accessible from the local machine)
+  -h, --help[=true|false]        help for console
+      --ipmi[=true|false]        if set to true, the serial console will be opened using ipmitool (requires ipmitool to be present and the machine bmc being accessible from the local machine)
       --metal-console-port int   the metal-console tcp port in the control-plane to connect via ssh to get machine console access (default 5222)
   -p, --project string           project of the machine
   -i, --sshidentity string       the ssh private key used when creating the machine
@@ -19,14 +19,14 @@ metalctlv2 machine console [flags]
 ### Options inherited from parent commands
 
 ```
-      --api-token string       the token used for api requests
-      --api-url string         the url to the metal-stack.io api
-  -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
-      --debug                  debug output
-      --force-color            force colored output even without tty
-  -o, --output-format string   output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
-      --template string        output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
-      --timeout duration       request timeout used for api requests
+      --api-token string           the token used for api requests
+      --api-url string             the url to the metal-stack.io api
+  -c, --config string              alternative config file path, (default is ~/.metal-stack/config.yaml)
+      --debug[=true|false]         debug output
+      --force-color[=true|false]   force colored output even without tty
+  -o, --output-format string       output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
+      --template string            output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
+      --timeout duration           request timeout used for api requests
 ```
 
 ### SEE ALSO
