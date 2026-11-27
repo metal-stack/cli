@@ -153,6 +153,11 @@ func (t *TablePrinter) ToHeaderAndRows(data any, wide bool) ([]string, [][]strin
 	case []*apiv2.Size:
 		return t.SizeTable(d, wide)
 
+	case *apiv2.SizeReservation:
+		return t.SizeReservationTable(pointer.WrapInSlice(d), wide)
+	case []*apiv2.SizeReservation:
+		return t.SizeReservationTable(d, wide)
+
 	case []*apiv2.Switch:
 		return t.SwitchTable(d, wide)
 	case []SwitchDetail:

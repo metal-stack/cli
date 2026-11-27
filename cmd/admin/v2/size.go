@@ -42,7 +42,7 @@ func newSizeCmd(c *config.Config) *cobra.Command {
 		},
 	}
 
-	return genericcli.NewCmds(cmdsConfig)
+	return genericcli.NewCmds(cmdsConfig, newSizeReservationCmd(c))
 }
 
 func (c *size) Get(id string) (*apiv2.Size, error) {

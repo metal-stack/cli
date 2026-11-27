@@ -9,23 +9,23 @@ metalctlv2 project invite generate-join-secret [flags]
 ### Options
 
 ```
-  -h, --help             help for generate-join-secret
-  -p, --project string   the project for which to generate the invite
-      --role string      the role that the new member will assume when joining through the invite secret (default "PROJECT_ROLE_VIEWER")
+  -h, --help[=true|false]   help for generate-join-secret
+  -p, --project string      the project for which to generate the invite
+      --role string         the role that the new member will assume when joining through the invite secret (default "PROJECT_ROLE_VIEWER")
 ```
 
 ### Options inherited from parent commands
 
 ```
-      --api-ca string          the path to a PEM file to trust for the api endpoint in addition to the system CAs
-      --api-token string       the token used for api requests
-      --api-url string         the url to the metal-stack.io api
-  -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
-      --debug                  debug output
-      --force-color            force colored output even without tty
-  -o, --output-format string   output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
-      --template string        output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
-      --timeout duration       request timeout used for api requests
+      --api-ca string              the path to a PEM file to trust for the api endpoint in addition to the system CAs
+      --api-token string           the token used for api requests
+      --api-url string             the url to the metal-stack.io api
+  -c, --config string              alternative config file path, (default is ~/.metal-stack/config.yaml)
+      --debug[=true|false]         debug output
+      --force-color[=true|false]   force colored output even without tty
+  -o, --output-format string       output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
+      --template string            output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
+      --timeout duration           request timeout used for api requests
 ```
 
 ### SEE ALSO

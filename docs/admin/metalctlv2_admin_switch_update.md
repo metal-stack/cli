@@ -9,36 +9,36 @@ metalctlv2 admin switch update [flags]
 ### Options
 
 ```
-      --bulk-output             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
-  -f, --file string             filename of the create or update request in yaml format, or - for stdin.
-                                
-                                Example:
-                                $ metalctlv2 switch describe switch-1 -o yaml > switch.yaml
-                                $ vi switch.yaml
-                                $ # either via stdin
-                                $ cat switch.yaml | metalctlv2 switch update -f -
-                                $ # or via file
-                                $ metalctlv2 switch update -f switch.yaml
-                                
-                                the file can also contain multiple documents and perform a bulk operation.
-                                	
-  -h, --help                    help for update
-      --skip-security-prompts   skips security prompt for bulk operations
-      --timestamps              when used with --file (bulk operation): prints timestamps in-between the operations
+      --bulk-output[=true|false]             when used with --file (bulk operation): prints results at the end as a list. default is printing results intermediately during the operation, which causes single entities to be printed in a row.
+  -f, --file string                          filename of the create or update request in yaml format, or - for stdin.
+                                             
+                                             Example:
+                                             $ metalctlv2 switch describe switch-1 -o yaml > switch.yaml
+                                             $ vi switch.yaml
+                                             $ # either via stdin
+                                             $ cat switch.yaml | metalctlv2 switch update -f -
+                                             $ # or via file
+                                             $ metalctlv2 switch update -f switch.yaml
+                                             
+                                             the file can also contain multiple documents and perform a bulk operation.
+                                             	
+  -h, --help[=true|false]                    help for update
+      --skip-security-prompts[=true|false]   skips security prompt for bulk operations
+      --timestamps[=true|false]              when used with --file (bulk operation): prints timestamps in-between the operations
 ```
 
 ### Options inherited from parent commands
 
 ```
-      --api-ca string          the path to a PEM file to trust for the api endpoint in addition to the system CAs
-      --api-token string       the token used for api requests
-      --api-url string         the url to the metal-stack.io api
-  -c, --config string          alternative config file path, (default is ~/.metal-stack/config.yaml)
-      --debug                  debug output
-      --force-color            force colored output even without tty
-  -o, --output-format string   output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
-      --template string        output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
-      --timeout duration       request timeout used for api requests
+      --api-ca string              the path to a PEM file to trust for the api endpoint in addition to the system CAs
+      --api-token string           the token used for api requests
+      --api-url string             the url to the metal-stack.io api
+  -c, --config string              alternative config file path, (default is ~/.metal-stack/config.yaml)
+      --debug[=true|false]         debug output
+      --force-color[=true|false]   force colored output even without tty
+  -o, --output-format string       output format (table|wide|markdown|json|yaml|template), wide is a table with more columns. (default "table")
+      --template string            output template for template output-format, go template format. For property names inspect the output of -o json or -o yaml for reference.
+      --timeout duration           request timeout used for api requests
 ```
 
 ### SEE ALSO
