@@ -36,6 +36,7 @@ func newSizeReservationCmd(c *config.Config) *cobra.Command {
 		ListPrinter:     func() printers.Printer { return c.ListPrinter },
 		ValidArgsFn:     c.Completion.AdminSizeReservation,
 		ListCmdMutateFn: func(cmd *cobra.Command) {
+			cmd.Flags().String("id", "", "size reservation id to filter for")
 			cmd.Flags().String("name", "", "size reservation name to filter for")
 			cmd.Flags().String("description", "", "size reservation description to filter for")
 			cmd.Flags().String("size", "", "size id to filter for")
@@ -109,6 +110,7 @@ func (c *sizeReservation) List() ([]*apiv2.SizeReservation, error) {
 
 	req := &adminv2.SizeReservationServiceListRequest{
 		Query: &apiv2.SizeReservationQuery{
+			Id:          pointer.PointerOrNil(viper.GetString("id")),
 			Name:        pointer.PointerOrNil(viper.GetString("name")),
 			Description: pointer.PointerOrNil(viper.GetString("description")),
 			Size:        pointer.PointerOrNil(viper.GetString("size")),

@@ -59,6 +59,50 @@ b2c3d4e5-f6a7-8901-bcde-f12345678901 reservation-b
             | b2c3d4e5-f6a7-8901-bcde-f12345678901 | reservation-b | second reservation | f3b4e6a1-2c8d-4e5f-a7b9-1d3e5f7a9b0c | g1-medium-x86 | partition-2 | 1      |
 			`),
 		},
+		{
+			Name: "list with filters",
+			CmdArgs: []string{"admin", "size", "reservation", "list",
+				"--id", testresources.SizeReservation1().Id,
+				"--name", testresources.SizeReservation1().Name,
+				"--description", testresources.SizeReservation1().Description,
+				"--size", testresources.SizeReservation1().Size,
+				"--project", testresources.SizeReservation1().Project,
+				"--partition", testresources.SizeReservation1().Partitions[0],
+				"--labels", "a=b",
+			},
+			AssertExhaustiveArgs:     true,
+			AssertExhaustiveExcludes: []string{"sort-by"},
+			NewRootCmd: e2erootcmd.NewRootCmd(t, &e2erootcmd.TestConfig{
+				ClientCalls: []client.ClientCall{
+					{
+						WantRequest: &adminv2.SizeReservationServiceListRequest{
+							Query: &apiv2.SizeReservationQuery{
+								Id:          new(testresources.SizeReservation1().Id),
+								Name:        new(testresources.SizeReservation1().Name),
+								Description: new(testresources.SizeReservation1().Description),
+								Size:        new(testresources.SizeReservation1().Size),
+								Project:     new(testresources.SizeReservation1().Project),
+								Partition:   new(testresources.SizeReservation1().Partitions[0]),
+								Labels: &apiv2.Labels{
+									Labels: map[string]string{"a": "b"},
+								},
+							},
+						},
+						WantResponse: func() connect.AnyResponse {
+							return connect.NewResponse(&adminv2.SizeReservationServiceListResponse{
+								SizeReservations: []*apiv2.SizeReservation{
+									testresources.SizeReservation1(),
+								},
+							})
+						},
+					},
+				},
+			}),
+			Template: new("{{ .id }} {{ .name }}"),
+			WantTemplate: new(`
+a1b2c3d4-e5f6-7890-abcd-ef1234567890 reservation-a
+			`),
+		},
 	}
 	for _, tt := range tests {
 		tt.TestCmd(t)

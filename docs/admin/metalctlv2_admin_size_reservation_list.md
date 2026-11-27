@@ -11,6 +11,7 @@ metalctlv2 admin size reservation list [flags]
 ```
       --description string   size reservation description to filter for
   -h, --help[=true|false]    help for list
+      --id string            size reservation id to filter for
       --labels strings       labels to filter for
       --name string          size reservation name to filter for
       --partition string     partition id to filter for

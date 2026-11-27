@@ -21,3 +21,26 @@ func (c *Completion) AdminSizeReservation(cmd *cobra.Command, args []string, toC
 
 	return names, cobra.ShellCompDirectiveNoFileComp
 }
+
+func (c *Completion) SizeReservation(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	req := &apiv2.SizeReservationServiceListRequest{
+		Project: c.Proj,
+		Query:   &apiv2.SizeReservationQuery{},
+	}
+
+	if project, _ := cmd.Flags().GetString("project"); project != "" {
+		req.Project = project
+	}
+
+	resp, err := c.Client.Apiv2().SizeReservation().List(cmd.Context(), req)
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	var names []string
+	for _, r := range resp.SizeReservations {
+		names = append(names, r.Id+"\t"+r.Name)
+	}
+
+	return names, cobra.ShellCompDirectiveNoFileComp
+}

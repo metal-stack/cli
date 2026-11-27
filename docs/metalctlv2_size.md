@@ -31,4 +31,5 @@ manage sizes which defines the cpu, gpu, memory and storage properties of machin
 * [metalctlv2](metalctlv2.md)	 - cli for managing entities in metal-stack
 * [metalctlv2 size describe](metalctlv2_size_describe.md)	 - describes the size
 * [metalctlv2 size list](metalctlv2_size_list.md)	 - list all sizes
+* [metalctlv2 size reservation](metalctlv2_size_reservation.md)	 - manage reservation entities
 
